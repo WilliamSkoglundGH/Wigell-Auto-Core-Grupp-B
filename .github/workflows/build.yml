@@ -1,0 +1,22 @@
+name: Build
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Liberica JDK 8 with JavaFX
+        uses: actions/setup-java@v4
+        with:
+          distribution: liberica
+          java-version: '8'
+          java-package: jdk+fx
+
+      - name: Compile
+        run: |
+          mkdir -p build
+          javac -encoding UTF-8 -d build $(find src -name "*.java")
