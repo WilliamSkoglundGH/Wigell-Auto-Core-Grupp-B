@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx"
+<VBox spacing="10" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.wac.autocore.gui.controller.WorkOrderController">
 
@@ -17,9 +19,14 @@
                 <TableColumn fx:id="idColumn" text="ID" />
                 <TableColumn fx:id="bookingIdColumn" text="Booking ID" />
                 <TableColumn fx:id="mechanicIdColumn" text="Mechanic ID" />
-                <TableColumn fx:id="serviceItemIdsColumn" text="Service Item IDs" />
                 <TableColumn fx:id="statusColumn" text="Status" />
             </columns>
         </TableView>
+
+        <HBox spacing="10">
+            <Button text="Start" onAction="#handleStartWorkOrder" />
+            <Button text="Complete" onAction="#handleCompleteWorkOrder" />
+            <Button text="New" onAction="#handleNewWorkOrder" />
+        </HBox>
     </children>
 </VBox>
