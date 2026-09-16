@@ -1,0 +1,327 @@
+/* ==========================================================================
+   Styleguide – JavaFX Application
+   Version 1.0 · 2026-09-14
+
+   Kontrasterna nedan är verifierade mot WCAG 2.1 AAA (7:1 normal text,
+   4.5:1 stor text/UI) resp. AA icke-text (3:1). Se STYLEGUIDE.md avsnitt 3
+   för den fullständiga kontrastmatrisen och motiveringen bakom varje
+   härledd ton. Ändra ENDAST grundtokens i .root – låt derive() räkna
+   fram hover/pressed/border-varianter, så förblir källfärgerna den enda
+   sanningskällan.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------
+   1. Font (valfritt, se STYLEGUIDE.md 7.1 för Font.loadFont-alternativet
+   som är mer robust över JavaFX-versioner än @font-face nedan)
+   -------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------
+   2. Tokens (grundpalett, "looked-up colors")
+   -------------------------------------------------------------------- */
+.root {
+    /* Grundpalett – enda källan till sanning för färg */
+    -icy-blue:      #A9CEF4;
+    -black:         #000000;
+    -steel-blue:    #7EA0B7;
+    -bright-indigo: #1745CF;
+    -white:         #FFFFFF;
+
+    /* Härledda toner (beräknade, se STYLEGUIDE.md 2 för kontrastvärden) */
+    -accent-hover:    derive(-bright-indigo, -10%);   /* 8.64:1 mot vit text */
+    -accent-pressed:  derive(-bright-indigo, -20%);   /* 9.89:1 mot vit text */
+    -border-muted:    derive(-steel-blue, -35%);      /* 5.75:1 mot vit, 3.51:1 mot icy-blue */
+
+    /* Semantiska roller – använd dessa i komponentregler, inte rå-tokens */
+    -bg-base:         -white;
+    -bg-surface:      -icy-blue;
+    -bg-muted:        -steel-blue;
+    -text-primary:    -black;
+    -text-on-accent:  -white;
+    -text-link:       -bright-indigo;   /* endast mot -bg-base, se guide 3.1 */
+    -accent-default:  -bright-indigo;
+    -border-default:  -border-muted;
+    -border-strong:   -black;
+    -focus-ring:      -bright-indigo;
+
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+    -fx-background-color: -bg-base;
+    -fx-text-fill: -text-primary;
+}
+
+/* Generell fokusindikator (2 px kontur, 2 px avstånd) – gäller alla
+   interaktiva noder om inget annat anges. Ta aldrig bort denna helt. */
+.button:focused,
+.tab:focused,
+.text-area:focused,
+.combo-box:focused,
+.table-view:focused {
+    -fx-focus-color: -focus-ring;
+    -fx-faint-focus-color: transparent;
+}
+
+/* --------------------------------------------------------------------
+   3. Label
+   -------------------------------------------------------------------- */
+.label {
+    -fx-text-fill: -text-primary;
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-line-spacing: 6px; /* ≈1.5 radavstånd vid 14px, se guide 1.4.8 */
+}
+
+.label.heading-1 {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.label.heading-2 {
+    -fx-font-size: 22px;
+    -fx-font-weight: 600;
+}
+
+.label.heading-3 {
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+}
+
+.label.caption {
+    -fx-font-size: 12px;
+    -fx-opacity: 0.7;
+}
+
+/* --------------------------------------------------------------------
+   4. Tabs (TabPane / Tab)
+   -------------------------------------------------------------------- */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: -bg-base;
+}
+
+.tab-pane .tab {
+    -fx-background-color: -bg-base;
+    -fx-background-insets: 0;
+    -fx-padding: 10px 16px;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: -text-primary;
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+}
+
+.tab-pane .tab:hover {
+    -fx-background-color: -bg-surface;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: -white;
+    -fx-border-color: transparent transparent -accent-default transparent;
+    -fx-border-width: 0 0 3px 0;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: -text-primary;
+    -fx-font-weight: 600;
+}
+
+.tab-pane .tab:focused {
+    -fx-background-insets: 2px;
+    -fx-border-color: -focus-ring;
+    -fx-border-width: 2px;
+}
+
+/* --------------------------------------------------------------------
+   5. Button
+   -------------------------------------------------------------------- */
+
+/* Primärknapp (default) */
+.button {
+    -fx-background-color: -accent-default;
+    -fx-text-fill: -text-on-accent;             /* 7.53:1, AAA */
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 4px;
+    -fx-padding: 8px 18px;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: -accent-hover;
+}
+
+.button:pressed,
+.button:armed {
+    -fx-background-color: -accent-pressed;
+}
+
+.button:disabled {
+    -fx-opacity: 0.4;             /* undantaget kontrastkravet, WCAG 1.4.3 */
+    -fx-cursor: default;
+}
+
+.button:focused {
+    -fx-border-color: -focus-ring;
+    -fx-border-width: 2px;
+    -fx-border-insets: -2px;
+    -fx-background-insets: 0;
+}
+
+/* Sekundärknapp */
+.button.secondary {
+    -fx-background-color: -white;
+    -fx-text-fill: -text-primary;
+    -fx-border-color: -border-strong;
+    -fx-border-width: 1px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+
+.button.secondary:hover {
+    -fx-background-color: -bg-surface;
+}
+
+.button.secondary:pressed {
+    -fx-background-color: derive(-bg-surface, -15%);
+}
+
+.button.secondary:disabled {
+    -fx-opacity: 0.4;
+}
+
+/* --------------------------------------------------------------------
+   6. TableView
+   -------------------------------------------------------------------- */
+.table-view {
+    -fx-background-color: -white;
+    -fx-border-color: -border-default;
+    -fx-border-width: 1px;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: -bg-muted;             /* steel-blue, 7.60:1 med svart text */
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: -bg-muted;
+    -fx-border-color: transparent -border-default transparent transparent;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: -text-primary;
+    -fx-font-family: "Inter";
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.table-row-cell {
+    -fx-background-color: -white;
+    -fx-text-fill: -text-primary;
+    -fx-border-color: transparent transparent -border-default transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: -bg-surface;            /* icy-blue-zebra */
+}
+
+.table-row-cell:selected {
+    -fx-background-color: -accent-default;
+}
+
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: -text-on-accent;               /* 7.53:1, AAA */
+}
+
+.table-view:focused .table-row-cell:selected {
+    -fx-background-color: -accent-default;
+}
+
+.table-cell {
+    -fx-text-fill: -text-primary;
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+    -fx-padding: 8px 10px;
+}
+
+/* --------------------------------------------------------------------
+   7. TextArea
+   -------------------------------------------------------------------- */
+.text-area {
+    -fx-background-color: -white;
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+}
+
+.text-area .content {
+    -fx-background-color: -white;
+    -fx-border-color: -border-default;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-line-spacing: 6px;                        /* ≈1.5 radavstånd, WCAG 1.4.8 */
+}
+
+.text-area .text {
+    -fx-fill: -text-primary;
+}
+
+.text-area:focused .content {
+    -fx-border-color: -focus-ring;
+    -fx-border-width: 2px;
+}
+
+.text-area:disabled {
+    -fx-opacity: 0.4;
+}
+
+/* --------------------------------------------------------------------
+   8. ComboBox
+   -------------------------------------------------------------------- */
+.combo-box {
+    -fx-background-color: -white;
+    -fx-border-color: -border-default;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: -text-primary;
+    -fx-background-color: transparent;
+    -fx-padding: 6px 10px;
+}
+
+.combo-box:focused {
+    -fx-border-color: -focus-ring;
+    -fx-border-width: 2px;
+}
+
+.combo-box:disabled {
+    -fx-opacity: 0.4;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: -white;
+    -fx-border-color: -border-default;
+    -fx-border-width: 1px;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: -white;
+    -fx-text-fill: -text-primary;
+    -fx-padding: 6px 10px;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: -bg-surface;
+}
+
+.combo-box-popup .list-cell:filled:selected,
+.combo-box-popup .list-cell:filled:selected:hover {
+    -fx-background-color: -accent-default;
+    -fx-text-fill: -text-on-accent;               /* 7.53:1, AAA */
+}

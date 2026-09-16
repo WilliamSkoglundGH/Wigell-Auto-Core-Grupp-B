@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="mainRoot" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.wac.autocore.gui.controller.MainController"
+            prefHeight="600.0" prefWidth="800.0"
+            stylesheets="@style.css">
+    <!-- MENY TILL VÄNSTER -->
+    <left>
+        <VBox spacing="10" styleClass="sidebar">
+            <Label text="Wigell Auto" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;" />
+            <Button text="Kunder" onAction="#showCustomerView" prefWidth="120" />
+            <Button text="Fordon" onAction="#showVehicleView" prefWidth="120" />
+            <Button text="Bokningar" onAction="#showBookingView" prefWidth="120" />
+            <Button text="Fakturor" onAction="#showInvoiceView" prefWidth="120" />
+            <Button text="Arbetsordrar" onAction="#showWorkOrderView" prefWidth="120" />
+            <Button text="Payments" onAction="#showPaymentView" prefWidth="120" />
+            <Button text="ServiceItem" onAction="#showServiceItemView" prefWidth="120" />
+        </VBox>
+    </left>
+
+    <!-- CENTER (Här laddas respektive FXML dynamiskt) -->
+    <center>
+        <!-- Standardvyn när programmet startar -->
+        <VBox spacing="10" style="-fx-padding: 20;">
+            <Label text="Välkommen till verkstadssystemet! Välj ett alternativ till vänster." style="-fx-font-size: 16px;" />
+        </VBox>
+    </center>
+
+    <!-- SYSTEMLOGG I BOTTEN -->
+    <bottom>
+        <VBox spacing="5" style="-fx-padding: 10; -fx-background-color: #f4f4f4;">
+            <Label text="Systemlogg (System.out):" style="-fx-font-weight: bold;" />
+            <TextArea fx:id="consoleOutput" prefHeight="150.0" editable="false" wrapText="true" />
+        </VBox>
+    </bottom>
+
+</BorderPane>
