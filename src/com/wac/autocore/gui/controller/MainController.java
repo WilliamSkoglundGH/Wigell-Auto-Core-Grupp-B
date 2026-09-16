@@ -57,9 +57,10 @@ public class MainController {
         loadView("ServiceItemView.fxml");
     }
 
+
     private void loadView(String fxmlFileName) {
         try {
-            // Lägg till sökvägen från roten av dina resurser/paket
+
             String path = "/com/wac/autocore/gui/view/" + fxmlFileName;
             java.net.URL resourceUrl = getClass().getResource(path);
 

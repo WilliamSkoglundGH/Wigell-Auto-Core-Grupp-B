@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.wac.autocore.gui.controller.PaymentController"
-      spacing="10" style="-fx-padding: 20;">
+      fx:controller="com.wac.autocore.gui.controller.PaymentController">
 
-    <Label text="payment" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-    <Label text="Här kan du hantera registrerade payment i systemet." />
+    <children>
+        <Label text="Payment Management" styleClass="heading-2" />
 
+        <TableView fx:id="paymentTable">
+            <columns>
+                <TableColumn fx:id="idColumn" text="ID" />
+                <TableColumn fx:id="invoiceIdColumn" text="Invoice ID" />
+                <TableColumn fx:id="amountColumn" text="Amount" />
+                <TableColumn fx:id="paymentTypeColumn" text="Payment Type" />
+                <TableColumn fx:id="paymentDateColumn" text="Payment Date" />
+                <TableColumn fx:id="successfulColumn" text="Successful" />
+            </columns>
+        </TableView>
+    </children>
 </VBox>
