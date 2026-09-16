@@ -9,34 +9,33 @@
 <BorderPane fx:id="mainRoot" xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.wac.autocore.gui.controller.MainController"
-            prefHeight="600.0" prefWidth="800.0"
-            stylesheets="@style.css">
+            prefHeight="600.0" prefWidth="800.0">
     <!-- MENY TILL VÄNSTER -->
     <left>
         <VBox spacing="10" styleClass="sidebar">
-            <Label text="Wigell Auto" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;" />
-            <Button text="Kunder" onAction="#showCustomerView" prefWidth="120" />
-            <Button text="Fordon" onAction="#showVehicleView" prefWidth="120" />
-            <Button text="Bokningar" onAction="#showBookingView" prefWidth="120" />
-            <Button text="Fakturor" onAction="#showInvoiceView" prefWidth="120" />
-            <Button text="Arbetsordrar" onAction="#showWorkOrderView" prefWidth="120" />
+            <Label text="Wigell Auto"  />
+            <Button text="Customers" onAction="#showCustomerView" prefWidth="120" />
+            <Button text="Vehicles" onAction="#showVehicleView" prefWidth="120" />
+            <Button text="Bookings" onAction="#showBookingView" prefWidth="120" />
+            <Button text="Invoices" onAction="#showInvoiceView" prefWidth="120" />
+            <Button text="Workorders" onAction="#showWorkOrderView" prefWidth="120" />
             <Button text="Payments" onAction="#showPaymentView" prefWidth="120" />
-            <Button text="ServiceItem" onAction="#showServiceItemView" prefWidth="120" />
+            <Button text="Serviceitems" onAction="#showServiceItemView" prefWidth="120" />
         </VBox>
     </left>
 
     <!-- CENTER (Här laddas respektive FXML dynamiskt) -->
     <center>
         <!-- Standardvyn när programmet startar -->
-        <VBox spacing="10" style="-fx-padding: 20;">
-            <Label text="Välkommen till verkstadssystemet! Välj ett alternativ till vänster." style="-fx-font-size: 16px;" />
+        <VBox >
+            <Label text="Wellcome." />
         </VBox>
     </center>
 
     <!-- SYSTEMLOGG I BOTTEN -->
     <bottom>
-        <VBox spacing="5" style="-fx-padding: 10; -fx-background-color: #f4f4f4;">
-            <Label text="Systemlogg (System.out):" style="-fx-font-weight: bold;" />
+        <VBox spacing="5">
+            <Label text="Systemlogg (System.out):" />
             <TextArea fx:id="consoleOutput" prefHeight="150.0" editable="false" wrapText="true" />
         </VBox>
     </bottom>

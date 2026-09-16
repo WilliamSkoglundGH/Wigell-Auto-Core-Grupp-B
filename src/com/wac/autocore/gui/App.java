@@ -22,6 +22,7 @@ public class App extends Application {
         Parent root = FXMLLoader.load(fxmlLocation);
 
         Scene scene = new Scene(root, 800, 600);
+        scene.getStylesheets().add(getClass().getResource("styleguide.css").toExternalForm());
         stage.setTitle("Wigell Auto Core - Verkstadssystem");
         stage.setScene(scene);
         stage.show();
