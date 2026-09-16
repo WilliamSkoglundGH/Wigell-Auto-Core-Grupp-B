@@ -26,7 +26,7 @@
             <TextField fx:id="mechanicIdField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
         </GridPane>
 
-        <HBox spacing="10">
+        <HBox styleClass="button-spacing">
             <Button text="Save Work Order" onAction="#handleSaveWorkOrder" />
             <Button text="Cancel" onAction="#handleCancel" />
         </HBox>

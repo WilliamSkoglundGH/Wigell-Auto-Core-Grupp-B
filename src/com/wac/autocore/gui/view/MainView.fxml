@@ -12,8 +12,9 @@
             prefHeight="600.0" prefWidth="800.0">
     <!-- MENY TILL VÄNSTER -->
     <left>
-        <VBox spacing="10" styleClass="sidebar">
-            <Label text="Wigell Auto"  />
+        <VBox styleClass="button-spacing,text-center,container-padding-small">
+            <Label text="WAC" styleClass="heading-1"/>
+            <Label text="Wigell Auto Core" styleClass="caption"/>
             <Button text="Customers" onAction="#showCustomerView" prefWidth="120" />
             <Button text="Vehicles" onAction="#showVehicleView" prefWidth="120" />
             <Button text="Bookings" onAction="#showBookingView" prefWidth="120" />
@@ -25,10 +26,10 @@
     </left>
 
     <!-- CENTER (Här laddas respektive FXML dynamiskt) -->
-    <center>
+    <center >
         <!-- Standardvyn när programmet startar -->
-        <VBox >
-            <Label text="Wellcome." />
+        <VBox styleClass="text-center">
+            <Label text="Welcome" styleClass="heading-2" />
         </VBox>
     </center>
 

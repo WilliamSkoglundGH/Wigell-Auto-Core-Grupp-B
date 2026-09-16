@@ -35,7 +35,7 @@
             <TextField fx:id="customerIdField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
         </GridPane>
 
-        <HBox spacing="10">
+        <HBox styleClass="button-spacing">
             <Button text="Save Vehicle" onAction="#handleSaveVehicle" />
             <Button text="Cancel" onAction="#handleCancel" />
         </HBox>

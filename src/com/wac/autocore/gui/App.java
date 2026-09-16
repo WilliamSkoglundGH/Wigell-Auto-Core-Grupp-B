@@ -12,7 +12,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        // Läs in FXML med absolut sökväg från resources-mappen
+
         URL fxmlLocation = App.class.getResource("/com/wac/autocore/gui/view/MainView.fxml");
 
         if (fxmlLocation == null) {
