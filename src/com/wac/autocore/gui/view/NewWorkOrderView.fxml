@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <children>
+        <Label text="Add New Work Order" styleClass="heading-2" />
+
+        <GridPane hgap="10" vgap="10">
+            <Label text="Booking ID:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="bookingIdField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <Label text="Mechanic ID:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="mechanicIdField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        </GridPane>
+
+        <HBox spacing="10">
+            <Button text="Save Work Order" onAction="#handleSaveWorkOrder" />
+            <Button text="Cancel" onAction="#handleCancel" />
+        </HBox>
+    </children>
+</VBox>
