@@ -146,14 +146,6 @@ public class Database {
                 LocalDate.now().plusDays(4),
                 "Noise from front brakes"
         ));
-
-        workOrders.add(new WorkOrder(1, 1, 1));
-        workOrders.get(0).setStatus("COMPLETED");
-        workOrders.add(new WorkOrder(2, 1, 1));
-        workOrders.add(new WorkOrder(3, 1, 1));
-        invoices.add(new Invoice(1, 1, LocalDate.of(2026, 9, 12), 1200 ));
-        invoices.add(new Invoice(2, 1, LocalDate.of(2026, 9, 12), 1200 ));
-        invoices.add(new Invoice(3, 1, LocalDate.of(2026, 9, 12), 1200 ));
     }
 
     public static List<Customer> getCustomers() {
