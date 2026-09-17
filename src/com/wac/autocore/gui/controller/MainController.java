@@ -1,7 +1,5 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.gui.launcher.ConsoleRedirector;
-import com.wac.autocore.gui.launcher.GarageServiceBridge;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,62 +16,65 @@ public class MainController {
     @FXML
     private TextArea consoleOutput;
 
-    @FXML
-    public void initialize() {
-        // Omdirigera konsolen direkt vid start
-        ConsoleRedirector.redirectTo(consoleOutput);
-        System.out.println("Systemet startat med sidomeny-navigation.");
+    // ---------------------------------------------------------
+    // GENERIC VIEW LOADER
+    // ---------------------------------------------------------
+    private void loadView(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent view = loader.load();
+            mainRoot.setCenter(view);
+
+            log("Loaded view: " + fxmlPath);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            log("ERROR loading: " + fxmlPath + " -> " + e.getMessage());
+        }
     }
+
+    private void log(String msg) {
+        if (consoleOutput != null) {
+            consoleOutput.appendText(msg + "\n");
+        }
+    }
+
+    // ---------------------------------------------------------
+    // MENU BUTTON ACTIONS
+    // ---------------------------------------------------------
 
     @FXML
     private void showCustomerView() {
-        loadView("CustomerView.fxml");
+        loadView("/com/wac/autocore/gui/view/CustomerView.fxml");
     }
 
     @FXML
     private void showVehicleView() {
-        loadView("VehicleView.fxml");
+        loadView("/com/wac/autocore/gui/view/VehicleView.fxml");
     }
 
     @FXML
     private void showBookingView() {
-        loadView("BookingView.fxml");
+        loadView("/com/wac/autocore/gui/view/BookingView.fxml");
     }
+
     @FXML
     private void showInvoiceView() {
-        loadView("InvoiceView.fxml");
+        loadView("/com/wac/autocore/gui/view/InvoiceView.fxml");
     }
+
     @FXML
     private void showWorkOrderView() {
-        loadView("WorkOrderView.fxml");
+        loadView("/com/wac/autocore/gui/view/WorkOrderView.fxml");
     }
+
     @FXML
     private void showPaymentView() {
-        loadView("PaymentView.fxml");
+        loadView("/com/wac/autocore/gui/view/PaymentView.fxml");
     }
 
     @FXML
     private void showServiceItemView() {
-        loadView("ServiceItemView.fxml");
-    }
-
-
-    private void loadView(String fxmlFileName) {
-        try {
-
-            String path = "/com/wac/autocore/gui/view/" + fxmlFileName;
-            java.net.URL resourceUrl = getClass().getResource(path);
-
-            if (resourceUrl == null) {
-                System.err.println("Hittade inte filen: " + path);
-                return;
-            }
-
-            Parent view = FXMLLoader.load(resourceUrl);
-            mainRoot.setCenter(view);
-        } catch (IOException e) {
-            System.err.println("Kunde inte ladda vyn: " + fxmlFileName);
-            e.printStackTrace();
-        }
+        loadView("/com/wac/autocore/gui/view/ServiceItemView.fxml");
     }
 }
