@@ -33,14 +33,18 @@
             <Label text="Date:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
             <DatePicker fx:id="datePicker"
                         prefWidth="250"
+                        promptText="YYYY-MM-DD"
                         GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
             <!-- Description -->
             <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-            <TextField fx:id="descriptionField"
-                       promptText="Enter description"
-                       prefWidth="250"
-                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            <TextArea fx:id="descriptionField"
+                      promptText="Enter description"
+                      prefWidth="250"
+                      prefRowCount="3"
+                      wrapText="true"
+                      GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
 
             <!-- Status -->
             <Label text="Status:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>

@@ -31,7 +31,7 @@ public class BookingController {
     // FORM FIELDS (NewBookingView.fxml)
     @FXML private ComboBox<String> vehicleIdField;
     @FXML private DatePicker datePicker;
-    @FXML private TextField descriptionField;
+    @FXML private TextArea descriptionField;
     @FXML private ComboBox<String> statusComboBox;
 
     // ---------------------------------------------------------
@@ -110,6 +110,24 @@ public class BookingController {
             int vehicleId = Integer.parseInt(vehicleString.split(" - ")[0]);
 
             LocalDate date = datePicker.getValue();
+
+            LocalDate selectedDate = datePicker.getValue();
+            LocalDate today = LocalDate.now();
+
+            /*
+            // Null-check kommenterar ut datumvalideringen tills vi bestämt hur den ska göras
+            if (selectedDate == null) {
+                showError("Du måste välja ett datum.");
+                return;
+            }
+
+            // Datum får inte vara innan idag
+            if (selectedDate.isBefore(today)) {
+                showError("Datumet kan inte vara tidigare än dagens datum.");
+                return;
+            }
+             */
+
             String description = descriptionField.getText();
             String status = statusComboBox.getValue();
 
