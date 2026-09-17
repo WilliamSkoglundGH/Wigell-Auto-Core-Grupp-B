@@ -1,6 +1,7 @@
 package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.data.Database;
+import com.wac.autocore.model.Customer;
 import com.wac.autocore.model.Vehicle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -31,8 +33,7 @@ public class VehicleController {
     @FXML private TextField brandField;
     @FXML private TextField modelField;
     @FXML private TextField yearField;
-    @FXML private TextField customerIdField;
-
+    @FXML private ComboBox<Customer> customerComboBox;
     @FXML
     public void initialize() {
         if (vehicleTable != null) {
@@ -63,39 +64,44 @@ public class VehicleController {
             loader.setController(this);
             Parent newVehicleView = loader.load();
 
+            if (customerComboBox != null) {
+                customerComboBox.setItems(FXCollections.observableArrayList(Database.getCustomers()));
+            }
+
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(newVehicleView);
             } else {
-                System.err.println("Kunde inte hitta BorderPane för att visa fordonformuläret!");
+                System.err.println("Could not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Kunde inte ladda NewVehicleView.fxml: " + e.getMessage());
+            System.err.println("Could not load NewVehicleView.fxml: " + e.getMessage());
         }
     }
-
     @FXML
     private void handleSaveVehicle() {
         if (registrationNumberField != null) {
             String regNo = registrationNumberField.getText();
             String brand = brandField.getText();
             String model = modelField.getText();
+            Customer selectedCustomer = customerComboBox != null ? customerComboBox.getValue() : null;
 
             try {
                 int year = Integer.parseInt(yearField.getText().trim());
-                int customerId = Integer.parseInt(customerIdField.getText().trim());
 
-                if (regNo != null && !regNo.trim().isEmpty()) {
+                if (regNo != null && !regNo.trim().isEmpty() && selectedCustomer != null) {
                     int newId = Database.getVehicles().size() + 1;
 
-                    Vehicle newVehicle = new Vehicle(newId, regNo, brand, model, year, customerId);
+                    Vehicle newVehicle = new Vehicle(newId, regNo, brand, model, year, selectedCustomer.getId());
                     Database.getVehicles().add(newVehicle);
 
                     navigateToVehicleView();
+                } else {
+                    System.err.println("Please enter all data and choose a customer!");
                 }
             } catch (NumberFormatException e) {
-                System.err.println("Year och Customer ID måste vara giltiga heltal!");
+                System.err.println("Not a correct year!");
             }
         }
     }
@@ -114,11 +120,11 @@ public class VehicleController {
             if (mainLayout != null) {
                 mainLayout.setCenter(vehicleView);
             } else {
-                System.err.println("Kunde inte hitta BorderPane för att återgå till fordonstabellen!");
+                System.err.println("Could not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Kunde inte ladda tillbaka VehicleView.fxml: " + e.getMessage());
+            System.err.println("Could not load VehicleView.fxml: " + e.getMessage());
         }
     }
 
