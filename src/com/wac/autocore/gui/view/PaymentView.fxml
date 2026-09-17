@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox styleClass="container-padding,container-spacing"
-        xmlns="http://javafx.com/javafx"
+      xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.wac.autocore.gui.controller.PaymentController">
 
@@ -23,5 +25,9 @@
                 <TableColumn fx:id="successfulColumn" text="Successful" />
             </columns>
         </TableView>
+
+        <HBox spacing="10">
+            <Button text="Pay invoice" onAction="#handleNewPayment" />
+        </HBox>
     </children>
 </VBox>
