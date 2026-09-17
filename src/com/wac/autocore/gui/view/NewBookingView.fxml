@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.BookingController">
+
+    <!-- Padding i samma stil som CustomerView -->
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <children>
+
+        <!-- Titel -->
+        <Label text="New Booking" styleClass="heading-2" />
+
+        <!-- GridPane för fält (samma layout som CustomerView) -->
+        <GridPane hgap="10" vgap="10">
+
+            <!-- Vehicle -->
+            <Label text="Vehicle:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <ComboBox fx:id="vehicleIdField"
+                      promptText="Select vehicle"
+                      prefWidth="250"
+                      GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <!-- Date -->
+            <Label text="Date:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <DatePicker fx:id="datePicker"
+                        prefWidth="250"
+                        GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <!-- Description -->
+            <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <TextField fx:id="descriptionField"
+                       promptText="Enter description"
+                       prefWidth="250"
+                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+            <!-- Status -->
+            <Label text="Status:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <ComboBox fx:id="statusComboBox"
+                      promptText="Select status"
+                      prefWidth="250"
+                      GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+        </GridPane>
+
+        <!-- Buttons -->
+        <HBox spacing="10">
+            <Button text="Save Booking" onAction="#handleSaveBooking"/>
+            <Button text="Cancel" onAction="#handleCancel"/>
+        </HBox>
+
+    </children>
+</VBox>
+
+
