@@ -3,6 +3,7 @@ package com.wac.autocore.gui.controller;
 import com.wac.autocore.data.Database;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.Mechanic;
+import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.model.WorkOrder;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,6 +13,8 @@ import javafx.scene.Parent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -31,6 +34,7 @@ public class WorkOrderController {
 
     @FXML private ComboBox<Booking> bookingComboBox;
     @FXML private ComboBox<Mechanic> mechanicComboBox;
+    @FXML private ListView<ServiceItem> servicesListView; // Kopplad till FXML
 
     @FXML
     public void initialize() {
@@ -92,7 +96,6 @@ public class WorkOrderController {
             loader.setController(this);
             Parent newWorkOrderView = loader.load();
 
-            // Fyll ComboBoxarna EFTER att loopen/laddningen är klar
             populateComboBoxes();
 
             BorderPane mainLayout = findMainLayout();
@@ -123,6 +126,12 @@ public class WorkOrderController {
 
             mechanicComboBox.setItems(FXCollections.observableArrayList(availableMechanics));
         }
+
+        // Fyll och aktivera multiselect på listvyn för tjänster
+        if (servicesListView != null) {
+            servicesListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+            servicesListView.setItems(FXCollections.observableArrayList(Database.getServiceItems()));
+        }
     }
 
     @FXML
@@ -134,7 +143,17 @@ public class WorkOrderController {
             if (selectedBooking != null && selectedMechanic != null) {
                 int newId = Database.getWorkOrders().size() + 1;
 
+                // Skapa arbetsordern
                 WorkOrder newWorkOrder = new WorkOrder(newId, selectedBooking.getId(), selectedMechanic.getId());
+
+                // Hämta markerade tjänster från ListView och lägg till dem
+                if (servicesListView != null) {
+                    List<ServiceItem> selectedServices = servicesListView.getSelectionModel().getSelectedItems();
+                    for (ServiceItem item : selectedServices) {
+                        newWorkOrder.addServiceItem(item.getId());
+                    }
+                }
+
                 Database.getWorkOrders().add(newWorkOrder);
 
                 navigateToWorkOrderView();
