@@ -9,7 +9,7 @@
 <BorderPane fx:id="mainRoot" xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.wac.autocore.gui.controller.MainController"
-            prefHeight="600.0" prefWidth="800.0">
+            prefHeight="800.0" prefWidth="1000.0">
     <!-- MENY TILL VÄNSTER -->
     <left>
         <VBox styleClass="button-spacing,text-center,container-padding-small">

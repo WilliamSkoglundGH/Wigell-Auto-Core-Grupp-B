@@ -61,10 +61,10 @@ public class WorkOrderController {
                 selected.setStatus("STARTED");
                 workOrderTable.refresh();
             } else {
-                System.out.println("En workorder måste vara CREATED för att kunna startas");
+                System.out.println("A workorder must have status CREATED to be started.");
             }
         } else {
-            System.out.println("Välj en arbetsorder att starta först.");
+            System.out.println("Please choose a workorder to start.");
         }
     }
 
@@ -72,16 +72,16 @@ public class WorkOrderController {
     private void handleCompleteWorkOrder() {
         WorkOrder selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
         if (selected != null) {
-            if ( "STARTED".equals(selected.getStatus()) || "CREATED".equals(selected.getStatus())) {
+            if ("STARTED".equals(selected.getStatus()) || "CREATED".equals(selected.getStatus())) {
                 selected.setStatus("COMPLETED");
                 workOrderTable.refresh();
             } else if ("COMPLETED".equals(selected.getStatus())) {
-                System.out.println("Workorder redan COMPLETED");
+                System.out.println("Workorder already COMPLETED");
             } else {
-                System.out.println("En workorder måste vara CREATED eller STARTED för att kunna bli COMPLETED");
+                System.out.println("A workorder must be CREATED or STARTED to be COMPLETED");
             }
         } else {
-            System.out.println("Välj en arbetsorder att slutföra först.");
+            System.out.println("Please choose a workorder to complete.");
         }
     }
 
@@ -92,28 +92,36 @@ public class WorkOrderController {
             loader.setController(this);
             Parent newWorkOrderView = loader.load();
 
-            // Filtrera bokningar så att endast de med status "BOOKED" visas
-            if (bookingComboBox != null) {
-                List<Booking> bookedList = Database.getBookings().stream()
-                        .filter(b -> "BOOKED".equalsIgnoreCase(b.getStatus())) // Förutsätter att Booking har getStatus()
-                        .collect(Collectors.toList());
-
-                bookingComboBox.setItems(FXCollections.observableArrayList(bookedList));
-            }
-
-            if (mechanicComboBox != null) {
-                mechanicComboBox.setItems(FXCollections.observableArrayList(Database.getMechanics()));
-            }
+            // Fyll ComboBoxarna EFTER att loopen/laddningen är klar
+            populateComboBoxes();
 
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(newWorkOrderView);
             } else {
-                System.err.println("Kunde inte hitta BorderPane för att visa arbetsorder-formuläret!");
+                System.err.println("Could not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Kunde inte ladda NewWorkOrderView.fxml: " + e.getMessage());
+            System.err.println("Could not load NewWorkOrderView.fxml: " + e.getMessage());
+        }
+    }
+
+    private void populateComboBoxes() {
+        if (bookingComboBox != null) {
+            List<Booking> bookedList = Database.getBookings().stream()
+                    .filter(b -> "BOOKED".equalsIgnoreCase(b.getStatus()))
+                    .collect(Collectors.toList());
+
+            bookingComboBox.setItems(FXCollections.observableArrayList(bookedList));
+        }
+
+        if (mechanicComboBox != null) {
+            List<Mechanic> availableMechanics = Database.getMechanics().stream()
+                    .filter(Mechanic::isAvailable)
+                    .collect(Collectors.toList());
+
+            mechanicComboBox.setItems(FXCollections.observableArrayList(availableMechanics));
         }
     }
 
@@ -126,13 +134,12 @@ public class WorkOrderController {
             if (selectedBooking != null && selectedMechanic != null) {
                 int newId = Database.getWorkOrders().size() + 1;
 
-                // Skapar arbetsorder med ID från vald bokning och mekaniker
                 WorkOrder newWorkOrder = new WorkOrder(newId, selectedBooking.getId(), selectedMechanic.getId());
                 Database.getWorkOrders().add(newWorkOrder);
 
                 navigateToWorkOrderView();
             } else {
-                System.err.println("V både en bokning och en mekaniker!");
+                System.err.println("You need to choose a booking and a mechanic!");
             }
         }
     }
@@ -151,11 +158,11 @@ public class WorkOrderController {
             if (mainLayout != null) {
                 mainLayout.setCenter(workOrderView);
             } else {
-                System.err.println("Kunde inte hitta BorderPane för att återgå till arbetsordertabellen!");
+                System.err.println("Could not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Kunde inte ladda tillbaka WorkOrderView.fxml: " + e.getMessage());
+            System.err.println("Could not load WorkOrderView.fxml: " + e.getMessage());
         }
     }
 
