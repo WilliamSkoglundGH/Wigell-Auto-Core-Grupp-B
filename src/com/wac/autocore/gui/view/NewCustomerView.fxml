@@ -33,7 +33,7 @@
             <CheckBox fx:id="vipCheckBox" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
         </GridPane>
 
-        <HBox spacing="10">
+        <HBox styleClass="button-spacing">
             <Button text="Save Customer" onAction="#handleSaveCustomer" />
             <Button text="Cancel" onAction="#handleCancel" />
         </HBox>

@@ -65,11 +65,11 @@ public class CustomerController {
             if (mainLayout != null) {
                 mainLayout.setCenter(newCustomerView);
             } else {
-                System.err.println("Kunde inte hitta BorderPane för att visa formuläret!");
+                System.err.println("Ccould not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Kunde inte ladda NewCustomerView.fxml: " + e.getMessage());
+            System.err.println("Could not load NewCustomerView.fxml: " + e.getMessage());
         }
     }
 
@@ -81,15 +81,24 @@ public class CustomerController {
             String email = emailField.getText();
             boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
 
-            if (name != null && !name.trim().isEmpty()) {
-                int newId = Database.getCustomers().size() + 1;
+            String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
 
-                Customer newCustomer = new Customer(newId, name, phone, email);
-                newCustomer.setVip(isVip);
-                Database.getCustomers().add(newCustomer);
-
-                navigateToCustomerView();
+            if (name == null || name.trim().isEmpty()) {
+                System.err.println("Please enter a name!");
+                return;
             }
+
+            if (email == null || !email.matches(emailRegex)) {
+                System.err.println("Invalid email.");
+                return;
+            }
+
+            int newId = Database.getCustomers().size() + 1;
+            Customer newCustomer = new Customer(newId, name, phone, email);
+            newCustomer.setVip(isVip);
+            Database.getCustomers().add(newCustomer);
+
+            navigateToCustomerView();
         }
     }
 
@@ -107,15 +116,14 @@ public class CustomerController {
             if (mainLayout != null) {
                 mainLayout.setCenter(customerView);
             } else {
-                System.err.println("Kunde inte hitta BorderPane för att återgå till tabellen!");
+                System.err.println("Could not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Kunde inte ladda tillbaka CustomerView.fxml: " + e.getMessage());
+            System.err.println("Could not load CustomerView.fxml: " + e.getMessage());
         }
     }
 
-    // Extremt direkt och robust sökning efter BorderPane via scenens rot
     private BorderPane findMainLayout() {
         Scene scene = null;
 
@@ -130,7 +138,6 @@ public class CustomerController {
             if (root instanceof BorderPane) {
                 return (BorderPane) root;
             }
-            // Om roten i sin tur är en container, leta ett steg till
             return searchBorderPaneRecursive(root);
         }
         return null;

@@ -88,7 +88,10 @@
     -fx-font-size: 12px;
     -fx-opacity: 0.7;
 }
-
+.text-center {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
 /* --------------------------------------------------------------------
    4. Tabs (TabPane / Tab)
    -------------------------------------------------------------------- */
@@ -322,4 +325,19 @@
 .combo-box-popup .list-cell:filled:selected:hover {
     -fx-background-color: -accent-default;
     -fx-text-fill: -text-on-accent;               /* 7.53:1, AAA */
+}
+/* --------------------------------------------------------------------
+   9. Generell padding / spacing till container komponenter
+   -------------------------------------------------------------------- */
+.container-padding-small {
+    -fx-padding: 5px;
+}
+.container-padding {
+    -fx-padding: 16px;
+}
+.container-spacing {
+    -fx-spacing: 10px;
+}
+.button-spacing {
+    -fx-spacing: 10px;
 }

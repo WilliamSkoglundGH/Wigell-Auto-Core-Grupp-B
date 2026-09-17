@@ -7,7 +7,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="10" xmlns="http://javafx.com/javafx"
+<VBox styleClass="container-padding,container-spacing"
+      xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.wac.autocore.gui.controller.WorkOrderController">
 
@@ -23,7 +24,7 @@
             </columns>
         </TableView>
 
-        <HBox spacing="10">
+        <HBox styleClass="button-spacing">
             <Button text="Start" onAction="#handleStartWorkOrder" />
             <Button text="Complete" onAction="#handleCompleteWorkOrder" />
             <Button text="New" onAction="#handleNewWorkOrder" />
