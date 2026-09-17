@@ -2,8 +2,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.VBox?>
@@ -19,11 +19,11 @@
         <Label text="Add New Work Order" styleClass="heading-2" />
 
         <GridPane hgap="10" vgap="10">
-            <Label text="Booking ID:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-            <TextField fx:id="bookingIdField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            <Label text="Booking:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <ComboBox fx:id="bookingComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-            <Label text="Mechanic ID:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-            <TextField fx:id="mechanicIdField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <Label text="Mechanic:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <ComboBox fx:id="mechanicComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
         </GridPane>
 
         <HBox styleClass="button-spacing">
