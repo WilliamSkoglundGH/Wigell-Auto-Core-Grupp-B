@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.ComboBox?>
 <VBox spacing="15" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml">
 
@@ -31,8 +32,8 @@
             <Label text="Year:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
             <TextField fx:id="yearField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
-            <Label text="Customer ID:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-            <TextField fx:id="customerIdField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+            <Label text="Customer:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+            <ComboBox fx:id="customerComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
         </GridPane>
 
         <HBox styleClass="button-spacing">
