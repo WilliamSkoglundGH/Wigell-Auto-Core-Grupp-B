@@ -1,43 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox spacing="15" xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml">
+<VBox spacing="15"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.BookingController">
 
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
     <children>
-        <Label text="Add New Vehicle" styleClass="heading-2" />
 
+        <!-- Titel -->
+        <Label text="New Booking" styleClass="heading-2" />
+
+        <!-- GridPane för fält (luftig, samma stil som Add New Vehicle) -->
         <GridPane hgap="10" vgap="10">
-            <Label text="Registration Number:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-            <TextField fx:id="registrationNumberField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-            <Label text="Brand:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-            <TextField fx:id="brandField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <!-- Vehicle -->
+            <Label text="Vehicle:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <ComboBox fx:id="vehicleIdField"
+                      promptText="Select vehicle"
+                      GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-            <Label text="Model:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-            <TextField fx:id="modelField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            <!-- Date -->
+            <Label text="Date:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <DatePicker fx:id="datePicker"
+                        promptText="YYYY-MM-DD"
+                        GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-            <Label text="Year:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-            <TextField fx:id="yearField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+            <!-- Description -->
+            <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <TextArea fx:id="descriptionField"
+                      promptText="Enter description"
+                      prefRowCount="3"
+                      wrapText="true"
+                      GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-            <Label text="Customer ID:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-            <TextField fx:id="customerIdField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+            <!-- Status -->
+            <Label text="Status:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <ComboBox fx:id="statusComboBox"
+                      promptText="Select status"
+                      GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
         </GridPane>
 
         <HBox spacing="10">
-            <Button text="Save Vehicle" onAction="#handleSaveVehicle" />
-            <Button text="Cancel" onAction="#handleCancel" />
+            <Button text="Save Booking" onAction="#handleSaveBooking"/>
+            <Button text="Cancel" onAction="#handleCancel"/>
         </HBox>
+
     </children>
 </VBox>

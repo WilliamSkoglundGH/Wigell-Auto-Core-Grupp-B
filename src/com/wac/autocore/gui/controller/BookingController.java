@@ -106,16 +106,15 @@ public class BookingController {
     @FXML
     private void handleSaveBooking() {
         try {
+            // Vehicle ID från ComboBox ("3 - Volvo XC90")
             String vehicleString = vehicleIdField.getValue();
             int vehicleId = Integer.parseInt(vehicleString.split(" - ")[0]);
 
-            LocalDate date = datePicker.getValue();
-
+            // Datum
             LocalDate selectedDate = datePicker.getValue();
             LocalDate today = LocalDate.now();
-
             /*
-            // Null-check kommenterar ut datumvalideringen tills vi bestämt hur den ska göras
+            // Datum får inte vara null
             if (selectedDate == null) {
                 showError("Du måste välja ett datum.");
                 return;
@@ -126,24 +125,32 @@ public class BookingController {
                 showError("Datumet kan inte vara tidigare än dagens datum.");
                 return;
             }
+
              */
 
+            // Description
             String description = descriptionField.getText();
-            String status = statusComboBox.getValue();
 
+            // Skapa nytt ID
             int newId = Database.getBookings().size() + 1;
 
-            Booking booking = new Booking(newId, vehicleId, date, description);
-            booking.setStatus(status);
+            // Skapa booking
+            Booking booking = new Booking(newId, vehicleId, selectedDate, description);
 
+            // Status sätts automatiskt
+            booking.setStatus("BOOKED");
+
+            // Lägg till i databasen
             Database.getBookings().add(booking);
 
+            // Navigera tillbaka
             navigateToBookingView();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     @FXML
     private void handleCancel() {
