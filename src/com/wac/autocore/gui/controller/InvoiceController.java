@@ -103,10 +103,14 @@ public class InvoiceController {
     private void populateComboBox() {
         if (workOrderComboBox != null) {
             List<WorkOrder> workOrdersList = Database.getWorkOrders().stream()
-                    .filter(b -> "COMPLETED".equalsIgnoreCase(b.getStatus()))
+                    .filter(wo -> "COMPLETED".equalsIgnoreCase(wo.getStatus())) // Endast färdiga
+                    .filter(wo -> Database.getInvoices().stream()
+                            .noneMatch(inv -> inv.getWorkOrderId() == wo.getId())) // Som INTE redan har en faktura
                     .collect(Collectors.toList());
+
             workOrderComboBox.setItems(FXCollections.observableArrayList(workOrdersList));
         }
+
         // Fyll rabatt-comboboxen med siffror 0-100
         if (discountComboBox != null) {
             List<Integer> numbers = java.util.stream.IntStream.rangeClosed(0, 100)
