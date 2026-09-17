@@ -61,10 +61,11 @@ public class WorkOrderController {
     private void handleStartWorkOrder() {
         WorkOrder selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
         if (selected != null) {
+            //sätt booking till IN_PROGRESS
             if ("CREATED".equals(selected.getStatus())) {
                 selected.setStatus("IN_PROGRESS");
 
-                // --- HÄR SÄTTER VI MEKANIKERN TILL UPPTAGEN ---
+
                 Mechanic mechanic = Database.getMechanics().stream()
                         .filter(m -> m.getId() == selected.getMechanicId())
                         .findFirst()
@@ -73,8 +74,13 @@ public class WorkOrderController {
                 if (mechanic != null) {
                     mechanic.setAvailable(false); // Sätt mekanikern som otillgänglig!
                 }
-                // -----------------------------------------------
-
+                Booking booking = Database.getBookings().stream()
+                        .filter(b -> b.getId() == selected.getBookingId())
+                        .findFirst()
+                        .orElse(null);
+                if (booking != null) {
+                    booking.setStatus("IN_PROGRESS");
+                }
                 workOrderTable.refresh();
                 System.out.println("Work order " + selected.getId() + " has been started.");
             } else {
@@ -91,6 +97,7 @@ public class WorkOrderController {
         if (selected != null) {
             if ("IN_PROGRESS".equals(selected.getStatus()) || "CREATED".equals(selected.getStatus())) {
                 selected.setStatus("COMPLETED");
+                //sätt booking till COMPLETED
 
                 // 1. Sätt mekanikern som tillgänglig igen
                 Mechanic mechanic = Database.getMechanics().stream()
@@ -186,7 +193,7 @@ public class WorkOrderController {
                         newWorkOrder.addServiceItem(item.getId());
                     }
                 }
-
+                selectedBooking.setStatus("WORK_ORDER_CREATED");
                 Database.getWorkOrders().add(newWorkOrder);
 
                 navigateToWorkOrderView();
