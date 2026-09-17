@@ -32,10 +32,14 @@ public class WorkOrderController {
     @FXML private TableColumn<WorkOrder, Integer> bookingIdColumn;
     @FXML private TableColumn<WorkOrder, Integer> mechanicIdColumn;
     @FXML private TableColumn<WorkOrder, String> statusColumn;
+    @FXML private TableColumn<WorkOrder, String> servicesColumn;
 
     @FXML private ComboBox<Booking> bookingComboBox;
     @FXML private ComboBox<Mechanic> mechanicComboBox;
-    @FXML private ListView<ServiceItem> servicesListView; // Kopplad till FXML
+    @FXML private ListView<ServiceItem> servicesListView;
+
+    private final java.util.Set<Integer> selectedServiceIds = new java.util.HashSet<>();
+    private final java.util.Map<Integer, javafx.beans.property.BooleanProperty> serviceSelections = new java.util.HashMap<>();
 
     @FXML
     public void initialize() {
@@ -44,7 +48,25 @@ public class WorkOrderController {
             bookingIdColumn.setCellValueFactory(new PropertyValueFactory<>("bookingId"));
             mechanicIdColumn.setCellValueFactory(new PropertyValueFactory<>("mechanicId"));
             statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+            if (servicesColumn != null) {
+                servicesColumn.setCellValueFactory(cellData -> {
+                    WorkOrder wo = cellData.getValue();
+                    if (wo.getServiceItemIds() == null || wo.getServiceItemIds().isEmpty()) {
+                        return new javafx.beans.property.SimpleStringProperty("No services");
+                    }
 
+                    // Skapa en sträng med "ID: Namn" för varje tjänst
+                    String serviceInfo = wo.getServiceItemIds().stream()
+                            .map(id -> Database.getServiceItems().stream()
+                                    .filter(s -> s.getId() == id)
+                                    .map(s -> s.getId() + ": " + s.getName())
+                                    .findFirst()
+                                    .orElse("ID " + id + ": Unknown"))
+                            .collect(Collectors.joining(", "));
+
+                    return new javafx.beans.property.SimpleStringProperty(serviceInfo);
+                });
+            }
             loadWorkOrderData();
         }
     }
@@ -167,27 +189,29 @@ public class WorkOrderController {
 
             mechanicComboBox.setItems(FXCollections.observableArrayList(availableMechanics));
         }
-
         if (servicesListView != null) {
-            // Hämta alla tjänster som en ObservableList
             ObservableList<ServiceItem> serviceItems = FXCollections.observableArrayList(Database.getServiceItems());
             servicesListView.setItems(serviceItems);
 
-            // Gör om raderna till Checkboxar
-            servicesListView.setCellFactory(CheckBoxListCell.forListView(item -> {
-                // Skapa en boolean-egenskap för varje item som håller koll på om den är markerad
-                javafx.beans.property.BooleanProperty observable = new javafx.beans.property.SimpleBooleanProperty();
+            // Skapa upp en boolean-egenskap för varje tjänst om den inte finns
+            for (ServiceItem item : serviceItems) {
+                serviceSelections.putIfAbsent(item.getId(), new javafx.beans.property.SimpleBooleanProperty(false));
+            }
 
-                // Lyssna på när användaren kryssar i/ur och lägg till/ta bort från urvalet
-                observable.addListener((obs, wasSelected, isSelected) -> {
-                    if (isSelected) {
-                        servicesListView.getSelectionModel().select(item);
-                    } else {
-                        servicesListView.getSelectionModel().clearSelection(servicesListView.getItems().indexOf(item));
+            // Använd Javes inbyggda CheckBoxListCell som hanterar cell-återanvändning galant
+            servicesListView.setCellFactory(javafx.scene.control.cell.CheckBoxListCell.forListView(
+                    item -> serviceSelections.get(item.getId()),
+                    new javafx.util.StringConverter<ServiceItem>() {
+                        @Override
+                        public String toString(ServiceItem item) {
+                            return item != null ? item.getId() + ": " + item.getName() : "";
+                        }
+                        @Override
+                        public ServiceItem fromString(String string) {
+                            return null;
+                        }
                     }
-                });
-                return observable;
-            }));
+            ));
         }
     }
 
@@ -203,17 +227,21 @@ public class WorkOrderController {
                 // Skapa arbetsordern
                 WorkOrder newWorkOrder = new WorkOrder(newId, selectedBooking.getId(), selectedMechanic.getId());
 
-                // Hämta markerade tjänster från ListView och lägg till dem
-                if (servicesListView != null) {
-                    List<ServiceItem> selectedServices = servicesListView.getSelectionModel().getSelectedItems();
-                    for (ServiceItem item : selectedServices) {
-                        newWorkOrder.addServiceItem(item.getId());
+                // Hämta alla tjänster som markerats i mapen
+                for (java.util.Map.Entry<Integer, javafx.beans.property.BooleanProperty> entry : serviceSelections.entrySet()) {
+                    if (entry.getValue().get()) {
+                        newWorkOrder.addServiceItem(entry.getKey());
                     }
                 }
+
                 selectedBooking.setStatus("WORK_ORDER_CREATED");
                 Database.getWorkOrders().add(newWorkOrder);
 
+                // Rensa valen inför nästa gång
+                serviceSelections.clear();
+
                 navigateToWorkOrderView();
+
             } else {
                 System.err.println("You need to choose a booking and a mechanic!");
             }
