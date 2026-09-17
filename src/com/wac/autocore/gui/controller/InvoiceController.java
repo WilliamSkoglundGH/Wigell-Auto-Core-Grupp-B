@@ -1,6 +1,7 @@
 package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.data.Database;
+import com.wac.autocore.gui.launcher.GarageServiceBridge;
 import com.wac.autocore.model.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -43,7 +44,7 @@ public class InvoiceController {
     @FXML
     private TableColumn<Invoice, Boolean> paidColumn;
 
-    @FXML private ComboBox<Integer> discountComboBox;
+    @FXML private TextField discountCodeField;
     @FXML private ComboBox<WorkOrder> workOrderComboBox;
 
     @FXML
@@ -111,15 +112,6 @@ public class InvoiceController {
             workOrderComboBox.setItems(FXCollections.observableArrayList(workOrdersList));
         }
 
-        // Fyll rabatt-comboboxen med siffror 0-100
-        if (discountComboBox != null) {
-            List<Integer> numbers = java.util.stream.IntStream.rangeClosed(0, 100)
-                    .boxed()
-                    .collect(Collectors.toList());
-
-            discountComboBox.setItems(FXCollections.observableArrayList(numbers));
-            discountComboBox.getSelectionModel().select(Integer.valueOf(0)); // 0 blir förvalt
-        }
     }
 
     @FXML
@@ -162,71 +154,17 @@ public class InvoiceController {
             return;
         }
 
-        // 3. Beräkna totalt belopp från arbetsorderns service items FÖRST
-        double amount = 0.0;
-        if (workOrder.getServiceItemIds() != null) {
-            for (Integer serviceItemId : workOrder.getServiceItemIds()) {
-                ServiceItem serviceItem = Database.getServiceItems().stream()
-                        .filter(s -> s.getId() == serviceItemId)
-                        .findFirst()
-                        .orElse(null);
+        String discountCode = discountCodeField.getText().trim();
 
-                if (serviceItem != null) {
-                    amount += serviceItem.getPrice();
-                }
-            }
+        Invoice invoice = GarageServiceBridge.getInstance()
+                .createInvoice(workOrder.getId(), discountCode);
+
+        if (invoice != null) {
+            navigateToInvoiceView();
         }
 
-        // 4. Kontrollera om kunden är VIP för att applicera rabatt
-        double discount = 0.0;
-        Booking thisBooking = Database.getBookings().stream()
-                .filter(b -> b.getId() == workOrder.getBookingId())
-                .findFirst()
-                .orElse(null);
 
-        if (thisBooking != null) {
-            Vehicle vehicle = Database.getVehicles().stream()
-                    .filter(v -> v.getId() == thisBooking.getVehicleId())
-                    .findFirst()
-                    .orElse(null);
 
-            if (vehicle != null) {
-                Customer customer = Database.getCustomers().stream()
-                        .filter(c -> c.getId() == vehicle.getCustomerId())
-                        .findFirst()
-                        .orElse(null);
-
-                if (customer != null && customer.isVip()) {
-                    discount = amount * 0.10; // 10% VIP-rabatt
-                    System.out.println("VIP discount applied: 10%");
-                }
-            }
-        }
-
-        // 5. Hantera extra rabatt från ComboBox (0-100%)
-        double manualDiscount = 0.0;
-        if (discountComboBox != null && discountComboBox.getValue() != null) {
-            int selectedValue = discountComboBox.getValue();
-            manualDiscount = amount * (selectedValue / 100.0);
-        }
-
-        // Addera till den totala rabatten
-        discount += manualDiscount;
-        double totalAmount = amount - discount;
-        LocalDate invoiceDate = LocalDate.now();
-        int newId = Database.getInvoices().size() + 1;
-
-        // 6. Skapa och spara fakturan
-        Invoice newInvoice = new Invoice(newId, workOrder.getId(), invoiceDate, amount);
-
-        if (discount > 0) {
-            newInvoice.setDiscount(discount);
-        }
-
-        Database.getInvoices().add(newInvoice);
-
-        // 7. Gå tillbaka till fakturavy-tabellen
-        navigateToInvoiceView();
     }
     @FXML
     private void handleCancel() {

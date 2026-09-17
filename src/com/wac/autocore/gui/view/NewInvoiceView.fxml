@@ -25,8 +25,12 @@
             <Label text="Workorder:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
             <ComboBox fx:id="workOrderComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-            <Label text="Discount:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-            <ComboBox fx:id="discountComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            <Label text="Discount code:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <TextField fx:id="discountCodeField"
+                       promptText="Enter code (optional)"
+                       prefWidth="250"
+                       GridPane.columnIndex="1"
+                       GridPane.rowIndex="2"/>
         </GridPane>
 
         <HBox styleClass="button-spacing">
