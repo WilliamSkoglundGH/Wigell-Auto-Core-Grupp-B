@@ -17,6 +17,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 
@@ -167,10 +168,26 @@ public class WorkOrderController {
             mechanicComboBox.setItems(FXCollections.observableArrayList(availableMechanics));
         }
 
-        // Fyll och aktivera multiselect på listvyn för tjänster
         if (servicesListView != null) {
-            servicesListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-            servicesListView.setItems(FXCollections.observableArrayList(Database.getServiceItems()));
+            // Hämta alla tjänster som en ObservableList
+            ObservableList<ServiceItem> serviceItems = FXCollections.observableArrayList(Database.getServiceItems());
+            servicesListView.setItems(serviceItems);
+
+            // Gör om raderna till Checkboxar
+            servicesListView.setCellFactory(CheckBoxListCell.forListView(item -> {
+                // Skapa en boolean-egenskap för varje item som håller koll på om den är markerad
+                javafx.beans.property.BooleanProperty observable = new javafx.beans.property.SimpleBooleanProperty();
+
+                // Lyssna på när användaren kryssar i/ur och lägg till/ta bort från urvalet
+                observable.addListener((obs, wasSelected, isSelected) -> {
+                    if (isSelected) {
+                        servicesListView.getSelectionModel().select(item);
+                    } else {
+                        servicesListView.getSelectionModel().clearSelection(servicesListView.getItems().indexOf(item));
+                    }
+                });
+                return observable;
+            }));
         }
     }
 
