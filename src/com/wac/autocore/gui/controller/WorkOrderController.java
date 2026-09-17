@@ -62,8 +62,21 @@ public class WorkOrderController {
         WorkOrder selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
         if (selected != null) {
             if ("CREATED".equals(selected.getStatus())) {
-                selected.setStatus("STARTED");
+                selected.setStatus("IN_PROGRESS");
+
+                // --- HÄR SÄTTER VI MEKANIKERN TILL UPPTAGEN ---
+                Mechanic mechanic = Database.getMechanics().stream()
+                        .filter(m -> m.getId() == selected.getMechanicId())
+                        .findFirst()
+                        .orElse(null);
+
+                if (mechanic != null) {
+                    mechanic.setAvailable(false); // Sätt mekanikern som otillgänglig!
+                }
+                // -----------------------------------------------
+
                 workOrderTable.refresh();
+                System.out.println("Work order " + selected.getId() + " has been started.");
             } else {
                 System.out.println("A workorder must have status CREATED to be started.");
             }
@@ -76,13 +89,33 @@ public class WorkOrderController {
     private void handleCompleteWorkOrder() {
         WorkOrder selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
         if (selected != null) {
-            if ("STARTED".equals(selected.getStatus()) || "CREATED".equals(selected.getStatus())) {
+            if ("IN_PROGRESS".equals(selected.getStatus()) || "CREATED".equals(selected.getStatus())) {
                 selected.setStatus("COMPLETED");
+
+                // 1. Sätt mekanikern som tillgänglig igen
+                Mechanic mechanic = Database.getMechanics().stream()
+                        .filter(m -> m.getId() == selected.getMechanicId())
+                        .findFirst()
+                        .orElse(null);
+                if (mechanic != null) {
+                    mechanic.setAvailable(true);
+                }
+
+                // 2. Uppdatera bokningens status till COMPLETED
+                Booking booking = Database.getBookings().stream()
+                        .filter(b -> b.getId() == selected.getBookingId())
+                        .findFirst()
+                        .orElse(null);
+                if (booking != null) {
+                    booking.setStatus("COMPLETED");
+                }
+
                 workOrderTable.refresh();
+                System.out.println("Work order " + selected.getId() + " has been completed.");
             } else if ("COMPLETED".equals(selected.getStatus())) {
                 System.out.println("Workorder already COMPLETED");
             } else {
-                System.out.println("A workorder must be CREATED or STARTED to be COMPLETED");
+                System.out.println("A workorder must be CREATED or IN_PROGRESS to be COMPLETED");
             }
         } else {
             System.out.println("Please choose a workorder to complete.");

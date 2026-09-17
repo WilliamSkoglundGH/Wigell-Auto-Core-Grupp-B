@@ -120,6 +120,26 @@ public class PaymentController {
                 selectedInvoice.setPaid(true);
 
                 navigateToPaymentView();
+                if ("CARD".equalsIgnoreCase(paymentType)) {
+                    System.out.println("card:\n" +
+                            "Connecting directly to SuperCardPayment...\n" +
+                            "Card payment approved.\n" +
+                            "Payment completed successfully.\n" +
+                            "Sending payment confirmation to customer...\n" +
+                            "Confirmation sent.");
+                } else if ("CASH".equalsIgnoreCase(paymentType)) {
+                    System.out.println("Registering cash payment...\n" +
+                            "Payment completed successfully.\n" +
+                            "Sending payment confirmation to customer...\n" +
+                            "Confirmation sent.");
+                } else {
+                    System.out.println("\n" +
+                            "Calling Swish payment service...\n" +
+                            "Swish payment approved.\n" +
+                            "Payment completed successfully.\n" +
+                            "Sending payment confirmation to customer...\n" +
+                            "Confirmation sent.\n");
+                }
             } else {
                 System.err.println("Please select an invoice and payment type!");
             }
@@ -183,12 +203,7 @@ public class PaymentController {
     }
 }
 /*
-card:
-Connecting directly to SuperCardPayment...
-Card payment approved.
-Payment completed successfully.
-Sending payment confirmation to customer...
-Confirmation sent.
+
 
 
 Calling Swish payment service...
@@ -197,9 +212,6 @@ Payment completed successfully.
 Sending payment confirmation to customer...
 Confirmation sent.
 
-Registering cash payment...
-Payment completed successfully.
-Sending payment confirmation to customer...
-Confirmation sent.
+
 
  */
