@@ -21,6 +21,7 @@
                 <TableColumn fx:id="bookingIdColumn" text="Booking ID" />
                 <TableColumn fx:id="mechanicIdColumn" text="Mechanic ID" />
                 <TableColumn fx:id="statusColumn" text="Status" />
+                <TableColumn fx:id="servicesColumn" text="Service Items" />
             </columns>
         </TableView>
 
