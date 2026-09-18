@@ -17,7 +17,7 @@
     </padding>
 
     <children>
-        <Label text="Add New Vehicle" styleClass="heading-2" />
+        <Label text="New Vehicle" styleClass="heading-2" />
 
         <GridPane hgap="10" vgap="10">
             <Label text="Registration Number:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
