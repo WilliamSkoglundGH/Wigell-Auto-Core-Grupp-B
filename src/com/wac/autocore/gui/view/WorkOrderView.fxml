@@ -26,9 +26,9 @@
         </TableView>
 
         <HBox styleClass="button-spacing">
+            <Button text="New" onAction="#handleNewWorkOrder" />
             <Button text="Start" onAction="#handleStartWorkOrder" />
             <Button text="Complete" onAction="#handleCompleteWorkOrder" />
-            <Button text="New" onAction="#handleNewWorkOrder" />
         </HBox>
     </children>
 </VBox>

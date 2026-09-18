@@ -17,7 +17,7 @@
     </padding>
 
     <children>
-        <Label text="Add New Customer" styleClass="heading-2" />
+        <Label text="New Customer" styleClass="heading-2" />
 
         <GridPane hgap="10" vgap="10">
             <Label text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
@@ -34,7 +34,7 @@
         </GridPane>
 
         <HBox styleClass="button-spacing">
-            <Button text="Save Customer" onAction="#handleSaveCustomer" />
+            <Button text="Save" onAction="#handleSaveCustomer" />
             <Button text="Cancel" onAction="#handleCancel" />
         </HBox>
     </children>

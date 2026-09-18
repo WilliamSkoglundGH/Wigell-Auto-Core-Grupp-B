@@ -38,6 +38,8 @@ public class WorkOrderController {
     @FXML private ComboBox<Mechanic> mechanicComboBox;
     @FXML private ListView<ServiceItem> servicesListView;
 
+    private UserMessages messages;
+
     private final java.util.Set<Integer> selectedServiceIds = new java.util.HashSet<>();
     private final java.util.Map<Integer, javafx.beans.property.BooleanProperty> serviceSelections = new java.util.HashMap<>();
 
@@ -105,12 +107,12 @@ public class WorkOrderController {
                     booking.setStatus("IN_PROGRESS");
                 }
                 workOrderTable.refresh();
-                System.out.println("Work order " + selected.getId() + " has been started.");
+                messages.showSuccess("Work order " + selected.getId() + " has been started.");
             } else {
-                System.out.println("A workorder must have status CREATED to be started.");
+                messages.showError("A workorder must have status CREATED to be started.");
             }
         } else {
-            System.out.println("Please choose a workorder to start.");
+            messages.showError("Please choose a workorder to start.");
         }
     }
 
@@ -141,14 +143,14 @@ public class WorkOrderController {
                 }
 
                 workOrderTable.refresh();
-                System.out.println("Work order " + selected.getId() + " has been completed.");
+                messages.showSuccess("Work order " + selected.getId() + " has been completed.");
             } else if ("COMPLETED".equals(selected.getStatus())) {
-                System.out.println("Workorder already COMPLETED");
+                messages.showError("Workorder already COMPLETED");
             } else {
-                System.out.println("A workorder must be CREATED or IN_PROGRESS to be COMPLETED");
+                messages.showError("A workorder must be CREATED or IN_PROGRESS to be COMPLETED");
             }
         } else {
-            System.out.println("Please choose a workorder to complete.");
+            messages.showError("Please choose a workorder to complete.");
         }
     }
 
@@ -165,11 +167,11 @@ public class WorkOrderController {
             if (mainLayout != null) {
                 mainLayout.setCenter(newWorkOrderView);
             } else {
-                System.err.println("Could not find BorderPane!");
+                messages.showError("Could not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not load NewWorkOrderView.fxml: " + e.getMessage());
+            messages.showError("Could not load NewWorkOrderView.fxml: " + e.getMessage());
         }
     }
 
@@ -239,11 +241,11 @@ public class WorkOrderController {
 
                 // Rensa valen inför nästa gång
                 serviceSelections.clear();
-
+                messages.showSuccess("Workorder created.");
                 navigateToWorkOrderView();
 
             } else {
-                System.err.println("You need to choose a booking and a mechanic!");
+                messages.showError("You need to choose a booking and a mechanic!");
             }
         }
     }
@@ -258,15 +260,25 @@ public class WorkOrderController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/WorkOrderView.fxml"));
             Parent workOrderView = loader.load();
 
+            // Hämta den nya kontrollern och skicka med messages!
+            WorkOrderController controller = loader.getController();
+            if (controller != null) {
+                controller.setMessages(this.messages);
+            }
+
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(workOrderView);
             } else {
-                System.err.println("Could not find BorderPane!");
+                if (messages != null) {
+                    messages.showError("Could not find BorderPane!");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not load WorkOrderView.fxml: " + e.getMessage());
+            if (messages != null) {
+                messages.showError("Could not load WorkOrderView.fxml: " + e.getMessage());
+            }
         }
     }
 
@@ -302,5 +314,9 @@ public class WorkOrderController {
             }
         }
         return null;
+    }
+
+    public void setMessages(UserMessages messages) {
+        this.messages = messages;
     }
 }
