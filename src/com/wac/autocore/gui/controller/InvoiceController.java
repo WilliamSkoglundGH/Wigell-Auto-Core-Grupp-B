@@ -164,7 +164,6 @@ public class InvoiceController {
         }
 
 
-
     }
     @FXML
     private void handleCancel() {
