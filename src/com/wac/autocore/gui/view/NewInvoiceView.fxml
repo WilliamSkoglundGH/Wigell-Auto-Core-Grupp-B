@@ -34,8 +34,8 @@
         </GridPane>
 
         <HBox styleClass="button-spacing">
-            <Button onAction="#handleSaveInvoice" text="Save Invoice" />
-            <Button styleClass="secondary" text="Cancel" onAction="#handleCancel" />
+            <Button onAction="#handleSaveInvoice" text="Save" />
+            <Button text="Cancel" onAction="#handleCancel" />
         </HBox>
     </children>
 </VBox>

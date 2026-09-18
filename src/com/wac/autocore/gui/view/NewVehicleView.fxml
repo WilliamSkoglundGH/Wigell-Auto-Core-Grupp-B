@@ -37,7 +37,7 @@
         </GridPane>
 
         <HBox styleClass="button-spacing">
-            <Button text="Save Vehicle" onAction="#handleSaveVehicle" />
+            <Button text="Save" onAction="#handleSaveVehicle" />
             <Button text="Cancel" onAction="#handleCancel" />
         </HBox>
     </children>
