@@ -53,13 +53,25 @@
 
     <!-- MEDDELANDEN TILL ANVÄNDAREN -->
     <bottom>
-        <VBox styleClass="container-padding-small">
+        <VBox alignment="CENTER"
+              spacing="5"
+              prefWidth="Infinity"
+              styleClass="container-padding-small">
+
+            <!-- Överskrift -->
+            <Label text="Usermessage"
+                   alignment="CENTER"
+                   minHeight="20"/>
+
+            <!-- Själva meddelandet -->
             <Label fx:id="messageLabel"
-                   text=""
                    wrapText="true"
-                   maxWidth="Infinity"
-                   minHeight="30"/>
+                   alignment="CENTER"
+                   minWidth="200"
+                   minHeight="30"
+                   styleClass="msg-area"/>
         </VBox>
     </bottom>
+
 
 </BorderPane>
