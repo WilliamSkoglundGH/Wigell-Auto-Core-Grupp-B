@@ -131,6 +131,7 @@ public class InvoiceController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(newInvoiceView);
+                workOrderComboBox.requestFocus();
 
             } else {
                 messages.showError("Could not find BorderPane to present the form.");
@@ -194,6 +195,7 @@ public class InvoiceController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(invoiceView);
+                controller.invoiceTable.requestFocus();
             } else {
                 if (messages != null) {
                     messages.showError("Could not find BorderPane!");

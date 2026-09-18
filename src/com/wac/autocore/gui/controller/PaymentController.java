@@ -95,6 +95,7 @@ public class PaymentController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(newPaymentView);
+                invoiceComboBox.requestFocus();
             } else {
                 messages.showError("Could not find BorderPane!");
             }
@@ -168,6 +169,7 @@ public class PaymentController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(paymentView);
+                controller.paymentTable.requestFocus();
             } else {
                 if (messages != null) {
                     messages.showError("Could not find BorderPane!");

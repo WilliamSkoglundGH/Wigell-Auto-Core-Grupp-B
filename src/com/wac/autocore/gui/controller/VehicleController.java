@@ -74,6 +74,7 @@ public class VehicleController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(newVehicleView);
+                registrationNumberField.requestFocus();
             } else {
                 messages.showError("Could not find BorderPane!");
             }
@@ -118,10 +119,13 @@ public class VehicleController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/VehicleView.fxml"));
             Parent vehicleView = loader.load();
+            VehicleController controller = loader.getController();
+            controller.setMessages(messages);
 
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(vehicleView);
+                controller.vehicleTable.requestFocus();
             } else {
                 messages.showError("Could not find BorderPane!");
             }
