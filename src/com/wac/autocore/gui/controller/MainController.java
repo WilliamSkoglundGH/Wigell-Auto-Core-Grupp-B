@@ -29,6 +29,27 @@ public class MainController implements UserMessages {
             if (controller instanceof BookingController) {
                 BookingController bookingController = (BookingController) controller;
                 bookingController.setMessages(this);
+            } else if (controller instanceof CustomerController) {
+                CustomerController customerController = (CustomerController) controller;
+                customerController.setMessages(this);
+
+            } else if (controller instanceof InvoiceController) {
+                InvoiceController invoiceController = (InvoiceController) controller;
+                invoiceController.setMessages(this);
+
+            } else if (controller instanceof PaymentController) {
+                PaymentController paymentController = (PaymentController) controller;
+                paymentController.setMessages(this);
+
+            } else if (controller instanceof ServiceItemController) {
+                ServiceItemController serviceItemController = (ServiceItemController) controller;
+                serviceItemController.setMessages(this);
+            } else if (controller instanceof VehicleController) {
+                VehicleController vehicleController = (VehicleController) controller;
+                vehicleController.setMessages(this);
+            } else if (controller instanceof WorkOrderController) {
+                WorkOrderController workOrderController = (WorkOrderController) controller;
+                workOrderController.setMessages(this);
             }
 
             mainRoot.setCenter(view);

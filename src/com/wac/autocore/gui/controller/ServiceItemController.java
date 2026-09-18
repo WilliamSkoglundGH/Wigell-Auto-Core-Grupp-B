@@ -32,6 +32,8 @@ public class ServiceItemController {
     @FXML
     private TableColumn<ServiceItem, Integer> estimatedMinutesColumn;
 
+    private UserMessages messages;
+
     @FXML
     public void initialize() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -49,5 +51,8 @@ public class ServiceItemController {
         );
 
         serviceItemTable.setItems(serviceItemData);
+    }
+    public void setMessages(UserMessages messages) {
+        this.messages = messages;
     }
 }
