@@ -28,6 +28,8 @@ public class BookingController {
     @FXML private TableColumn<Booking, String> descriptionColumn;
     @FXML private TableColumn<Booking, String> statusColumn;
 
+    private UserMessages messages;
+
     // FORM FIELDS (NewBookingView.fxml)
     @FXML private ComboBox<String> vehicleIdField;
     @FXML private DatePicker datePicker;
@@ -97,6 +99,7 @@ public class BookingController {
     // ---------------------------------------------------------
     @FXML
     private void handleNewBooking() {
+        messages.clearMessage();
         loadCenterView("/com/wac/autocore/gui/view/NewBookingView.fxml");
     }
 
@@ -108,25 +111,27 @@ public class BookingController {
         try {
             // Vehicle ID från ComboBox ("3 - Volvo XC90")
             String vehicleString = vehicleIdField.getValue();
+
+            if (vehicleString == null) {
+                messages.showError("Please select a vehicle.");
+                return;
+            }
+
             int vehicleId = Integer.parseInt(vehicleString.split(" - ")[0]);
 
             // Datum
             LocalDate selectedDate = datePicker.getValue();
             LocalDate today = LocalDate.now();
-            /*
-            // Datum får inte vara null
+
             if (selectedDate == null) {
-                showError("Du måste välja ett datum.");
+                messages.showError("Please select a date.");
                 return;
             }
 
-            // Datum får inte vara innan idag
             if (selectedDate.isBefore(today)) {
-                showError("Datumet kan inte vara tidigare än dagens datum.");
+                messages.showError("The booking date cannot be before today.");
                 return;
             }
-
-             */
 
             // Description
             String description = descriptionField.getText();
@@ -144,16 +149,20 @@ public class BookingController {
             Database.getBookings().add(booking);
 
             // Navigera tillbaka
+            messages.showSuccess("Booking created.");
             navigateToBookingView();
+
 
         } catch (Exception e) {
             e.printStackTrace();
+            messages.showError("An unexpected error occurred. Please check the booking list before trying again.");
         }
     }
 
 
     @FXML
     private void handleCancel() {
+        messages.clearMessage();
         navigateToBookingView();
     }
 
@@ -172,6 +181,9 @@ public class BookingController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent view = loader.load();
 
+            BookingController controller = loader.getController();
+            controller.setMessages(messages);
+
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(view);
@@ -179,6 +191,7 @@ public class BookingController {
 
         } catch (IOException e) {
             e.printStackTrace();
+            messages.showError("Could not open the booking view. Please try again.");
         }
     }
 
@@ -216,6 +229,10 @@ public class BookingController {
             }
         }
         return null;
+    }
+
+    public void setMessages(UserMessages messages) {
+        this.messages = messages;
     }
 }
 

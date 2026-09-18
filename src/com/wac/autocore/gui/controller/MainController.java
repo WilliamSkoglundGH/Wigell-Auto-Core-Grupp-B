@@ -3,18 +3,18 @@ package com.wac.autocore.gui.controller;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 
-public class MainController {
+public class MainController implements UserMessages {
 
     @FXML
     private BorderPane mainRoot;
 
     @FXML
-    private TextArea consoleOutput;
+    private Label messageLabel;
 
     // ---------------------------------------------------------
     // GENERIC VIEW LOADER
@@ -23,20 +23,37 @@ public class MainController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent view = loader.load();
+
+            Object controller = loader.getController();
+
+            if (controller instanceof BookingController) {
+                BookingController bookingController = (BookingController) controller;
+                bookingController.setMessages(this);
+            }
+
             mainRoot.setCenter(view);
 
-            log("Loaded view: " + fxmlPath);
+            clearMessage();
 
         } catch (IOException e) {
             e.printStackTrace();
-            log("ERROR loading: " + fxmlPath + " -> " + e.getMessage());
+            showError("Could not open the requested view. Please try again.");
         }
     }
 
-    private void log(String msg) {
-        if (consoleOutput != null) {
-            consoleOutput.appendText(msg + "\n");
-        }
+    @Override
+    public void showSuccess(String message) {
+        messageLabel.setText("Success: " + message);
+    }
+
+    @Override
+    public void showError(String message) {
+        messageLabel.setText("Error: " + message);
+    }
+
+    @Override
+    public void clearMessage() {
+        messageLabel.setText("");
     }
 
     // ---------------------------------------------------------
