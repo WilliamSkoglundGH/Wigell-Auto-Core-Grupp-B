@@ -54,18 +54,20 @@
     <!-- MEDDELANDEN TILL ANVÄNDAREN + EXIT KNAPP -->
     <bottom>
         <BorderPane styleClass="container-padding-small">
+
             <center>
-                <VBox alignment="CENTER" spacing="5">
-                    <Label text="Usermessage"
-                           alignment="CENTER"
-                           minHeight="20"/>
+                <VBox alignment="CENTER"
+                      spacing="5"
+                      prefWidth="Infinity">
 
                     <Label fx:id="messageLabel"
                            wrapText="true"
                            alignment="CENTER"
-                           minWidth="200"
-                           minHeight="30"
+                           maxWidth="Infinity"
+                           prefHeight="60"
+                           maxHeight="60"
                            styleClass="msg-area"/>
+
                 </VBox>
             </center>
 
@@ -73,10 +75,15 @@
                 <Button text="Exit"
                         onAction="#handleExit"
                         prefWidth="120"
+                        prefHeight="60"
+                        maxHeight="60"
                         BorderPane.alignment="BOTTOM_RIGHT"/>
+
             </right>
+
         </BorderPane>
     </bottom>
+
 
 
 </BorderPane>

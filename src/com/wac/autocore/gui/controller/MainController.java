@@ -17,6 +17,11 @@ public class MainController implements UserMessages {
     @FXML
     private Label messageLabel;
 
+    @FXML
+    public void initialize() {
+        showCustomerView();
+    }
+
     // ---------------------------------------------------------
     // GENERIC VIEW LOADER
     // ---------------------------------------------------------
