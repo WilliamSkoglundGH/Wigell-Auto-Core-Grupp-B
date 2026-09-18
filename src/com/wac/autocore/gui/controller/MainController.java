@@ -64,18 +64,24 @@ public class MainController implements UserMessages {
 
     @Override
     public void showSuccess(String message) {
-        messageLabel.setText("Success: " + message);
+        messageLabel.getStyleClass().removeAll("msg-error", "msg-success");
+        messageLabel.getStyleClass().add("msg-success");
+        messageLabel.setText(message);
     }
 
     @Override
     public void showError(String message) {
-        messageLabel.setText("Error: " + message);
+        messageLabel.getStyleClass().removeAll("msg-error", "msg-success");
+        messageLabel.getStyleClass().add("msg-error");
+        messageLabel.setText(message);
     }
 
     @Override
     public void clearMessage() {
+        messageLabel.getStyleClass().removeAll("msg-error", "msg-success");
         messageLabel.setText("");
     }
+
 
     // ---------------------------------------------------------
     // MENU BUTTON ACTIONS

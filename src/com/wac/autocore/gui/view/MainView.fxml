@@ -2,44 +2,76 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="mainRoot" xmlns="http://javafx.com/javafx"
+<BorderPane fx:id="mainRoot"
+            xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.wac.autocore.gui.controller.MainController"
-            prefHeight="800.0" prefWidth="1000.0">
+            prefHeight="800.0"
+            prefWidth="1000.0">
+
     <!-- MENY TILL VÄNSTER -->
     <left>
-        <VBox styleClass="button-spacing,text-center,container-padding-small">
-            <Label text="WAC" styleClass="heading-1"/>
-            <Label text="Wigell Auto Core" styleClass="caption"/>
-            <Button text="Customers" onAction="#showCustomerView" prefWidth="120" />
-            <Button text="Vehicles" onAction="#showVehicleView" prefWidth="120" />
-            <Button text="Bookings" onAction="#showBookingView" prefWidth="120" />
-            <Button text="Workorders" onAction="#showWorkOrderView" prefWidth="120" />
-            <Button text="Invoices" onAction="#showInvoiceView" prefWidth="120" />
-            <Button text="Payments" onAction="#showPaymentView" prefWidth="120" />
-            <Button text="Serviceitems" onAction="#showServiceItemView" prefWidth="120" />
+        <VBox spacing="20" styleClass="container-padding-small">
+
+            <VBox spacing="5" styleClass="text-center">
+                <Label text="WAC" styleClass="heading-1"/>
+                <Label text="Wigell Auto Core" styleClass="caption"/>
+            </VBox>
+
+            <Separator/>
+
+            <VBox spacing="10" styleClass="button-spacing,text-center">
+                <Button text="Customers"
+                        onAction="#showCustomerView" prefWidth="120"/>
+                <Button text="Vehicles"
+                        onAction="#showVehicleView" prefWidth="120"/>
+                <Button text="Bookings"
+                        onAction="#showBookingView" prefWidth="120"/>
+                <Button text="Workorders"
+                        onAction="#showWorkOrderView" prefWidth="120"/>
+                <Button text="Invoices"
+                        onAction="#showInvoiceView" prefWidth="120"/>
+                <Button text="Payments"
+                        onAction="#showPaymentView" prefWidth="120"/>
+                <Button text="Serviceitems"
+                        onAction="#showServiceItemView" prefWidth="120"/>
+            </VBox>
+
         </VBox>
     </left>
 
-    <!-- CENTER (Här laddas respektive FXML dynamiskt) -->
-    <center >
-        <!-- Standardvyn när programmet startar -->
+    <!-- CENTER: VALD VY -->
+    <center>
         <VBox styleClass="content-center">
-            <Label text="Welcome" styleClass="heading-2" />
+            <Label text="Welcome" styleClass="heading-2"/>
         </VBox>
     </center>
 
     <!-- MEDDELANDEN TILL ANVÄNDAREN -->
     <bottom>
-        <VBox styleClass="container-padding-small">
+        <VBox alignment="CENTER"
+              spacing="5"
+              prefWidth="Infinity"
+              styleClass="container-padding-small">
+
+            <!-- Överskrift -->
+            <Label text="Usermessage"
+                   alignment="CENTER"
+                   minHeight="20"/>
+
+            <!-- Själva meddelandet -->
             <Label fx:id="messageLabel"
-                   text=""
                    wrapText="true"
-                   maxWidth="Infinity"
-                   minHeight="30"/>
+                   alignment="CENTER"
+                   minWidth="200"
+                   minHeight="30"
+                   styleClass="msg-area"/>
         </VBox>
     </bottom>
+
+
 </BorderPane>
