@@ -33,12 +33,14 @@
         </VBox>
     </center>
 
-    <!-- SYSTEMLOGG I BOTTEN -->
+    <!-- MEDDELANDEN TILL ANVÄNDAREN -->
     <bottom>
-        <VBox spacing="5">
-            <Label text="Systemlogg (System.out):" />
-            <TextArea fx:id="consoleOutput" prefHeight="150.0" editable="false" wrapText="true" />
+        <VBox styleClass="container-padding-small">
+            <Label fx:id="messageLabel"
+                   text=""
+                   wrapText="true"
+                   maxWidth="Infinity"
+                   minHeight="30"/>
         </VBox>
     </bottom>
-
 </BorderPane>
