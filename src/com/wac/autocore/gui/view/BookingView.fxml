@@ -28,7 +28,7 @@
         </TableView>
 
         <!-- Knapp för att skapa ny booking -->
-        <Button text="New Booking" onAction="#handleNewBooking" />
+        <Button text="New" onAction="#handleNewBooking" />
 
     </children>
 </VBox>
