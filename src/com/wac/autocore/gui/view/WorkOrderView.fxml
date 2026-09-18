@@ -29,7 +29,6 @@
             <Button text="New" onAction="#handleNewWorkOrder" />
             <Button text="Start" onAction="#handleStartWorkOrder" />
             <Button text="Complete" onAction="#handleCompleteWorkOrder" />
-
         </HBox>
     </children>
 </VBox>
