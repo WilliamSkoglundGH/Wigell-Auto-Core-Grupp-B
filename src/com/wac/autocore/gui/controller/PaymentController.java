@@ -49,6 +49,8 @@ public class PaymentController {
     @FXML
     private TextField amountField;
 
+    private UserMessages messages;
+
     @FXML
     public void initialize() {
         if (paymentTable != null) {
@@ -94,11 +96,11 @@ public class PaymentController {
             if (mainLayout != null) {
                 mainLayout.setCenter(newPaymentView);
             } else {
-                System.err.println("Could not find BorderPane!");
+                messages.showError("Could not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not load NewPaymentView.fxml: " + e.getMessage());
+            messages.showError("Could not load NewPaymentView.fxml: " + e.getMessage());
         }
     }
     @FXML
@@ -119,29 +121,30 @@ public class PaymentController {
 
                 selectedInvoice.setPaid(true);
 
-                navigateToPaymentView();
+
                 if ("CARD".equalsIgnoreCase(paymentType)) {
-                    System.out.println("card:\n" +
+                    messages.showSuccess("card:\n" +
                             "Connecting directly to SuperCardPayment...\n" +
                             "Card payment approved.\n" +
                             "Payment completed successfully.\n" +
                             "Sending payment confirmation to customer...\n" +
                             "Confirmation sent.");
                 } else if ("CASH".equalsIgnoreCase(paymentType)) {
-                    System.out.println("Registering cash payment...\n" +
+                    messages.showSuccess("Registering cash payment...\n" +
                             "Payment completed successfully.\n" +
                             "Sending payment confirmation to customer...\n" +
                             "Confirmation sent.");
                 } else {
-                    System.out.println("\n" +
+                    messages.showSuccess("\n" +
                             "Calling Swish payment service...\n" +
                             "Swish payment approved.\n" +
                             "Payment completed successfully.\n" +
                             "Sending payment confirmation to customer...\n" +
                             "Confirmation sent.\n");
                 }
+                navigateToPaymentView();
             } else {
-                System.err.println("Please select an invoice and payment type!");
+                messages.showError("Please select an invoice and payment type!");
             }
         }
     }
@@ -156,15 +159,25 @@ public class PaymentController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/PaymentView.fxml"));
             Parent paymentView = loader.load();
 
+            // Hämta den nya kontrollern och skicka med messages!
+            PaymentController controller = loader.getController();
+            if (controller != null) {
+                controller.setMessages(this.messages);
+            }
+
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(paymentView);
             } else {
-                System.err.println("Could not find BorderPane!");
+                if (messages != null) {
+                    messages.showError("Could not find BorderPane!");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not load PaymentView.fxml: " + e.getMessage());
+            if (messages != null) {
+                messages.showError("Could not load PaymentView.fxml: " + e.getMessage());
+            }
         }
     }
 
@@ -200,6 +213,9 @@ public class PaymentController {
             }
         }
         return null;
+    }
+    public void setMessages(UserMessages messages) {
+        this.messages = messages;
     }
 }
 /*

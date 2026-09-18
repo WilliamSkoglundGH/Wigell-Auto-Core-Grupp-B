@@ -32,6 +32,8 @@ public class CustomerController {
     @FXML private TextField emailField;
     @FXML private CheckBox vipCheckBox;
 
+    private UserMessages messages;
+
     @FXML
     public void initialize() {
         if (customerTable != null) {
@@ -65,11 +67,11 @@ public class CustomerController {
             if (mainLayout != null) {
                 mainLayout.setCenter(newCustomerView);
             } else {
-                System.err.println("Ccould not find BorderPane!");
+                messages.showError("Ccould not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not load NewCustomerView.fxml: " + e.getMessage());
+            messages.showError("Could not load NewCustomerView.fxml: " + e.getMessage());
         }
     }
 
@@ -84,12 +86,12 @@ public class CustomerController {
             String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
 
             if (name == null || name.trim().isEmpty()) {
-                System.err.println("Please enter a name!");
+                messages.showError("Please enter a name!");
                 return;
             }
 
             if (email == null || !email.matches(emailRegex)) {
-                System.err.println("Invalid email.");
+                messages.showError("Invalid email.");
                 return;
             }
 
@@ -97,7 +99,7 @@ public class CustomerController {
             Customer newCustomer = new Customer(newId, name, phone, email);
             newCustomer.setVip(isVip);
             Database.getCustomers().add(newCustomer);
-
+            messages.showSuccess("Customer created.");
             navigateToCustomerView();
         }
     }
@@ -116,11 +118,11 @@ public class CustomerController {
             if (mainLayout != null) {
                 mainLayout.setCenter(customerView);
             } else {
-                System.err.println("Could not find BorderPane!");
+                messages.showError("Could not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not load CustomerView.fxml: " + e.getMessage());
+            messages.showError("Could not load CustomerView.fxml: " + e.getMessage());
         }
     }
 
@@ -156,5 +158,8 @@ public class CustomerController {
             }
         }
         return null;
+    }
+    public void setMessages(UserMessages messages) {
+        this.messages = messages;
     }
 }

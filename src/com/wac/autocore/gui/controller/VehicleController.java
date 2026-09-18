@@ -34,6 +34,9 @@ public class VehicleController {
     @FXML private TextField modelField;
     @FXML private TextField yearField;
     @FXML private ComboBox<Customer> customerComboBox;
+
+    private UserMessages messages;
+    
     @FXML
     public void initialize() {
         if (vehicleTable != null) {
@@ -72,11 +75,11 @@ public class VehicleController {
             if (mainLayout != null) {
                 mainLayout.setCenter(newVehicleView);
             } else {
-                System.err.println("Could not find BorderPane!");
+                messages.showError("Could not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not load NewVehicleView.fxml: " + e.getMessage());
+            messages.showError("Could not load NewVehicleView.fxml: " + e.getMessage());
         }
     }
     @FXML
@@ -95,13 +98,13 @@ public class VehicleController {
 
                     Vehicle newVehicle = new Vehicle(newId, regNo, brand, model, year, selectedCustomer.getId());
                     Database.getVehicles().add(newVehicle);
-
+                    messages.showSuccess("Vehicle created.");
                     navigateToVehicleView();
                 } else {
-                    System.err.println("Please enter all data and choose a customer!");
+                    messages.showError("Please enter all data and choose a customer!");
                 }
             } catch (NumberFormatException e) {
-                System.err.println("Not a correct year!");
+                messages.showError("Not a correct year!");
             }
         }
     }
@@ -120,11 +123,11 @@ public class VehicleController {
             if (mainLayout != null) {
                 mainLayout.setCenter(vehicleView);
             } else {
-                System.err.println("Could not find BorderPane!");
+                messages.showError("Could not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not load VehicleView.fxml: " + e.getMessage());
+            messages.showError("Could not load VehicleView.fxml: " + e.getMessage());
         }
     }
 
@@ -160,5 +163,8 @@ public class VehicleController {
             }
         }
         return null;
+    }
+    public void setMessages(UserMessages messages) {
+        this.messages = messages;
     }
 }

@@ -44,9 +44,13 @@ public class InvoiceController {
     @FXML
     private TableColumn<Invoice, Boolean> paidColumn;
 
-    @FXML private TextField discountCodeField;
-    @FXML private ComboBox<WorkOrder> workOrderComboBox;
+    @FXML
+    private TextField discountCodeField;
+    @FXML
+    private ComboBox<WorkOrder> workOrderComboBox;
 
+    private UserMessages messages;
+    
     @FXML
     public void initialize() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -86,6 +90,7 @@ public class InvoiceController {
         }
         return null;
     }
+
     private BorderPane searchBorderPaneRecursive(Parent parent) {
         if (parent instanceof BorderPane) {
             return (BorderPane) parent;
@@ -128,18 +133,19 @@ public class InvoiceController {
                 mainLayout.setCenter(newInvoiceView);
 
             } else {
-                System.err.println("Could not find BorderPane to present the form.");
+                messages.showError("Could not find BorderPane to present the form.");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not load NewInvoiceView.fxml: " + e.getMessage());
+            messages.showError("Could not load NewInvoiceView.fxml: " + e.getMessage());
         }
     }
+
     @FXML
     private void handleSaveInvoice() {
         // 1. Säkerhet: Kontrollera att en arbetsorder faktiskt är vald
         if (workOrderComboBox == null || workOrderComboBox.getValue() == null) {
-            System.err.println("Please select a work order before saving an invoice!");
+            messages.showError("Please select a work order before saving an invoice!");
             return;
         }
 
@@ -150,7 +156,7 @@ public class InvoiceController {
                 .anyMatch(i -> i.getWorkOrderId() == workOrder.getId());
 
         if (alreadyInvoiced) {
-            System.err.println("An invoice already exists for this work order!");
+            messages.showError("An invoice already exists for this work order!");
             return;
         }
 
@@ -160,12 +166,15 @@ public class InvoiceController {
                 .createInvoice(workOrder.getId(), discountCode);
 
         if (invoice != null) {
+            messages.showSuccess("Booking created.");
             navigateToInvoiceView();
+        } else {
+            messages.showError("Invoice not created.");
         }
 
 
-
     }
+
     @FXML
     private void handleCancel() {
         navigateToInvoiceView();
@@ -176,15 +185,29 @@ public class InvoiceController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/InvoiceView.fxml"));
             Parent invoiceView = loader.load();
 
+            // Hämta den nya kontrollern och skicka med messages!
+            InvoiceController controller = loader.getController();
+            if (controller != null) {
+                controller.setMessages(this.messages);
+            }
+
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(invoiceView);
             } else {
-                System.err.println("Could not find BorderPane!");
+                if (messages != null) {
+                    messages.showError("Could not find BorderPane!");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not load InvoiceView.fxml: " + e.getMessage());
+            if (messages != null) {
+                messages.showError("Could not load InvoiceView.fxml: " + e.getMessage());
+            }
         }
+    }
+
+    public void setMessages(UserMessages messages) {
+        this.messages = messages;
     }
 }
