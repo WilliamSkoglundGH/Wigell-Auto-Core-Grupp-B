@@ -4,9 +4,11 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 
+import javafx.event.ActionEvent;
 import java.io.IOException;
 
 public class MainController implements UserMessages {
@@ -17,10 +19,22 @@ public class MainController implements UserMessages {
     @FXML
     private Label messageLabel;
 
+    private Button activeMenuButton;
+
+
+    private void markActiveMenuButton(Button button) {
+        if (activeMenuButton != null) {
+            activeMenuButton.getStyleClass().remove("active-button");
+        }
+
+        activeMenuButton = button;
+        activeMenuButton.getStyleClass().add("active-button");
+    }
+
     // ---------------------------------------------------------
     // GENERIC VIEW LOADER
     // ---------------------------------------------------------
-    private void loadView(String fxmlPath) {
+    private void loadView(String fxmlPath, Button menuButton) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent view = loader.load();
@@ -54,6 +68,7 @@ public class MainController implements UserMessages {
             }
 
             mainRoot.setCenter(view);
+            markActiveMenuButton(menuButton);
 
             clearMessage();
 
@@ -89,38 +104,45 @@ public class MainController implements UserMessages {
     // ---------------------------------------------------------
 
     @FXML
-    private void showCustomerView() {
-        loadView("/com/wac/autocore/gui/view/CustomerView.fxml");
+    private void showCustomerView(ActionEvent event) {
+        Button clickedButton = (Button) event.getSource();
+        loadView("/com/wac/autocore/gui/view/CustomerView.fxml", clickedButton);
     }
 
     @FXML
-    private void showVehicleView() {
-        loadView("/com/wac/autocore/gui/view/VehicleView.fxml");
+    private void showVehicleView(ActionEvent event) {
+        Button clickedButton = (Button) event.getSource();
+        loadView("/com/wac/autocore/gui/view/VehicleView.fxml", clickedButton);
     }
 
     @FXML
-    private void showBookingView() {
-        loadView("/com/wac/autocore/gui/view/BookingView.fxml");
+    private void showBookingView(ActionEvent event) {
+        Button clickedButton = (Button) event.getSource();
+        loadView("/com/wac/autocore/gui/view/BookingView.fxml", clickedButton);
     }
 
     @FXML
-    private void showInvoiceView() {
-        loadView("/com/wac/autocore/gui/view/InvoiceView.fxml");
+    private void showInvoiceView(ActionEvent event) {
+        Button clickedButton = (Button) event.getSource();
+        loadView("/com/wac/autocore/gui/view/InvoiceView.fxml", clickedButton);
     }
 
     @FXML
-    private void showWorkOrderView() {
-        loadView("/com/wac/autocore/gui/view/WorkOrderView.fxml");
+    private void showWorkOrderView(ActionEvent event) {
+        Button clickedButton = (Button) event.getSource();
+        loadView("/com/wac/autocore/gui/view/WorkOrderView.fxml", clickedButton);
     }
 
     @FXML
-    private void showPaymentView() {
-        loadView("/com/wac/autocore/gui/view/PaymentView.fxml");
+    private void showPaymentView(ActionEvent event) {
+        Button clickedButton = (Button) event.getSource();
+        loadView("/com/wac/autocore/gui/view/PaymentView.fxml", clickedButton);
     }
 
     @FXML
-    private void showServiceItemView() {
-        loadView("/com/wac/autocore/gui/view/ServiceItemView.fxml");
+    private void showServiceItemView(ActionEvent event) {
+        Button clickedButton = (Button) event.getSource();
+        loadView("/com/wac/autocore/gui/view/ServiceItemView.fxml", clickedButton);
     }
 
     @FXML

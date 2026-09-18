@@ -166,6 +166,7 @@ public class WorkOrderController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(newWorkOrderView);
+                bookingComboBox.requestFocus();
             } else {
                 messages.showError("Could not find BorderPane!");
             }
@@ -269,6 +270,7 @@ public class WorkOrderController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(workOrderView);
+                controller.workOrderTable.requestFocus();
             } else {
                 if (messages != null) {
                     messages.showError("Could not find BorderPane!");

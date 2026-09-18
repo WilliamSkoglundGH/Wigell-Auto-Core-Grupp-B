@@ -332,3 +332,12 @@
 .content-center {
     -fx-alignment: center;
 }
+
+.button.active-button {
+    -fx-border-color: -dark-gray;
+    -fx-border-width: 2px;
+    -fx-border-radius: 4px;
+    -fx-border-insets: -2px;
+}
+
+
