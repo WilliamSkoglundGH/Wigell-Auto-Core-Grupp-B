@@ -113,7 +113,7 @@
     -fx-background-radius: 4px;
     -fx-padding: 8px 18px;
     -fx-cursor: hand;
-    -fx-border-color: --accent-hover;
+    -fx-border-color: -accent-hover;
 }
 
 .button:hover { -fx-background-color: -accent-hover; }

@@ -166,7 +166,7 @@ public class InvoiceController {
                 .createInvoice(workOrder.getId(), discountCode);
 
         if (invoice != null) {
-            messages.showSuccess("Booking created.");
+            messages.showSuccess("Invoice created.");
             navigateToInvoiceView();
         } else {
             messages.showError("Invoice not created.");
