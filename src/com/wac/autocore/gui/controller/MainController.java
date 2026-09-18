@@ -1,5 +1,6 @@
 package com.wac.autocore.gui.controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -114,5 +115,10 @@ public class MainController implements UserMessages {
     @FXML
     private void showServiceItemView() {
         loadView("/com/wac/autocore/gui/view/ServiceItemView.fxml");
+    }
+
+    @FXML
+    private void handleExit() {
+        Platform.exit();
     }
 }

@@ -21,6 +21,7 @@
             <Button text="Invoices" onAction="#showInvoiceView" prefWidth="120" />
             <Button text="Payments" onAction="#showPaymentView" prefWidth="120" />
             <Button text="Serviceitems" onAction="#showServiceItemView" prefWidth="120" />
+            <Button text="Exit" onAction="#handleExit" prefWidth="120" />
         </VBox>
     </left>
 
@@ -34,12 +35,21 @@
 
     <!-- MEDDELANDEN TILL ANVÄNDAREN -->
     <bottom>
-        <VBox styleClass="container-padding-small">
-            <Label fx:id="messageLabel"
-                   text=""
-                   wrapText="true"
-                   maxWidth="Infinity"
-                   minHeight="30"/>
-        </VBox>
+        <BorderPane styleClass="container-padding-small">
+            <center>
+                <Label fx:id="messageLabel"
+                       text=""
+                       wrapText="true"
+                       maxWidth="Infinity"
+                       minHeight="30"/>
+            </center>
+
+            <right>
+                <Button text="Exit"
+                        onAction="#handleExit"
+                        prefWidth="120"
+                        BorderPane.alignment="BOTTOM_RIGHT"/>
+            </right>
+        </BorderPane>
     </bottom>
 </BorderPane>
