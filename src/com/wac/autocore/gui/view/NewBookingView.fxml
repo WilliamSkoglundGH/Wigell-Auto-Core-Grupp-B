@@ -2,30 +2,42 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<VBox styleClass="container-padding,container-spacing"
+<VBox spacing="15"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.wac.autocore.gui.controller.BookingController">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
 
     <children>
 
         <!-- Titel -->
         <Label text="New Booking" styleClass="heading-2" />
 
-        <!-- GridPane för alla fält -->
-        <GridPane styleClass="form-grid">
+        <!-- Formulär -->
+        <GridPane hgap="10" vgap="12">
+
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" />
+                <ColumnConstraints />
+            </columnConstraints>
 
             <!-- Vehicle -->
             <Label text="Vehicle:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
             <ComboBox fx:id="vehicleIdField"
                       promptText="Select vehicle"
+                      prefWidth="250"
                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
             <!-- Date -->
             <Label text="Date:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
             <DatePicker fx:id="datePicker"
                         promptText="YYYY-MM-DD"
+                        prefWidth="250"
                         GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
             <!-- Description -->
@@ -34,18 +46,22 @@
                       promptText="Enter description"
                       prefRowCount="3"
                       wrapText="true"
+                      prefWidth="250"
                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+
 
         </GridPane>
 
         <!-- Buttons -->
-        <HBox styleClass="button-row">
+        <HBox spacing="10">
             <Button text="Save Booking" onAction="#handleSaveBooking"/>
             <Button text="Cancel" onAction="#handleCancel"/>
         </HBox>
 
     </children>
 </VBox>
+
 
 
 
