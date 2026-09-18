@@ -51,26 +51,31 @@
         </VBox>
     </center>
 
-    <!-- MEDDELANDEN TILL ANVÄNDAREN -->
+    <!-- MEDDELANDEN TILL ANVÄNDAREN + EXIT KNAPP -->
     <bottom>
-        <VBox alignment="CENTER"
-              spacing="5"
-              prefWidth="Infinity"
-              styleClass="container-padding-small">
+        <BorderPane styleClass="container-padding-small">
+            <center>
+                <VBox alignment="CENTER" spacing="5">
+                    <Label text="Usermessage"
+                           alignment="CENTER"
+                           minHeight="20"/>
 
-            <!-- Överskrift -->
-            <Label text="Usermessage"
-                   alignment="CENTER"
-                   minHeight="20"/>
+                    <Label fx:id="messageLabel"
+                           wrapText="true"
+                           alignment="CENTER"
+                           minWidth="200"
+                           minHeight="30"
+                           styleClass="msg-area"/>
+                </VBox>
+            </center>
 
-            <!-- Själva meddelandet -->
-            <Label fx:id="messageLabel"
-                   wrapText="true"
-                   alignment="CENTER"
-                   minWidth="200"
-                   minHeight="30"
-                   styleClass="msg-area"/>
-        </VBox>
+            <right>
+                <Button text="Exit"
+                        onAction="#handleExit"
+                        prefWidth="120"
+                        BorderPane.alignment="BOTTOM_RIGHT"/>
+            </right>
+        </BorderPane>
     </bottom>
 
 
