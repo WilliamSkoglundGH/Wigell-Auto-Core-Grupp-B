@@ -19,8 +19,15 @@ public class MainController implements UserMessages {
     @FXML
     private Label messageLabel;
 
+    @FXML
+    private Button customerButton;
+
     private Button activeMenuButton;
 
+    @FXML
+    public void initialize() {
+        loadView("/com/wac/autocore/gui/view/CustomerView.fxml", customerButton);
+    }
 
     private void markActiveMenuButton(Button button) {
         if (activeMenuButton != null) {
@@ -30,6 +37,8 @@ public class MainController implements UserMessages {
         activeMenuButton = button;
         activeMenuButton.getStyleClass().add("active-button");
     }
+
+
 
     // ---------------------------------------------------------
     // GENERIC VIEW LOADER

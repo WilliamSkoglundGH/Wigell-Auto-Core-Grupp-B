@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.layout.HBox?>
 <BorderPane fx:id="mainRoot"
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -25,7 +26,7 @@
             <Separator/>
 
             <VBox spacing="10" styleClass="button-spacing,text-center">
-                <Button text="Customers"
+                <Button fx:id="customerButton" text="Customers"
                         onAction="#showCustomerView" prefWidth="120"/>
                 <Button text="Vehicles"
                         onAction="#showVehicleView" prefWidth="120"/>
@@ -53,30 +54,28 @@
 
     <!-- MEDDELANDEN TILL ANVÄNDAREN + EXIT KNAPP -->
     <bottom>
-        <BorderPane styleClass="container-padding-small">
-            <center>
-                <VBox alignment="CENTER" spacing="5">
-                    <Label text="Usermessage"
-                           alignment="CENTER"
-                           minHeight="20"/>
+        <HBox spacing="10"
+              alignment="BOTTOM_CENTER"
+              styleClass="container-padding-small">
 
-                    <Label fx:id="messageLabel"
-                           wrapText="true"
-                           alignment="CENTER"
-                           minWidth="200"
-                           minHeight="30"
-                           styleClass="msg-area"/>
-                </VBox>
-            </center>
+            <Label fx:id="messageLabel"
+                   wrapText="true"
+                   alignment="CENTER"
+                   maxWidth="Infinity"
+                   prefHeight="60"
+                   maxHeight="60"
+                   HBox.hgrow="ALWAYS"
+                   styleClass="msg-area"/>
 
-            <right>
-                <Button text="Exit"
-                        onAction="#handleExit"
-                        prefWidth="120"
-                        BorderPane.alignment="BOTTOM_RIGHT"/>
-            </right>
-        </BorderPane>
+            <Button text="Exit"
+                    onAction="#handleExit"
+                    prefWidth="120"
+                    prefHeight="40"
+                    maxHeight="40"/>
+        </HBox>
     </bottom>
+
+
 
 
 </BorderPane>
