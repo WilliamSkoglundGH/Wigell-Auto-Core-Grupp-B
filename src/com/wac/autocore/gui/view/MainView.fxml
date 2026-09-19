@@ -13,43 +13,71 @@
             prefHeight="800.0"
             prefWidth="1000.0">
 
+    <!-- HEADER HÖGST UPP -->
+    <top>
+        <VBox spacing="10" styleClass="header-box">
+            <Label text="WAC"
+                   styleClass="heading-1"
+                   style="-fx-text-fill: #FFC145;" />
+
+            <Label text="Wigell Auto Core"
+                   styleClass="caption"/>
+
+            <Separator prefWidth="Infinity"/>
+        </VBox>
+    </top>
+
+
+
+
+
+
+
+
     <!-- MENY TILL VÄNSTER -->
     <left>
         <VBox spacing="20" styleClass="container-padding-small">
 
-            <VBox spacing="5" styleClass="text-center">
-                <Label text="WAC" styleClass="heading-1"/>
-                <Label text="Wigell Auto Core" styleClass="caption"/>
-            </VBox>
-
-            <Separator/>
-
             <VBox spacing="10" styleClass="button-spacing,text-center">
-                <Button text="Customers"
-                        onAction="#showCustomerView" prefWidth="120"/>
-                <Button text="Vehicles"
-                        onAction="#showVehicleView" prefWidth="120"/>
-                <Button text="Bookings"
-                        onAction="#showBookingView" prefWidth="120"/>
-                <Button text="Workorders"
-                        onAction="#showWorkOrderView" prefWidth="120"/>
-                <Button text="Invoices"
-                        onAction="#showInvoiceView" prefWidth="120"/>
-                <Button text="Payments"
-                        onAction="#showPaymentView" prefWidth="120"/>
-                <Button text="Serviceitems"
-                        onAction="#showServiceItemView" prefWidth="120"/>
+                <Button fx:id="customersButton"
+                        text="Customers"
+                        onAction="#showCustomerView"
+                        prefWidth="120"/>
+
+                <Button fx:id="vehiclesButton"
+                        text="Vehicles"
+                        onAction="#showVehicleView"
+                        prefWidth="120"/>
+
+                <Button fx:id="bookingsButton"
+                        text="Bookings"
+                        onAction="#showBookingView"
+                        prefWidth="120"/>
+
+                <Button fx:id="workordersButton"
+                        text="Workorders"
+                        onAction="#showWorkOrderView"
+                        prefWidth="120"/>
+
+                <Button fx:id="invoicesButton"
+                        text="Invoices"
+                        onAction="#showInvoiceView"
+                        prefWidth="120"/>
+
+                <Button fx:id="paymentsButton"
+                        text="Payments"
+                        onAction="#showPaymentView"
+                        prefWidth="120"/>
+
+                <Button fx:id="serviceitemsButton"
+                        text="Serviceitems"
+                        onAction="#showServiceItemView"
+                        prefWidth="120"/>
             </VBox>
 
         </VBox>
     </left>
 
-    <!-- CENTER: VALD VY -->
-    <center>
-        <VBox styleClass="content-center">
-            <Label text="Welcome" styleClass="heading-2"/>
-        </VBox>
-    </center>
 
     <!-- MEDDELANDEN TILL ANVÄNDAREN + EXIT KNAPP -->
     <bottom>
