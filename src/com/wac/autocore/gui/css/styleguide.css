@@ -31,11 +31,11 @@
     -black:          #000000;   /* OBS! Krävs enbart för text på -sunflower */
 
     /* Härledda toner */
-    -accent-hover:   derive(-sunflower, -10%);   /* 11.97:1 mot svart text */
-    -accent-pressed: derive(-sunflower, -20%);   /* 11.08:1 mot svart text */
-    -text-accent:    -dark-gray;                 /* 9.56:1 mot cream-white, 7.67:1 mot pale-khaki - ingen härledning behövs i v1.1 */
+    -accent-hover:   derive(-sunflower, -10%);
+    -accent-pressed: derive(-sunflower, -20%);
+    -text-accent:    -dark-gray;
 
-    /* Semantiska roller  */
+    /* Semantiska roller */
     -bg-base:          -cream-white;
     -bg-surface:        -pale-khaki;
     -text-primary:       -black;
@@ -49,6 +49,21 @@
     -fx-background-color: -bg-base;
     -fx-text-fill: -text-primary;
 }
+
+.wac-title {
+    -fx-text-fill: -sunflower;
+}
+
+/* HEADER BOX (WAC + Wigell Auto Core) */
+.header-box {
+    -fx-background-color: transparent;   /* ingen bakgrund */
+    -fx-text-fill: -sunflower;           /* sunflower text */
+    -fx-padding: 20;
+    -fx-alignment: center;
+}
+
+
+
 
 .button:focused,
 .tab:focused,

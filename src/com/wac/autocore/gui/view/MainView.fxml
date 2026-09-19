@@ -14,16 +14,27 @@
             prefHeight="800.0"
             prefWidth="1000.0">
 
+    <!-- HEADER HÖGST UPP -->
+    <top>
+        <VBox spacing="10" styleClass="header-box">
+            <Label text="WAC"
+                   styleClass="heading-1"
+                   style="-fx-text-fill: #FFC145;" />
+
+            <Label text="Wigell Auto Core"
+                   styleClass="caption"/>
+
+            <Separator prefWidth="Infinity"/>
+        </VBox>
+    </top>
+
+
+
+
+
     <!-- MENY TILL VÄNSTER -->
     <left>
         <VBox spacing="20" styleClass="container-padding-small">
-
-            <VBox spacing="5" styleClass="text-center">
-                <Label text="WAC" styleClass="heading-1"/>
-                <Label text="Wigell Auto Core" styleClass="caption"/>
-            </VBox>
-
-            <Separator/>
 
             <VBox spacing="10" styleClass="button-spacing,text-center">
                 <Button fx:id="customerButton" text="Customers"
@@ -47,12 +58,6 @@
         </VBox>
     </left>
 
-    <!-- CENTER: VALD VY -->
-    <center>
-        <VBox styleClass="content-center">
-            <Label text="Welcome" styleClass="heading-2"/>
-        </VBox>
-    </center>
 
     <!-- MEDDELANDEN TILL ANVÄNDAREN + EXIT KNAPP -->
     <bottom>
