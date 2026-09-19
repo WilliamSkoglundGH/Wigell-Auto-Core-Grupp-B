@@ -29,7 +29,6 @@
             <!-- Vehicle -->
             <Label text="Vehicle:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
             <ComboBox fx:id="vehicleIdField"
-                      promptText="Select vehicle"
                       prefWidth="250"
                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
