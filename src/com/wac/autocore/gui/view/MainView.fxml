@@ -40,6 +40,8 @@
                         onAction="#showPaymentView" prefWidth="120"/>
                 <Button text="Serviceitems"
                         onAction="#showServiceItemView" prefWidth="120"/>
+                <Button text="Exit"
+                        onAction="#handleExit" prefWidth="120"/>
             </VBox>
 
         </VBox>
@@ -66,12 +68,6 @@
                    maxHeight="60"
                    HBox.hgrow="ALWAYS"
                    styleClass="msg-area"/>
-
-            <Button text="Exit"
-                    onAction="#handleExit"
-                    prefWidth="120"
-                    prefHeight="40"
-                    maxHeight="40"/>
         </HBox>
     </bottom>
 
