@@ -294,7 +294,7 @@
    -fx-padding: 5px;
 }
 .container-padding {
-    -fx-padding: 42px 16px 16px 16px;
+    -fx-padding: 0px 16px 16px 16px;
 }
 .container-spacing {
     -fx-spacing: 10px;
@@ -314,7 +314,11 @@
 }
 
 .form-padding {
-    -fx-padding: 70px 16px 16px 60px;
+    -fx-padding: 0px 16px 16px 50px;
+}
+
+.nav-padding {
+    -fx-padding: 5px;
 }
 
 

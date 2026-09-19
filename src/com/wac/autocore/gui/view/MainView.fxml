@@ -34,7 +34,7 @@
 
     <!-- MENY TILL VÄNSTER -->
     <left>
-        <VBox spacing="20" styleClass="container-padding-small">
+        <VBox spacing="20" styleClass="nav-padding">
 
             <VBox spacing="10" styleClass="button-spacing,text-center">
                 <Button fx:id="customerButton" text="Customers"
