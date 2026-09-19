@@ -27,8 +27,8 @@
 
         <HBox styleClass="button-spacing">
             <Button text="New" onAction="#handleNewWorkOrder" />
-            <Button text="Start" onAction="#handleStartWorkOrder" styleClass="secondary" />
-            <Button text="Complete" onAction="#handleCompleteWorkOrder" styleClass="secondary" />
+            <Button text="Start" onAction="#handleStartWorkOrder" />
+            <Button text="Complete" onAction="#handleCompleteWorkOrder"/>
         </HBox>
     </children>
 </VBox>
