@@ -131,6 +131,7 @@ public class InvoiceController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(newInvoiceView);
+                workOrderComboBox.requestFocus();
 
             } else {
                 messages.showError("Could not find BorderPane to present the form.");
@@ -166,7 +167,7 @@ public class InvoiceController {
                 .createInvoice(workOrder.getId(), discountCode);
 
         if (invoice != null) {
-            messages.showSuccess("Booking created.");
+            messages.showSuccess("Invoice created.");
             navigateToInvoiceView();
         } else {
             messages.showError("Invoice not created.");
@@ -194,6 +195,7 @@ public class InvoiceController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(invoiceView);
+                controller.invoiceTable.requestFocus();
             } else {
                 if (messages != null) {
                     messages.showError("Could not find BorderPane!");

@@ -27,5 +27,6 @@ public class App extends Application {
         stage.setTitle("Wigell Auto Core - Verkstadssystem");
         stage.setScene(scene);
         stage.show();
+        root.requestFocus();
     }
 }

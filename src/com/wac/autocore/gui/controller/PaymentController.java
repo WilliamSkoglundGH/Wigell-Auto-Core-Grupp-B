@@ -95,6 +95,7 @@ public class PaymentController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(newPaymentView);
+                invoiceComboBox.requestFocus();
             } else {
                 messages.showError("Could not find BorderPane!");
             }
@@ -123,24 +124,11 @@ public class PaymentController {
 
 
                 if ("CARD".equalsIgnoreCase(paymentType)) {
-                    messages.showSuccess("card:\n" +
-                            "Connecting directly to SuperCardPayment...\n" +
-                            "Card payment approved.\n" +
-                            "Payment completed successfully.\n" +
-                            "Sending payment confirmation to customer...\n" +
-                            "Confirmation sent.");
+                    messages.showSuccess("card: Payment completed successfully.");
                 } else if ("CASH".equalsIgnoreCase(paymentType)) {
-                    messages.showSuccess("Registering cash payment...\n" +
-                            "Payment completed successfully.\n" +
-                            "Sending payment confirmation to customer...\n" +
-                            "Confirmation sent.");
+                    messages.showSuccess("cash: : Payment completed successfully.");
                 } else {
-                    messages.showSuccess("\n" +
-                            "Calling Swish payment service...\n" +
-                            "Swish payment approved.\n" +
-                            "Payment completed successfully.\n" +
-                            "Sending payment confirmation to customer...\n" +
-                            "Confirmation sent.\n");
+                    messages.showSuccess("swish: Payment completed successfully.");
                 }
                 navigateToPaymentView();
             } else {
@@ -168,6 +156,7 @@ public class PaymentController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(paymentView);
+                controller.paymentTable.requestFocus();
             } else {
                 if (messages != null) {
                     messages.showError("Could not find BorderPane!");

@@ -187,6 +187,12 @@ public class BookingController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(view);
+
+                if (controller.vehicleIdField != null) {
+                    controller.vehicleIdField.requestFocus();
+                } else if (controller.bookingTable != null) {
+                    controller.bookingTable.requestFocus();
+                }
             }
 
         } catch (IOException e) {

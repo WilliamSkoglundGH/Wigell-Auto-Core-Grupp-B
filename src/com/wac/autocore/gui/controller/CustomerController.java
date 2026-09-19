@@ -66,6 +66,7 @@ public class CustomerController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(newCustomerView);
+                nameField.requestFocus();
             } else {
                 messages.showError("Ccould not find BorderPane!");
             }
@@ -113,10 +114,13 @@ public class CustomerController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/CustomerView.fxml"));
             Parent customerView = loader.load();
+            CustomerController controller = loader.getController();
+            controller.setMessages(messages);
 
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(customerView);
+                controller.customerTable.requestFocus();
             } else {
                 messages.showError("Could not find BorderPane!");
             }

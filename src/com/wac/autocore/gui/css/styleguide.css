@@ -294,7 +294,7 @@
    -fx-padding: 5px;
 }
 .container-padding {
-    -fx-padding: 16px;
+    -fx-padding: 42px 16px 16px 16px;
 }
 .container-spacing {
     -fx-spacing: 10px;
@@ -305,3 +305,16 @@
 .content-center {
     -fx-alignment: center;
 }
+
+.button.active-button {
+    -fx-border-color: -dark-gray;
+    -fx-border-width: 2px;
+    -fx-border-radius: 4px;
+    -fx-border-insets: -2px;
+}
+
+.form-padding {
+    -fx-padding: 70px 16px 16px 60px;
+}
+
+

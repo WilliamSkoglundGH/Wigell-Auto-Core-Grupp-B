@@ -109,10 +109,10 @@ public class WorkOrderController {
                 workOrderTable.refresh();
                 messages.showSuccess("Work order " + selected.getId() + " has been started.");
             } else {
-                messages.showError("A workorder must have status CREATED to be started.");
+                messages.showError("A work order must have status CREATED to be started.");
             }
         } else {
-            messages.showError("Please choose a workorder to start.");
+            messages.showError("Please choose a work order to start.");
         }
     }
 
@@ -145,12 +145,12 @@ public class WorkOrderController {
                 workOrderTable.refresh();
                 messages.showSuccess("Work order " + selected.getId() + " has been completed.");
             } else if ("COMPLETED".equals(selected.getStatus())) {
-                messages.showError("Workorder already COMPLETED");
+                messages.showError("Work order already COMPLETED");
             } else {
-                messages.showError("A workorder must be CREATED or IN_PROGRESS to be COMPLETED");
+                messages.showError("A work order must be CREATED or IN_PROGRESS to be COMPLETED");
             }
         } else {
-            messages.showError("Please choose a workorder to complete.");
+            messages.showError("Please choose a work order to complete.");
         }
     }
 
@@ -166,6 +166,7 @@ public class WorkOrderController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(newWorkOrderView);
+                bookingComboBox.requestFocus();
             } else {
                 messages.showError("Could not find BorderPane!");
             }
@@ -241,7 +242,7 @@ public class WorkOrderController {
 
                 // Rensa valen inför nästa gång
                 serviceSelections.clear();
-                messages.showSuccess("Workorder created.");
+                messages.showSuccess("Work order created.");
                 navigateToWorkOrderView();
 
             } else {
@@ -269,6 +270,7 @@ public class WorkOrderController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(workOrderView);
+                controller.workOrderTable.requestFocus();
             } else {
                 if (messages != null) {
                     messages.showError("Could not find BorderPane!");
