@@ -12,6 +12,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -34,6 +36,7 @@ public class BookingController {
     @FXML private ComboBox<String> vehicleIdField;
     @FXML private DatePicker datePicker;
     @FXML private TextArea descriptionField;
+    @FXML private Button saveButton;
     @FXML private ComboBox<String> statusComboBox;
 
     // ---------------------------------------------------------
@@ -59,6 +62,15 @@ public class BookingController {
         }
         if (statusComboBox != null) {
             loadStatusDropdown();
+        }
+
+        if (descriptionField != null) {
+            descriptionField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                if (event.getCode() == KeyCode.TAB) {
+                    event.consume();
+                    saveButton.requestFocus();
+                }
+            });
         }
     }
 

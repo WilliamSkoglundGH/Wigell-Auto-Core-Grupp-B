@@ -51,7 +51,7 @@
 
         <!-- Buttons -->
         <HBox spacing="10">
-            <Button text="Save" onAction="#handleSaveBooking"/>
+            <Button fx:id="saveButton" text="Save" onAction="#handleSaveBooking"/>
             <Button text="Cancel" onAction="#handleCancel"/>
         </HBox>
 
