@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.layout.HBox?>
+<BorderPane fx:id="mainRoot"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.wac.autocore.gui.controller.MainController"
+            prefHeight="800.0"
+            prefWidth="1000.0">
+
+    <!-- HEADER HÖGST UPP -->
+    <top>
+        <VBox spacing="10" styleClass="header-box">
+            <Label text="WAC"
+                   styleClass="heading-1"
+                   style="-fx-text-fill: #FFC145;" />
+
+            <Label text="Wigell Auto Core"
+                   styleClass="caption"/>
+
+            <Separator prefWidth="Infinity"/>
+        </VBox>
+    </top>
+
+
+
+
+
+    <!-- MENY TILL VÄNSTER -->
+    <left>
+        <VBox spacing="20" styleClass="nav-padding">
+
+            <VBox spacing="10" styleClass="button-spacing,text-center">
+                <Button fx:id="customerButton" text="Customers"
+                        onAction="#showCustomerView" prefWidth="130"/>
+                <Button text="Vehicles"
+                        onAction="#showVehicleView" prefWidth="130"/>
+                <Button text="Bookings"
+                        onAction="#showBookingView" prefWidth="130"/>
+                <Button text="Workorders"
+                        onAction="#showWorkOrderView" prefWidth="130"/>
+                <Button text="Invoices"
+                        onAction="#showInvoiceView" prefWidth="130"/>
+                <Button text="Payments"
+                        onAction="#showPaymentView" prefWidth="130"/>
+                <Button text="Serviceitems"
+                        onAction="#showServiceItemView" prefWidth="130"/>
+                <Button text="Exit"
+                        onAction="#handleExit" prefWidth="130"/>
+            </VBox>
+
+        </VBox>
+    </left>
+
+
+    <!-- MEDDELANDEN TILL ANVÄNDAREN + EXIT KNAPP -->
+    <bottom>
+        <HBox spacing="10"
+              alignment="BOTTOM_CENTER"
+              styleClass="container-padding-small">
+
+            <Label fx:id="messageLabel"
+                   wrapText="true"
+                   alignment="CENTER"
+                   maxWidth="Infinity"
+                   prefHeight="60"
+                   maxHeight="60"
+                   HBox.hgrow="ALWAYS"
+                   styleClass="msg-area"/>
+        </HBox>
+    </bottom>
+
+
+
+
+</BorderPane>

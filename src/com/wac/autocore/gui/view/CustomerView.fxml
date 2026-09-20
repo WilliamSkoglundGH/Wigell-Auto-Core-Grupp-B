@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox styleClass="container-padding,container-spacing"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.CustomerController">
+
+    <children>
+        <Label text="Customer Management" styleClass="heading-2" />
+
+        <TableView fx:id="customerTable">
+            <columns>
+                <TableColumn fx:id="idColumn" text="ID" />
+                <TableColumn fx:id="nameColumn" text="Name" />
+                <TableColumn fx:id="emailColumn" text="Email" />
+                <TableColumn fx:id="phoneColumn" text="Phone" />
+                <TableColumn fx:id="vipColumn" text="VIP" />
+            </columns>
+        </TableView>
+
+        <Button text="New" onAction="#handleNewCustomer" />
+    </children>
+</VBox>

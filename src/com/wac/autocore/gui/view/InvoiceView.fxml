@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Button?>
+<VBox styleClass="container-padding,container-spacing"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.InvoiceController">
+
+    <children>
+        <Label text="Invoice Management" styleClass="heading-2" />
+
+        <TableView fx:id="invoiceTable">
+            <columns>
+                <TableColumn fx:id="idColumn" text="ID" />
+                <TableColumn fx:id="workOrderIdColumn" text="Work Order ID" />
+                <TableColumn fx:id="invoiceDateColumn" text="Invoice Date" />
+                <TableColumn fx:id="amountColumn" text="Amount" />
+                <TableColumn fx:id="discountColumn" text="Discount" />
+                <TableColumn fx:id="totalAmountColumn" text="Total Amount" />
+                <TableColumn fx:id="paidColumn" text="Paid" />
+            </columns>
+        </TableView>
+        <Button text="New" onAction="#handleNewInvoice" />
+    </children>
+</VBox>
