@@ -167,7 +167,17 @@ public class InvoiceController {
                 .createInvoice(workOrder.getId(), discountCode);
 
         if (invoice != null) {
-            messages.showSuccess("Invoice created.");
+            String message = "Invoice created.";
+
+            if ("WELCOME10".equalsIgnoreCase(discountCode)) {
+                message += " Discount code WELCOME10 applied.";
+            } else if ("SERVICE200".equalsIgnoreCase(discountCode)) {
+                message += " Discount code SERVICE200 applied.";
+            } else if (!discountCode.isEmpty()) {
+                message += " Unknown discount code.";
+            }
+
+            messages.showSuccess(message);
             navigateToInvoiceView();
         } else {
             messages.showError("Invoice not created.");
