@@ -120,7 +120,7 @@ public class WorkOrderController {
     private void handleCompleteWorkOrder() {
         WorkOrder selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
         if (selected != null) {
-            if ("IN_PROGRESS".equals(selected.getStatus()) || "CREATED".equals(selected.getStatus())) {
+            if ("IN_PROGRESS".equals(selected.getStatus())) {
                 selected.setStatus("COMPLETED");
                 //sätt booking till COMPLETED
 
@@ -147,7 +147,7 @@ public class WorkOrderController {
             } else if ("COMPLETED".equals(selected.getStatus())) {
                 messages.showError("Work order already COMPLETED");
             } else {
-                messages.showError("A work order must be CREATED or IN_PROGRESS to be COMPLETED");
+                messages.showError("A work order must be started before it can be completed.");
             }
         } else {
             messages.showError("Please choose a work order to complete.");
