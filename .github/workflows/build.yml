@@ -16,7 +16,5 @@ jobs:
           java-version: '8'
           java-package: jdk+fx
 
-      - name: Compile
-        run: |
-          mkdir -p build
-          javac -encoding UTF-8 -d build $(find src -name "*.java")
+      - name: Build and test
+        run: mvn --batch-mode verify
