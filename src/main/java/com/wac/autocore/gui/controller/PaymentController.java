@@ -41,7 +41,6 @@ public class PaymentController {
     private TableColumn<Payment, LocalDateTime> paymentDateColumn;
     @FXML
     private TableColumn<Payment, Boolean> successfulColumn;
-
     @FXML
     private ComboBox<Invoice> invoiceComboBox;
     @FXML
