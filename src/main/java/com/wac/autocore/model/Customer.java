@@ -1,27 +1,32 @@
 package com.wac.autocore.model;
-
+import javax.persistence.*;
+@Entity
+@Table(name = "customer")
 public class Customer {
-
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "name", length = 60, nullable = false)
     private String name;
+    @Column(name = "phone", length = 20, nullable = true)
     private String phone;
+    @Column(name = "email", length = 60, nullable = false)
     private String email;
+    @Column(name="vip")
     private boolean vip;
 
-    public Customer(int id, String name, String phone, String email) {
-        this.id = id;
+    protected Customer() {
+    }
+
+    public Customer(String name, String phone, String email) {
         this.name = name;
         this.phone = phone;
         this.email = email;
         this.vip = false;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getName() {
