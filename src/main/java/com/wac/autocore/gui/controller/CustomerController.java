@@ -1,7 +1,7 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.data.Database;
 import com.wac.autocore.model.Customer;
+import com.wac.autocore.service.CustomerService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -34,6 +34,9 @@ public class CustomerController {
 
     private UserMessages messages;
 
+
+    private final CustomerService customerService = new CustomerService();
+
     @FXML
     public void initialize() {
         if (customerTable != null) {
@@ -49,9 +52,8 @@ public class CustomerController {
 
     public void loadCustomerData() {
         if (customerTable != null) {
-            ObservableList<Customer> customerData = FXCollections.observableArrayList(
-                    Database.getCustomers()
-            );
+            ObservableList<Customer> customerData =
+                    FXCollections.observableArrayList(customerService.getAllCustomers());
             customerTable.setItems(customerData);
         }
     }
@@ -59,7 +61,8 @@ public class CustomerController {
     @FXML
     private void handleNewCustomer() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/NewCustomerView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/wac/autocore/gui/view/NewCustomerView.fxml"));
             loader.setController(this);
             Parent newCustomerView = loader.load();
 
@@ -68,7 +71,7 @@ public class CustomerController {
                 mainLayout.setCenter(newCustomerView);
                 nameField.requestFocus();
             } else {
-                messages.showError("Ccould not find BorderPane!");
+                messages.showError("Could not find BorderPane!");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -78,31 +81,16 @@ public class CustomerController {
 
     @FXML
     private void handleSaveCustomer() {
-        if (nameField != null) {
-            String name = nameField.getText();
-            String phone = phoneField.getText();
-            String email = emailField.getText();
-            boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
 
-            String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+        String name = nameField.getText();
+        String phone = phoneField.getText();
+        String email = emailField.getText();
+        boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
 
-            if (name == null || name.trim().isEmpty()) {
-                messages.showError("Please enter a name!");
-                return;
-            }
+        Customer newCustomer = customerService.createCustomer(name, phone, email, isVip);
 
-            if (email == null || !email.matches(emailRegex)) {
-                messages.showError("Invalid email.");
-                return;
-            }
-
-            int newId = Database.getCustomers().size() + 1;
-            Customer newCustomer = new Customer(newId, name, phone, email);
-            newCustomer.setVip(isVip);
-            Database.getCustomers().add(newCustomer);
-            messages.showSuccess("Customer created.");
-            navigateToCustomerView();
-        }
+        messages.showSuccess("Customer created.");
+        navigateToCustomerView();
     }
 
     @FXML
@@ -112,7 +100,8 @@ public class CustomerController {
 
     private void navigateToCustomerView() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/CustomerView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/wac/autocore/gui/view/CustomerView.fxml"));
             Parent customerView = loader.load();
             CustomerController controller = loader.getController();
             controller.setMessages(messages);
@@ -163,6 +152,7 @@ public class CustomerController {
         }
         return null;
     }
+
     public void setMessages(UserMessages messages) {
         this.messages = messages;
     }
