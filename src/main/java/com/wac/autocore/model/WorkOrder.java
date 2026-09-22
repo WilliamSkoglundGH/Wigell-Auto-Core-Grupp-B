@@ -4,13 +4,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.*;
 @Entity
 @Table(name = "work_order")
 public class WorkOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(mappedBy = "booking")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -21,28 +23,54 @@ public class WorkOrder {
     private List<ServiceItem> serviceItems = new ArrayList<>();
     @Column(name = "status", length = 20, nullable = true)
     private String status;
-    @Column(name = "start_time", nullable = false)
-    private LocalDateTime startDateTime;
-    @Column(name = "end_time", nullable = false)
-    private LocalDateTime endDateTime;
+    @Column(name = "start_time", nullable = true)
+    private LocalDateTime startTime;
+    @Column(name = "end_time", nullable = true)
+    private LocalDateTime endTime;
 
     protected WorkOrder() {
     }
 
-    public int getBookingId() {
-        return bookingId;
+    public WorkOrder(Booking booking, List<ServiceItem> serviceItems, String status) {
+        this.booking = booking;
+        this.serviceItems = serviceItems;
+        this.status = status;
     }
 
-    public void setBookingId(int bookingId) {
-        this.bookingId = bookingId;
+    public Long getId() {
+        return id;
     }
 
-    public List<Integer> getServiceItemIds() {
-        return serviceItemIds;
+    public Booking getBooking() {
+        return booking;
     }
 
-    public void setServiceItemIds(List<Integer> serviceItemIds) {
-        this.serviceItemIds = serviceItemIds;
+    public void setBooking(Booking booking) {
+        this.booking = booking;
+    }
+
+    public List<ServiceItem> getServiceItems() {
+        return serviceItems;
+    }
+
+    public void setServiceItems(List<ServiceItem> serviceItems) {
+        this.serviceItems = serviceItems;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     public String getStatus() {
@@ -53,20 +81,19 @@ public class WorkOrder {
         this.status = status;
     }
 
-    public void addServiceItem(int serviceItemId) {
+/*    public void addServiceItem(int serviceItemId) {
         serviceItemIds.add(serviceItemId);
     }
 
     public void removeServiceItem(int serviceItemId) {
         serviceItemIds.remove(Integer.valueOf(serviceItemId));
     }
-
+*/
     @Override
     public String toString() {
         return id +
-                " - Booking ID: " + bookingId +
-                " | Mechanic ID: " + mechanicId +
-                " | Services: " + serviceItemIds +
+                " - Booking ID: " + booking.getId() +
+
                 " | Status: " + status;
     }
 }

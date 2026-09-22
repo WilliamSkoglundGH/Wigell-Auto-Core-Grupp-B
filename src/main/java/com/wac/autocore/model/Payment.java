@@ -8,21 +8,27 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(mappedBy = "invoice")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "invoice_id", nullable = false)
     private Invoice invoice;
     @Column(name = "amount", nullable = false)
     private double amount;
     @Column(name = "payment_type", length = 20, nullable = false)
     private String paymentType;
-    @Column(name = "payment_date", length = 20, nullable = false)
+    @Column(name = "payment_date", nullable = false)
     private LocalDateTime paymentDate;
 
     private boolean successful;
+
+    protected Payment() {
+    }
 
     public Payment(Invoice invoice, double amount, String paymentType) {
         this.invoice = invoice;
         this.amount = amount;
         this.paymentType = paymentType;
+        this.paymentDate = LocalDateTime.now(); // Sätter nuvarande tid automatiskt
+        this.successful = true;
     }
 
     public Long getId() {

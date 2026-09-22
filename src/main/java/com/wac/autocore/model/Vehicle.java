@@ -1,4 +1,5 @@
 package com.wac.autocore.model;
+import javax.persistence.*;
 @Entity
 @Table(name = "vehicle")
 public class Vehicle {
@@ -72,13 +73,7 @@ public class Vehicle {
         this.year = year;
     }
 
-    public int getCustomerId() {
-        return customerId;
-    }
 
-    public void setCustomerId(int customerId) {
-        this.customerId = customerId;
-    }
 
     @Override
     public String toString() {
@@ -86,6 +81,6 @@ public class Vehicle {
                 registrationNumber + " | " +
                 brand + " " + model +
                 " | Year: " + year +
-                " | Customer ID: " + customerId;
+                " | Customer ID: " + customer.getId();
     }
 }

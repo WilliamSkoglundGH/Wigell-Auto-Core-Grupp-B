@@ -1,36 +1,53 @@
 package com.wac.autocore.model;
 
 import java.time.LocalDate;
-
+import java.time.LocalDateTime;
+import javax.persistence.*;
+@Entity
+@Table(name = "invoice")
 public class Invoice {
-
-    private int id;
-    private int workOrderId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @OneToOne(mappedBy = "work_order")
+    private WorkOrder workOrder;
+    @Column(name = "invoice_date", length = 20, nullable = false)
     private LocalDate invoiceDate;
+    @Column(name = "amount", nullable = false)
     private double amount;
+    @Column(name = "discount", nullable = false)
     private double discount;
+    /*
+    redundant information, remove?
+
+    @Column(name = "total_amount", nullable = false)
     private double totalAmount;
+     */
+    @Column(name = "paid", nullable = false)
     private boolean paid;
 
     protected Invoice() {
     }
 
-    public Invoice(int workOrderId, LocalDate invoiceDate, double amount) {
-        this.workOrderId = workOrderId;
+    public Invoice(WorkOrder workOrder, LocalDate invoiceDate, double amount, double discount) {
+        this.workOrder = workOrder;
         this.invoiceDate = invoiceDate;
         this.amount = amount;
+        this.discount = discount;
+        this.paid = false;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public int getWorkOrderId() {
-        return workOrderId;
+    public WorkOrder getWorkOrder() {
+
+        return workOrder;
     }
 
-    public void setWorkOrderId(int workOrderId) {
-        this.workOrderId = workOrderId;
+    public void setWorkOrder(WorkOrder workOrder) {
+        this.workOrder = workOrder;
     }
 
     public LocalDate getInvoiceDate() {
@@ -47,7 +64,6 @@ public class Invoice {
 
     public void setAmount(double amount) {
         this.amount = amount;
-        calculateTotalAmount();
     }
 
     public double getDiscount() {
@@ -56,11 +72,10 @@ public class Invoice {
 
     public void setDiscount(double discount) {
         this.discount = discount;
-        calculateTotalAmount();
     }
 
     public double getTotalAmount() {
-        return totalAmount;
+        return amount - discount;
     }
 
     public boolean isPaid() {
@@ -71,18 +86,14 @@ public class Invoice {
         this.paid = paid;
     }
 
-    private void calculateTotalAmount() {
-        this.totalAmount = amount - discount;
-    }
-
     @Override
     public String toString() {
         return id +
-                " - Work order ID: " + workOrderId +
+                " - Work order ID: " + workOrder.getId() +
                 " | Date: " + invoiceDate +
                 " | Amount: " + amount + " SEK" +
                 " | Discount: " + discount + " SEK" +
-                " | Total: " + totalAmount + " SEK" +
+                " | Total: " + (amount - discount) + " SEK" +
                 " | Paid: " + (paid ? "Yes" : "No");
     }
 }

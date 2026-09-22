@@ -1,5 +1,5 @@
 package com.wac.autocore.model;
-
+import javax.persistence.*;
 @Entity
 @Table(name = "customer")
 public class Customer {
@@ -14,6 +14,10 @@ public class Customer {
     private String email;
     @Column(name="vip")
     private boolean vip;
+
+    protected Customer() {
+    }
+
     public Customer(String name, String phone, String email) {
         this.name = name;
         this.phone = phone;

@@ -19,7 +19,7 @@ public class Booking {
     @Column(name = "status", length = 20, nullable = false)
     private String status;
 
-    public Booking() {
+    protected Booking() {
     }
 
     public Booking(Vehicle vehicle, LocalDate date, String description, String status) {
@@ -68,7 +68,7 @@ public class Booking {
 
     @Override
     public String toString() {
-        return id + " - Vehicle ID: " + vehicleId +
+        return id + " - Vehicle ID: " + vehicle.getId() +
                 " | Date: " + date +
                 " | Description: " + description +
                 " | Status: " + status;

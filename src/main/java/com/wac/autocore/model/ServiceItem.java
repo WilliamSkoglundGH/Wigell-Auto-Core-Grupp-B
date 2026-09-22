@@ -12,7 +12,7 @@ public class ServiceItem {
     private String description;
     @Column(name = "price", nullable = false)
     private double price;
-    @Column(name = "estimatedMinutes", nullable = false)
+    @Column(name = "estimated_minutes", nullable = false)
     private int estimatedMinutes;
 
     protected ServiceItem() {
