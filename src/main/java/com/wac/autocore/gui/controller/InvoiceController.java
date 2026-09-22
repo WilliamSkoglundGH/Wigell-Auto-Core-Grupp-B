@@ -112,7 +112,7 @@ public class InvoiceController {
             List<WorkOrder> workOrdersList = Database.getWorkOrders().stream()
                     .filter(wo -> "COMPLETED".equalsIgnoreCase(wo.getStatus())) // Endast färdiga
                     .filter(wo -> Database.getInvoices().stream()
-                            .noneMatch(inv -> inv.getWorkOrderId() == wo.getId())) // Som INTE redan har en faktura
+                            .noneMatch(inv -> inv.getWorkOrder().getId() == wo.getId())) // Som INTE redan har en faktura
                     .collect(Collectors.toList());
 
             workOrderComboBox.setItems(FXCollections.observableArrayList(workOrdersList));
@@ -155,7 +155,7 @@ public class InvoiceController {
 
         // 2. Säkerhet: Förhindra dubblettfakturor för samma arbetsorder
         boolean alreadyInvoiced = Database.getInvoices().stream()
-                .anyMatch(i -> i.getWorkOrderId() == workOrder.getId());
+                .anyMatch(i -> i.getWorkOrder().getId() == workOrder.getId());
 
         if (alreadyInvoiced) {
             messages.showError("An invoice already exists for this work order!");

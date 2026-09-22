@@ -1,54 +1,76 @@
 package com.wac.autocore.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+import javax.persistence.*;
+@Entity
+@Table(name = "work_order")
 public class WorkOrder {
-
-    private int id;
-    private int bookingId;
-    private int mechanicId;
-    private List<Integer> serviceItemIds;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", nullable = false)
+    private Booking booking;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "work_order_services",
+            joinColumns = @JoinColumn(name = "work_order_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_item_id")
+    )
+    private List<ServiceItem> serviceItems = new ArrayList<>();
+    @Column(name = "status", length = 20, nullable = true)
     private String status;
+    @Column(name = "start_time", nullable = true)
+    private LocalDateTime startTime;
+    @Column(name = "end_time", nullable = true)
+    private LocalDateTime endTime;
 
-    public WorkOrder(int id, int bookingId, int mechanicId) {
-        this.id = id;
-        this.bookingId = bookingId;
-        this.mechanicId = mechanicId;
-        this.serviceItemIds = new ArrayList<Integer>();
-        this.status = "CREATED";
+    protected WorkOrder() {
     }
 
-    public int getId() {
+    public WorkOrder(Booking booking, List<ServiceItem> serviceItems, String status) {
+        this.booking = booking;
+        this.serviceItems = serviceItems;
+        this.status = status;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public Booking getBooking() {
+        return booking;
     }
 
-    public int getBookingId() {
-        return bookingId;
+    public void setBooking(Booking booking) {
+        this.booking = booking;
     }
 
-    public void setBookingId(int bookingId) {
-        this.bookingId = bookingId;
+    public List<ServiceItem> getServiceItems() {
+        return serviceItems;
     }
 
-    public int getMechanicId() {
-        return mechanicId;
+    public void setServiceItems(List<ServiceItem> serviceItems) {
+        this.serviceItems = serviceItems;
     }
 
-    public void setMechanicId(int mechanicId) {
-        this.mechanicId = mechanicId;
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
-    public List<Integer> getServiceItemIds() {
-        return serviceItemIds;
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 
-    public void setServiceItemIds(List<Integer> serviceItemIds) {
-        this.serviceItemIds = serviceItemIds;
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     public String getStatus() {
@@ -59,20 +81,19 @@ public class WorkOrder {
         this.status = status;
     }
 
-    public void addServiceItem(int serviceItemId) {
+/*    public void addServiceItem(int serviceItemId) {
         serviceItemIds.add(serviceItemId);
     }
 
     public void removeServiceItem(int serviceItemId) {
         serviceItemIds.remove(Integer.valueOf(serviceItemId));
     }
-
+*/
     @Override
     public String toString() {
         return id +
-                " - Booking ID: " + bookingId +
-                " | Mechanic ID: " + mechanicId +
-                " | Services: " + serviceItemIds +
+                " - Booking ID: " + booking.getId() +
+
                 " | Status: " + status;
     }
 }
