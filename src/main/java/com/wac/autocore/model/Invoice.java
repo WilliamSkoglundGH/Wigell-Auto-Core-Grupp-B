@@ -12,22 +12,17 @@ public class Invoice {
     private double totalAmount;
     private boolean paid;
 
-    public Invoice(int id, int workOrderId, LocalDate invoiceDate, double amount) {
-        this.id = id;
+    protected Invoice() {
+    }
+
+    public Invoice(int workOrderId, LocalDate invoiceDate, double amount) {
         this.workOrderId = workOrderId;
         this.invoiceDate = invoiceDate;
         this.amount = amount;
-        this.discount = 0.0;
-        this.totalAmount = amount;
-        this.paid = false;
     }
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public int getWorkOrderId() {

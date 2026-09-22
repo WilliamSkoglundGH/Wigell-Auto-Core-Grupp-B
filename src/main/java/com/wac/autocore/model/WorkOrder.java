@@ -1,30 +1,32 @@
 package com.wac.autocore.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+@Entity
+@Table(name = "work_order")
 public class WorkOrder {
-
-    private int id;
-    private int bookingId;
-    private int mechanicId;
-    private List<Integer> serviceItemIds;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @OneToOne(mappedBy = "booking")
+    private Booking booking;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "work_order_services",
+            joinColumns = @JoinColumn(name = "work_order_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_item_id")
+    )
+    private List<ServiceItem> serviceItems = new ArrayList<>();
+    @Column(name = "status", length = 20, nullable = true)
     private String status;
+    @Column(name = "start_time", nullable = false)
+    private LocalDateTime startDateTime;
+    @Column(name = "end_time", nullable = false)
+    private LocalDateTime endDateTime;
 
-    public WorkOrder(int id, int bookingId, int mechanicId) {
-        this.id = id;
-        this.bookingId = bookingId;
-        this.mechanicId = mechanicId;
-        this.serviceItemIds = new ArrayList<Integer>();
-        this.status = "CREATED";
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+    protected WorkOrder() {
     }
 
     public int getBookingId() {
@@ -33,14 +35,6 @@ public class WorkOrder {
 
     public void setBookingId(int bookingId) {
         this.bookingId = bookingId;
-    }
-
-    public int getMechanicId() {
-        return mechanicId;
-    }
-
-    public void setMechanicId(int mechanicId) {
-        this.mechanicId = mechanicId;
     }
 
     public List<Integer> getServiceItemIds() {

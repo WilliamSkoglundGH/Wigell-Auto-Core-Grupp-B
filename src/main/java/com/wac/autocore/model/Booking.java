@@ -1,37 +1,45 @@
 package com.wac.autocore.model;
 
 import java.time.LocalDate;
+import javax.persistence.*;
 
+@Entity
+@Table(name = "booking")
 public class Booking {
-
-    private int id;
-    private int vehicleId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id", nullable = false)
+    private Vehicle vehicle;
+    @Column(name = "booking_date", nullable = false)
     private LocalDate date;
+    @Column(name = "description", length = 200, nullable = true)
     private String description;
+    @Column(name = "status", length = 20, nullable = false)
     private String status;
 
-    public Booking(int id, int vehicleId, LocalDate date, String description) {
-        this.id = id;
-        this.vehicleId = vehicleId;
-        this.date = date;
-        this.description = description;
-        this.status = "BOOKED";
+    public Booking() {
     }
 
-    public int getId() {
+    public Booking(Vehicle vehicle, LocalDate date, String description, String status) {
+        this.vehicle = vehicle;
+        this.date = date;
+        this.description = description;
+        this.status = status;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
+
+    public Vehicle getVehicle() {
+        return vehicle;
     }
 
-    public int getVehicleId() {
-        return vehicleId;
-    }
-
-    public void setVehicleId(int vehicleId) {
-        this.vehicleId = vehicleId;
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
     }
 
     public LocalDate getDate() {

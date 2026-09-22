@@ -1,30 +1,43 @@
 package com.wac.autocore.model;
-
+@Entity
+@Table(name = "vehicle")
 public class Vehicle {
-
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "registration_number", length = 60, nullable = false)
     private String registrationNumber;
+    @Column(name = "brand", length = 60, nullable = false)
     private String brand;
+    @Column(name = "model", length = 60, nullable = false)
     private String model;
+    @Column(name = "year", nullable = false)
     private int year;
-    private int customerId;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
-    public Vehicle(int id, String registrationNumber, String brand,
-                   String model, int year, int customerId) {
-        this.id = id;
+    protected Vehicle() {
+    }
+
+    public Vehicle(String registrationNumber, String brand, String model, int year, Customer customer) {
         this.registrationNumber = registrationNumber;
         this.brand = brand;
         this.model = model;
         this.year = year;
-        this.customerId = customerId;
+        this.customer = customer;
     }
 
-    public int getId() {
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Long getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getRegistrationNumber() {
