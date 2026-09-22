@@ -16,6 +16,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import com.wac.autocore.model.Invoice;
+import com.wac.autocore.model.WorkOrder;
 
 import java.io.IOException;
 import java.time.LocalDate;
