@@ -1,6 +1,9 @@
 package com.wac.autocore.repository;
 
 import com.wac.autocore.model.Customer;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface CustomerRepository{
+@Repository
+public interface CustomerRepository extends JpaRepository<Customer, Long> {
 }
