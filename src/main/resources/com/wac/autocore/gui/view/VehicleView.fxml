@@ -20,7 +20,7 @@
                 <TableColumn fx:id="brandColumn" text="%vehicle.brandColumn" />
                 <TableColumn fx:id="modelColumn" text="%vehicle.modelColumn" />
                 <TableColumn fx:id="yearColumn" text="%vehicle.yearColumn" />
-                <TableColumn fx:id="customerIdColumn" text="%vehicle.customerIdColumn" />
+                <TableColumn fx:id="customerColumn" text="%vehicle.customerIdColumn" />
             </columns>
         </TableView>
 

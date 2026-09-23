@@ -11,10 +11,17 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 
 import javafx.event.ActionEvent;
+import org.springframework.context.ApplicationContext;
+
 import java.io.IOException;
 import java.util.Locale;
 
 public class MainController implements UserMessages {
+    private final ApplicationContext applicationContext;
+
+    public MainController(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
     @FXML
     private BorderPane mainRoot;
@@ -50,7 +57,8 @@ public class MainController implements UserMessages {
     // ---------------------------------------------------------
     private void loadView(String fxmlPath, Button menuButton) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath),LanguageManager.getBundle() );
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath), LanguageManager.getBundle());
+            loader.setControllerFactory(applicationContext::getBean);
             Parent view = loader.load();
 
             Object controller = loader.getController();
@@ -177,6 +185,6 @@ public class MainController implements UserMessages {
                 : new Locale("sv");
 
         LanguageManager.setLocale(next);      // uppdaterar bundel i util-klassen.
-        loadView(currentViewPath,activeMenuButton); // Laddar om vyn som borde nu har nya språket.
+        loadView(currentViewPath, activeMenuButton); // Laddar om vyn som borde nu har nya språket.
     }
 }

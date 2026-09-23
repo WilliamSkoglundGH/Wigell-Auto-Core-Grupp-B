@@ -1,4 +1,4 @@
-package com.wac.autocore.gui;
+package com.wac.autocore;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.net.URL;
+import java.util.ResourceBundle;
 
 @SpringBootApplication
 public class App extends Application {
@@ -36,6 +37,7 @@ public class App extends Application {
         // Kopplar ihop FXMLLoader med Spring så att Dependency Injection fungerar i controllers
         FXMLLoader loader = new FXMLLoader(fxmlLocation);
         loader.setControllerFactory(springContext::getBean);
+        loader.setResources(ResourceBundle.getBundle("i18n.messages"));
         Parent root = loader.load();
 
         Scene scene = new Scene(root, 800, 600);

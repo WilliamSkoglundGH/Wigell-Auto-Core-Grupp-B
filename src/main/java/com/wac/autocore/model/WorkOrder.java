@@ -81,12 +81,9 @@ public class WorkOrder {
         this.status = status;
     }
 
-    public void addServiceItem(ServiceItem serviceItem) {
-        serviceItems.add(serviceItem);
-    }
-    public void removeServiceItem(ServiceItem serviceItem) {
-        serviceItems.remove(serviceItem);
-    }
+public void addServiceItem(ServiceItem serviceItem) {
+        this.serviceItems.add(serviceItem);
+}
 
     @Override
     public String toString() {
