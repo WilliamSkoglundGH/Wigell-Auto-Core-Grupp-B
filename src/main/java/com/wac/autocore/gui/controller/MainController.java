@@ -176,7 +176,7 @@ public class MainController implements UserMessages {
                 ? new Locale("en")
                 : new Locale("sv");
 
-        LanguageManager.setLocale(next);      // updaterar bundel i util-klassen.
+        LanguageManager.setLocale(next);      // uppdaterar bundel i util-klassen.
         loadView(currentViewPath,activeMenuButton); // Laddar om vyn som borde nu har nya språket.
     }
 }

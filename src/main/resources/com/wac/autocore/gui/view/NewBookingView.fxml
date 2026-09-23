@@ -13,7 +13,7 @@
     <children>
 
         <!-- Titel -->
-        <Label text="New Booking" styleClass="heading-2" />
+        <Label text="%booking.newHeading" styleClass="heading-2" />
 
         <!-- Formulär -->
         <GridPane hgap="10" vgap="12">
@@ -24,20 +24,20 @@
             </columnConstraints>
 
             <!-- Vehicle -->
-            <Label text="Vehicle:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <Label text="%booking.vehicleLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
             <ComboBox fx:id="vehicleIdField"
                       prefWidth="250"
                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
             <!-- Date -->
-            <Label text="Date:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <Label text="%booking.dateLabel" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
             <DatePicker fx:id="datePicker"
                         promptText="YYYY-MM-DD"
                         prefWidth="250"
                         GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
             <!-- Description -->
-            <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <Label text="%booking.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
             <TextArea fx:id="descriptionField"
                       promptText="Enter description"
                       prefRowCount="3"
@@ -51,8 +51,8 @@
 
         <!-- Buttons -->
         <HBox spacing="10">
-            <Button fx:id="saveButton" text="Save" onAction="#handleSaveBooking"/>
-            <Button text="Cancel" onAction="#handleCancel"/>
+            <Button fx:id="saveButton" text="%btn.save" onAction="#handleSaveBooking"/>
+            <Button text="%btn.cancel" onAction="#handleCancel"/>
         </HBox>
 
     </children>

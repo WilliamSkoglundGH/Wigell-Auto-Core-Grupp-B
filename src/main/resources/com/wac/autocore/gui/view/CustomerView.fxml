@@ -12,18 +12,18 @@
       fx:controller="com.wac.autocore.gui.controller.CustomerController">
 
     <children>
-        <Label text="Customer Management" styleClass="heading-2" />
+        <Label text="%customer.heading" styleClass="heading-2" />
 
         <TableView fx:id="customerTable">
             <columns>
-                <TableColumn fx:id="idColumn" text="ID" />
-                <TableColumn fx:id="nameColumn" text="Name" />
-                <TableColumn fx:id="emailColumn" text="Email" />
-                <TableColumn fx:id="phoneColumn" text="Phone" />
-                <TableColumn fx:id="vipColumn" text="VIP" />
+                <TableColumn fx:id="idColumn" text="%table.id" />
+                <TableColumn fx:id="nameColumn" text="%table.name" />
+                <TableColumn fx:id="emailColumn" text="%customer.emailColumn" />
+                <TableColumn fx:id="phoneColumn" text="%customer.phoneColumn" />
+                <TableColumn fx:id="vipColumn" text="%customer.vipColumn" />
             </columns>
         </TableView>
 
-        <Button text="New" onAction="#handleNewCustomer" />
+        <Button text="%btn.new" onAction="#handleNewCustomer" />
     </children>
 </VBox>

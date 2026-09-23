@@ -61,7 +61,7 @@
     </left>
 
 
-    <!-- MEDDELANDEN TILL ANVÄNDAREN + EXIT KNAPP -->
+    <!-- MEDDELANDEN TILL ANVÄNDAREN -->
     <bottom>
         <HBox spacing="10"
               alignment="BOTTOM_CENTER"

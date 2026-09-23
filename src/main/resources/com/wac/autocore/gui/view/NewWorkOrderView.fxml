@@ -14,23 +14,23 @@
       xmlns:fx="http://javafx.com/fxml">
 
     <children>
-        <Label text="New Work Order" styleClass="heading-2" />
+        <Label text="%workOrder.newHeading" styleClass="heading-2" />
 
         <GridPane hgap="10" vgap="10">
-            <Label text="Booking:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <Label text="%workOrder.bookingLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
             <ComboBox fx:id="bookingComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-            <Label text="Mechanic:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <Label text="%workOrder.mechanicLabel" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
             <ComboBox fx:id="mechanicComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
             <!-- Tillagd rad för Service Items -->
-            <Label text="Services:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <Label text="%workOrder.servicesLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
             <ListView fx:id="servicesListView" prefHeight="120" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
         </GridPane>
 
         <HBox styleClass="button-spacing">
-            <Button text="Save" onAction="#handleSaveWorkOrder" />
-            <Button text="Cancel" onAction="#handleCancel" />
+            <Button text="%btn.save" onAction="#handleSaveWorkOrder" />
+            <Button text="%btn.cancel" onAction="#handleCancel" />
         </HBox>
     </children>
 </VBox>

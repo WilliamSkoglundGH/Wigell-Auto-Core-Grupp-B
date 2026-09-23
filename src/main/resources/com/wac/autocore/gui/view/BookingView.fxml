@@ -14,7 +14,7 @@
     <children>
 
         <!-- Titel -->
-        <Label text="Booking Management" styleClass="heading-2" />
+        <Label text="%booking.heading" styleClass="heading-2" />
 
         <!-- Tabell -->
         <TableView fx:id="bookingTable">

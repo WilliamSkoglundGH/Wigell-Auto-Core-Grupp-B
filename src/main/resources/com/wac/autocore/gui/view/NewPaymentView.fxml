@@ -14,21 +14,21 @@
 
 
     <children>
-        <Label text="New Payment" styleClass="heading-2" />
+        <Label text="%payment.newHeading" styleClass="heading-2" />
 
         <GridPane hgap="10" vgap="10">
-            <Label text="Invoice:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <Label text="%payment.invoiceLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
             <ComboBox fx:id="invoiceComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-            <Label text="Payment Type:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <Label text="%payment.paymentTypeLabel" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
             <ComboBox fx:id="paymentTypeComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
 
         </GridPane>
 
         <HBox spacing="10">
-            <Button text="Pay in full" onAction="#handleSavePayment" />
-            <Button text="Cancel" onAction="#handleCancel" />
+            <Button text="%payment.payInFullButton" onAction="#handleSavePayment" />
+            <Button text="%btn.cancel" onAction="#handleCancel" />
         </HBox>
     </children>
 </VBox>
