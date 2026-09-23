@@ -1,12 +1,10 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.data.Database;
 import com.wac.autocore.gui.launcher.GarageServiceBridge;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;

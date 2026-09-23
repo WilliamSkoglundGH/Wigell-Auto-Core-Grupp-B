@@ -115,14 +115,14 @@ public class PaymentController extends Controller {
             String paymentType = paymentTypeComboBox.getValue();
 
             if (selectedInvoice != null && paymentType != null && !paymentType.isEmpty()) {
-                int newId = Database.getPayments().size() + 1;
+
 
                 // ÄNDRA HÄR: Använd getTotalAmount() istället för getAmount()
                 double amount = selectedInvoice.getTotalAmount();
 
-                Payment newPayment = new Payment(newId, selectedInvoice.getId(), amount, paymentType);
-                newPayment.setSuccessful(true);
-                Database.getPayments().add(newPayment);
+                //Payment newPayment = new Payment(newId, selectedInvoice.getId(), amount, paymentType);
+                //newPayment.setSuccessful(true);
+                //Database.getPayments().add(newPayment);
 
                 selectedInvoice.setPaid(true);
 

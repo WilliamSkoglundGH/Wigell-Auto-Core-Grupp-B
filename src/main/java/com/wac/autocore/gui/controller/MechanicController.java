@@ -1,7 +1,6 @@
 package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.model.Mechanic;
-import com.wac.autocore.model.Vehicle;
 import com.wac.autocore.service.MechanicService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
