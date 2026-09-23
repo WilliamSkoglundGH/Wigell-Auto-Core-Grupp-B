@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 public class WorkOrderController extends Controller{
 
-    @FXML private TableColumn estimatedTimeColumn;
+    @FXML private TableColumn<WorkOrder,> estimatedTimeColumn;
     @FXML private TableView<WorkOrder> workOrderTable;
     @FXML private TableColumn<WorkOrder, Integer> idColumn;
     @FXML private TableColumn<WorkOrder, Integer> bookingIdColumn;
@@ -60,12 +60,13 @@ public class WorkOrderController extends Controller{
         this.serviceItemService = serviceItemService;
         this.workOrderService = workOrderService;
     }
-
+//TODO Loggning och exceptions. Spara i alla skeenen. Lösa ServiceItemlistan.
     // ---------------------------------------------------------
     // INITIALIZE
     // ---------------------------------------------------------
     @FXML
     public void initialize() {
+        //Lägg till estamated time- column
         if (workOrderTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             bookingIdColumn.setCellValueFactory(new PropertyValueFactory<>("bookingId"));
@@ -77,7 +78,6 @@ public class WorkOrderController extends Controller{
                     if (wo.getServiceItems() == null || wo.getServiceItems().isEmpty()) {
                         return new javafx.beans.property.SimpleStringProperty("No services");
                     }
-
                     // Skapa en sträng med "ID: Namn" för varje tjänst
                     String serviceInfo = wo.getServiceItems().stream()
                             .map(id -> Database.getServiceItems().stream()
@@ -93,7 +93,6 @@ public class WorkOrderController extends Controller{
             loadWorkOrderData();
         }
     }
-
     public void loadWorkOrderData() {
         if (workOrderTable != null) {
             ObservableList<WorkOrder> workOrderData = FXCollections.observableArrayList(
@@ -102,7 +101,6 @@ public class WorkOrderController extends Controller{
             workOrderTable.setItems(workOrderData);
         }
     }
-
     @FXML
     private void handleStartWorkOrder() {
         WorkOrder selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
