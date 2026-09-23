@@ -24,11 +24,11 @@ public class CustomerService {
         }
 
         if (!email.contains("@") || !email.contains(".")) {
-            throw new IllegalArgumentException("Email must contain '@' and '.'.");
+            throw new IllegalArgumentException("You need a valid e-mail");
         }
 
         if (phone != null && !phone.isEmpty() && phone.length() < 5) {
-            throw new IllegalArgumentException("Phone number is too short.");
+            throw new IllegalArgumentException("You need a valid phonenumber");
         }
 
         Customer customer = new Customer(name, phone, email);
