@@ -46,7 +46,6 @@ public class MechanicController extends OverController{
         }
     }
 
-
     public void loadMechanicData() {
         if (mechanicTable != null) {
             try {

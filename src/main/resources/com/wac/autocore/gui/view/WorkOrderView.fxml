@@ -17,11 +17,12 @@
 
         <TableView fx:id="workOrderTable">
             <columns>
-                <TableColumn fx:id="idColumn" text="ID" />
-                <TableColumn fx:id="bookingIdColumn" text="Booking ID" />
-                <TableColumn fx:id="mechanicIdColumn" text="Mechanic ID" />
-                <TableColumn fx:id="statusColumn" text="Status" />
-                <TableColumn fx:id="servicesColumn" text="Service Items" />
+                <TableColumn fx:id="idColumn" text="%table.id" />
+                <TableColumn fx:id="bookingIdColumn" text="%workOrder.bookingIdColumn" />
+                <TableColumn fx:id="mechanicIdColumn" text="%workOrder.mechanicIdColumn" />
+                <TableColumn fx:id="statusColumn" text="%table.status" />
+                <TableColumn fx:id="servicesColumn" text="%workOrder.servicesColumn" />
+                <TableColumn fx:id="estimatedTimeColumn" text="%workOrder.estimatedTimeColumn" />
             </columns>
         </TableView>
 

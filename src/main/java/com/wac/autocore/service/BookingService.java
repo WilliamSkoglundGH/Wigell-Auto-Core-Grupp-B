@@ -1,5 +1,7 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.exception.BookingNotFoundException;
+import com.wac.autocore.exception.MechanicNotFoundException;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.Mechanic;
 import com.wac.autocore.model.Vehicle;
@@ -29,6 +31,13 @@ public class BookingService {
     @Transactional(readOnly = true)
     public List<Booking> getAllBookings() {
         return bookingRepository.findAll();
+    }
+
+
+    @Transactional(readOnly = true)
+    public Booking getBooking(Long id) {
+        return bookingRepository.findById(id)
+                .orElseThrow(() -> new BookingNotFoundException("Booking with ID " + id + " not found."));
     }
 
     //bookingService.saveBooking(vehicleId, selectedDate, description, mechanicId);

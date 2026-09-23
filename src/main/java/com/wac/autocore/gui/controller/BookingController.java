@@ -58,7 +58,6 @@ public class BookingController extends OverController {
         this.vehicleService = vehicleService;
         this.mechanicService = mechanicService;
     }
-
     // ---------------------------------------------------------
     // INITIALIZE
     // ---------------------------------------------------------
