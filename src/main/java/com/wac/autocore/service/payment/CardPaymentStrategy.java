@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class CardPaymentStrategy implements PaymentStrategy {
     @Override
     public void processPayment(Invoice invoice, double amount) {
-        // Specifik logg/logik för kortbetalning
+        // Vad ska vara specifikt för denna?
         invoice.setPaid(true);
     }
 

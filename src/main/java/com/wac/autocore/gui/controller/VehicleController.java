@@ -23,7 +23,7 @@ import org.springframework.stereotype.Controller;
 import java.io.IOException;
 
 @Controller
-public class VehicleController extends com.wac.autocore.gui.controller.Controller {
+public class VehicleController extends OverController {
 
     @FXML
     private TableView<Vehicle> vehicleTable;

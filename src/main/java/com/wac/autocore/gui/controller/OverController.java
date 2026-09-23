@@ -4,7 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
 
-public class Controller {
+public class OverController {
     private UserMessages messages;
     protected BorderPane searchBorderPaneRecursive(Parent parent) {
         if (parent instanceof BorderPane) {
