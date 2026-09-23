@@ -20,8 +20,15 @@ import java.io.IOException;
 
 public class CustomerController {
 
+    private final CustomerService customerService;
+    private UserMessages messages;
+
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
+
     @FXML private TableView<Customer> customerTable;
-    @FXML private TableColumn<Customer, Integer> idColumn;
+    @FXML private TableColumn<Customer, Long> idColumn;
     @FXML private TableColumn<Customer, String> nameColumn;
     @FXML private TableColumn<Customer, String> emailColumn;
     @FXML private TableColumn<Customer, String> phoneColumn;
@@ -31,11 +38,6 @@ public class CustomerController {
     @FXML private TextField phoneField;
     @FXML private TextField emailField;
     @FXML private CheckBox vipCheckBox;
-
-    private UserMessages messages;
-
-
-    private final CustomerService customerService = new CustomerService();
 
     @FXML
     public void initialize() {
@@ -63,6 +65,7 @@ public class CustomerController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(
                     "/com/wac/autocore/gui/view/NewCustomerView.fxml"));
+
             loader.setController(this);
             Parent newCustomerView = loader.load();
 
@@ -73,6 +76,7 @@ public class CustomerController {
             } else {
                 messages.showError("Could not find BorderPane!");
             }
+
         } catch (IOException e) {
             e.printStackTrace();
             messages.showError("Could not load NewCustomerView.fxml: " + e.getMessage());
@@ -87,9 +91,19 @@ public class CustomerController {
         String email = emailField.getText();
         boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
 
+        if (name == null || name.isEmpty()) {
+            messages.showError("Please enter a name.");
+            return;
+        }
+
+        if (email == null || email.isEmpty()) {
+            messages.showError("Please enter an email.");
+            return;
+        }
+
         Customer newCustomer = customerService.createCustomer(name, phone, email, isVip);
 
-        messages.showSuccess("Customer created.");
+        messages.showSuccess("Customer created: " + newCustomer.getName());
         navigateToCustomerView();
     }
 
@@ -102,9 +116,13 @@ public class CustomerController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(
                     "/com/wac/autocore/gui/view/CustomerView.fxml"));
-            Parent customerView = loader.load();
-            CustomerController controller = loader.getController();
+
+            // Viktigt: skapa en NY controller med samma service
+            CustomerController controller = new CustomerController(customerService);
             controller.setMessages(messages);
+
+            loader.setController(controller);
+            Parent customerView = loader.load();
 
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
@@ -113,6 +131,7 @@ public class CustomerController {
             } else {
                 messages.showError("Could not find BorderPane!");
             }
+
         } catch (IOException e) {
             e.printStackTrace();
             messages.showError("Could not load CustomerView.fxml: " + e.getMessage());
@@ -157,3 +176,5 @@ public class CustomerController {
         this.messages = messages;
     }
 }
+
+

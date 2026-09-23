@@ -184,8 +184,8 @@ public class InvoiceController {
             messages.showError("Invoice not created.");
         }
 
+     }
 
-    }
 
     @FXML
     private void handleCancel() {
