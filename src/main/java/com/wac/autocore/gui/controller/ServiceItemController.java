@@ -12,7 +12,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 /**
  * Controller for the service item view. Fetches data directly from the database.
  */
-public class ServiceItemController {
+public class ServiceItemController extends Controller {
 
     @FXML
     private TableView<ServiceItem> serviceItemTable;
