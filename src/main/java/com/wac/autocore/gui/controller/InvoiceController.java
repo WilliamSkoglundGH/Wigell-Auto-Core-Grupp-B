@@ -1,3 +1,4 @@
+/*
 package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.gui.launcher.GarageServiceBridge;
@@ -23,8 +24,9 @@ import java.util.stream.Collectors;
 
 /**
  * Controller for the invoice view. Fetches data directly from the database.
- */
-public class InvoiceController extends OverController {
+
+
+public class InvoiceController extends Controller{
 
     @FXML
     private TableView<Invoice> invoiceTable;
@@ -209,3 +211,5 @@ public class InvoiceController extends OverController {
         this.messages = messages;
     }
 }
+
+ */
