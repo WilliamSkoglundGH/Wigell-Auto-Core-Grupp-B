@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDate;
-import java.util.Arrays; // <--- Viktigt för Java 8!
+import java.util.Arrays;
 
 @Configuration
 public class DataInitializer {
