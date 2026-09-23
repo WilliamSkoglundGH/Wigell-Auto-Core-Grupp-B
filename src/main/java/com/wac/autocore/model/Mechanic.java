@@ -14,6 +14,8 @@ public class Mechanic {
     private String phone;
     @Column(name = "specialization", length = 200, nullable = true)
     private String specialization;
+    @Column(name = "available")
+    private boolean available;
 
     protected Mechanic() {
     }
@@ -22,6 +24,7 @@ public class Mechanic {
         this.name = name;
         this.phone = phone;
         this.specialization = specialization;
+        this.available = true;
     }
 
     public Long getId() {
@@ -52,13 +55,19 @@ public class Mechanic {
         this.specialization = specialization;
     }
 
+    public boolean isAvailable() {
+        return available;
+    }
 
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
 
     @Override
     public String toString() {
         return id + " - " + name +
                 " | Phone: " + phone +
-                " | Specialization: " + specialization;//+
-//                " | Available: " + (available ? "Yes" : "No");
+                " | Specialization: " + specialization +
+                " | Available: " + (available ? "Yes" : "No");
     }
 }

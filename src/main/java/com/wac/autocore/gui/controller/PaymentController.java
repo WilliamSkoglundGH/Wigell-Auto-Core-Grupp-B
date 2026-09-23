@@ -1,14 +1,14 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.data.Database;
 import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.Payment;
+import com.wac.autocore.service.InvoiceService;
+import com.wac.autocore.service.PaymentService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
@@ -16,6 +16,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -25,7 +28,8 @@ import java.util.stream.Collectors;
 /**
  * Controller for the payment view. Fetches data directly from the database.
  */
-public class PaymentController extends Controller {
+@Controller
+public class PaymentController extends OverController {
 
     @FXML
     private TableView<Payment> paymentTable;
@@ -49,6 +53,15 @@ public class PaymentController extends Controller {
     private TextField amountField;
 
     private UserMessages messages;
+    private final PaymentService paymentService;
+    private final InvoiceService invoiceService;
+
+    private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
+
+    public PaymentController(PaymentService paymentService, InvoiceService invoiceService) {
+        this.paymentService = paymentService;
+        this.invoiceService = invoiceService;
+    }
 
     @FXML
     public void initialize() {
@@ -66,9 +79,7 @@ public class PaymentController extends Controller {
 
     public void loadPaymentData() {
         if (paymentTable != null) {
-            ObservableList<Payment> paymentData = FXCollections.observableArrayList(
-                    Database.getPayments()
-            );
+            ObservableList<Payment> paymentData = FXCollections.observableArrayList(paymentService.getAllPayments());
             paymentTable.setItems(paymentData);
         }
     }
@@ -81,7 +92,7 @@ public class PaymentController extends Controller {
             Parent newPaymentView = loader.load();
 
             if (invoiceComboBox != null) {
-                List<Invoice> unpaidInvoices = Database.getInvoices().stream()
+                List<Invoice> unpaidInvoices = invoiceService.getAllInvoices().stream()
                         .filter(invoice -> !invoice.isPaid())
                         .collect(Collectors.toList());
                 invoiceComboBox.setItems(FXCollections.observableArrayList(unpaidInvoices));
@@ -110,26 +121,20 @@ public class PaymentController extends Controller {
             String paymentType = paymentTypeComboBox.getValue();
 
             if (selectedInvoice != null && paymentType != null && !paymentType.isEmpty()) {
-                int newId = Database.getPayments().size() + 1;
+                try {
+                    // 1. Skicka över jobbet till servicen! Det är här Strategy-mönstret används i bakgrunden.
+                    paymentService.processPayment(selectedInvoice.getId(), paymentType);
 
-                // ÄNDRA HÄR: Använd getTotalAmount() istället för getAmount()
-                double amount = selectedInvoice.getTotalAmount();
+                    // 2. Visa snyggt meddelande beroende på betalsätt
+                    messages.showSuccess(paymentType.toLowerCase() + ": Payment completed successfully.");
 
-                Payment newPayment = new Payment(newId, selectedInvoice.getId(), amount, paymentType);
-                newPayment.setSuccessful(true);
-                Database.getPayments().add(newPayment);
+                    // 3. Navigera tillbaka till tabellen
+                    navigateToPaymentView();
 
-                selectedInvoice.setPaid(true);
-
-
-                if ("CARD".equalsIgnoreCase(paymentType)) {
-                    messages.showSuccess("card: Payment completed successfully.");
-                } else if ("CASH".equalsIgnoreCase(paymentType)) {
-                    messages.showSuccess("cash: : Payment completed successfully.");
-                } else {
-                    messages.showSuccess("swish: Payment completed successfully.");
+                } catch (Exception e) {
+                    logger.error("Could not process payment: {}", e.getMessage(), e);
+                    messages.showError("Could not process payment: " + e.getMessage());
                 }
-                navigateToPaymentView();
             } else {
                 messages.showError("Please select an invoice and payment type!");
             }
