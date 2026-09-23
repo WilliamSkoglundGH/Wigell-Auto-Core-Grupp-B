@@ -24,6 +24,7 @@
                 <TableColumn fx:id="dateColumn" text="Date" />
                 <TableColumn fx:id="descriptionColumn" text="Description" />
                 <TableColumn fx:id="statusColumn" text="Status" />
+                <TableColumn fx:id="mechanicColumn" text="Mechanic" />
             </columns>
         </TableView>
 

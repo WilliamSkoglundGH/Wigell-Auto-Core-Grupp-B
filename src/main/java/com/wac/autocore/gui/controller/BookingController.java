@@ -1,7 +1,10 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.data.Database;
 import com.wac.autocore.model.Booking;
+
+import com.wac.autocore.service.BookingService;
+import com.wac.autocore.service.MechanicService;
+import com.wac.autocore.service.VehicleService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -14,21 +17,26 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Controller
 public class BookingController {
 
     // TABLE VIEW (BookingView.fxml)
     @FXML private TableView<Booking> bookingTable;
-    @FXML private TableColumn<Booking, Integer> idColumn;
-    @FXML private TableColumn<Booking, Integer> vehicleIdColumn;
+    @FXML private TableColumn<Booking, Long> idColumn;
+    @FXML private TableColumn<Booking, String> vehicleIdColumn;
     @FXML private TableColumn<Booking, LocalDate> dateColumn;
     @FXML private TableColumn<Booking, String> descriptionColumn;
     @FXML private TableColumn<Booking, String> statusColumn;
+    @FXML private TableColumn<Booking, String> mechanicColumn;
+
 
     private UserMessages messages;
 
@@ -37,7 +45,20 @@ public class BookingController {
     @FXML private DatePicker datePicker;
     @FXML private TextArea descriptionField;
     @FXML private Button saveButton;
-    @FXML private ComboBox<String> statusComboBox;
+    //@FXML private ComboBox<String> statusComboBox;
+    @FXML private ComboBox<String> mechanicField;
+
+    private final BookingService bookingService;
+    private final VehicleService vehicleService;
+    private final MechanicService mechanicService;
+
+    private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
+
+    public BookingController(BookingService bookingService, VehicleService vehicleService, MechanicService mechanicService) {
+        this.bookingService = bookingService;
+        this.vehicleService = vehicleService;
+        this.mechanicService = mechanicService;
+    }
 
     // ---------------------------------------------------------
     // INITIALIZE
@@ -48,10 +69,13 @@ public class BookingController {
         // BookingView.fxml
         if (bookingTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-            vehicleIdColumn.setCellValueFactory(new PropertyValueFactory<>("vehicleId"));
+            vehicleIdColumn.setCellValueFactory( cellData ->
+                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getVehicle().getId() + " - " + cellData.getValue().getVehicle().getRegistrationNumber()));
             dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
             descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
             statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+            mechanicColumn.setCellValueFactory( cellData ->
+                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getMechanic().getId() + " - " +cellData.getValue().getMechanic().getName()));
 
             loadBookingData();
         }
@@ -60,9 +84,13 @@ public class BookingController {
         if (vehicleIdField != null) {
             loadVehicleDropdown();
         }
-        if (statusComboBox != null) {
+        /*if (statusComboBox != null) {
             loadStatusDropdown();
+        }*/
+        if (mechanicField != null) {
+            loadMechanicDropdown();
         }
+
 
         if (descriptionField != null) {
             descriptionField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -75,16 +103,26 @@ public class BookingController {
     }
 
     private void loadBookingData() {
-        ObservableList<Booking> bookingData =
-                FXCollections.observableArrayList(Database.getBookings());
-        bookingTable.setItems(bookingData);
+        if (bookingTable != null) {
+            try {
+                ObservableList<Booking> bookingData = FXCollections.observableArrayList(
+                        bookingService.getAllBookings()
+                );
+                bookingTable.setItems(bookingData);
+            } catch (Exception e) {
+                logger.error("Could not load bookings from database. {}", e.getMessage(), e);
+                if (messages != null) {
+                    messages.showError("Could not load bookings from database.");
+                }
+            }
+        }
     }
 
     // ---------------------------------------------------------
     // VEHICLE DROPDOWN
     // ---------------------------------------------------------
     private void loadVehicleDropdown() {
-        List<String> vehicleList = Database.getVehicles().stream()
+        List<String> vehicleList = vehicleService.getAllVehicles().stream()
                 .map(v -> v.getId() + " - " +
                         v.getBrand() + " " + v.getModel() +
                         " (" + v.getRegistrationNumber() + ")")
@@ -92,19 +130,30 @@ public class BookingController {
 
         vehicleIdField.setItems(FXCollections.observableArrayList(vehicleList));
     }
+    // ---------------------------------------------------------
+    // MECHANIC DROPDOWN
+    // ---------------------------------------------------------
+    private void loadMechanicDropdown() {
+        List<String> mechanicList = mechanicService.getAllMechanics().stream()
+                .map(m -> m.getId() + " - " +
+                        m.getName())
+                .collect(Collectors.toList());
+
+        mechanicField.setItems(FXCollections.observableArrayList(mechanicList));
+    }
 
     // ---------------------------------------------------------
     // STATUS DROPDOWN
     // ---------------------------------------------------------
-    private void loadStatusDropdown() {
+   /* private void loadStatusDropdown() {
         statusComboBox.setItems(FXCollections.observableArrayList(
                 "BOOKED",
-                "CANCELLED",
-                "COMPLETED",
-                "IN_PROGRESS"
+                "WORK_ORDER_CREATED",
+                "IN_PROGRESS",
+                "COMPLETED"
         ));
         statusComboBox.setValue("BOOKED");
-    }
+    }*/
 
     // ---------------------------------------------------------
     // NEW BOOKING BUTTON
@@ -129,7 +178,7 @@ public class BookingController {
                 return;
             }
 
-            int vehicleId = Integer.parseInt(vehicleString.split(" - ")[0]);
+            Long vehicleId = Long.parseLong(vehicleString.split(" - ")[0]);
 
             // Datum
             LocalDate selectedDate = datePicker.getValue();
@@ -148,17 +197,18 @@ public class BookingController {
             // Description
             String description = descriptionField.getText();
 
-            // Skapa nytt ID
-            int newId = Database.getBookings().size() + 1;
+            // Mechanic ID från ComboBox ("1 - Olle Svensson")
+            String mechanicString = mechanicField.getValue();
 
-            // Skapa booking
-            Booking booking = new Booking(newId, vehicleId, selectedDate, description);
+            if (mechanicString == null) {
+                messages.showError("Please select a mechanic.");
+                return;
+            }
 
-            // Status sätts automatiskt
-            booking.setStatus("BOOKED");
+            Long mechanicId = Long.parseLong(mechanicString.split(" - ")[0]);
 
             // Lägg till i databasen
-            Database.getBookings().add(booking);
+            bookingService.saveBooking(vehicleId, selectedDate, description, mechanicId);
 
             // Navigera tillbaka
             messages.showSuccess("Booking created.");
@@ -166,7 +216,7 @@ public class BookingController {
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Could not save booking to database. {}", e.getMessage(), e);
             messages.showError("An unexpected error occurred. Please check the booking list before trying again.");
         }
     }

@@ -1,5 +1,6 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.exception.VehicleNotFoundException;
 import com.wac.autocore.model.Vehicle;
 import com.wac.autocore.repository.VehicleRepository;
 import org.slf4j.Logger;
@@ -21,6 +22,11 @@ public class VehicleService {
     @Transactional(readOnly = true)
     public List<Vehicle> getAllVehicles() {
         return vehicleRepository.findAll();
+    }
+    @Transactional(readOnly = true)
+    public Vehicle getVehicle(Long id) {
+        return vehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException("Vehicle with ID " + id + " not found."));
     }
     @Transactional
     public Vehicle saveVehicle(Vehicle vehicle) {
