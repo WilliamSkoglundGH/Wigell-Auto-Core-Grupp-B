@@ -5,6 +5,10 @@ import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.Mechanic;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.model.WorkOrder;
+import com.wac.autocore.service.BookingService;
+import com.wac.autocore.service.MechanicService;
+import com.wac.autocore.service.ServiceItemService;
+import com.wac.autocore.service.WorkOrderService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -18,6 +22,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,6 +31,7 @@ import java.util.stream.Collectors;
 
 public class WorkOrderController {
 
+    @FXML private TableColumn estimatedTimeColumn;
     @FXML private TableView<WorkOrder> workOrderTable;
     @FXML private TableColumn<WorkOrder, Integer> idColumn;
     @FXML private TableColumn<WorkOrder, Integer> bookingIdColumn;
@@ -41,6 +48,22 @@ public class WorkOrderController {
     private final java.util.Set<Integer> selectedServiceIds = new java.util.HashSet<>();
     private final java.util.Map<Integer, javafx.beans.property.BooleanProperty> serviceSelections = new java.util.HashMap<>();
 
+    private WorkOrderService workOrderService;
+    private ServiceItemService serviceItemService;
+    private MechanicService mechanicService;
+    private BookingService bookingService;
+    private static final Logger logger = LoggerFactory.getLogger(WorkOrderController.class);
+
+    public WorkOrderController(BookingService bookingService, MechanicService mechanicService, ServiceItemService serviceItemService, WorkOrderService workOrderService) {
+        this.bookingService = bookingService;
+        this.mechanicService = mechanicService;
+        this.serviceItemService = serviceItemService;
+        this.workOrderService = workOrderService;
+    }
+
+    // ---------------------------------------------------------
+    // INITIALIZE
+    // ---------------------------------------------------------
     @FXML
     public void initialize() {
         if (workOrderTable != null) {
@@ -176,20 +199,13 @@ public class WorkOrderController {
 
     private void populateComboBoxes() {
         if (bookingComboBox != null) {
-            List<Booking> bookedList = Database.getBookings().stream()
+            List<Booking> bookedList = bookingService.getAllBookings().stream()
                     .filter(b -> "BOOKED".equalsIgnoreCase(b.getStatus()))
                     .collect(Collectors.toList());
 
             bookingComboBox.setItems(FXCollections.observableArrayList(bookedList));
         }
 
-        if (mechanicComboBox != null) {
-            List<Mechanic> availableMechanics = Database.getMechanics().stream()
-                    .filter(Mechanic::isAvailable)
-                    .collect(Collectors.toList());
-
-            mechanicComboBox.setItems(FXCollections.observableArrayList(availableMechanics));
-        }
         if (servicesListView != null) {
             ObservableList<ServiceItem> serviceItems = FXCollections.observableArrayList(Database.getServiceItems());
             servicesListView.setItems(serviceItems);
@@ -199,7 +215,7 @@ public class WorkOrderController {
                 serviceSelections.putIfAbsent(item.getId(), new javafx.beans.property.SimpleBooleanProperty(false));
             }
 
-            // Använd Javes inbyggda CheckBoxListCell som hanterar cell-återanvändning galant
+            // Använd JavaFXs inbyggda CheckBoxListCell som hanterar cell-återanvändning galant
             servicesListView.setCellFactory(javafx.scene.control.cell.CheckBoxListCell.forListView(
                     item -> serviceSelections.get(item.getId()),
                     new javafx.util.StringConverter<ServiceItem>() {
@@ -223,10 +239,12 @@ public class WorkOrderController {
             Mechanic selectedMechanic = mechanicComboBox.getValue();
 
             if (selectedBooking != null && selectedMechanic != null) {
-                int newId = Database.getWorkOrders().size() + 1;
+                //int newId = Database.getWorkOrders().size() + 1;
 
                 // Skapa arbetsordern
-                WorkOrder newWorkOrder = new WorkOrder(newId, selectedBooking.getId(), selectedMechanic.getId());
+                //Behöver man en workorderkonstruktor utan serviceitems för att få lägga in dem efter skapande?
+                //Metod för att ta nycklar från map och göra om till serviceItem för att lägga i listan på workorders.
+                WorkOrder newWorkOrder = new WorkOrder(selectedBooking.getId(), selectedMechanic.getId());
 
                 // Hämta alla tjänster som markerats i mapen
                 for (java.util.Map.Entry<Integer, javafx.beans.property.BooleanProperty> entry : serviceSelections.entrySet()) {
@@ -236,7 +254,9 @@ public class WorkOrderController {
                 }
 
                 selectedBooking.setStatus("WORK_ORDER_CREATED");
-                Database.getWorkOrders().add(newWorkOrder);
+
+
+                //Lägg till i databas- Görs i servicen. Database.getWorkOrders().add(newWorkOrder);
 
                 // Rensa valen inför nästa gång
                 serviceSelections.clear();

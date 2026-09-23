@@ -80,10 +80,10 @@ public class WorkOrder {
     public void setStatus(String status) {
         this.status = status;
     }
-
-/*    public void addServiceItem(int serviceItemId) {
-        serviceItemIds.add(serviceItemId);
-    }
+/*
+    public void addServiceItem(int serviceItemId) {
+        serviceItems.add(serviceItemId);
+    }/*
 
     public void removeServiceItem(int serviceItemId) {
         serviceItemIds.remove(Integer.valueOf(serviceItemId));
