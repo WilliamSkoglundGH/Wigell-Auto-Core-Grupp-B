@@ -266,7 +266,8 @@ public class WorkOrderController extends OverController {
                     for (Map.Entry<Long, BooleanProperty> entry : serviceSelections.entrySet()) {
                         if (entry.getValue().get()) {}
 
-                        newWorkOrder.addServiceItem(entry.getKey());}
+                        //newWorkOrder.addServiceItem(entry.getKey());
+                        }
 
                     // Skapa och spara arbetsordern.
                     workOrderService.saveWorkOrder(selectedBooking.getId(),serviceItems,"CREATED");
@@ -607,4 +608,3 @@ public class WorkOrderController extends OverController {
     public void setMessages(UserMessages messages) {
         this.messages = messages;
     }*/
-}

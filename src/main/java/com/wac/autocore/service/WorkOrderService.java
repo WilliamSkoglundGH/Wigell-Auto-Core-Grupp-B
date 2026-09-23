@@ -42,7 +42,7 @@ public class WorkOrderService {
     //Create
     // Skapa en ny WORKORDER - BOOKING - SERVICEITEM och STATUS - STATUS CREATED - SÄTT BOOKINGS status- WORK_ORDER CREATED
     @Transactional
-    public WorkOrder saveWorkOrder(Long bookingId, List<Long> serviceItemId, String status) {
+    public WorkOrder saveWorkOrder(Long bookingId, List<ServiceItem> serviceItems, String status) {
         //Lägg till serviceItems i listan på Workorder.;
         Booking booking = bookingService.getBooking(bookingId);
 
