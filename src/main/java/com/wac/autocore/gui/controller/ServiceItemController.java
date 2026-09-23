@@ -1,4 +1,4 @@
-/*
+
 package com.wac.autocore.gui.controller;
 
 
@@ -13,11 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 
-/**
- * Controller for the service item view.
 
 
-public class ServiceItemController extends Controller {
+public class ServiceItemController extends OverController {
 
     @FXML
     private TableView<ServiceItem> serviceItemTable;
@@ -76,4 +74,3 @@ public class ServiceItemController extends Controller {
         this.messages = messages;
     }
 }
- */
