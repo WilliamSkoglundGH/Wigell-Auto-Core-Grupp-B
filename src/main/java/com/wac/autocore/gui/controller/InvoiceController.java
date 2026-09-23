@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  * Controller for the invoice view. Fetches data directly from the database.
  */
-public class InvoiceController extends Controller{
+public class InvoiceController extends OverController {
 
     @FXML
     private TableView<Invoice> invoiceTable;

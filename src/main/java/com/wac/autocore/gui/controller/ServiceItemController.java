@@ -15,7 +15,7 @@ import org.springframework.dao.DataAccessException;
 /**
  * Controller for the service item view.
  */
-public class ServiceItemController extends Controller {
+public class ServiceItemController extends OverController {
 
     @FXML
     private TableView<ServiceItem> serviceItemTable;

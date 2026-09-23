@@ -10,8 +10,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 
-public class MechanicController extends Controller{
+@Controller
+public class MechanicController extends OverController{
     @FXML
     private TableView<Mechanic> mechanicTable;
     @FXML

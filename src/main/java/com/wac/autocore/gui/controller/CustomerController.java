@@ -15,10 +15,11 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
-
-public class CustomerController extends Controller{
+@Controller
+public class CustomerController extends OverController{
 
     private final CustomerService customerService;
     private UserMessages messages;

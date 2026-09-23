@@ -16,6 +16,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -25,7 +28,8 @@ import java.util.stream.Collectors;
 /**
  * Controller for the payment view. Fetches data directly from the database.
  */
-public class PaymentController extends Controller {
+@Controller
+public class PaymentController extends OverController {
 
     @FXML
     private TableView<Payment> paymentTable;
@@ -51,6 +55,8 @@ public class PaymentController extends Controller {
     private UserMessages messages;
     private final PaymentService paymentService;
     private final InvoiceService invoiceService;
+
+    private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
     public PaymentController(PaymentService paymentService, InvoiceService invoiceService) {
         this.paymentService = paymentService;
@@ -115,26 +121,20 @@ public class PaymentController extends Controller {
             String paymentType = paymentTypeComboBox.getValue();
 
             if (selectedInvoice != null && paymentType != null && !paymentType.isEmpty()) {
+                try {
+                    // 1. Skicka över jobbet till servicen! Det är här Strategy-mönstret används i bakgrunden.
+                    paymentService.processPayment(selectedInvoice.getId(), paymentType);
 
+                    // 2. Visa snyggt meddelande beroende på betalsätt
+                    messages.showSuccess(paymentType.toLowerCase() + ": Payment completed successfully.");
 
-                // ÄNDRA HÄR: Använd getTotalAmount() istället för getAmount()
-                double amount = selectedInvoice.getTotalAmount();
+                    // 3. Navigera tillbaka till tabellen
+                    navigateToPaymentView();
 
-                //Payment newPayment = new Payment(newId, selectedInvoice.getId(), amount, paymentType);
-                //newPayment.setSuccessful(true);
-                //Database.getPayments().add(newPayment);
-
-                selectedInvoice.setPaid(true);
-
-
-                if ("CARD".equalsIgnoreCase(paymentType)) {
-                    messages.showSuccess("card: Payment completed successfully.");
-                } else if ("CASH".equalsIgnoreCase(paymentType)) {
-                    messages.showSuccess("cash: : Payment completed successfully.");
-                } else {
-                    messages.showSuccess("swish: Payment completed successfully.");
+                } catch (Exception e) {
+                    logger.error("Could not process payment: {}", e.getMessage(), e);
+                    messages.showError("Could not process payment: " + e.getMessage());
                 }
-                navigateToPaymentView();
             } else {
                 messages.showError("Please select an invoice and payment type!");
             }

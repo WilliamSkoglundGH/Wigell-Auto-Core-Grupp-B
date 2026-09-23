@@ -1,11 +1,15 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.exception.CustomerNotFoundException;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.repository.CustomerRepository;
+import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
+@Service
 public class CustomerService {
 
     private final CustomerRepository repo;
@@ -14,8 +18,15 @@ public class CustomerService {
         this.repo = repo;
     }
 
+    @Transactional(readOnly = true)
     public List<Customer> getAllCustomers() {
         return repo.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Customer getCustomer(Long id) {
+        return repo.findById(id)
+                .orElseThrow(() -> new CustomerNotFoundException("Customer with ID " + id + " not found."));
     }
 
     @Transactional
