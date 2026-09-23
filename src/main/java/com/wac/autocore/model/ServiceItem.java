@@ -65,6 +65,7 @@ public class ServiceItem {
     public String toString() {
         return id + " - " + name +
                 " | Price: " + price + " SEK" +
+                " | Description: " + description +
                 " | Estimated time: " + estimatedMinutes + " min";
     }
 }

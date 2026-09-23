@@ -1,6 +1,5 @@
 package com.wac.autocore.service;
 
-import com.wac.autocore.gui.controller.VehicleController;
 import com.wac.autocore.model.Vehicle;
 import com.wac.autocore.repository.VehicleRepository;
 import org.slf4j.Logger;
