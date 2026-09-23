@@ -1,14 +1,14 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.data.Database;
 import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.Payment;
+import com.wac.autocore.service.InvoiceService;
+import com.wac.autocore.service.PaymentService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * Controller for the payment view. Fetches data directly from the database.
  */
-public class PaymentController {
+public class PaymentController extends Controller {
 
     @FXML
     private TableView<Payment> paymentTable;
@@ -49,6 +49,13 @@ public class PaymentController {
     private TextField amountField;
 
     private UserMessages messages;
+    private final PaymentService paymentService;
+    private final InvoiceService invoiceService;
+
+    public PaymentController(PaymentService paymentService, InvoiceService invoiceService) {
+        this.paymentService = paymentService;
+        this.invoiceService = invoiceService;
+    }
 
     @FXML
     public void initialize() {
@@ -66,9 +73,7 @@ public class PaymentController {
 
     public void loadPaymentData() {
         if (paymentTable != null) {
-            ObservableList<Payment> paymentData = FXCollections.observableArrayList(
-                    Database.getPayments()
-            );
+            ObservableList<Payment> paymentData = FXCollections.observableArrayList(paymentService.getAllPayments());
             paymentTable.setItems(paymentData);
         }
     }
@@ -81,7 +86,7 @@ public class PaymentController {
             Parent newPaymentView = loader.load();
 
             if (invoiceComboBox != null) {
-                List<Invoice> unpaidInvoices = Database.getInvoices().stream()
+                List<Invoice> unpaidInvoices = invoiceService.getAllInvoices().stream()
                         .filter(invoice -> !invoice.isPaid())
                         .collect(Collectors.toList());
                 invoiceComboBox.setItems(FXCollections.observableArrayList(unpaidInvoices));
@@ -188,34 +193,7 @@ public class PaymentController {
         return null;
     }
 
-    private BorderPane searchBorderPaneRecursive(Parent parent) {
-        if (parent instanceof BorderPane) {
-            return (BorderPane) parent;
-        }
-        for (Node child : parent.getChildrenUnmodifiable()) {
-            if (child instanceof Parent) {
-                BorderPane found = searchBorderPaneRecursive((Parent) child);
-                if (found != null) {
-                    return found;
-                }
-            }
-        }
-        return null;
-    }
     public void setMessages(UserMessages messages) {
         this.messages = messages;
     }
 }
-/*
-
-
-
-Calling Swish payment service...
-Swish payment approved.
-Payment completed successfully.
-Sending payment confirmation to customer...
-Confirmation sent.
-
-
-
- */

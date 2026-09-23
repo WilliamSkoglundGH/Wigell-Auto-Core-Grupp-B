@@ -7,6 +7,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class Main {
+    /*
 
     private static final Scanner scanner = new Scanner(System.in);
     private static final GarageSystem garageSystem = new GarageSystem();
@@ -342,5 +343,5 @@ public class Main {
                 System.out.println("Invalid date. Use format YYYY-MM-DD.");
             }
         }
-    }
+    }*/
 }

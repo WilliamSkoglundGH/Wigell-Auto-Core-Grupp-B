@@ -18,7 +18,7 @@ import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 
-public class CustomerController {
+public class CustomerController extends Controller{
 
     private final CustomerService customerService;
     private UserMessages messages;
@@ -157,20 +157,6 @@ public class CustomerController {
         return null;
     }
 
-    private BorderPane searchBorderPaneRecursive(Parent parent) {
-        if (parent instanceof BorderPane) {
-            return (BorderPane) parent;
-        }
-        for (Node child : parent.getChildrenUnmodifiable()) {
-            if (child instanceof Parent) {
-                BorderPane found = searchBorderPaneRecursive((Parent) child);
-                if (found != null) {
-                    return found;
-                }
-            }
-        }
-        return null;
-    }
 
     public void setMessages(UserMessages messages) {
         this.messages = messages;

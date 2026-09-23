@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * Controller for the invoice view. Fetches data directly from the database.
  */
-public class InvoiceController {
+public class InvoiceController extends Controller{
 
     @FXML
     private TableView<Invoice> invoiceTable;
@@ -92,20 +92,7 @@ public class InvoiceController {
         return null;
     }
 
-    private BorderPane searchBorderPaneRecursive(Parent parent) {
-        if (parent instanceof BorderPane) {
-            return (BorderPane) parent;
-        }
-        for (Node child : parent.getChildrenUnmodifiable()) {
-            if (child instanceof Parent) {
-                BorderPane found = searchBorderPaneRecursive((Parent) child);
-                if (found != null) {
-                    return found;
-                }
-            }
-        }
-        return null;
-    }
+
 
     private void populateComboBox() {
         if (workOrderComboBox != null) {
