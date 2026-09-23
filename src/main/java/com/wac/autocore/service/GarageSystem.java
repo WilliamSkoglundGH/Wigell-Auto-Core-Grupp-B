@@ -1,6 +1,5 @@
 package com.wac.autocore.service;
 
-import com.wac.autocore.data.Database;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.model.Invoice;
@@ -13,7 +12,7 @@ import com.wac.autocore.model.WorkOrder;
 import java.time.LocalDate;
 
 public class GarageSystem {
-
+/*
     public void showCustomers() {
         System.out.println();
         System.out.println("=== CUSTOMERS ===");
@@ -521,5 +520,5 @@ public class GarageSystem {
         }
 
         return null;
-    }
+    }*/
 }
