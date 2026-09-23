@@ -1,5 +1,7 @@
 package com.wac.autocore.gui.controller;
 
+import com.sun.org.apache.xml.internal.security.utils.I18n;
+import com.wac.autocore.gui.util.LanguageManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,6 +12,7 @@ import javafx.scene.layout.BorderPane;
 
 import javafx.event.ActionEvent;
 import java.io.IOException;
+import java.util.Locale;
 
 public class MainController implements UserMessages {
 
@@ -23,6 +26,9 @@ public class MainController implements UserMessages {
     private Button customerButton;
 
     private Button activeMenuButton;
+
+    //Håller aktuell vy för uppdatering av språk.
+    private String currentViewPath = "/com/wac/autocore/gui/view/CustomerView.fxml";
 
     @FXML
     public void initialize() {
@@ -39,13 +45,12 @@ public class MainController implements UserMessages {
     }
 
 
-
     // ---------------------------------------------------------
     // GENERIC VIEW LOADER
     // ---------------------------------------------------------
     private void loadView(String fxmlPath, Button menuButton) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath),LanguageManager.getBundle() );
             Parent view = loader.load();
 
             Object controller = loader.getController();
@@ -80,6 +85,7 @@ public class MainController implements UserMessages {
             markActiveMenuButton(menuButton);
 
             clearMessage();
+            currentViewPath = fxmlPath;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -157,5 +163,20 @@ public class MainController implements UserMessages {
     @FXML
     private void handleExit() {
         Platform.exit();
+    }
+
+    // ---------------------------------------------------------
+    // LANGUAGE
+    // ------------------------------------------------------
+
+    @FXML
+    private void handleToggleLanguage() {
+        Locale current = LanguageManager.getBundle().getLocale();
+        Locale next = current.getLanguage().equals("sv")
+                ? new Locale("en")
+                : new Locale("sv");
+
+        LanguageManager.setLocale(next);      // updaterar bundel i util-klassen.
+        loadView(currentViewPath,activeMenuButton); // Laddar om vyn som borde nu har nya språket.
     }
 }

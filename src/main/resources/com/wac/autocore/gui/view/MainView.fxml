@@ -37,21 +37,23 @@
         <VBox spacing="20" styleClass="nav-padding">
 
             <VBox spacing="10" styleClass="button-spacing,text-center">
-                <Button fx:id="customerButton" text="Customers"
+                <Button fx:id="customerButton" text="%nav.customers"
                         onAction="#showCustomerView" prefWidth="130"/>
-                <Button text="Vehicles"
+                <Button text="%nav.vehicles"
                         onAction="#showVehicleView" prefWidth="130"/>
-                <Button text="Bookings"
+                <Button text="%nav.bookings"
                         onAction="#showBookingView" prefWidth="130"/>
-                <Button text="Workorders"
+                <Button text="%nav.workorders"
                         onAction="#showWorkOrderView" prefWidth="130"/>
-                <Button text="Invoices"
+                <Button text="%nav.invoices"
                         onAction="#showInvoiceView" prefWidth="130"/>
-                <Button text="Payments"
+                <Button text="%nav.payments"
                         onAction="#showPaymentView" prefWidth="130"/>
-                <Button text="Serviceitems"
+                <Button text="%nav.serviceitems"
                         onAction="#showServiceItemView" prefWidth="130"/>
-                <Button text="Exit"
+                <Button text="%nav.language"
+                        onAction="#handleToggleLanguage" prefWidth="130"/>
+                <Button text="%nav.exit"
                         onAction="#handleExit" prefWidth="130"/>
             </VBox>
 
