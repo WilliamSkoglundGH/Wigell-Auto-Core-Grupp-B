@@ -22,6 +22,7 @@
                 <TableColumn fx:id="mechanicIdColumn" text="%workOrder.mechanicIdColumn" />
                 <TableColumn fx:id="statusColumn" text="%table.status" />
                 <TableColumn fx:id="servicesColumn" text="%workOrder.servicesColumn" />
+                <TableColumn fx:id="startTimeColumn" text="%workOrder.startTimeColumn" />
                 <TableColumn fx:id="estimatedTimeColumn" text="%workOrder.estimatedTimeColumn" />
             </columns>
         </TableView>
