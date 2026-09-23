@@ -24,6 +24,7 @@
                 <TableColumn fx:id="dateColumn" text="%booking.dateColumn" />
                 <TableColumn fx:id="descriptionColumn" text="%table.description" />
                 <TableColumn fx:id="statusColumn" text="%table.status" />
+              <TableColumn fx:id="mechanicColumn" text="%table.status" />
             </columns>
         </TableView>
 
