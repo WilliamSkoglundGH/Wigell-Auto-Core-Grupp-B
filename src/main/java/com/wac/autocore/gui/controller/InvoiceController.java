@@ -2,7 +2,6 @@ package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.data.Database;
 import com.wac.autocore.gui.launcher.GarageServiceBridge;
-import com.wac.autocore.model.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

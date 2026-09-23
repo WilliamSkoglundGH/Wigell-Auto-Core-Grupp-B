@@ -9,7 +9,8 @@ public class Invoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(mappedBy = "work_order")
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "work_order_id", unique = true, nullable = false)
     private WorkOrder workOrder;
     @Column(name = "invoice_date", length = 20, nullable = false)
     private LocalDate invoiceDate;
