@@ -1,7 +1,7 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.data.Database;
 import com.wac.autocore.model.Customer;
+import com.wac.autocore.service.CustomerService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,13 +15,21 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
+@Controller
+public class CustomerController extends OverController{
 
-public class CustomerController extends Controller{
+    private final CustomerService customerService;
+    private UserMessages messages;
+
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
 
     @FXML private TableView<Customer> customerTable;
-    @FXML private TableColumn<Customer, Integer> idColumn;
+    @FXML private TableColumn<Customer, Long> idColumn;
     @FXML private TableColumn<Customer, String> nameColumn;
     @FXML private TableColumn<Customer, String> emailColumn;
     @FXML private TableColumn<Customer, String> phoneColumn;
@@ -31,8 +39,6 @@ public class CustomerController extends Controller{
     @FXML private TextField phoneField;
     @FXML private TextField emailField;
     @FXML private CheckBox vipCheckBox;
-
-    private UserMessages messages;
 
     @FXML
     public void initialize() {
@@ -49,9 +55,8 @@ public class CustomerController extends Controller{
 
     public void loadCustomerData() {
         if (customerTable != null) {
-            ObservableList<Customer> customerData = FXCollections.observableArrayList(
-                    Database.getCustomers()
-            );
+            ObservableList<Customer> customerData =
+                    FXCollections.observableArrayList(customerService.getAllCustomers());
             customerTable.setItems(customerData);
         }
     }
@@ -59,7 +64,9 @@ public class CustomerController extends Controller{
     @FXML
     private void handleNewCustomer() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/NewCustomerView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/wac/autocore/gui/view/NewCustomerView.fxml"));
+
             loader.setController(this);
             Parent newCustomerView = loader.load();
 
@@ -68,8 +75,9 @@ public class CustomerController extends Controller{
                 mainLayout.setCenter(newCustomerView);
                 nameField.requestFocus();
             } else {
-                messages.showError("Ccould not find BorderPane!");
+                messages.showError("Could not find BorderPane!");
             }
+
         } catch (IOException e) {
             e.printStackTrace();
             messages.showError("Could not load NewCustomerView.fxml: " + e.getMessage());
@@ -78,31 +86,26 @@ public class CustomerController extends Controller{
 
     @FXML
     private void handleSaveCustomer() {
-        if (nameField != null) {
-            String name = nameField.getText();
-            String phone = phoneField.getText();
-            String email = emailField.getText();
-            boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
 
-            String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+        String name = nameField.getText();
+        String phone = phoneField.getText();
+        String email = emailField.getText();
+        boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
 
-            if (name == null || name.trim().isEmpty()) {
-                messages.showError("Please enter a name!");
-                return;
-            }
-
-            if (email == null || !email.matches(emailRegex)) {
-                messages.showError("Invalid email.");
-                return;
-            }
-
-            int newId = Database.getCustomers().size() + 1;
-            Customer newCustomer = new Customer(newId, name, phone, email);
-            newCustomer.setVip(isVip);
-            Database.getCustomers().add(newCustomer);
-            messages.showSuccess("Customer created.");
-            navigateToCustomerView();
+        if (name == null || name.isEmpty()) {
+            messages.showError("Please enter a name.");
+            return;
         }
+
+        if (email == null || email.isEmpty()) {
+            messages.showError("Please enter an email.");
+            return;
+        }
+
+        Customer newCustomer = customerService.createCustomer(name, phone, email, isVip);
+
+        messages.showSuccess("Customer created: " + newCustomer.getName());
+        navigateToCustomerView();
     }
 
     @FXML
@@ -112,10 +115,15 @@ public class CustomerController extends Controller{
 
     private void navigateToCustomerView() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/CustomerView.fxml"));
-            Parent customerView = loader.load();
-            CustomerController controller = loader.getController();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/wac/autocore/gui/view/CustomerView.fxml"));
+
+            // Viktigt: skapa en NY controller med samma service
+            CustomerController controller = new CustomerController(customerService);
             controller.setMessages(messages);
+
+            loader.setController(controller);
+            Parent customerView = loader.load();
 
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
@@ -124,6 +132,7 @@ public class CustomerController extends Controller{
             } else {
                 messages.showError("Could not find BorderPane!");
             }
+
         } catch (IOException e) {
             e.printStackTrace();
             messages.showError("Could not load CustomerView.fxml: " + e.getMessage());
@@ -154,3 +163,5 @@ public class CustomerController extends Controller{
         this.messages = messages;
     }
 }
+
+

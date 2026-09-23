@@ -10,7 +10,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -26,7 +25,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 @Controller
-public class BookingController extends com.wac.autocore.gui.controller.Controller {
+public class BookingController extends OverController {
 
     // TABLE VIEW (BookingView.fxml)
     @FXML private TableView<Booking> bookingTable;

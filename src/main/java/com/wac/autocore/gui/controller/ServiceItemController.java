@@ -1,3 +1,4 @@
+/*
 package com.wac.autocore.gui.controller;
 
 
@@ -14,7 +15,7 @@ import org.springframework.dao.DataAccessException;
 
 /**
  * Controller for the service item view.
- */
+
 
 public class ServiceItemController extends Controller {
 
@@ -75,3 +76,4 @@ public class ServiceItemController extends Controller {
         this.messages = messages;
     }
 }
+ */
