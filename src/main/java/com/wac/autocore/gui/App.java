@@ -36,7 +36,6 @@ public class App extends Application {
         });
 
         scene.getStylesheets().add(getClass().getResource("/com/wac/autocore/gui/css/styleguide.css").toExternalForm());
-        //scene.getStylesheets().add(getClass().getResource("styleguide.css").toExternalForm());
         stage.setTitle("Wigell Auto Core - Workshop Management System");
         stage.setScene(scene);
         stage.show();

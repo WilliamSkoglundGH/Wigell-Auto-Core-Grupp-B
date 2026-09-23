@@ -14,21 +14,21 @@
     <children>
 
         <!-- Titel -->
-        <Label text="Booking Management" styleClass="heading-2" />
+        <Label text="%booking.heading" styleClass="heading-2" />
 
         <!-- Tabell -->
         <TableView fx:id="bookingTable">
             <columns>
-                <TableColumn fx:id="idColumn" text="ID" />
-                <TableColumn fx:id="vehicleIdColumn" text="Vehicle ID" />
-                <TableColumn fx:id="dateColumn" text="Date" />
-                <TableColumn fx:id="descriptionColumn" text="Description" />
-                <TableColumn fx:id="statusColumn" text="Status" />
+                <TableColumn fx:id="idColumn" text="%table.id" />
+                <TableColumn fx:id="vehicleIdColumn" text="%booking.vehicleIdColumn" />
+                <TableColumn fx:id="dateColumn" text="%booking.dateColumn" />
+                <TableColumn fx:id="descriptionColumn" text="%table.description" />
+                <TableColumn fx:id="statusColumn" text="%table.status" />
             </columns>
         </TableView>
 
         <!-- Knapp för att skapa ny booking -->
-        <Button text="New" onAction="#handleNewBooking" />
+        <Button text="%btn.new" onAction="#handleNewBooking" />
 
     </children>
 </VBox>

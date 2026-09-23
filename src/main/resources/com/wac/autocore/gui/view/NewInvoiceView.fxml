@@ -17,13 +17,13 @@
 
 
     <children>
-        <Label styleClass="heading-2" text="New Invoice" />
+        <Label styleClass="heading-2" text="%invoice.newHeading" />
 
         <GridPane hgap="10" vgap="10">
-            <Label text="Workorder:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <Label text="%invoice.workorderLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
             <ComboBox fx:id="workOrderComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-            <Label text="Discount code:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <Label text="%invoice.discountCodeLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
             <TextField fx:id="discountCodeField"
                        promptText="Enter code (optional)"
                        prefWidth="250"
@@ -32,8 +32,8 @@
         </GridPane>
 
         <HBox styleClass="button-spacing">
-            <Button onAction="#handleSaveInvoice" text="Save" />
-            <Button text="Cancel" onAction="#handleCancel" />
+            <Button onAction="#handleSaveInvoice" text="%btn.save" />
+            <Button text="%btn.cancel" onAction="#handleCancel" />
         </HBox>
     </children>
 </VBox>
