@@ -81,6 +81,6 @@ public class Vehicle {
                 registrationNumber + " | " +
                 brand + " " + model +
                 " | Year: " + year +
-                " | Customer ID: " + customer.getId();
+                " | Customer name: " + customer.getName();
     }
 }
