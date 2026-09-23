@@ -1,4 +1,4 @@
-
+/*
 package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.gui.launcher.GarageServiceBridge;
@@ -210,3 +210,4 @@ public class InvoiceController extends Controller{
         this.messages = messages;
     }
 }
+ */
