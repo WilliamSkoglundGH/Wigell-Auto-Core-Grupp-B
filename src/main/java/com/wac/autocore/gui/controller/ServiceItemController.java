@@ -4,14 +4,16 @@ package com.wac.autocore.gui.controller;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.service.ServiceItemService;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 
 /**
- * Controller for the service item view. Fetches data directly from the database.
+ * Controller for the service item view.
  */
 public class ServiceItemController {
 
@@ -35,6 +37,7 @@ public class ServiceItemController {
 
     private final ServiceItemService serviceItemService;
     private UserMessages messages;
+    private static final Logger logger = LoggerFactory.getLogger(ServiceItemController.class);
 
     public ServiceItemController(ServiceItemService serviceItemService){
         this.serviceItemService = serviceItemService;
@@ -52,12 +55,21 @@ public class ServiceItemController {
     }
 
     public void loadServiceItemData() {
-        ObservableList<ServiceItem> serviceItemData = FXCollections.observableArrayList(
-                serviceItemService.getServiceItems()
-        );
+        try {
+            serviceItemTable.setItems(
+                    FXCollections.observableArrayList(
+                            serviceItemService.getServiceItems()
+                    )
+            );
+        } catch (DataAccessException e) {
+            logger.error("Could not load service items.", e);
 
-        serviceItemTable.setItems(serviceItemData);
+            if (messages != null) {
+                messages.showError("Could not load service items from database.");
+            }
+        }
     }
+
     public void setMessages(UserMessages messages) {
         this.messages = messages;
     }
