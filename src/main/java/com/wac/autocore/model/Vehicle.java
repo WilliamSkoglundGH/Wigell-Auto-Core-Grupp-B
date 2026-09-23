@@ -14,7 +14,7 @@ public class Vehicle {
     private String model;
     @Column(name = "year", nullable = false)
     private int year;
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
