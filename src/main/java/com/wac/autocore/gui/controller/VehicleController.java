@@ -24,7 +24,7 @@ import org.springframework.stereotype.Controller;
 import java.io.IOException;
 
 @Controller
-public class VehicleController {
+public class VehicleController extends com.wac.autocore.gui.controller.Controller {
 
     @FXML
     private TableView<Vehicle> vehicleTable;
@@ -201,23 +201,8 @@ public class VehicleController {
         }
         return null;
     }
-
-    private BorderPane searchBorderPaneRecursive(Parent parent) {
-        if (parent instanceof BorderPane) {
-            return (BorderPane) parent;
-        }
-        for (Node child : parent.getChildrenUnmodifiable()) {
-            if (child instanceof Parent) {
-                BorderPane found = searchBorderPaneRecursive((Parent) child);
-                if (found != null) {
-                    return found;
-                }
-            }
-        }
-        return null;
-    }
-
     public void setMessages(UserMessages messages) {
         this.messages = messages;
     }
+
 }

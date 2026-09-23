@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * Controller for the payment view. Fetches data directly from the database.
  */
-public class PaymentController {
+public class PaymentController extends Controller {
 
     @FXML
     private TableView<Payment> paymentTable;
@@ -188,34 +188,7 @@ public class PaymentController {
         return null;
     }
 
-    private BorderPane searchBorderPaneRecursive(Parent parent) {
-        if (parent instanceof BorderPane) {
-            return (BorderPane) parent;
-        }
-        for (Node child : parent.getChildrenUnmodifiable()) {
-            if (child instanceof Parent) {
-                BorderPane found = searchBorderPaneRecursive((Parent) child);
-                if (found != null) {
-                    return found;
-                }
-            }
-        }
-        return null;
-    }
     public void setMessages(UserMessages messages) {
         this.messages = messages;
     }
 }
-/*
-
-
-
-Calling Swish payment service...
-Swish payment approved.
-Payment completed successfully.
-Sending payment confirmation to customer...
-Confirmation sent.
-
-
-
- */
