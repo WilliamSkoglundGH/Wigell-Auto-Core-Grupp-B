@@ -1,4 +1,4 @@
-package com.wac.autocore.discount;
+package com.wac.autocore.service.discount;
 
 public class PercentageDiscount implements DiscountStrategy{
     private final double percentage;

@@ -1,4 +1,4 @@
-package com.wac.autocore.discount;
+package com.wac.autocore.service.discount;
 
 public class FixedDiscount implements DiscountStrategy{
     private final double discountAmount;

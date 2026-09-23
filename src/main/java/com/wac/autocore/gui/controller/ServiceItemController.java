@@ -12,9 +12,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Controller;
 
 
-
+@Controller
 public class ServiceItemController extends OverController {
 
     @FXML
