@@ -1,39 +1,46 @@
 package com.wac.autocore.model;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
-
+@Entity
+@Table(name = "payment")
 public class Payment {
-
-    private int id;
-    private int invoiceId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "invoice_id", nullable = false)
+    private Invoice invoice;
+    @Column(name = "amount", nullable = false)
     private double amount;
+    @Column(name = "payment_type", length = 20, nullable = false)
     private String paymentType;
+    @Column(name = "payment_date", nullable = false)
     private LocalDateTime paymentDate;
+
     private boolean successful;
 
-    public Payment(int id, int invoiceId, double amount, String paymentType) {
-        this.id = id;
-        this.invoiceId = invoiceId;
-        this.amount = amount;
-        this.paymentType = paymentType;
-        this.paymentDate = LocalDateTime.now();
-        this.successful = false;
+    protected Payment() {
     }
 
-    public int getId() {
+    public Payment(Invoice invoice, double amount, String paymentType) {
+        this.invoice = invoice;
+        this.amount = amount;
+        this.paymentType = paymentType;
+        this.paymentDate = LocalDateTime.now(); // Sätter nuvarande tid automatiskt
+        this.successful = true;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public Invoice getInvoice() {
+        return invoice;
     }
 
-    public int getInvoiceId() {
-        return invoiceId;
-    }
-
-    public void setInvoiceId(int invoiceId) {
-        this.invoiceId = invoiceId;
+    public void setInvoice(Invoice invoice) {
+        this.invoice = invoice;
     }
 
     public double getAmount() {
@@ -71,7 +78,7 @@ public class Payment {
     @Override
     public String toString() {
         return id +
-                " - Invoice ID: " + invoiceId +
+                " - Invoice ID: " + invoice.getId() +
                 " | Amount: " + amount + " SEK" +
                 " | Payment type: " + paymentType +
                 " | Date: " + paymentDate +
