@@ -1,7 +1,8 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.data.Database;
+
 import com.wac.autocore.model.ServiceItem;
+import com.wac.autocore.service.ServiceItemService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -18,7 +19,7 @@ public class ServiceItemController {
     private TableView<ServiceItem> serviceItemTable;
 
     @FXML
-    private TableColumn<ServiceItem, Integer> idColumn;
+    private TableColumn<ServiceItem, Long> idColumn;
 
     @FXML
     private TableColumn<ServiceItem, String> nameColumn;
@@ -32,7 +33,12 @@ public class ServiceItemController {
     @FXML
     private TableColumn<ServiceItem, Integer> estimatedMinutesColumn;
 
+    private final ServiceItemService serviceItemService;
     private UserMessages messages;
+
+    public ServiceItemController(ServiceItemService serviceItemService){
+        this.serviceItemService = serviceItemService;
+    }
 
     @FXML
     public void initialize() {
@@ -47,7 +53,7 @@ public class ServiceItemController {
 
     public void loadServiceItemData() {
         ObservableList<ServiceItem> serviceItemData = FXCollections.observableArrayList(
-                Database.getServiceItems()
+                serviceItemService.getServiceItems()
         );
 
         serviceItemTable.setItems(serviceItemData);

@@ -56,7 +56,7 @@ public class GarageSystem {
         }
     }
 
-    public void showServiceItems() {
+    public void showServiceItems() {;
         System.out.println();
         System.out.println("=== SERVICES ===");
 
