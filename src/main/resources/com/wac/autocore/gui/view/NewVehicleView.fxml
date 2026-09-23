@@ -15,28 +15,28 @@
 
 
     <children>
-        <Label text="New Vehicle" styleClass="heading-2" />
+        <Label text="%vehicle.newHeading" styleClass="heading-2" />
 
         <GridPane hgap="10" vgap="10">
-            <Label text="Registration Number:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <Label text="%vehicle.registrationNumberLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
             <TextField fx:id="registrationNumberField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-            <Label text="Brand:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <Label text="%vehicle.brandLabel" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
             <TextField fx:id="brandField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-            <Label text="Model:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <Label text="%vehicle.modelLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
             <TextField fx:id="modelField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-            <Label text="Year:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <Label text="%vehicle.yearLabel" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
             <TextField fx:id="yearField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
-            <Label text="Customer:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+            <Label text="%vehicle.customerLabel" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
             <ComboBox fx:id="customerComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
         </GridPane>
 
         <HBox styleClass="button-spacing">
-            <Button text="Save" onAction="#handleSaveVehicle" />
-            <Button text="Cancel" onAction="#handleCancel" />
+            <Button text="%btn.save" onAction="#handleSaveVehicle" />
+            <Button text="%btn.cancel" onAction="#handleCancel" />
         </HBox>
     </children>
 </VBox>

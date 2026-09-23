@@ -18,15 +18,19 @@ public class Booking {
     private String description;
     @Column(name = "status", length = 20, nullable = false)
     private String status;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "mechanic_id", nullable = false)
+    private Mechanic mechanic;
 
     protected Booking() {
     }
 
-    public Booking(Vehicle vehicle, LocalDate date, String description, String status) {
+    public Booking(Vehicle vehicle, LocalDate date, String description, String status, Mechanic mechanic) {
         this.vehicle = vehicle;
         this.date = date;
         this.description = description;
         this.status = status;
+        this.mechanic = mechanic;
     }
 
     public Long getId() {
@@ -66,11 +70,20 @@ public class Booking {
         this.status = status;
     }
 
+    public Mechanic getMechanic() {
+        return mechanic;
+    }
+
+    public void setMechanic(Mechanic mechanic) {
+        this.mechanic = mechanic;
+    }
+
     @Override
     public String toString() {
         return id + " - Vehicle ID: " + vehicle.getId() +
                 " | Date: " + date +
                 " | Description: " + description +
-                " | Status: " + status;
+                " | Status: " + status +
+                " | Mechanic: " + mechanic.getName();
     }
 }

@@ -13,7 +13,7 @@
       fx:controller="com.wac.autocore.gui.controller.WorkOrderController">
 
     <children>
-        <Label text="Work order Management" styleClass="heading-2" />
+        <Label text="%workOrder.heading" styleClass="heading-2" />
 
         <TableView fx:id="workOrderTable">
             <columns>
@@ -26,9 +26,9 @@
         </TableView>
 
         <HBox styleClass="button-spacing">
-            <Button text="New" onAction="#handleNewWorkOrder" />
-            <Button text="Start" onAction="#handleStartWorkOrder" />
-            <Button text="Complete" onAction="#handleCompleteWorkOrder"/>
+            <Button text="%btn.new" onAction="#handleNewWorkOrder" />
+            <Button text="%workOrder.startButton" onAction="#handleStartWorkOrder" />
+            <Button text="%workOrder.completeButton" onAction="#handleCompleteWorkOrder"/>
         </HBox>
     </children>
 </VBox>

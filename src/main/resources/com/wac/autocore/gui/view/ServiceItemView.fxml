@@ -6,20 +6,20 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox styleClass="container-padding,container-spacing"
-        xmlns="http://javafx.com/javafx"
+      xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.wac.autocore.gui.controller.ServiceItemController">
 
     <children>
-        <Label text="Service Item Management" styleClass="heading-2" />
+        <Label text="%serviceItem.heading" styleClass="heading-2" />
 
         <TableView fx:id="serviceItemTable">
             <columns>
-                <TableColumn fx:id="idColumn" text="ID" />
-                <TableColumn fx:id="nameColumn" text="Name" />
-                <TableColumn fx:id="descriptionColumn" text="Description" />
-                <TableColumn fx:id="priceColumn" text="Price" />
-                <TableColumn fx:id="estimatedMinutesColumn" text="Estimated Minutes" />
+                <TableColumn fx:id="idColumn" text="%table.id" />
+                <TableColumn fx:id="nameColumn" text="%table.name" />
+                <TableColumn fx:id="descriptionColumn" text="%table.description" />
+                <TableColumn fx:id="priceColumn" text="%serviceItem.priceColumn" />
+                <TableColumn fx:id="estimatedMinutesColumn" text="%serviceItem.estimatedMinutesColumn" />
             </columns>
         </TableView>
     </children>
