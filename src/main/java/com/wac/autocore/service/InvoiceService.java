@@ -1,4 +1,4 @@
-/*
+
 package com.wac.autocore.service;
 
 import com.wac.autocore.discount.DiscountStrategy;
@@ -130,5 +130,3 @@ public class InvoiceService {
     }
 
 }
-
- */
