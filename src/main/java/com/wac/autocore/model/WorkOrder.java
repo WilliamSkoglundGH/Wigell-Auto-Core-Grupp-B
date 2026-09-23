@@ -11,7 +11,7 @@ public class WorkOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
     @ManyToMany(fetch = FetchType.LAZY)
@@ -21,7 +21,7 @@ public class WorkOrder {
             inverseJoinColumns = @JoinColumn(name = "service_item_id")
     )
     private List<ServiceItem> serviceItems = new ArrayList<>();
-    @Column(name = "status", length = 20, nullable = true)
+    @Column(name = "status", length = 20, nullable = false)
     private String status;
     @Column(name = "start_time", nullable = true)
     private LocalDateTime startTime;
