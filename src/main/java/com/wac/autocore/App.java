@@ -1,4 +1,4 @@
-package com.wac.autocore.gui;
+package com.wac.autocore;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
