@@ -81,12 +81,11 @@ public class WorkOrder {
         this.status = status;
     }
 
-    public void addServiceItem(int serviceItemId) {
-        serviceItems.add(serviceItemId);
+    public void addServiceItem(ServiceItem serviceItem) {
+        serviceItems.add(serviceItem);
     }
-
-    public void removeServiceItem(int serviceItemId) {
-        serviceItems.remove(Integer.valueOf(serviceItemId));
+    public void removeServiceItem(ServiceItem serviceItem) {
+        serviceItems.remove(serviceItem);
     }
 
     @Override
