@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 public class SwishPaymentStrategy implements PaymentStrategy {
     @Override
     public void processPayment(Invoice invoice, double amount) {
+        // Vad ska vara specifikt för denna?
         invoice.setPaid(true);
     }
 
