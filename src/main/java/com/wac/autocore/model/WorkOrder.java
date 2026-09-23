@@ -80,15 +80,15 @@ public class WorkOrder {
     public void setStatus(String status) {
         this.status = status;
     }
-/*
+
     public void addServiceItem(int serviceItemId) {
         serviceItems.add(serviceItemId);
-    }/*
+    }
 
     public void removeServiceItem(int serviceItemId) {
-        serviceItemIds.remove(Integer.valueOf(serviceItemId));
+        serviceItems.remove(Integer.valueOf(serviceItemId));
     }
-*/
+
     @Override
     public String toString() {
         return id +

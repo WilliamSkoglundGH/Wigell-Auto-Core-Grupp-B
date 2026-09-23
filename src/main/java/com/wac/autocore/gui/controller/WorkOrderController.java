@@ -46,7 +46,7 @@ public class WorkOrderController extends Controller{
     private UserMessages messages;
 
     private final java.util.Set<Integer> selectedServiceIds = new java.util.HashSet<>();
-    private final java.util.Map<Integer, javafx.beans.property.BooleanProperty> serviceSelections = new java.util.HashMap<>();
+    private final java.util.Map<Long, javafx.beans.property.BooleanProperty> serviceSelections = new java.util.HashMap<>();
 
     private WorkOrderService workOrderService;
     private ServiceItemService serviceItemService;
@@ -74,12 +74,12 @@ public class WorkOrderController extends Controller{
             if (servicesColumn != null) {
                 servicesColumn.setCellValueFactory(cellData -> {
                     WorkOrder wo = cellData.getValue();
-                    if (wo.getServiceItemIds() == null || wo.getServiceItemIds().isEmpty()) {
+                    if (wo.getServiceItems() == null || wo.getServiceItems().isEmpty()) {
                         return new javafx.beans.property.SimpleStringProperty("No services");
                     }
 
                     // Skapa en sträng med "ID: Namn" för varje tjänst
-                    String serviceInfo = wo.getServiceItemIds().stream()
+                    String serviceInfo = wo.getServiceItems().stream()
                             .map(id -> Database.getServiceItems().stream()
                                     .filter(s -> s.getId() == id)
                                     .map(s -> s.getId() + ": " + s.getName())
@@ -97,7 +97,7 @@ public class WorkOrderController extends Controller{
     public void loadWorkOrderData() {
         if (workOrderTable != null) {
             ObservableList<WorkOrder> workOrderData = FXCollections.observableArrayList(
-                    Database.getWorkOrders()
+                    workOrderService.getAllWorkOrders()
             );
             workOrderTable.setItems(workOrderData);
         }
@@ -112,20 +112,19 @@ public class WorkOrderController extends Controller{
                 selected.setStatus("IN_PROGRESS");
 
 
-                Mechanic mechanic = Database.getMechanics().stream()
-                        .filter(m -> m.getId() == selected.getMechanicId())
+                Mechanic mechanic = mechanicService.getAllMechanics().stream() // Hoppa över stream och lägg direkt mot id vi har ju id??
+                        .filter(m -> m.getId() == selected.getId())
                         .findFirst()
                         .orElse(null);
-
                 if (mechanic != null) {
-                    mechanic.setAvailable(false); // Sätt mekanikern som otillgänglig!
+                    mechanic.setAvailable(false); // Sätt mekanikern som otillgänglig mot databasen också !!!
                 }
-                Booking booking = Database.getBookings().stream()
-                        .filter(b -> b.getId() == selected.getBookingId())
+                Booking booking = bookingService.getAllBookings().stream()
+                        .filter(b -> b.getId() == selected.getId())
                         .findFirst()
                         .orElse(null);
                 if (booking != null) {
-                    booking.setStatus("IN_PROGRESS");
+                    booking.setStatus("IN_PROGRESS"); // Spara Booking mot databasen också.
                 }
                 workOrderTable.refresh();
                 messages.showSuccess("Work order " + selected.getId() + " has been started.");
@@ -146,21 +145,21 @@ public class WorkOrderController extends Controller{
                 //sätt booking till COMPLETED
 
                 // 1. Sätt mekanikern som tillgänglig igen
-                Mechanic mechanic = Database.getMechanics().stream()
-                        .filter(m -> m.getId() == selected.getMechanicId())
+                Mechanic mechanic = mechanicService.getAllMechanics().stream()
+                        .filter(m -> m.getId() == selected.getId())
                         .findFirst()
                         .orElse(null);
                 if (mechanic != null) {
-                    mechanic.setAvailable(true);
+                    mechanic.setAvailable(true); // Sätt mekanikern som otillgänglig mot databasen också !!!
                 }
 
-                // 2. Uppdatera bokningens status till COMPLETED
-                Booking booking = Database.getBookings().stream()
-                        .filter(b -> b.getId() == selected.getBookingId())
+                // 2. Uppdatera bokningens status till COMPLETED- Spara över via booking??
+                Booking booking = bookingService.getAllBookings().stream()
+                        .filter(b -> b.getId() == selected.getId())
                         .findFirst()
                         .orElse(null);
                 if (booking != null) {
-                    booking.setStatus("COMPLETED");
+                    booking.setStatus("COMPLETED");  // Spara Booking mot databasen också. VILKA SPARNINGAR ÄRVS?? NU NÄR MECANIC ÄR I BOOKING??
                 }
 
                 workOrderTable.refresh();
@@ -207,7 +206,7 @@ public class WorkOrderController extends Controller{
         }
 
         if (servicesListView != null) {
-            ObservableList<ServiceItem> serviceItems = FXCollections.observableArrayList(Database.getServiceItems());
+            ObservableList<ServiceItem> serviceItems = FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
             servicesListView.setItems(serviceItems);
 
             // Skapa upp en boolean-egenskap för varje tjänst om den inte finns
@@ -234,6 +233,7 @@ public class WorkOrderController extends Controller{
 
     @FXML
     private void handleSaveWorkOrder() {
+        try{
         if (bookingComboBox != null && mechanicComboBox != null) {
             Booking selectedBooking = bookingComboBox.getValue();
             Mechanic selectedMechanic = mechanicComboBox.getValue();
@@ -241,22 +241,21 @@ public class WorkOrderController extends Controller{
             if (selectedBooking != null && selectedMechanic != null) {
                 //int newId = Database.getWorkOrders().size() + 1;
 
+                // Hämta alla tjänster som markerats i mapen
+                for (java.util.Map.Entry<Long, javafx.beans.property.BooleanProperty> entry : serviceSelections.entrySet()) {
+                    if (entry.getValue().get()) {
+                        newWorkOrder.addServiceItem(entry.getKey()); // Hämta id och plocka serviceId genom workorderservice metoden eller här??
+                    }
                 // Skapa arbetsordern
                 //Behöver man en workorderkonstruktor utan serviceitems för att få lägga in dem efter skapande?
                 //Metod för att ta nycklar från map och göra om till serviceItem för att lägga i listan på workorders.
                 WorkOrder newWorkOrder = new WorkOrder(selectedBooking.getId(), selectedMechanic.getId());
 
-                // Hämta alla tjänster som markerats i mapen
-                for (java.util.Map.Entry<Integer, javafx.beans.property.BooleanProperty> entry : serviceSelections.entrySet()) {
-                    if (entry.getValue().get()) {
-                        newWorkOrder.addServiceItem(entry.getKey());
-                    }
                 }
+                workOrderService.saveWorkOrder();
 
                 selectedBooking.setStatus("WORK_ORDER_CREATED");
 
-
-                //Lägg till i databas- Görs i servicen. Database.getWorkOrders().add(newWorkOrder);
 
                 // Rensa valen inför nästa gång
                 serviceSelections.clear();
@@ -267,6 +266,10 @@ public class WorkOrderController extends Controller{
                 messages.showError("You need to choose a booking and a mechanic!");
             }
         }
+    } catch (Exception e) {
+        logger.error("Could not save to database. {}", e.getMessage(), e);
+        messages.showError("An unexpected error occurred. Please check the list of work orders before trying again.");
+    }
     }
 
     @FXML
