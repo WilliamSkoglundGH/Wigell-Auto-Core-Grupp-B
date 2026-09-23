@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox styleClass="container-padding,container-spacing" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.MechanicController">
+
+    <children>
+        <Label text="%mechanic.heading" styleClass="heading-2" />
+
+        <TableView fx:id="mechanicTable">
+            <columns>
+                <TableColumn fx:id="idColumn" text="%table.id" />
+                <TableColumn fx:id="nameColumn" text="%mechanic.nameColumn" />
+                <TableColumn fx:id="phoneColumn" text="%mechanic.phoneColumn" />
+                <TableColumn fx:id="specializationColumn" text="%mechanic.specializationColumn" />
+            </columns>
+        </TableView>
+
+
+    </children>
+</VBox>
