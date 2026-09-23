@@ -58,7 +58,7 @@ public class ServiceItemController extends Controller {
         try {
             serviceItemTable.setItems(
                     FXCollections.observableArrayList(
-                            serviceItemService.getServiceItems()
+                            serviceItemService.getAllServiceItems()
                     )
             );
         } catch (DataAccessException e) {
