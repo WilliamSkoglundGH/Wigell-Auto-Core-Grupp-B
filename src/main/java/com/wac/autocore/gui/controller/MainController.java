@@ -12,10 +12,12 @@ import javafx.scene.layout.BorderPane;
 
 import javafx.event.ActionEvent;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.util.Locale;
 
+@Controller
 public class MainController implements UserMessages {
     private final ApplicationContext applicationContext;
 

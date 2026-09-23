@@ -1,7 +1,11 @@
-/*
+
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.exception.WorkOrderNotFoundException;
 import com.wac.autocore.gui.launcher.GarageServiceBridge;
+import com.wac.autocore.service.InvoiceService;
+import com.wac.autocore.service.WorkOrderService;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -16,23 +20,28 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.WorkOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Controller;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// * Controller for the invoice view. Fetches data directly from the database.
+// * Controller for the invoice view.
 
-
+@Controller
 public class InvoiceController extends OverController{
 
     @FXML
     private TableView<Invoice> invoiceTable;
     @FXML
-    private TableColumn<Invoice, Integer> idColumn;
+    private TableColumn<Invoice, Long> idColumn;
     @FXML
-    private TableColumn<Invoice, Integer> workOrderIdColumn;
+    private TableColumn<Invoice, Long> workOrderIdColumn;
     @FXML
     private TableColumn<Invoice, LocalDate> invoiceDateColumn;
     @FXML
@@ -50,11 +59,22 @@ public class InvoiceController extends OverController{
     private ComboBox<WorkOrder> workOrderComboBox;
 
     private UserMessages messages;
+    private final InvoiceService invoiceService;
+    private final WorkOrderService workOrderService;
+    private static final Logger logger = LoggerFactory.getLogger(InvoiceController.class);
+
+    public InvoiceController(InvoiceService invoiceService, WorkOrderService workOrderService){
+        this.invoiceService = invoiceService;
+        this.workOrderService = workOrderService;
+    }
     
     @FXML
     public void initialize() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        workOrderIdColumn.setCellValueFactory(new PropertyValueFactory<>("workOrderId"));
+        workOrderIdColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(
+                        cellData.getValue().getWorkOrder().getId()
+                ));
         invoiceDateColumn.setCellValueFactory(new PropertyValueFactory<>("invoiceDate"));
         amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
         discountColumn.setCellValueFactory(new PropertyValueFactory<>("discount"));
@@ -65,12 +85,13 @@ public class InvoiceController extends OverController{
     }
 
     public void loadInvoiceData() {
-        ObservableList<Invoice> invoiceData = FXCollections.observableArrayList(
-                Database.getInvoices()
-        );
-
-        invoiceTable.setItems(invoiceData);
-    }
+        try{
+            ObservableList<Invoice> invoiceData = FXCollections.observableArrayList(
+                    invoiceService.getAllInvoices());
+            invoiceTable.setItems(invoiceData);
+        }catch (DataAccessException e) {
+            logger.error("Could not load invoice", e);
+        }}
 
     private BorderPane findMainLayout() {
         Scene scene = null;
@@ -95,10 +116,10 @@ public class InvoiceController extends OverController{
 
     private void populateComboBox() {
         if (workOrderComboBox != null) {
-            List<WorkOrder> workOrdersList = Database.getWorkOrders().stream()
+            List<WorkOrder> workOrdersList = workOrderService.getAllWorkOrders().stream()
                     .filter(wo -> "COMPLETED".equalsIgnoreCase(wo.getStatus())) // Endast färdiga
-                    .filter(wo -> Database.getInvoices().stream()
-                            .noneMatch(inv -> inv.getWorkOrder().getId() == wo.getId())) // Som INTE redan har en faktura
+                    .filter(wo -> invoiceService.getAllInvoices().stream()
+                            .noneMatch(inv -> inv.getWorkOrder().getId().equals(wo.getId()))) // Som INTE redan har en faktura
                     .collect(Collectors.toList());
 
             workOrderComboBox.setItems(FXCollections.observableArrayList(workOrdersList));
@@ -137,39 +158,32 @@ public class InvoiceController extends OverController{
             return;
         }
 
-        WorkOrder workOrder = workOrderComboBox.getValue();
+        WorkOrder selectedWorkOrder = workOrderComboBox.getValue();
+        String discountCode = discountCodeField.getText().trim();
 
-        // 2. Säkerhet: Förhindra dubblettfakturor för samma arbetsorder
-        boolean alreadyInvoiced = Database.getInvoices().stream()
-                .anyMatch(i -> i.getWorkOrder().getId() == workOrder.getId());
-
-        if (alreadyInvoiced) {
-            messages.showError("An invoice already exists for this work order!");
+        try{
+            invoiceService.createInvoice(selectedWorkOrder.getId(), discountCode);
+        }catch(WorkOrderNotFoundException | IllegalStateException e){
+            messages.showError(e.getMessage());
+            return;
+        }catch(DataAccessException e){
+            logger.error("Could not create invoice", e);
+            messages.showError("Could not create invoice");
             return;
         }
 
-        String discountCode = discountCodeField.getText().trim();
+        String message = "Invoice created";
 
-        Invoice invoice = GarageServiceBridge.getInstance()
-                .createInvoice(workOrder.getId(), discountCode);
-
-        if (invoice != null) {
-            String message = "Invoice created.";
-
-            if ("WELCOME10".equalsIgnoreCase(discountCode)) {
-                message += " Discount code WELCOME10 applied.";
-            } else if ("SERVICE200".equalsIgnoreCase(discountCode)) {
-                message += " Discount code SERVICE200 applied.";
-            } else if (!discountCode.isEmpty()) {
-                message += " Unknown discount code.";
-            }
-
-            messages.showSuccess(message);
-            navigateToInvoiceView();
-        } else {
-            messages.showError("Invoice not created.");
+        if(discountCode.equalsIgnoreCase("WELCOME10")){
+            message += " , Discount code WELCOME10 applied";
+        }else if(discountCode.equalsIgnoreCase("SERVICE200")){
+            message += " , Discount code SERVICE200 applied";
+        }else if(!discountCode.isEmpty()){
+            message += " , Unknown discount code";
         }
 
+        messages.showSuccess(message);
+        navigateToInvoiceView();
      }
 
 
@@ -209,5 +223,4 @@ public class InvoiceController extends OverController{
     public void setMessages(UserMessages messages) {
         this.messages = messages;
     }
-
-}*/
+}
