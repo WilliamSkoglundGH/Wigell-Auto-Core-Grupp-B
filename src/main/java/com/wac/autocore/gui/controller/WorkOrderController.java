@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class WorkOrderController {
+public class WorkOrderController extends Controller{
 
     @FXML private TableColumn estimatedTimeColumn;
     @FXML private TableView<WorkOrder> workOrderTable;
@@ -321,20 +321,6 @@ public class WorkOrderController {
         return null;
     }
 
-    private BorderPane searchBorderPaneRecursive(Parent parent) {
-        if (parent instanceof BorderPane) {
-            return (BorderPane) parent;
-        }
-        for (Node child : parent.getChildrenUnmodifiable()) {
-            if (child instanceof Parent) {
-                BorderPane found = searchBorderPaneRecursive((Parent) child);
-                if (found != null) {
-                    return found;
-                }
-            }
-        }
-        return null;
-    }
 
     public void setMessages(UserMessages messages) {
         this.messages = messages;
