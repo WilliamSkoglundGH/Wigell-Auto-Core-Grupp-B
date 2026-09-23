@@ -13,21 +13,21 @@
       fx:controller="com.wac.autocore.gui.controller.PaymentController">
 
     <children>
-        <Label text="Payment Management" styleClass="heading-2" />
+        <Label text="%payment.heading" styleClass="heading-2" />
 
         <TableView fx:id="paymentTable">
             <columns>
-                <TableColumn fx:id="idColumn" text="ID" />
-                <TableColumn fx:id="invoiceIdColumn" text="Invoice ID" />
-                <TableColumn fx:id="amountColumn" text="Amount" />
-                <TableColumn fx:id="paymentTypeColumn" text="Payment Type" />
-                <TableColumn fx:id="paymentDateColumn" text="Payment Date" />
-                <TableColumn fx:id="successfulColumn" text="Successful" />
+                <TableColumn fx:id="idColumn" text="%table.id" />
+                <TableColumn fx:id="invoiceIdColumn" text="%payment.invoiceIdColumn" />
+                <TableColumn fx:id="amountColumn" text="%table.amount" />
+                <TableColumn fx:id="paymentTypeColumn" text="%payment.paymentTypeColumn" />
+                <TableColumn fx:id="paymentDateColumn" text="%payment.paymentDateColumn" />
+                <TableColumn fx:id="successfulColumn" text="%payment.successfulColumn" />
             </columns>
         </TableView>
 
         <HBox spacing="10">
-            <Button text="Pay invoice" onAction="#handleNewPayment" />
+            <Button text="%payment.payInvoiceButton" onAction="#handleNewPayment" />
         </HBox>
     </children>
 </VBox>

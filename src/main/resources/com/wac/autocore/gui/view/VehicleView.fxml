@@ -11,19 +11,19 @@
       fx:controller="com.wac.autocore.gui.controller.VehicleController">
 
     <children>
-        <Label text="Vehicle Management" styleClass="heading-2" />
+        <Label text="%vehicle.heading" styleClass="heading-2" />
 
         <TableView fx:id="vehicleTable">
             <columns>
-                <TableColumn fx:id="idColumn" text="ID" />
-                <TableColumn fx:id="registrationNumberColumn" text="Registration Number" />
-                <TableColumn fx:id="brandColumn" text="Brand" />
-                <TableColumn fx:id="modelColumn" text="Model" />
-                <TableColumn fx:id="yearColumn" text="Year" />
-                <TableColumn fx:id="customerColumn" text="Customer" />
+                <TableColumn fx:id="idColumn" text="%table.id" />
+                <TableColumn fx:id="registrationNumberColumn" text="%vehicle.registrationNumberColumn" />
+                <TableColumn fx:id="brandColumn" text="%vehicle.brandColumn" />
+                <TableColumn fx:id="modelColumn" text="%vehicle.modelColumn" />
+                <TableColumn fx:id="yearColumn" text="%vehicle.yearColumn" />
+                <TableColumn fx:id="customerIdColumn" text="%vehicle.customerIdColumn" />
             </columns>
         </TableView>
 
-        <Button text="New" onAction="#handleNewVehicle" />
+        <Button text="%btn.new" onAction="#handleNewVehicle" />
     </children>
 </VBox>
