@@ -92,20 +92,7 @@ public class InvoiceController extends Controller{
         return null;
     }
 
-    private BorderPane searchBorderPaneRecursive(Parent parent) {
-        if (parent instanceof BorderPane) {
-            return (BorderPane) parent;
-        }
-        for (Node child : parent.getChildrenUnmodifiable()) {
-            if (child instanceof Parent) {
-                BorderPane found = searchBorderPaneRecursive((Parent) child);
-                if (found != null) {
-                    return found;
-                }
-            }
-        }
-        return null;
-    }
+
 
     private void populateComboBox() {
         if (workOrderComboBox != null) {
