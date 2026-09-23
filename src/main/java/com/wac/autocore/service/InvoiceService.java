@@ -20,6 +20,7 @@ import java.util.List;
 
 @Service
 public class InvoiceService {
+
     private final InvoiceRepository invoiceRepository;
     private final WorkOrderRepository workOrderRepository;
 
