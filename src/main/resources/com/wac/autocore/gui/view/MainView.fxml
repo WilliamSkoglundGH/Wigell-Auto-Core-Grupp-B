@@ -51,6 +51,8 @@
                         onAction="#showPaymentView" prefWidth="130"/>
                 <Button text="%nav.serviceitems"
                         onAction="#showServiceItemView" prefWidth="130"/>
+                <Button text="%nav.mechanics"
+                        onAction="#showMechanicView" prefWidth="130"/>
                 <Button text="%nav.language"
                         onAction="#handleToggleLanguage" prefWidth="130"/>
                 <Button text="%nav.exit"
