@@ -102,7 +102,7 @@ public class BookingController extends OverController {
             } catch (Exception e) {
                 logger.error("Could not load bookings from database. {}", e.getMessage(), e);
                 if (messages != null) {
-                    messages.showError("Could not load bookings from database.");
+                    messages.showError(getString("booking.error.could_not_load"));
                 }
             }
         }
@@ -143,7 +143,7 @@ public class BookingController extends OverController {
         try {
             String vehicleString = vehicleIdField.getValue();
             if (vehicleString == null) {
-                messages.showError("Please select a vehicle.");
+                messages.showError(getString("booking.error.select_vehicle"));
                 return;
             }
             Long vehicleId = Long.parseLong(vehicleString.split(" - ")[0]);
@@ -151,11 +151,11 @@ public class BookingController extends OverController {
             LocalDate selectedDate = datePicker.getValue();
             LocalDate today = LocalDate.now();
             if (selectedDate == null) {
-                messages.showError("Please select a date.");
+                messages.showError(getString("booking.error.select_date"));
                 return;
             }
             if (selectedDate.isBefore(today)) {
-                messages.showError("The booking date cannot be before today.");
+                messages.showError(getString("booking.error.before_date"));
                 return;
             }
 
@@ -167,19 +167,19 @@ public class BookingController extends OverController {
 
             String mechanicString = mechanicField.getValue();
             if (mechanicString == null) {
-                messages.showError("Please select a mechanic.");
+                messages.showError(getString("booking.error.select_mechanic"));
                 return;
             }
             Long mechanicId = Long.parseLong(mechanicString.split(" - ")[0]);
 
             bookingService.saveBooking(vehicleId, selectedDate, description, mechanicId);
 
-            messages.showSuccess("Booking created.");
+            messages.showSuccess(getString("booking.success.booking_created"));
             navigateToBookingView();
 
         } catch (Exception e) {
             logger.error("Could not save booking to database. {}", e.getMessage(), e);
-            messages.showError("An unexpected error occurred. Please check the booking list before trying again.");
+            messages.showError(getString("booking.error.unexpected"));
         }
     }
 

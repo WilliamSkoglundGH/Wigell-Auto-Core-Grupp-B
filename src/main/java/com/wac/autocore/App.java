@@ -40,7 +40,7 @@ public class App extends Application {
         loader.setResources(ResourceBundle.getBundle("i18n.messages"));
         Parent root = loader.load();
 
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 1000, 800);
 
         scene.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
             if (event.getCode() == KeyCode.ENTER
