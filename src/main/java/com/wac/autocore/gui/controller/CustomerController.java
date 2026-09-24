@@ -5,26 +5,23 @@ import com.wac.autocore.service.CustomerService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.BorderPane;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
-import java.io.IOException;
 @Controller
-public class CustomerController extends OverController{
+public class CustomerController extends OverController {
 
     private final CustomerService customerService;
 
-    public CustomerController(CustomerService customerService) {
+    // Spring injicerar både CustomerService och ApplicationContext automatiskt
+    public CustomerController(CustomerService customerService, ApplicationContext applicationContext) {
         this.customerService = customerService;
+        this.applicationContext = applicationContext;
     }
 
     @FXML private TableView<Customer> customerTable;
@@ -49,6 +46,11 @@ public class CustomerController extends OverController{
             vipColumn.setCellValueFactory(new PropertyValueFactory<>("vip"));
 
             loadCustomerData();
+            customerTable.requestFocus();
+        }
+
+        if (nameField != null) {
+            nameField.requestFocus();
         }
     }
 
@@ -62,101 +64,50 @@ public class CustomerController extends OverController{
 
     @FXML
     private void handleNewCustomer() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/com/wac/autocore/gui/view/NewCustomerView.fxml"));
-
-            loader.setController(this);
-            Parent newCustomerView = loader.load();
-
-            BorderPane mainLayout = findMainLayout();
-            if (mainLayout != null) {
-                mainLayout.setCenter(newCustomerView);
-                nameField.requestFocus();
-            } else {
-                messages.showError("Could not find BorderPane!");
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            messages.showError("Could not load NewCustomerView.fxml: " + e.getMessage());
+        if (messages != null) {
+            messages.clearMessage();
         }
+        // Använder den gemensamma metoden – språket och Spring-kontexten följer med automatiskt!
+        loadCenterView("/com/wac/autocore/gui/view/NewCustomerView.fxml");
     }
 
     @FXML
     private void handleSaveCustomer() {
-
         String name = nameField.getText();
         String phone = phoneField.getText();
         String email = emailField.getText();
         boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
 
-        if (name == null || name.isEmpty()) {
+        if (name == null || name.trim().isEmpty()) {
             messages.showError("Please enter a name.");
             return;
         }
 
-        if (email == null || email.isEmpty()) {
+        if (email == null || email.trim().isEmpty()) {
             messages.showError("Please enter an email.");
             return;
         }
 
-        Customer newCustomer = customerService.createCustomer(name, phone, email, isVip);
-
-        messages.showSuccess("Customer created: " + newCustomer.getName());
-        navigateToCustomerView();
+        try {
+            Customer newCustomer = customerService.createCustomer(name, phone, email, isVip);
+            messages.showSuccess("Customer created: " + newCustomer.getName());
+            navigateToCustomerView();
+        } catch (Exception e) {
+            messages.showError("Could not save customer: " + e.getMessage());
+        }
     }
 
     @FXML
     private void handleCancel() {
+        if (messages != null) {
+            messages.clearMessage();
+        }
         navigateToCustomerView();
     }
 
     private void navigateToCustomerView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/com/wac/autocore/gui/view/CustomerView.fxml"));
-
-            // Viktigt: skapa en NY controller med samma service
-            CustomerController controller = new CustomerController(customerService);
-            controller.setMessages(messages);
-
-            loader.setController(controller);
-            Parent customerView = loader.load();
-
-            BorderPane mainLayout = findMainLayout();
-            if (mainLayout != null) {
-                mainLayout.setCenter(customerView);
-                controller.customerTable.requestFocus();
-            } else {
-                messages.showError("Could not find BorderPane!");
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            messages.showError("Could not load CustomerView.fxml: " + e.getMessage());
-        }
+        loadCenterView("/com/wac/autocore/gui/view/CustomerView.fxml");
     }
 
-    private BorderPane findMainLayout() {
-        Scene scene = null;
-
-        if (nameField != null && nameField.getScene() != null) {
-            scene = nameField.getScene();
-        } else if (customerTable != null && customerTable.getScene() != null) {
-            scene = customerTable.getScene();
-        }
-
-        if (scene != null && scene.getRoot() != null) {
-            Parent root = scene.getRoot();
-            if (root instanceof BorderPane) {
-                return (BorderPane) root;
-            }
-            return searchBorderPaneRecursive(root);
-        }
-        return null;
-    }
-
+    // findMainLayout() är borttagen härifrån eftersom den nu ärvs från OverController!
 }
-
-

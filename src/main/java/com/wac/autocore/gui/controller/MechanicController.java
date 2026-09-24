@@ -10,28 +10,27 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class MechanicController extends OverController{
-    @FXML
-    private TableView<Mechanic> mechanicTable;
-    @FXML
-    private TableColumn<Mechanic, Long> idColumn;
-    @FXML
-    private TableColumn<Mechanic, String> nameColumn;
-    @FXML
-    private TableColumn<Mechanic, String> phoneColumn;
-    @FXML
-    private TableColumn<Mechanic, String> specializationColumn;
+public class MechanicController extends OverController {
+
+    @FXML private TableView<Mechanic> mechanicTable;
+    @FXML private TableColumn<Mechanic, Long> idColumn;
+    @FXML private TableColumn<Mechanic, String> nameColumn;
+    @FXML private TableColumn<Mechanic, String> phoneColumn;
+    @FXML private TableColumn<Mechanic, String> specializationColumn;
 
     private static final Logger logger = LoggerFactory.getLogger(MechanicController.class);
-
     private final MechanicService mechanicService;
 
-    public MechanicController(MechanicService mechanicService) {
+    // Spring injicerar MechanicService och ApplicationContext
+    public MechanicController(MechanicService mechanicService, ApplicationContext applicationContext) {
         this.mechanicService = mechanicService;
+        this.applicationContext = applicationContext;
     }
+
     @FXML
     public void initialize() {
         if (mechanicTable != null) {
@@ -41,6 +40,7 @@ public class MechanicController extends OverController{
             specializationColumn.setCellValueFactory(new PropertyValueFactory<>("specialization"));
 
             loadMechanicData();
+            mechanicTable.requestFocus();
         }
     }
 
@@ -59,5 +59,4 @@ public class MechanicController extends OverController{
             }
         }
     }
-
 }

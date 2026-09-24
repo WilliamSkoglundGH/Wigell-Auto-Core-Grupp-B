@@ -1,117 +1,93 @@
-
 package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.exception.WorkOrderNotFoundException;
-import com.wac.autocore.gui.launcher.GarageServiceBridge;
 import com.wac.autocore.service.InvoiceService;
 import com.wac.autocore.service.WorkOrderService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.BorderPane;
 import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.WorkOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// * Controller for the invoice view.
-
 @Controller
-public class InvoiceController extends OverController{
+public class InvoiceController extends OverController {
 
-    @FXML
-    private TableView<Invoice> invoiceTable;
-    @FXML
-    private TableColumn<Invoice, Long> idColumn;
-    @FXML
-    private TableColumn<Invoice, Long> workOrderIdColumn;
-    @FXML
-    private TableColumn<Invoice, LocalDate> invoiceDateColumn;
-    @FXML
-    private TableColumn<Invoice, Double> amountColumn;
-    @FXML
-    private TableColumn<Invoice, Double> discountColumn;
-    @FXML
-    private TableColumn<Invoice, Double> totalAmountColumn;
-    @FXML
-    private TableColumn<Invoice, Boolean> paidColumn;
+    @FXML private TableView<Invoice> invoiceTable;
+    @FXML private TableColumn<Invoice, Long> idColumn;
+    @FXML private TableColumn<Invoice, Long> workOrderIdColumn;
+    @FXML private TableColumn<Invoice, LocalDate> invoiceDateColumn;
+    @FXML private TableColumn<Invoice, Double> amountColumn;
+    @FXML private TableColumn<Invoice, Double> discountColumn;
+    @FXML private TableColumn<Invoice, Double> totalAmountColumn;
+    @FXML private TableColumn<Invoice, Boolean> paidColumn;
 
-    @FXML
-    private TextField discountCodeField;
-    @FXML
-    private ComboBox<WorkOrder> workOrderComboBox;
+    @FXML private TextField discountCodeField;
+    @FXML private ComboBox<WorkOrder> workOrderComboBox;
 
     private final InvoiceService invoiceService;
     private final WorkOrderService workOrderService;
     private static final Logger logger = LoggerFactory.getLogger(InvoiceController.class);
 
-    public InvoiceController(InvoiceService invoiceService, WorkOrderService workOrderService){
+    // Spring injicerar tjänster samt ApplicationContext (som sätts via superklassen)
+    public InvoiceController(InvoiceService invoiceService, WorkOrderService workOrderService, ApplicationContext applicationContext) {
         this.invoiceService = invoiceService;
         this.workOrderService = workOrderService;
+        this.applicationContext = applicationContext;
     }
-    
+
     @FXML
     public void initialize() {
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        workOrderIdColumn.setCellValueFactory(cellData ->
-                new SimpleObjectProperty<>(
-                        cellData.getValue().getWorkOrder().getId()
-                ));
-        invoiceDateColumn.setCellValueFactory(new PropertyValueFactory<>("invoiceDate"));
-        amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
-        discountColumn.setCellValueFactory(new PropertyValueFactory<>("discount"));
-        totalAmountColumn.setCellValueFactory(new PropertyValueFactory<>("totalAmount"));
-        paidColumn.setCellValueFactory(new PropertyValueFactory<>("paid"));
+        // InvoiceView.fxml
+        if (invoiceTable != null) {
+            idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            workOrderIdColumn.setCellValueFactory(cellData ->
+                    new SimpleObjectProperty<>(
+                            cellData.getValue().getWorkOrder().getId()
+                    ));
+            invoiceDateColumn.setCellValueFactory(new PropertyValueFactory<>("invoiceDate"));
+            amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+            discountColumn.setCellValueFactory(new PropertyValueFactory<>("discount"));
+            totalAmountColumn.setCellValueFactory(new PropertyValueFactory<>("totalAmount"));
+            paidColumn.setCellValueFactory(new PropertyValueFactory<>("paid"));
 
-        loadInvoiceData();
+            loadInvoiceData();
+            invoiceTable.requestFocus();
+        }
+
+        // NewInvoiceView.fxml
+        if (workOrderComboBox != null) {
+            populateComboBox();
+            workOrderComboBox.requestFocus();
+        }
     }
 
     public void loadInvoiceData() {
-        try{
+        try {
             ObservableList<Invoice> invoiceData = FXCollections.observableArrayList(
                     invoiceService.getAllInvoices());
             invoiceTable.setItems(invoiceData);
-        }catch (DataAccessException e) {
+        } catch (DataAccessException e) {
             logger.error("Could not load invoice", e);
-        }}
-
-    private BorderPane findMainLayout() {
-        Scene scene = null;
-
-        if (workOrderComboBox != null && workOrderComboBox.getScene() != null) {
-            scene = workOrderComboBox.getScene();
-        } else if (invoiceTable != null && invoiceTable.getScene() != null) {
-            scene = invoiceTable.getScene();
-        }
-
-        if (scene != null && scene.getRoot() != null) {
-            Parent root = scene.getRoot();
-            if (root instanceof BorderPane) {
-                return (BorderPane) root;
+            if (messages != null) {
+                messages.showError("Could not load invoices from database.");
             }
-            return searchBorderPaneRecursive(root);
         }
-        return null;
     }
-
-
 
     private void populateComboBox() {
         if (workOrderComboBox != null) {
@@ -123,49 +99,33 @@ public class InvoiceController extends OverController{
 
             workOrderComboBox.setItems(FXCollections.observableArrayList(workOrdersList));
         }
-
     }
 
     @FXML
     private void handleNewInvoice() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/NewInvoiceView.fxml"));
-            loader.setController(this);
-            Parent newInvoiceView = loader.load();
-
-            populateComboBox();
-
-            BorderPane mainLayout = findMainLayout();
-            if (mainLayout != null) {
-                mainLayout.setCenter(newInvoiceView);
-                workOrderComboBox.requestFocus();
-
-            } else {
-                messages.showError("Could not find BorderPane to present the form.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            messages.showError("Could not load NewInvoiceView.fxml: " + e.getMessage());
+        if (messages != null) {
+            messages.clearMessage();
         }
+        // Använder basklassens vyladdare – språket och Spring-kontexten följer med
+        loadCenterView("/com/wac/autocore/gui/view/NewInvoiceView.fxml");
     }
 
     @FXML
     private void handleSaveInvoice() {
-        // 1. Säkerhet: Kontrollera att en arbetsorder faktiskt är vald
         if (workOrderComboBox == null || workOrderComboBox.getValue() == null) {
             messages.showError("Please select a work order before saving an invoice!");
             return;
         }
 
         WorkOrder selectedWorkOrder = workOrderComboBox.getValue();
-        String discountCode = discountCodeField.getText().trim();
+        String discountCode = discountCodeField != null ? discountCodeField.getText().trim() : "";
 
-        try{
+        try {
             invoiceService.createInvoice(selectedWorkOrder.getId(), discountCode);
-        }catch(WorkOrderNotFoundException | IllegalStateException e){
+        } catch (WorkOrderNotFoundException | IllegalStateException e) {
             messages.showError(e.getMessage());
             return;
-        }catch(DataAccessException e){
+        } catch (DataAccessException e) {
             logger.error("Could not create invoice", e);
             messages.showError("Could not create invoice");
             return;
@@ -173,49 +133,29 @@ public class InvoiceController extends OverController{
 
         String message = "Invoice created";
 
-        if(discountCode.equalsIgnoreCase("WELCOME10")){
+        if (discountCode.equalsIgnoreCase("WELCOME10")) {
             message += " , Discount code WELCOME10 applied";
-        }else if(discountCode.equalsIgnoreCase("SERVICE200")){
+        } else if (discountCode.equalsIgnoreCase("SERVICE200")) {
             message += " , Discount code SERVICE200 applied";
-        }else if(!discountCode.isEmpty()){
+        } else if (!discountCode.isEmpty()) {
             message += " , Unknown discount code";
         }
 
         messages.showSuccess(message);
         navigateToInvoiceView();
-     }
-
+    }
 
     @FXML
     private void handleCancel() {
+        if (messages != null) {
+            messages.clearMessage();
+        }
         navigateToInvoiceView();
     }
 
     private void navigateToInvoiceView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/InvoiceView.fxml"));
-            Parent invoiceView = loader.load();
-
-            // Hämta den nya kontrollern och skicka med messages!
-            InvoiceController controller = loader.getController();
-            if (controller != null) {
-                controller.setMessages(this.messages);
-            }
-
-            BorderPane mainLayout = findMainLayout();
-            if (mainLayout != null) {
-                mainLayout.setCenter(invoiceView);
-                controller.invoiceTable.requestFocus();
-            } else {
-                if (messages != null) {
-                    messages.showError("Could not find BorderPane!");
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            if (messages != null) {
-                messages.showError("Could not load InvoiceView.fxml: " + e.getMessage());
-            }
-        }
+        loadCenterView("/com/wac/autocore/gui/view/InvoiceView.fxml");
     }
+
+    // findMainLayout() är helt borttagen och sköts nu automatiskt av OverController!
 }

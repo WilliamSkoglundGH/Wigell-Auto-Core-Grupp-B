@@ -1,6 +1,5 @@
 package com.wac.autocore.gui.controller;
 
-import com.sun.org.apache.xml.internal.security.utils.I18n;
 import com.wac.autocore.gui.util.LanguageManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -9,7 +8,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-
 import javafx.event.ActionEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -36,7 +34,7 @@ public class MainController implements UserMessages {
 
     private Button activeMenuButton;
 
-    //Håller aktuell vy för uppdatering av språk.
+    // Håller aktuell vy för uppdatering av språk.
     private String currentViewPath = "/com/wac/autocore/gui/view/CustomerView.fxml";
 
     @FXML
@@ -53,7 +51,6 @@ public class MainController implements UserMessages {
         activeMenuButton.getStyleClass().add("active-button");
     }
 
-
     // ---------------------------------------------------------
     // GENERIC VIEW LOADER
     // ---------------------------------------------------------
@@ -63,32 +60,12 @@ public class MainController implements UserMessages {
             loader.setControllerFactory(applicationContext::getBean);
             Parent view = loader.load();
 
+            // Polymorfism: Skicka med både meddelanden och ApplicationContext till OverController
             Object controller = loader.getController();
-//mönster? vi har en OverController, vilket mönster?? hur??????????????????????????????????????????????????????????????????????????
-            if (controller instanceof BookingController) {
-                BookingController bookingController = (BookingController) controller;
-                bookingController.setMessages(this);
-            } else if (controller instanceof CustomerController) {
-                CustomerController customerController = (CustomerController) controller;
-                customerController.setMessages(this);
-
-            } else if (controller instanceof InvoiceController) {
-                InvoiceController invoiceController = (InvoiceController) controller;
-                invoiceController.setMessages(this);
-
-            } else if (controller instanceof PaymentController) {
-                PaymentController paymentController = (PaymentController) controller;
-                paymentController.setMessages(this);
-
-            } else if (controller instanceof ServiceItemController) {
-                ServiceItemController serviceItemController = (ServiceItemController) controller;
-                serviceItemController.setMessages(this);
-            } else if (controller instanceof VehicleController) {
-                VehicleController vehicleController = (VehicleController) controller;
-                vehicleController.setMessages(this);
-            } else if (controller instanceof WorkOrderController) {
-                WorkOrderController workOrderController = (WorkOrderController) controller;
-                workOrderController.setMessages(this);
+            if (controller instanceof OverController) {
+                OverController oc = (OverController) controller;
+                oc.setMessages(this);
+                oc.setApplicationContext(applicationContext); // <-- VIKTIGT FÖR ATT SUB-VYN SKA FÅ CONTEXT!
             }
 
             mainRoot.setCenter(view);
@@ -122,7 +99,6 @@ public class MainController implements UserMessages {
         messageLabel.getStyleClass().removeAll("msg-error", "msg-success");
         messageLabel.setText("");
     }
-
 
     // ---------------------------------------------------------
     // MENU BUTTON ACTIONS
@@ -177,7 +153,7 @@ public class MainController implements UserMessages {
 
     // ---------------------------------------------------------
     // LANGUAGE
-    // ------------------------------------------------------
+    // ---------------------------------------------------------
 
     @FXML
     private void handleToggleLanguage() {
@@ -186,7 +162,7 @@ public class MainController implements UserMessages {
                 ? new Locale("en")
                 : new Locale("sv");
 
-        LanguageManager.setLocale(next);      // uppdaterar bundel i util-klassen.
-        loadView(currentViewPath, activeMenuButton); // Laddar om vyn som borde nu har nya språket.
+        LanguageManager.setLocale(next);      // Uppdaterar bundle i util-klassen.
+        loadView(currentViewPath, activeMenuButton); // Laddar om vyn med det nya språket.
     }
 }
