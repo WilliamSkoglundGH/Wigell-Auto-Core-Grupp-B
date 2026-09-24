@@ -45,13 +45,12 @@ public class BookingController extends OverController {
 
     private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
 
-    // Spring injicerar tjänsterna och ApplicationContext (som vi skickar vidare till superklassen)
     public BookingController(BookingService bookingService, VehicleService vehicleService,
                              MechanicService mechanicService, ApplicationContext applicationContext) {
         this.bookingService = bookingService;
         this.vehicleService = vehicleService;
         this.mechanicService = mechanicService;
-        this.applicationContext = applicationContext; // Sätts i OverController
+        this.applicationContext = applicationContext;
     }
 
     // ---------------------------------------------------------
@@ -162,7 +161,6 @@ public class BookingController extends OverController {
 
             String description = descriptionField.getText();
             if (mechanicField == null) {
-                System.out.println("FEL: mechanicField är inte injicerad från FXML!");
                 return;
             }
 
