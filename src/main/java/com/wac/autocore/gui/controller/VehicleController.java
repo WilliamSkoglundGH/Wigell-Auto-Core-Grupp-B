@@ -7,62 +7,48 @@ import com.wac.autocore.service.VehicleService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.BorderPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
-
-import java.io.IOException;
 
 @Controller
 public class VehicleController extends OverController {
 
-    @FXML
-    private TableView<Vehicle> vehicleTable;
-    @FXML
-    private TableColumn<Vehicle, Integer> idColumn;
-    @FXML
-    private TableColumn<Vehicle, String> registrationNumberColumn;
-    @FXML
-    private TableColumn<Vehicle, String> brandColumn;
-    @FXML
-    private TableColumn<Vehicle, String> modelColumn;
-    @FXML
-    private TableColumn<Vehicle, Integer> yearColumn;
-    @FXML
-    private TableColumn<Vehicle, String> customerColumn;
+    @FXML private TableView<Vehicle> vehicleTable;
+    @FXML private TableColumn<Vehicle, Integer> idColumn;
+    @FXML private TableColumn<Vehicle, String> registrationNumberColumn;
+    @FXML private TableColumn<Vehicle, String> brandColumn;
+    @FXML private TableColumn<Vehicle, String> modelColumn;
+    @FXML private TableColumn<Vehicle, Integer> yearColumn;
+    @FXML private TableColumn<Vehicle, String> customerColumn;
 
-    @FXML
-    private TextField registrationNumberField;
-    @FXML
-    private TextField brandField;
-    @FXML
-    private TextField modelField;
-    @FXML
-    private TextField yearField;
-    @FXML
-    private ComboBox<Customer> customerComboBox;
+    @FXML private TextField registrationNumberField;
+    @FXML private TextField brandField;
+    @FXML private TextField modelField;
+    @FXML private TextField yearField;
+    @FXML private ComboBox<Customer> customerComboBox;
 
     private final VehicleService vehicleService;
     private final CustomerService customerService;
 
     private static final Logger logger = LoggerFactory.getLogger(VehicleController.class);
 
-    public VehicleController(VehicleService vehicleService, CustomerService customerService) {
+    // Spring injicerar tjänster samt ApplicationContext
+    public VehicleController(VehicleService vehicleService, CustomerService customerService, ApplicationContext applicationContext) {
         this.vehicleService = vehicleService;
         this.customerService = customerService;
+        this.applicationContext = applicationContext;
     }
 
     @FXML
     public void initialize() {
+        // VehicleView.fxml
         if (vehicleTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             registrationNumberColumn.setCellValueFactory(new PropertyValueFactory<>("registrationNumber"));
@@ -73,6 +59,23 @@ public class VehicleController extends OverController {
                     new javafx.beans.property.SimpleStringProperty(cellData.getValue().getCustomer().getName())
             );
             loadVehicleData();
+            vehicleTable.requestFocus();
+        }
+
+        // NewVehicleView.fxml
+        if (customerComboBox != null) {
+            try {
+                customerComboBox.setItems(FXCollections.observableArrayList(customerService.getAllCustomers()));
+            } catch (Exception e) {
+                logger.error("Could not get all customers: {}", e.getMessage(), e);
+                if (messages != null) {
+                    messages.showError("Could not get all customers.");
+                }
+            }
+        }
+
+        if (registrationNumberField != null) {
+            registrationNumberField.requestFocus();
         }
     }
 
@@ -94,37 +97,11 @@ public class VehicleController extends OverController {
 
     @FXML
     private void handleNewVehicle() {
-        Parent newVehicleView;
-
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/NewVehicleView.fxml"));
-            loader.setController(this);
-            newVehicleView = loader.load();
-        } catch (IOException e) {
-            logger.error("Could not load NewVehicleView.fxml. {}", e.getMessage(), e);
-            messages.showError("Could not load NewVehicleView.fxml.");
-            return;
+        if (messages != null) {
+            messages.clearMessage();
         }
-
-        if (customerComboBox != null) {
-            try {
-                customerComboBox.setItems(FXCollections.observableArrayList(customerService.getAllCustomers()));
-            } catch (Exception e) {
-                logger.error("Could not get all customers: {}", e.getMessage(), e);
-                messages.showError("Could not get all customers.");
-            }
-        }
-
-        BorderPane mainLayout = findMainLayout();
-        if (mainLayout != null) {
-            mainLayout.setCenter(newVehicleView);
-            if (registrationNumberField != null) {
-                registrationNumberField.requestFocus();
-            }
-        } else {
-            logger.error("Could not find BorderPane to show NewVehicleView.");
-            messages.showError("Could not find BorderPane!");
-        }
+        // Använder OverControllers gemensamma vyladdare
+        loadCenterView("/com/wac/autocore/gui/view/NewVehicleView.fxml");
     }
 
     @FXML
@@ -157,46 +134,15 @@ public class VehicleController extends OverController {
 
     @FXML
     private void handleCancel() {
+        if (messages != null) {
+            messages.clearMessage();
+        }
         navigateToVehicleView();
     }
 
     private void navigateToVehicleView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/VehicleView.fxml"));
-            Parent vehicleView = loader.load();
-            VehicleController controller = loader.getController();
-            controller.setMessages(messages);
-
-            BorderPane mainLayout = findMainLayout();
-            if (mainLayout != null) {
-                mainLayout.setCenter(vehicleView);
-                controller.vehicleTable.requestFocus();
-            } else {
-                logger.error("Could not find BorderPane to show VehicleView.");
-                messages.showError("Could not find BorderPane!");
-            }
-        } catch (IOException e) {
-            logger.error("Could not load VehicleView.fxml: {}", e.getMessage(), e);
-            messages.showError("Could not load VehicleView.fxml");
-        }
+        loadCenterView("/com/wac/autocore/gui/view/VehicleView.fxml");
     }
 
-    private BorderPane findMainLayout() {
-        Scene scene = null;
-
-        if (registrationNumberField != null && registrationNumberField.getScene() != null) {
-            scene = registrationNumberField.getScene();
-        } else if (vehicleTable != null && vehicleTable.getScene() != null) {
-            scene = vehicleTable.getScene();
-        }
-
-        if (scene != null && scene.getRoot() != null) {
-            Parent root = scene.getRoot();
-            if (root instanceof BorderPane) {
-                return (BorderPane) root;
-            }
-            return searchBorderPaneRecursive(root);
-        }
-        return null;
-    }
+    // findMainLayout() är helt borttagen härifrån eftersom den hanteras centralt i OverController!
 }
