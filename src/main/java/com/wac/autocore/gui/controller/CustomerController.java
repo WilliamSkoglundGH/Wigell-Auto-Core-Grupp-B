@@ -10,12 +10,14 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class CustomerController extends OverController {
-
+    private static final Logger logger = LoggerFactory.getLogger(CustomerController.class);
     private final CustomerService customerService;
 
     // Spring injicerar både CustomerService och ApplicationContext automatiskt
@@ -110,6 +112,7 @@ public class CustomerController extends OverController {
             messages.showSuccess(getString("customer_success.customer_created") + newCustomer.getName());
             navigateToCustomerView();
         } catch (Exception e) {
+            logger.error("Could not save customer to database. {}", e.getMessage(), e);
             messages.showError(getString("customer.error.create_customer"));
         }
     }
@@ -125,6 +128,4 @@ public class CustomerController extends OverController {
     private void navigateToCustomerView() {
         loadCenterView("/com/wac/autocore/gui/view/CustomerView.fxml");
     }
-
-    // findMainLayout() är borttagen härifrån eftersom den nu ärvs från OverController!
 }
