@@ -15,6 +15,7 @@
     <children>
         <Label text="%customer.newHeading" styleClass="heading-2" />
 
+
         <GridPane hgap="10" vgap="10">
             <Label text="%customer.nameLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
             <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
