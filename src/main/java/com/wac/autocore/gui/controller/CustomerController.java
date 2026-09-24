@@ -96,21 +96,21 @@ public class CustomerController extends OverController {
         boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
 
         if (name == null || name.trim().isEmpty()) {
-            messages.showError("Please enter a name.");
+            messages.showError(getString("customer.error.enter_name"));
             return;
         }
 
         if (email == null || email.trim().isEmpty()) {
-            messages.showError("Please enter an email.");
+            messages.showError(getString("customer.error.enter_email"));
             return;
         }
 
         try {
             Customer newCustomer = customerService.createCustomer(name, phone, email, isVip);
-            messages.showSuccess("Customer created: " + newCustomer.getName());
+            messages.showSuccess(getString("customer_success.customer_created") + newCustomer.getName());
             navigateToCustomerView();
         } catch (Exception e) {
-            messages.showError("Could not save customer: " + e.getMessage());
+            messages.showError(getString("customer.error.create_customer"));
         }
     }
 
