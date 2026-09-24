@@ -1,6 +1,7 @@
 package com.wac.autocore.service;
 
 import com.wac.autocore.exception.MechanicNotFoundException;
+import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.Mechanic;
 import com.wac.autocore.repository.MechanicRepository;
 import org.slf4j.Logger;
@@ -27,4 +28,19 @@ public class MechanicService {
         return mechanicRepository.findById(id)
                 .orElseThrow(() -> new MechanicNotFoundException("Mechanic with ID " + id + " not found."));
     }
+
+    @Transactional(readOnly = true)
+    public List<Booking> getBookingsForMechanic(Long mechanicId) {
+
+        Mechanic mechanic = getMechanic(mechanicId);
+
+        List<Booking> bookings = mechanic.getBookings();
+
+        bookings.sort((a, b) -> a.getDate().compareTo(b.getDate()));
+
+        return bookings;
+    }
+
+
+
 }

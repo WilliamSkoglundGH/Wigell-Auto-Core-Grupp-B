@@ -1,6 +1,7 @@
 package com.wac.autocore.model;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "mechanic")
@@ -26,6 +27,15 @@ public class Mechanic {
         this.specialization = specialization;
         this.available = true;
     }
+
+    @OneToMany(mappedBy = "mechanic", fetch = FetchType.LAZY)
+    private List<Booking> bookings;
+
+    public List<Booking> getBookings() {
+        return bookings;
+    }
+
+
 
     public Long getId() {
         return id;

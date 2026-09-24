@@ -5,6 +5,8 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.Button?>
+
 <VBox styleClass="container-padding,container-spacing" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.wac.autocore.gui.controller.MechanicController">
@@ -20,6 +22,9 @@
                 <TableColumn fx:id="specializationColumn" text="%mechanic.specializationColumn" />
             </columns>
         </TableView>
+
+        <Button text="Bookings" onAction="#handleBookings" />
+
 
 
     </children>
