@@ -45,6 +45,12 @@
                       prefWidth="250"
                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
+            <!-- Mechanic -->
+            <Label text="%booking.mechanicLabel" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <ComboBox fx:id="mechanicField"
+                      prefWidth="250"
+                      GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
 
 
         </GridPane>

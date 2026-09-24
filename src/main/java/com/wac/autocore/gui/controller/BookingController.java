@@ -161,6 +161,11 @@ public class BookingController extends OverController {
             }
 
             String description = descriptionField.getText();
+            if (mechanicField == null) {
+                System.out.println("FEL: mechanicField är inte injicerad från FXML!");
+                return;
+            }
+
 
             String mechanicString = mechanicField.getValue();
             if (mechanicString == null) {
