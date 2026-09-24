@@ -2,18 +2,19 @@ package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.gui.util.LanguageManager;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import javafx.event.ActionEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 @Controller
 public class MainController implements UserMessages {
@@ -29,12 +30,21 @@ public class MainController implements UserMessages {
     @FXML
     private Label messageLabel;
 
-    @FXML
-    private Button customerButton;
+    // Menyknappar med fx:id för direkt uppdatering av språk
+    @FXML private Button customerButton;
+    @FXML private Button vehicleButton;
+    @FXML private Button bookingButton;
+    @FXML private Button workOrderButton;
+    @FXML private Button invoiceButton;
+    @FXML private Button paymentButton;
+    @FXML private Button serviceItemButton;
+    @FXML private Button mechanicButton;
+    @FXML private Button languageButton;
+    @FXML private Button exitButton;
 
     private Button activeMenuButton;
 
-    // Håller aktuell vy för uppdatering av språk.
+    // Håller koll på aktuell vy så att vi stannar kvar på rätt skärm vid språkbyte
     private String currentViewPath = "/com/wac/autocore/gui/view/CustomerView.fxml";
 
     @FXML
@@ -46,9 +56,10 @@ public class MainController implements UserMessages {
         if (activeMenuButton != null) {
             activeMenuButton.getStyleClass().remove("active-button");
         }
-
         activeMenuButton = button;
-        activeMenuButton.getStyleClass().add("active-button");
+        if (activeMenuButton != null) {
+            activeMenuButton.getStyleClass().add("active-button");
+        }
     }
 
     // ---------------------------------------------------------
@@ -60,12 +71,12 @@ public class MainController implements UserMessages {
             loader.setControllerFactory(applicationContext::getBean);
             Parent view = loader.load();
 
-            // Polymorfism: Skicka med både meddelanden och ApplicationContext till OverController
+            // Skicka med både meddelanden och ApplicationContext till OverController-subklasser
             Object controller = loader.getController();
             if (controller instanceof OverController) {
                 OverController oc = (OverController) controller;
                 oc.setMessages(this);
-                oc.setApplicationContext(applicationContext); // <-- VIKTIGT FÖR ATT SUB-VYN SKA FÅ CONTEXT!
+                oc.setApplicationContext(applicationContext);
             }
 
 
@@ -74,7 +85,7 @@ public class MainController implements UserMessages {
             markActiveMenuButton(menuButton);
 
             clearMessage();
-            currentViewPath = fxmlPath;
+            currentViewPath = fxmlPath; // Sparar aktiv vy
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -170,7 +181,30 @@ public class MainController implements UserMessages {
                 ? new Locale("en")
                 : new Locale("sv");
 
-        LanguageManager.setLocale(next);      // Uppdaterar bundle i util-klassen.
-        loadView(currentViewPath, activeMenuButton); // Laddar om vyn med det nya språket.
+        LanguageManager.setLocale(next); // Uppdaterar bundle i util-klassen
+
+        // 1. Uppdatera texterna på menyknapparna direkt
+        updateMenuButtonTexts();
+
+        // 2. Ladda om den aktiva centervyn med det nya språket
+        loadView(currentViewPath, activeMenuButton);
+    }
+
+    private void updateMenuButtonTexts() {
+        ResourceBundle bundle = LanguageManager.getBundle();
+        if (customerButton != null) customerButton.setText(bundle.getString("nav.customers"));
+        if (vehicleButton != null) vehicleButton.setText(bundle.getString("nav.vehicles"));
+        if (bookingButton != null) bookingButton.setText(bundle.getString("nav.bookings"));
+        if (workOrderButton != null) workOrderButton.setText(bundle.getString("nav.workorders"));
+        if (invoiceButton != null) invoiceButton.setText(bundle.getString("nav.invoices"));
+        if (paymentButton != null) paymentButton.setText(bundle.getString("nav.payments"));
+        if (serviceItemButton != null) serviceItemButton.setText(bundle.getString("nav.serviceitems"));
+        if (mechanicButton != null) mechanicButton.setText(bundle.getString("nav.mechanics"));
+        if (languageButton != null) languageButton.setText(bundle.getString("nav.language"));
+        if (exitButton != null) exitButton.setText(bundle.getString("nav.exit"));
+    }
+    // Låt andra controllers tala om vilken vy som för närvarande är aktiv
+    public void setCurrentViewPath(String viewPath) {
+        this.currentViewPath = viewPath;
     }
 }

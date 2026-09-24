@@ -11,9 +11,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 @Controller
+@Scope("prototype")
 public class MechanicController extends OverController {
 
     @FXML private TableView<Mechanic> mechanicTable;
@@ -54,7 +56,7 @@ public class MechanicController extends OverController {
             } catch (Exception e) {
                 logger.error("Could not load mechanics from database. {}", e.getMessage(), e);
                 if (messages != null) {
-                    messages.showError("Could not load mechanics from database.");
+                    messages.showError(getString("mechanic.error.could_not_load"));
                 }
             }
         }

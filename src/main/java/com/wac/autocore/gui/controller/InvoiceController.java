@@ -17,6 +17,7 @@ import com.wac.autocore.model.WorkOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
+@Scope("prototype")
 public class InvoiceController extends OverController {
 
     @FXML private TableView<Invoice> invoiceTable;
@@ -82,9 +84,9 @@ public class InvoiceController extends OverController {
                     invoiceService.getAllInvoices());
             invoiceTable.setItems(invoiceData);
         } catch (DataAccessException e) {
-            logger.error("Could not load invoice", e);
+            logger.error("Could not load invoices", e);
             if (messages != null) {
-                messages.showError("Could not load invoices from database.");
+                messages.showError(getString("invoice.error.load_invoices"));
             }
         }
     }
@@ -113,7 +115,7 @@ public class InvoiceController extends OverController {
     @FXML
     private void handleSaveInvoice() {
         if (workOrderComboBox == null || workOrderComboBox.getValue() == null) {
-            messages.showError("Please select a work order before saving an invoice!");
+            messages.showError(getString("invoice.error.select_workorder"));
             return;
         }
 
@@ -127,20 +129,19 @@ public class InvoiceController extends OverController {
             return;
         } catch (DataAccessException e) {
             logger.error("Could not create invoice", e);
-            messages.showError("Could not create invoice");
+            messages.showError(getString("invoice.error.create_invoice"));
             return;
         }
 
-        String message = "Invoice created";
+        String message = getString("invoice.success.invoice_created");
 
         if (discountCode.equalsIgnoreCase("WELCOME10")) {
-            message += " , Discount code WELCOME10 applied";
+            message += getString("invoice.success.welcome10");
         } else if (discountCode.equalsIgnoreCase("SERVICE200")) {
-            message += " , Discount code SERVICE200 applied";
+            message += getString("invoice.success.service200");
         } else if (!discountCode.isEmpty()) {
-            message += " , Unknown discount code";
+            message += getString("invoice.success.unknown_discount");
         }
-
         messages.showSuccess(message);
         navigateToInvoiceView();
     }
@@ -156,6 +157,4 @@ public class InvoiceController extends OverController {
     private void navigateToInvoiceView() {
         loadCenterView("/com/wac/autocore/gui/view/InvoiceView.fxml");
     }
-
-    // findMainLayout() är helt borttagen och sköts nu automatiskt av OverController!
 }

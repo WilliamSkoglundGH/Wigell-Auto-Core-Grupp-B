@@ -10,10 +10,12 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 
 @Controller
+@Scope("prototype")
 public class ServiceItemController extends OverController {
 
     @FXML private TableView<ServiceItem> serviceItemTable;
@@ -58,7 +60,7 @@ public class ServiceItemController extends OverController {
                 logger.error("Could not load service items.", e);
 
                 if (messages != null) {
-                    messages.showError("Could not load service items from database.");
+                    messages.showError(getString("serviceitem.error.could_not_load"));
                 }
             }
         }
