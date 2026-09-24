@@ -42,10 +42,9 @@ public class WorkOrderController extends OverController {
     @FXML private TableColumn<WorkOrder, LocalDateTime> startTimeColumn;
 
     @FXML private ComboBox<Booking> bookingComboBox;
-    @FXML private ComboBox<Mechanic> mechanicComboBox;
     @FXML private ListView<ServiceItem> servicesListView;
 
-    private final Set<Integer> selectedServiceIds = new HashSet<>();
+    private final Set<Integer> selectedServiceIds = new HashSet<>(); // Används ej.
     private final Map<Long, javafx.beans.property.BooleanProperty> serviceSelections = new HashMap<>();
 
     private final WorkOrderService workOrderService;
@@ -108,7 +107,6 @@ public class WorkOrderController extends OverController {
             loadWorkOrderData();
             workOrderTable.requestFocus();
         }
-
         // NewWorkOrderView.fxml
         loadBookingComboBox();
         loadServiceList();
