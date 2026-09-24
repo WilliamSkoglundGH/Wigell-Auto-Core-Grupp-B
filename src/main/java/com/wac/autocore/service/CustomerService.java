@@ -45,8 +45,14 @@ public class CustomerService {
             throw new IllegalArgumentException("You need a valid e-mail");
         }
 
-        if (phone != null && !phone.isEmpty() && phone.length() < 5) {
-            throw new IllegalArgumentException("You need a valid phone number");
+        if (phone != null && !phone.isEmpty()) {
+
+            // Svensk mobil, fast eller +46-format
+            String regex = "^(07[023679]\\d{7}|0\\d{6,10}|\\+467[023679]\\d{7})$";
+
+            if (!phone.matches(regex)) {
+                throw new IllegalArgumentException("Invalid Swedish phone number");
+            }
         }
 
         Customer customer = new Customer(name, phone, email);

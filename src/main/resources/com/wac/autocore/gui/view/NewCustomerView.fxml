@@ -21,7 +21,10 @@
             <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
             <Label text="%customer.phoneLabel" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-            <TextField fx:id="phoneField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <TextField fx:id="phoneField"
+                       promptText="Ex: 0701234567"
+                       GridPane.columnIndex="1"
+                       GridPane.rowIndex="1"/>
 
             <Label text="%customer.emailLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
             <TextField fx:id="emailField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
