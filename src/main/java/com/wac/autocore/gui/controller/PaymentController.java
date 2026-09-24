@@ -105,10 +105,10 @@ public class PaymentController extends OverController {
             if (selectedInvoice != null && paymentType != null && !paymentType.isEmpty()) {
                 try {
                     // 1. Skicka över jobbet till servicen (Strategy-mönstret i bakgrunden)
-                    paymentService.processPayment(selectedInvoice.getId(), paymentType);
+                    String message = paymentService.processPayment(selectedInvoice.getId(), paymentType);
 
                     // 2. Visa snyggt meddelande
-                    messages.showSuccess(paymentType.toLowerCase() + ": Payment completed successfully.");
+                    messages.showSuccess(message);
 
                     // 3. Navigera tillbaka till tabellen
                     navigateToPaymentView();

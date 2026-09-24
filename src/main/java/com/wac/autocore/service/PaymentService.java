@@ -32,21 +32,23 @@ public class PaymentService {
         return paymentRepository.findAll();
     }
     @Transactional
-    public Payment processPayment(Long invoiceId, String paymentType) {
+    public String processPayment(Long invoiceId, String paymentType) {
         // 1. Hämta fakturan från databasen
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new RuntimeException("Invoice with ID " + invoiceId + " was not found."));
 
-        // 2. Hitta rätt strategi baserat på betalningstyp
-        PaymentStrategy strategy = strategies.get(paymentType.toUpperCase());
+
+        PaymentStrategy strategy = strategies.values().stream()
+                .filter(s -> s.getPaymentType().equalsIgnoreCase(paymentType))
+                .findFirst()
+                .orElse(null);
+        double amount = invoice.getTotalAmount();
         if (strategy == null) {
             throw new IllegalArgumentException("Unsupported payment type: " + paymentType);
         }
 
-        double amount = invoice.getTotalAmount();
-
         // 3. Utför betalningen via strategin (sätter t.ex. fakturan som betald)
-        strategy.processPayment(invoice, amount);
+        String message = strategy.processPayment(invoice, amount);
 
         // 4. Skapa och spara betalningshistoriken
         Payment payment = new Payment(invoice, amount, paymentType.toUpperCase());
@@ -57,6 +59,6 @@ public class PaymentService {
         logger.info("Payment of amount {} processed successfully using strategy [{}] for invoice ID {}",
                 amount, paymentType, invoiceId);
 
-        return savedPayment;
+        return message;
     }
 }
