@@ -30,3 +30,6 @@ bin/
 .DS_Store
 
 /target/
+
+.idea/misc.xml
+.idea/compiler.xml
