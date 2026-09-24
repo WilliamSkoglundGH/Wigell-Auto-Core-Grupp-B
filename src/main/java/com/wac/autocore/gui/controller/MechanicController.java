@@ -54,7 +54,7 @@ public class MechanicController extends OverController {
             } catch (Exception e) {
                 logger.error("Could not load mechanics from database. {}", e.getMessage(), e);
                 if (messages != null) {
-                    messages.showError("Could not load mechanics from database.");
+                    messages.showError(getString("mechanic.error.could_not_load"));
                 }
             }
         }

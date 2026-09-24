@@ -15,6 +15,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
@@ -81,12 +82,18 @@ public class PaymentController extends OverController {
     }
 
     public void loadPaymentData() {
-        if (paymentTable != null) {
-            ObservableList<Payment> paymentData = FXCollections.observableArrayList(paymentService.getAllPayments());
-            paymentTable.setItems(paymentData);
+        try {
+            if (paymentTable != null) {
+                ObservableList<Payment> paymentData = FXCollections.observableArrayList(paymentService.getAllPayments());
+                paymentTable.setItems(paymentData);
+            }
+        } catch (Exception e) {
+            logger.error("Could not load payments", e);
+            if (messages != null) {
+                messages.showError(getString("payment.error.could_not_load"));
+            }
         }
     }
-
     @FXML
     private void handleNewPayment() {
         if (messages != null) {
@@ -115,10 +122,10 @@ public class PaymentController extends OverController {
 
                 } catch (Exception e) {
                     logger.error("Could not process payment: {}", e.getMessage(), e);
-                    messages.showError("Could not process payment: " + e.getMessage());
+                    messages.showError(getString("payment.error.could_not_process"));
                 }
             } else {
-                messages.showError("Please select an invoice and payment type!");
+                messages.showError(getString("payment.error.select_invoice_type"));
             }
         }
     }
@@ -134,6 +141,4 @@ public class PaymentController extends OverController {
     private void navigateToPaymentView() {
         loadCenterView("/com/wac/autocore/gui/view/PaymentView.fxml");
     }
-
-    // findMainLayout() är helt borttagen eftersom OverController sköter det centralt!
 }
