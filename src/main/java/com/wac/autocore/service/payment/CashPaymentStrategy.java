@@ -6,9 +6,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class CashPaymentStrategy implements PaymentStrategy {
     @Override
-    public void processPayment(Invoice invoice, double amount) {
+    public String processPayment(Invoice invoice, double amount) {
         // Vad ska vara specifikt för denna?
         invoice.setPaid(true);
+        return"Invoice id: " + invoice.getId() + " paid by cash.";
     }
 
     @Override
