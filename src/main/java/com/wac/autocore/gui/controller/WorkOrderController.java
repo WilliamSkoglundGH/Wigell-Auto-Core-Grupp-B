@@ -39,7 +39,8 @@ public class WorkOrderController extends OverController {
     @FXML private TableColumn<WorkOrder, String> statusColumn;
     @FXML private TableColumn<WorkOrder, String> servicesColumn;
     @FXML private TableColumn<WorkOrder, Integer> estimatedTimeColumn;
-    @FXML private TableColumn<WorkOrder, LocalDateTime> startTimeColumn;
+    @FXML private TableColumn<WorkOrder, String> startTimeColumn;
+    @FXML private TableColumn<WorkOrder, String> endTimeColumn;
 
     @FXML private ComboBox<Booking> bookingComboBox;
     @FXML private ListView<ServiceItem> servicesListView;
@@ -75,19 +76,15 @@ public class WorkOrderController extends OverController {
             mechanicIdColumn.setCellValueFactory(cellData ->
                     new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBooking().getMechanic().getId() + " - " + cellData.getValue().getBooking().getMechanic().getName()));
             statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+            startTimeColumn.setCellValueFactory(cellData -> {
+                        WorkOrder wo = cellData.getValue();
+                        workOrderService.countAndSetWorkTime(wo);
+                        return new javafx.beans.property.SimpleStringProperty(wo.getStartTime().toString());});
+            endTimeColumn.setCellValueFactory(cellData -> {
+                WorkOrder wo = cellData.getValue();
+                return new javafx.beans.property.SimpleStringProperty(wo.getEndTime().toString());});
             estimatedTimeColumn.setCellValueFactory(cellData ->
-                    new SimpleObjectProperty<>(countTotalMin(cellData.getValue().getServiceItems())));
-
-            //startTimeColumn.setCellValueFactory(new PropertyValueFactory<>("startTime"));
-            if (startTimeColumn != null) {
-                startTimeColumn.setCellFactory(column -> new TableCell<WorkOrder, LocalDateTime>() {
-                    @Override
-                    protected void updateItem(LocalDateTime item, boolean empty) {
-                        super.updateItem(item, empty);
-                        setText((empty || item == null) ? "" : item.toString());
-                    }
-                });
-            }
+                    new SimpleObjectProperty<>(workOrderService.countTotalMin(cellData.getValue().getServiceItems())));
             if (servicesColumn != null) {
                 servicesColumn.setCellValueFactory(cellData -> {
                     WorkOrder wo = cellData.getValue();
@@ -101,7 +98,7 @@ public class WorkOrderController extends OverController {
                                     .map(s -> s.getId() + ": " + s.getName())
                                     .findFirst()
                                     .orElse("ID " + id + ": Unknown"))
-                            .collect(Collectors.joining(", "));
+                            .collect(Collectors.joining(","));
                     return new SimpleStringProperty(serviceInfo);
                 });
             }
@@ -113,15 +110,7 @@ public class WorkOrderController extends OverController {
         loadServiceList();
     }
 
-    public int countTotalMin(List<ServiceItem> serviceItems) {
-        int totalMin = 0;
-        if (serviceItems != null) {
-            for (ServiceItem s : serviceItems) {
-                totalMin += s.getEstimatedMinutes();
-            }
-        }
-        return totalMin;
-    }
+
     public void loadWorkOrderData() {
         if (workOrderTable != null) {
             try {
@@ -264,4 +253,13 @@ public class WorkOrderController extends OverController {
     }
 
     // findMainLayout() är helt borttagen eftersom OverController sköter det centralt!
+    /*if (startTimeColumn != null) {
+        startTimeColumn.setCellFactory(column -> new TableCell<WorkOrder, LocalDateTime>() {
+            @Override
+            protected void updateItem(LocalDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                setText((empty || item == null) ? "" : item.toString());
+            }
+        });
+    }*/
 }

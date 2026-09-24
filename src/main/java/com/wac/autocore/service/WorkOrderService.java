@@ -6,10 +6,12 @@ import com.wac.autocore.model.*;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.datetime.DateFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 @Service
 public class WorkOrderService {
@@ -68,7 +70,7 @@ public class WorkOrderService {
         savedBooking.setStatus("IN_PROGRESS");
         mechanic.setAvailable(false);
 
-        workOrderRepository.save(workOrder); // sparas alla eller behöver man spara booking och workorder separat??
+        workOrderRepository.save(workOrder);
     }
 
     @Transactional
@@ -91,8 +93,27 @@ public class WorkOrderService {
         savedBooking.setStatus("COMPLETED");
         mechanic.setAvailable(true);
 
-        workOrderRepository.save(workOrder); // sparas alla eller behöver man spara booking och workorder separat??
+        workOrderRepository.save(workOrder);
     }
+
+    public void countAndSetWorkTime(WorkOrder workOrder) {
+        workOrder.setStartTime(LocalDateTime.now());
+        workOrderRepository.save(workOrder);
+        int time= countTotalMin(workOrder.getServiceItems());
+        workOrder.setEndTime(workOrder.getStartTime().plusMinutes(time));
+        workOrderRepository.save(workOrder);
+    }
+
+    public int countTotalMin(List<ServiceItem> serviceItems) {
+        int totalMin = 0;
+        if (serviceItems != null) {
+            for (ServiceItem s : serviceItems) {
+                totalMin += s.getEstimatedMinutes();
+            }
+        }
+        return totalMin;
+    }
+
 
     }
 
