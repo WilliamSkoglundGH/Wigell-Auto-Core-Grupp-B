@@ -20,9 +20,6 @@ public class WorkOrderService {
      private ServiceItemService serviceItemService;
      private MechanicService mechanicService;
 
-    protected WorkOrderService() {
-    }
-
     public WorkOrderService(WorkOrderRepository workOrderRepository, BookingService bookingService, ServiceItemService serviceItemService, MechanicService mechanicService) {
         this.workOrderRepository = workOrderRepository;
         this.bookingService = bookingService;
