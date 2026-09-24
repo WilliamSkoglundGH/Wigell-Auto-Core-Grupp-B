@@ -58,7 +58,6 @@ public class InvoiceController extends OverController{
     @FXML
     private ComboBox<WorkOrder> workOrderComboBox;
 
-    private UserMessages messages;
     private final InvoiceService invoiceService;
     private final WorkOrderService workOrderService;
     private static final Logger logger = LoggerFactory.getLogger(InvoiceController.class);
@@ -218,9 +217,5 @@ public class InvoiceController extends OverController{
                 messages.showError("Could not load InvoiceView.fxml: " + e.getMessage());
             }
         }
-    }
-
-    public void setMessages(UserMessages messages) {
-        this.messages = messages;
     }
 }

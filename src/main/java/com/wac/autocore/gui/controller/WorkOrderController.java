@@ -45,8 +45,6 @@ public class WorkOrderController extends OverController {
     @FXML private ComboBox<Mechanic> mechanicComboBox;
     @FXML private ListView<ServiceItem> servicesListView;
 
-    private UserMessages messages;
-
     private final java.util.Set<Integer> selectedServiceIds = new java.util.HashSet<>();
     private final java.util.Map<Long, javafx.beans.property.BooleanProperty> serviceSelections = new java.util.HashMap<>();
 
@@ -297,10 +295,5 @@ public class WorkOrderController extends OverController {
                 return searchBorderPaneRecursive(root);
             }
             return null;
-        }
-
-
-        public void setMessages(UserMessages messages) {
-            this.messages = messages;
         }
     }

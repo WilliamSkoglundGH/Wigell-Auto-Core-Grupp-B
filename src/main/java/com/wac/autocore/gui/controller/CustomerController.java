@@ -22,7 +22,6 @@ import java.io.IOException;
 public class CustomerController extends OverController{
 
     private final CustomerService customerService;
-    private UserMessages messages;
 
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
@@ -158,10 +157,6 @@ public class CustomerController extends OverController{
         return null;
     }
 
-
-    public void setMessages(UserMessages messages) {
-        this.messages = messages;
-    }
 }
 
 

@@ -37,7 +37,6 @@ public class ServiceItemController extends OverController {
     private TableColumn<ServiceItem, Integer> estimatedMinutesColumn;
 
     private final ServiceItemService serviceItemService;
-    private UserMessages messages;
     private static final Logger logger = LoggerFactory.getLogger(ServiceItemController.class);
 
     public ServiceItemController(ServiceItemService serviceItemService){
@@ -69,9 +68,5 @@ public class ServiceItemController extends OverController {
                 messages.showError("Could not load service items from database.");
             }
         }
-    }
-
-    public void setMessages(UserMessages messages) {
-        this.messages = messages;
     }
 }

@@ -52,7 +52,6 @@ public class PaymentController extends OverController {
     @FXML
     private TextField amountField;
 
-    private UserMessages messages;
     private final PaymentService paymentService;
     private final InvoiceService invoiceService;
 
@@ -191,9 +190,5 @@ public class PaymentController extends OverController {
             return searchBorderPaneRecursive(root);
         }
         return null;
-    }
-
-    public void setMessages(UserMessages messages) {
-        this.messages = messages;
     }
 }

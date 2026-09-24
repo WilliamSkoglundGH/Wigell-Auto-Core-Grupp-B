@@ -27,8 +27,6 @@ public class MechanicController extends OverController{
 
     private static final Logger logger = LoggerFactory.getLogger(MechanicController.class);
 
-
-    private UserMessages messages;
     private final MechanicService mechanicService;
 
     public MechanicController(MechanicService mechanicService) {
@@ -62,7 +60,4 @@ public class MechanicController extends OverController{
         }
     }
 
-    public void setMessages(UserMessages messages) {
-        this.messages = messages;
-    }
 }
