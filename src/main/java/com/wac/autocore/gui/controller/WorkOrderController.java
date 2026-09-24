@@ -41,7 +41,8 @@ public class WorkOrderController extends OverController {
     @FXML private TableColumn<WorkOrder, String> statusColumn;
     @FXML private TableColumn<WorkOrder, String> servicesColumn;
     @FXML private TableColumn<WorkOrder, Integer> estimatedTimeColumn;
-    @FXML private TableColumn<WorkOrder, LocalDateTime> startTimeColumn;
+    @FXML private TableColumn<WorkOrder, String> startTimeColumn;
+    @FXML private TableColumn<WorkOrder, String> endTimeColumn;
 
     @FXML private ComboBox<Booking> bookingComboBox;
     @FXML private ListView<ServiceItem> servicesListView;
@@ -77,19 +78,15 @@ public class WorkOrderController extends OverController {
             mechanicIdColumn.setCellValueFactory(cellData ->
                     new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBooking().getMechanic().getId() + " - " + cellData.getValue().getBooking().getMechanic().getName()));
             statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+            startTimeColumn.setCellValueFactory(cellData -> {
+                        WorkOrder wo = cellData.getValue();
+                        workOrderService.countAndSetWorkTime(wo);
+                        return new javafx.beans.property.SimpleStringProperty(wo.getStartTime().toString());});
+            endTimeColumn.setCellValueFactory(cellData -> {
+                WorkOrder wo = cellData.getValue();
+                return new javafx.beans.property.SimpleStringProperty(wo.getEndTime().toString());});
             estimatedTimeColumn.setCellValueFactory(cellData ->
-                    new SimpleObjectProperty<>(countTotalMin(cellData.getValue().getServiceItems())));
-
-            startTimeColumn.setCellValueFactory(new PropertyValueFactory<>("startTime"));
-            if (startTimeColumn != null) {
-                startTimeColumn.setCellFactory(column -> new TableCell<WorkOrder, LocalDateTime>() {
-                    @Override
-                    protected void updateItem(LocalDateTime item, boolean empty) {
-                        super.updateItem(item, empty);
-                        setText((empty || item == null) ? "" : item.toString());
-                    }
-                });
-            }
+                    new SimpleObjectProperty<>(workOrderService.countTotalMin(cellData.getValue().getServiceItems())));
             if (servicesColumn != null) {
                 servicesColumn.setCellValueFactory(cellData -> {
                     WorkOrder wo = cellData.getValue();
@@ -115,16 +112,7 @@ public class WorkOrderController extends OverController {
         loadServiceList();
     }
 
-    public int countTotalMin(List<ServiceItem> serviceItems) {
-        int totalMin = 0;
-        if (serviceItems != null) {
-            for (ServiceItem s : serviceItems) {
-                totalMin += s.getEstimatedMinutes();
-            }
-        }
-        return totalMin;
-    }
-//TODO Fixa Null pointer problematiken
+
     public void loadWorkOrderData() {
         if (workOrderTable != null) {
             try {
@@ -132,9 +120,6 @@ public class WorkOrderController extends OverController {
                         workOrderService.getAllWorkOrders()
                 );
                 workOrderTable.setItems(workOrderData);
-            }
-            catch (NullPointerException e){
-                logger.error("Nullpointer i workorder-databasen. {}", e.getMessage(), e);
             }
             catch (Exception e){
                 logger.error("Could not load work orders from database. {}", e.getMessage(), e);
@@ -235,21 +220,22 @@ public class WorkOrderController extends OverController {
                     messages.showError(getString("workorder.error.select_booking"));
                     return;
                 }
-
-                // Samla ihop valda tjänster baserat på vilka checkboxes som är markerade i mappen
+                // Samla tjänster från checkbox.
                 List<ServiceItem> serviceItems = serviceItemService.getAllServiceItems().stream()
                         .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                         .collect(Collectors.toList());
-
-                selectedBooking.setStatus("WORK_ORDER_CREATED");
-                workOrderService.saveWorkOrder(selectedBooking.getId(),serviceItems);
-
-            }
-        } catch (Exception e) {
-            logger.error("Could not save to database. {}", e.getMessage(), e);
-            messages.showError(getString("workorder.error.unexpected"));
-            return;
-        }
+                if (serviceItems.isEmpty()) {
+                    messages.showError("Service item forgotten. Please add before saving.");
+                    return;
+                } else {
+                    selectedBooking.setStatus("WORK_ORDER_CREATED");
+                    workOrderService.saveWorkOrder(selectedBooking.getId(), serviceItems);
+                }
+            }} catch (Exception e){
+                    logger.error("Could not save to database. {}", e.getMessage(), e);
+                    messages.showError("An unexpected error occurred. Please check the list of work orders before trying again.");
+                    return;
+                }
 
         serviceSelections.clear();
         messages.showSuccess(getString("workorder.success.workorder_created"));
