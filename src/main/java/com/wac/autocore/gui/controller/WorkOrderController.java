@@ -8,9 +8,7 @@ import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
 import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.WorkOrderService;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -35,9 +33,9 @@ import java.util.stream.Collectors;
 public class WorkOrderController extends OverController {
 
     @FXML private TableView<WorkOrder> workOrderTable;
-    @FXML private TableColumn<WorkOrder, Integer> idColumn;
-    @FXML private TableColumn<WorkOrder, Integer> bookingIdColumn;
-    @FXML private TableColumn<WorkOrder, Integer> mechanicIdColumn;
+    @FXML private TableColumn<WorkOrder, Long> idColumn;
+    @FXML private TableColumn<WorkOrder, Long> bookingIdColumn;
+    @FXML private TableColumn<WorkOrder, String> mechanicIdColumn;
     @FXML private TableColumn<WorkOrder, String> statusColumn;
     @FXML private TableColumn<WorkOrder, String> servicesColumn;
     @FXML private TableColumn<WorkOrder, Integer> estimatedTimeColumn;
@@ -74,7 +72,8 @@ public class WorkOrderController extends OverController {
         if (workOrderTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             bookingIdColumn.setCellValueFactory(new PropertyValueFactory<>("bookingId"));
-            mechanicIdColumn.setCellValueFactory(new PropertyValueFactory<>("mechanicId"));
+            mechanicIdColumn.setCellValueFactory(cellData ->
+                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBooking().getMechanic().getId() + " - " + cellData.getValue().getBooking().getMechanic().getName()));
             statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
             estimatedTimeColumn.setCellValueFactory(cellData ->
                     new SimpleObjectProperty<>(countTotalMin(cellData.getValue().getServiceItems())));
@@ -129,12 +128,18 @@ public class WorkOrderController extends OverController {
 
     public void loadWorkOrderData() {
         if (workOrderTable != null) {
-            ObservableList<WorkOrder> workOrderData = FXCollections.observableArrayList(
-                    workOrderService.getAllWorkOrders()
-            );
-            workOrderTable.setItems(workOrderData);
-        }
-    }
+            try {
+                ObservableList<WorkOrder> workOrderData = FXCollections.observableArrayList(
+                        workOrderService.getAllWorkOrders()
+                );
+                workOrderTable.setItems(workOrderData);
+            }
+            catch (NullPointerException e){
+            }
+            catch (Exception e){
+                logger.error("Could not load work orders from database. {}", e.getMessage(), e);
+                {
+                } }}}
 
     @FXML
     private void handleStartWorkOrder() {

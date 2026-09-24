@@ -32,8 +32,11 @@ public class WorkOrderService {
 
     @Transactional(readOnly = true)
     public List<WorkOrder> getAllWorkOrders() {
-        return workOrderRepository.findAll();
-    }
+        List<WorkOrder> list = workOrderRepository.findAll();
+        if(!list.isEmpty()) {
+            return list;
+        } else throw new WorkOrderNotFoundException("No work orders found.");
+        }
 
 
     @Transactional(readOnly = true)
