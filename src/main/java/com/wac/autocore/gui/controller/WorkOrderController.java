@@ -78,7 +78,7 @@ public class WorkOrderController extends OverController {
             estimatedTimeColumn.setCellValueFactory(cellData ->
                     new SimpleObjectProperty<>(countTotalMin(cellData.getValue().getServiceItems())));
 
-            startTimeColumn.setCellValueFactory(new PropertyValueFactory<>("startTime"));
+            //startTimeColumn.setCellValueFactory(new PropertyValueFactory<>("startTime"));
             if (startTimeColumn != null) {
                 startTimeColumn.setCellFactory(column -> new TableCell<WorkOrder, LocalDateTime>() {
                     @Override
@@ -122,7 +122,6 @@ public class WorkOrderController extends OverController {
         }
         return totalMin;
     }
-//TODO Fixa Null pointer problematiken
     public void loadWorkOrderData() {
         if (workOrderTable != null) {
             try {
@@ -130,9 +129,6 @@ public class WorkOrderController extends OverController {
                         workOrderService.getAllWorkOrders()
                 );
                 workOrderTable.setItems(workOrderData);
-            }
-            catch (NullPointerException e){
-                logger.error("Nullpointer i workorder-databasen. {}", e.getMessage(), e);
             }
             catch (Exception e){
                 logger.error("Could not load work orders from database. {}", e.getMessage(), e);
@@ -233,21 +229,22 @@ public class WorkOrderController extends OverController {
                     messages.showError("Please select a booking");
                     return;
                 }
-
-                // Samla ihop valda tjänster baserat på vilka checkboxes som är markerade i mappen
+                // Samla tjänster från checkbox.
                 List<ServiceItem> serviceItems = serviceItemService.getAllServiceItems().stream()
                         .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                         .collect(Collectors.toList());
-
-                selectedBooking.setStatus("WORK_ORDER_CREATED");
-                workOrderService.saveWorkOrder(selectedBooking.getId(),serviceItems);
-
-            }
-        } catch (Exception e) {
-            logger.error("Could not save to database. {}", e.getMessage(), e);
-            messages.showError("An unexpected error occurred. Please check the list of work orders before trying again.");
-            return;
-        }
+                if (serviceItems.isEmpty()) {
+                    messages.showError("Service item forgotten. Please add before saving.");
+                    return;
+                } else {
+                    selectedBooking.setStatus("WORK_ORDER_CREATED");
+                    workOrderService.saveWorkOrder(selectedBooking.getId(), serviceItems);
+                }
+            }} catch (Exception e){
+                    logger.error("Could not save to database. {}", e.getMessage(), e);
+                    messages.showError("An unexpected error occurred. Please check the list of work orders before trying again.");
+                    return;
+                }
 
         serviceSelections.clear();
         messages.showSuccess("Work order created.");

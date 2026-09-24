@@ -29,11 +29,8 @@ public class WorkOrderService {
 
     @Transactional(readOnly = true)
     public List<WorkOrder> getAllWorkOrders() {
-        List<WorkOrder> list = workOrderRepository.findAll();
-        if(!list.isEmpty()) {
-            return list;
-        } else throw new WorkOrderNotFoundException("No work orders found.");
-        }
+     return workOrderRepository.findAll();
+    }
 
 
     @Transactional(readOnly = true)
@@ -43,16 +40,12 @@ public class WorkOrderService {
 
     }
 
-    //Create
-    // Skapa en ny WORKORDER - BOOKING - SERVICEITEM och STATUS - STATUS CREATED - SÄTT BOOKINGS status- WORK_ORDER CREATED
-    @Transactional
+     @Transactional
     public void saveWorkOrder(Long bookingId, List<ServiceItem> serviceItems) {
         Booking booking = bookingService.getBooking(bookingId);
-        if(serviceItems == null || serviceItems.isEmpty()) {
-            throw new ServiceItemNotFoundException("No service items where chosen. Please choose needed service item");
-        }
         WorkOrder newWorkOrder = new WorkOrder(booking, serviceItems, "CREATED");
-        workOrderRepository.save(newWorkOrder);
+
+       workOrderRepository.save(newWorkOrder);
     }
 
     @Transactional
