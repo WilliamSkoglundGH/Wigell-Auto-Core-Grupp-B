@@ -38,6 +38,7 @@ public class CustomerController extends OverController {
 
     @FXML
     public void initialize() {
+
         if (customerTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -52,7 +53,23 @@ public class CustomerController extends OverController {
         if (nameField != null) {
             nameField.requestFocus();
         }
+
+        if (phoneField != null) {
+            phoneField.textProperty().addListener((obs, oldValue, newValue) -> {
+                if (newValue != null) {
+                    // Tar bort allt som inte är siffror
+                    String digits = newValue.replaceAll("\\D", "");
+
+                    if (digits.length() > 3) {
+                        phoneField.setText(digits.substring(0, 3) + "-" + digits.substring(3));
+                    } else {
+                        phoneField.setText(digits);
+                    }
+                }
+            });
+        }
     }
+
 
     public void loadCustomerData() {
         if (customerTable != null) {

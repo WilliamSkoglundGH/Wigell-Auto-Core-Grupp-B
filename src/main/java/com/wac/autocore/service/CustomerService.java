@@ -32,7 +32,6 @@ public class CustomerService {
     @Transactional
     public Customer createCustomer(String name, String phone, String email, boolean vip) {
 
-
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Name is required.");
         }
@@ -47,11 +46,17 @@ public class CustomerService {
 
         if (phone != null && !phone.isEmpty()) {
 
-            // Svensk mobil, fast eller +46-format
             String regex = "^(07[023679]\\d{7}|0\\d{6,10}|\\+467[023679]\\d{7})$";
 
-            if (!phone.matches(regex)) {
+            // Normalisera för validering: 070-1234567 → 0701234567
+            String normalized = phone.replace("-", "");
+
+            if (!normalized.matches(regex)) {
                 throw new IllegalArgumentException("Invalid Swedish phone number");
+            }
+
+            if (normalized.length() == 10) { // t.ex. 0701234567
+                phone = normalized.substring(0, 3) + "-" + normalized.substring(3);
             }
         }
 
@@ -62,6 +67,7 @@ public class CustomerService {
 
         return customer;
     }
+
 }
 
 
