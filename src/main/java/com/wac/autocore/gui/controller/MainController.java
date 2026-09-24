@@ -91,6 +91,8 @@ public class MainController implements UserMessages {
                 workOrderController.setMessages(this);
             }
 
+
+
             mainRoot.setCenter(view);
             markActiveMenuButton(menuButton);
 
