@@ -8,9 +8,7 @@ import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
 import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.WorkOrderService;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -35,19 +33,18 @@ import java.util.stream.Collectors;
 public class WorkOrderController extends OverController {
 
     @FXML private TableView<WorkOrder> workOrderTable;
-    @FXML private TableColumn<WorkOrder, Integer> idColumn;
-    @FXML private TableColumn<WorkOrder, Integer> bookingIdColumn;
-    @FXML private TableColumn<WorkOrder, Integer> mechanicIdColumn;
+    @FXML private TableColumn<WorkOrder, Long> idColumn;
+    @FXML private TableColumn<WorkOrder, String> bookingIdColumn;
+    @FXML private TableColumn<WorkOrder, String> mechanicIdColumn;
     @FXML private TableColumn<WorkOrder, String> statusColumn;
     @FXML private TableColumn<WorkOrder, String> servicesColumn;
     @FXML private TableColumn<WorkOrder, Integer> estimatedTimeColumn;
     @FXML private TableColumn<WorkOrder, LocalDateTime> startTimeColumn;
 
     @FXML private ComboBox<Booking> bookingComboBox;
-    @FXML private ComboBox<Mechanic> mechanicComboBox;
     @FXML private ListView<ServiceItem> servicesListView;
 
-    private final Set<Integer> selectedServiceIds = new HashSet<>();
+    private final Set<Integer> selectedServiceIds = new HashSet<>(); // Används ej.
     private final Map<Long, javafx.beans.property.BooleanProperty> serviceSelections = new HashMap<>();
 
     private final WorkOrderService workOrderService;
@@ -73,13 +70,15 @@ public class WorkOrderController extends OverController {
         // WorkOrderView.fxml
         if (workOrderTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-            bookingIdColumn.setCellValueFactory(new PropertyValueFactory<>("bookingId"));
-            mechanicIdColumn.setCellValueFactory(new PropertyValueFactory<>("mechanicId"));
+            bookingIdColumn.setCellValueFactory(cellData ->
+                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBooking().getId().toString()));
+            mechanicIdColumn.setCellValueFactory(cellData ->
+                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBooking().getMechanic().getId() + " - " + cellData.getValue().getBooking().getMechanic().getName()));
             statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
             estimatedTimeColumn.setCellValueFactory(cellData ->
                     new SimpleObjectProperty<>(countTotalMin(cellData.getValue().getServiceItems())));
 
-            startTimeColumn.setCellValueFactory(new PropertyValueFactory<>("start_time"));
+            startTimeColumn.setCellValueFactory(new PropertyValueFactory<>("startTime"));
             if (startTimeColumn != null) {
                 startTimeColumn.setCellFactory(column -> new TableCell<WorkOrder, LocalDateTime>() {
                     @Override
@@ -109,12 +108,9 @@ public class WorkOrderController extends OverController {
             loadWorkOrderData();
             workOrderTable.requestFocus();
         }
-
         // NewWorkOrderView.fxml
-        if (bookingComboBox != null) {
-            populateComboBoxes();
-            bookingComboBox.requestFocus();
-        }
+        loadBookingComboBox();
+        loadServiceList();
     }
 
     public int countTotalMin(List<ServiceItem> serviceItems) {
@@ -126,15 +122,21 @@ public class WorkOrderController extends OverController {
         }
         return totalMin;
     }
-
+//TODO Fixa Null pointer problematiken
     public void loadWorkOrderData() {
         if (workOrderTable != null) {
-            ObservableList<WorkOrder> workOrderData = FXCollections.observableArrayList(
-                    workOrderService.getAllWorkOrders()
-            );
-            workOrderTable.setItems(workOrderData);
-        }
-    }
+            try {
+                ObservableList<WorkOrder> workOrderData = FXCollections.observableArrayList(
+                        workOrderService.getAllWorkOrders()
+                );
+                workOrderTable.setItems(workOrderData);
+            }
+            catch (NullPointerException e){
+                logger.error("Nullpointer i workorder-databasen. {}", e.getMessage(), e);
+            }
+            catch (Exception e){
+                logger.error("Could not load work orders from database. {}", e.getMessage(), e);
+                } }}
 
     @FXML
     private void handleStartWorkOrder() {
@@ -183,15 +185,22 @@ public class WorkOrderController extends OverController {
         loadCenterView("/com/wac/autocore/gui/view/NewWorkOrderView.fxml");
     }
 
-    private void populateComboBoxes() {
+    private void loadBookingComboBox() {
         if (bookingComboBox != null) {
-            List<Booking> bookedList = bookingService.getAllBookings().stream()
-                    .filter(b -> "BOOKED".equalsIgnoreCase(b.getStatus()))
-                    .collect(Collectors.toList());
+            try {
+                List<Booking> bookedList = bookingService.getAllBookings().stream()
+                        .filter(b -> "BOOKED".equalsIgnoreCase(b.getStatus()))
+                        .collect(Collectors.toList());
 
-            bookingComboBox.setItems(FXCollections.observableArrayList(bookedList));
+                bookingComboBox.setItems(FXCollections.observableArrayList(bookedList));
+            }catch (NullPointerException e){
+                 messages.showError("Create booking before producing a work order. No bookings found.");
+            }
+            bookingComboBox.requestFocus();
         }
+    }
 
+    private void loadServiceList() {
         if (servicesListView != null) {
             ObservableList<ServiceItem> serviceItems = FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
             servicesListView.setItems(serviceItems);
@@ -199,7 +208,6 @@ public class WorkOrderController extends OverController {
             for (ServiceItem item : serviceItems) {
                 serviceSelections.putIfAbsent(item.getId(), new SimpleBooleanProperty(false));
             }
-
             servicesListView.setCellFactory(CheckBoxListCell.forListView(
                     item -> serviceSelections.get(item.getId()),
                     new StringConverter<ServiceItem>() {
@@ -231,8 +239,9 @@ public class WorkOrderController extends OverController {
                         .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                         .collect(Collectors.toList());
 
-                workOrderService.saveWorkOrder(selectedBooking.getId(), serviceItems);
                 selectedBooking.setStatus("WORK_ORDER_CREATED");
+                workOrderService.saveWorkOrder(selectedBooking.getId(),serviceItems);
+
             }
         } catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);

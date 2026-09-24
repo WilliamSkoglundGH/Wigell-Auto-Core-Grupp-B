@@ -149,6 +149,12 @@ public class MainController implements UserMessages {
     }
 
     @FXML
+    private void showMechanicView(ActionEvent event) {
+        Button clickedButton = (Button) event.getSource();
+        loadView("/com/wac/autocore/gui/view/MechanicView.fxml", clickedButton);
+    }
+
+    @FXML
     private void handleExit() {
         Platform.exit();
     }

@@ -38,6 +38,7 @@ public class CustomerController extends OverController {
 
     @FXML
     public void initialize() {
+
         if (customerTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -52,7 +53,23 @@ public class CustomerController extends OverController {
         if (nameField != null) {
             nameField.requestFocus();
         }
+
+        if (phoneField != null) {
+            phoneField.textProperty().addListener((obs, oldValue, newValue) -> {
+                if (newValue != null) {
+                    // Tar bort allt som inte är siffror
+                    String digits = newValue.replaceAll("\\D", "");
+
+                    if (digits.length() > 3) {
+                        phoneField.setText(digits.substring(0, 3) + "-" + digits.substring(3));
+                    } else {
+                        phoneField.setText(digits);
+                    }
+                }
+            });
+        }
     }
+
 
     public void loadCustomerData() {
         if (customerTable != null) {
@@ -79,21 +96,21 @@ public class CustomerController extends OverController {
         boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
 
         if (name == null || name.trim().isEmpty()) {
-            messages.showError("Please enter a name.");
+            messages.showError(getString("customer.error.enter_name"));
             return;
         }
 
         if (email == null || email.trim().isEmpty()) {
-            messages.showError("Please enter an email.");
+            messages.showError(getString("customer.error.enter_email"));
             return;
         }
 
         try {
             Customer newCustomer = customerService.createCustomer(name, phone, email, isVip);
-            messages.showSuccess("Customer created: " + newCustomer.getName());
+            messages.showSuccess(getString("customer_success.customer_created") + newCustomer.getName());
             navigateToCustomerView();
         } catch (Exception e) {
-            messages.showError("Could not save customer: " + e.getMessage());
+            messages.showError(getString("customer.error.create_customer"));
         }
     }
 
