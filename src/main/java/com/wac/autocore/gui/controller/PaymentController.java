@@ -4,6 +4,7 @@ import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.Payment;
 import com.wac.autocore.service.InvoiceService;
 import com.wac.autocore.service.PaymentService;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -30,8 +31,8 @@ import java.util.stream.Collectors;
 public class PaymentController extends OverController {
 
     @FXML private TableView<Payment> paymentTable;
-    @FXML private TableColumn<Payment, Integer> idColumn;
-    @FXML private TableColumn<Payment, Integer> invoiceIdColumn;
+    @FXML private TableColumn<Payment, Long> idColumn;
+    @FXML private TableColumn<Payment, Long> invoiceIdColumn;
     @FXML private TableColumn<Payment, Double> amountColumn;
     @FXML private TableColumn<Payment, String> paymentTypeColumn;
     @FXML private TableColumn<Payment, LocalDateTime> paymentDateColumn;
@@ -58,7 +59,10 @@ public class PaymentController extends OverController {
         // PaymentView.fxml
         if (paymentTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-            invoiceIdColumn.setCellValueFactory(new PropertyValueFactory<>("invoiceId"));
+            invoiceIdColumn.setCellValueFactory(cellData ->
+                    new SimpleObjectProperty<>(
+                            cellData.getValue().getInvoice().getId()
+                    ));
             amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
             paymentTypeColumn.setCellValueFactory(new PropertyValueFactory<>("paymentType"));
             paymentDateColumn.setCellValueFactory(new PropertyValueFactory<>("paymentDate"));
