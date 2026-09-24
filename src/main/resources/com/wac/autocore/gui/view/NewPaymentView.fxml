@@ -10,8 +10,8 @@
 
 <VBox spacing="15" xmlns="http://javafx.com/javafx"
       styleClass="form-padding"
-      xmlns:fx="http://javafx.com/fxml">
-
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.PaymentController">
 
     <children>
         <Label text="%payment.newHeading" styleClass="heading-2" />
@@ -22,8 +22,6 @@
 
             <Label text="%payment.paymentTypeLabel" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
             <ComboBox fx:id="paymentTypeComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-
-
         </GridPane>
 
         <HBox spacing="10">

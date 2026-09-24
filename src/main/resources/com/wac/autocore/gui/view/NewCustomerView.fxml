@@ -10,11 +10,11 @@
 
 <VBox spacing="15" xmlns="http://javafx.com/javafx"
       styleClass="form-padding"
-      xmlns:fx="http://javafx.com/fxml">
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.CustomerController">
 
     <children>
         <Label text="%customer.newHeading" styleClass="heading-2" />
-
 
         <GridPane hgap="10" vgap="10">
             <Label text="%customer.nameLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>

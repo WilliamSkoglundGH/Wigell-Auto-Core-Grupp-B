@@ -7,20 +7,16 @@ import com.wac.autocore.service.PaymentService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.BorderPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,39 +27,33 @@ import java.util.stream.Collectors;
 @Controller
 public class PaymentController extends OverController {
 
-    @FXML
-    private TableView<Payment> paymentTable;
-    @FXML
-    private TableColumn<Payment, Integer> idColumn;
-    @FXML
-    private TableColumn<Payment, Integer> invoiceIdColumn;
-    @FXML
-    private TableColumn<Payment, Double> amountColumn;
-    @FXML
-    private TableColumn<Payment, String> paymentTypeColumn;
-    @FXML
-    private TableColumn<Payment, LocalDateTime> paymentDateColumn;
-    @FXML
-    private TableColumn<Payment, Boolean> successfulColumn;
-    @FXML
-    private ComboBox<Invoice> invoiceComboBox;
-    @FXML
-    private ComboBox<String> paymentTypeComboBox;
-    @FXML
-    private TextField amountField;
+    @FXML private TableView<Payment> paymentTable;
+    @FXML private TableColumn<Payment, Integer> idColumn;
+    @FXML private TableColumn<Payment, Integer> invoiceIdColumn;
+    @FXML private TableColumn<Payment, Double> amountColumn;
+    @FXML private TableColumn<Payment, String> paymentTypeColumn;
+    @FXML private TableColumn<Payment, LocalDateTime> paymentDateColumn;
+    @FXML private TableColumn<Payment, Boolean> successfulColumn;
+
+    @FXML private ComboBox<Invoice> invoiceComboBox;
+    @FXML private ComboBox<String> paymentTypeComboBox;
+    @FXML private TextField amountField;
 
     private final PaymentService paymentService;
     private final InvoiceService invoiceService;
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
-    public PaymentController(PaymentService paymentService, InvoiceService invoiceService) {
+    // Spring injicerar tjänster och ApplicationContext
+    public PaymentController(PaymentService paymentService, InvoiceService invoiceService, ApplicationContext applicationContext) {
         this.paymentService = paymentService;
         this.invoiceService = invoiceService;
+        this.applicationContext = applicationContext;
     }
 
     @FXML
     public void initialize() {
+        // PaymentView.fxml
         if (paymentTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             invoiceIdColumn.setCellValueFactory(new PropertyValueFactory<>("invoiceId"));
@@ -73,6 +63,20 @@ public class PaymentController extends OverController {
             successfulColumn.setCellValueFactory(new PropertyValueFactory<>("successful"));
 
             loadPaymentData();
+            paymentTable.requestFocus();
+        }
+
+        // NewPaymentView.fxml
+        if (invoiceComboBox != null) {
+            List<Invoice> unpaidInvoices = invoiceService.getAllInvoices().stream()
+                    .filter(invoice -> !invoice.isPaid())
+                    .collect(Collectors.toList());
+            invoiceComboBox.setItems(FXCollections.observableArrayList(unpaidInvoices));
+            invoiceComboBox.requestFocus();
+        }
+
+        if (paymentTypeComboBox != null) {
+            paymentTypeComboBox.setItems(FXCollections.observableArrayList("CARD", "SWISH", "CASH"));
         }
     }
 
@@ -85,34 +89,13 @@ public class PaymentController extends OverController {
 
     @FXML
     private void handleNewPayment() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/NewPaymentView.fxml"));
-            loader.setController(this);
-            Parent newPaymentView = loader.load();
-
-            if (invoiceComboBox != null) {
-                List<Invoice> unpaidInvoices = invoiceService.getAllInvoices().stream()
-                        .filter(invoice -> !invoice.isPaid())
-                        .collect(Collectors.toList());
-                invoiceComboBox.setItems(FXCollections.observableArrayList(unpaidInvoices));
-            }
-
-            if (paymentTypeComboBox != null) {
-                paymentTypeComboBox.setItems(FXCollections.observableArrayList("CARD", "SWISH", "CASH"));
-            }
-
-            BorderPane mainLayout = findMainLayout();
-            if (mainLayout != null) {
-                mainLayout.setCenter(newPaymentView);
-                invoiceComboBox.requestFocus();
-            } else {
-                messages.showError("Could not find BorderPane!");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            messages.showError("Could not load NewPaymentView.fxml: " + e.getMessage());
+        if (messages != null) {
+            messages.clearMessage();
         }
+        // Använder OverControllers gemensamma metod
+        loadCenterView("/com/wac/autocore/gui/view/NewPaymentView.fxml");
     }
+
     @FXML
     private void handleSavePayment() {
         if (invoiceComboBox != null && paymentTypeComboBox != null) {
@@ -121,10 +104,10 @@ public class PaymentController extends OverController {
 
             if (selectedInvoice != null && paymentType != null && !paymentType.isEmpty()) {
                 try {
-                    // 1. Skicka över jobbet till servicen! Det är här Strategy-mönstret används i bakgrunden.
+                    // 1. Skicka över jobbet till servicen (Strategy-mönstret i bakgrunden)
                     paymentService.processPayment(selectedInvoice.getId(), paymentType);
 
-                    // 2. Visa snyggt meddelande beroende på betalsätt
+                    // 2. Visa snyggt meddelande
                     messages.showSuccess(paymentType.toLowerCase() + ": Payment completed successfully.");
 
                     // 3. Navigera tillbaka till tabellen
@@ -142,53 +125,15 @@ public class PaymentController extends OverController {
 
     @FXML
     private void handleCancel() {
+        if (messages != null) {
+            messages.clearMessage();
+        }
         navigateToPaymentView();
     }
 
     private void navigateToPaymentView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/wac/autocore/gui/view/PaymentView.fxml"));
-            Parent paymentView = loader.load();
-
-            // Hämta den nya kontrollern och skicka med messages!
-            PaymentController controller = loader.getController();
-            if (controller != null) {
-                controller.setMessages(this.messages);
-            }
-
-            BorderPane mainLayout = findMainLayout();
-            if (mainLayout != null) {
-                mainLayout.setCenter(paymentView);
-                controller.paymentTable.requestFocus();
-            } else {
-                if (messages != null) {
-                    messages.showError("Could not find BorderPane!");
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            if (messages != null) {
-                messages.showError("Could not load PaymentView.fxml: " + e.getMessage());
-            }
-        }
+        loadCenterView("/com/wac/autocore/gui/view/PaymentView.fxml");
     }
 
-    private BorderPane findMainLayout() {
-        Scene scene = null;
-
-        if (invoiceComboBox != null && invoiceComboBox.getScene() != null) {
-            scene = invoiceComboBox.getScene();
-        } else if (paymentTable != null && paymentTable.getScene() != null) {
-            scene = paymentTable.getScene();
-        }
-
-        if (scene != null && scene.getRoot() != null) {
-            Parent root = scene.getRoot();
-            if (root instanceof BorderPane) {
-                return (BorderPane) root;
-            }
-            return searchBorderPaneRecursive(root);
-        }
-        return null;
-    }
+    // findMainLayout() är helt borttagen eftersom OverController sköter det centralt!
 }
