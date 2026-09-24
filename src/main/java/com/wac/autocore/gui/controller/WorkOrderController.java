@@ -34,7 +34,7 @@ public class WorkOrderController extends OverController {
 
     @FXML private TableView<WorkOrder> workOrderTable;
     @FXML private TableColumn<WorkOrder, Long> idColumn;
-    @FXML private TableColumn<WorkOrder, Long> bookingIdColumn;
+    @FXML private TableColumn<WorkOrder, String> bookingIdColumn;
     @FXML private TableColumn<WorkOrder, String> mechanicIdColumn;
     @FXML private TableColumn<WorkOrder, String> statusColumn;
     @FXML private TableColumn<WorkOrder, String> servicesColumn;
@@ -70,14 +70,15 @@ public class WorkOrderController extends OverController {
         // WorkOrderView.fxml
         if (workOrderTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-            bookingIdColumn.setCellValueFactory(new PropertyValueFactory<>("bookingId"));
+            bookingIdColumn.setCellValueFactory(cellData ->
+                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBooking().getId().toString()));
             mechanicIdColumn.setCellValueFactory(cellData ->
                     new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBooking().getMechanic().getId() + " - " + cellData.getValue().getBooking().getMechanic().getName()));
             statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
             estimatedTimeColumn.setCellValueFactory(cellData ->
                     new SimpleObjectProperty<>(countTotalMin(cellData.getValue().getServiceItems())));
 
-            startTimeColumn.setCellValueFactory(new PropertyValueFactory<>("start_time"));
+            startTimeColumn.setCellValueFactory(new PropertyValueFactory<>("startTime"));
             if (startTimeColumn != null) {
                 startTimeColumn.setCellFactory(column -> new TableCell<WorkOrder, LocalDateTime>() {
                     @Override
@@ -238,8 +239,9 @@ public class WorkOrderController extends OverController {
                         .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                         .collect(Collectors.toList());
 
-                workOrderService.saveWorkOrder(selectedBooking.getId(), serviceItems);
                 selectedBooking.setStatus("WORK_ORDER_CREATED");
+                workOrderService.saveWorkOrder(selectedBooking.getId(),serviceItems);
+
             }
         } catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
