@@ -58,7 +58,7 @@ public class ServiceItemController extends OverController {
                 logger.error("Could not load service items.", e);
 
                 if (messages != null) {
-                    messages.showError("Could not load service items from database.");
+                    messages.showError(getString("serviceitem.error.could_not_load"));
                 }
             }
         }

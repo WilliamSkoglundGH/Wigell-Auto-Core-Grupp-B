@@ -98,7 +98,7 @@ public class WorkOrderController extends OverController {
                                     .map(s -> s.getId() + ": " + s.getName())
                                     .findFirst()
                                     .orElse("ID " + id + ": Unknown"))
-                            .collect(Collectors.joining(","));
+                            .collect(Collectors.joining(", "));
                     return new SimpleStringProperty(serviceInfo);
                 });
             }
@@ -127,16 +127,16 @@ public class WorkOrderController extends OverController {
     private void handleStartWorkOrder() {
         WorkOrder selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
-            messages.showError("Please choose a work order to start.");
+            messages.showError(getString("workorder.error.choose_workorder"));
             return;
         }
         try {
             workOrderService.startWorkOrder(selected);
             workOrderTable.refresh();
-            messages.showSuccess("Work order " + selected.getId() + " has been started.");
+            messages.showSuccess(getString("workorder.success.workorder_started"));
         } catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
-            messages.showError("An unexpected error occurred. Please check the list of work orders before trying again.");
+            messages.showError(getString("workorder.error.unexpected"));
         }
     }
 
@@ -144,20 +144,20 @@ public class WorkOrderController extends OverController {
     private void handleCompleteWorkOrder() {
         WorkOrder selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
-            messages.showError("Please choose a work order to complete.");
+            messages.showError(getString("workorder.error.choose_workorder"));
             return;
         }
         if ("COMPLETED".equals(selected.getStatus())) {
-            messages.showError("Work order already COMPLETED");
+            messages.showError(getString("workorder.error.workorder_already_completed"));
             return;
         }
         try {
             workOrderService.completeWorkOrder(selected);
             workOrderTable.refresh();
-            messages.showSuccess("Work order " + selected.getId() + " has been completed.");
+            messages.showSuccess(getString("workorder.success.workorder_completed"));
         } catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
-            messages.showError("An unexpected error occurred. Please check the list of work orders before trying again.");
+            messages.showError(getString("workorder.error.unexpected"));
         }
     }
 
@@ -179,7 +179,7 @@ public class WorkOrderController extends OverController {
 
                 bookingComboBox.setItems(FXCollections.observableArrayList(bookedList));
             }catch (NullPointerException e){
-                 messages.showError("Create booking before producing a work order. No bookings found.");
+                 messages.showError(getString("workorder.error.no_bookings"));
             }
             bookingComboBox.requestFocus();
         }
@@ -215,7 +215,7 @@ public class WorkOrderController extends OverController {
             if (bookingComboBox != null) {
                 Booking selectedBooking = bookingComboBox.getValue();
                 if (selectedBooking == null) {
-                    messages.showError("Please select a booking");
+                    messages.showError(getString("workorder.error.select_booking"));
                     return;
                 }
                 // Samla tjänster från checkbox.
@@ -236,7 +236,7 @@ public class WorkOrderController extends OverController {
                 }
 
         serviceSelections.clear();
-        messages.showSuccess("Work order created.");
+        messages.showSuccess(getString("workorder.success.workorder_created"));
         navigateToWorkOrderView();
     }
 
@@ -251,15 +251,4 @@ public class WorkOrderController extends OverController {
     private void navigateToWorkOrderView() {
         loadCenterView("/com/wac/autocore/gui/view/WorkOrderView.fxml");
     }
-
-    // findMainLayout() är helt borttagen eftersom OverController sköter det centralt!
-    /*if (startTimeColumn != null) {
-        startTimeColumn.setCellFactory(column -> new TableCell<WorkOrder, LocalDateTime>() {
-            @Override
-            protected void updateItem(LocalDateTime item, boolean empty) {
-                super.updateItem(item, empty);
-                setText((empty || item == null) ? "" : item.toString());
-            }
-        });
-    }*/
 }
