@@ -5,7 +5,8 @@ import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
 
 public class OverController {
-    private UserMessages messages;
+    protected UserMessages messages;
+
     protected BorderPane searchBorderPaneRecursive(Parent parent) {
         if (parent instanceof BorderPane) {
             return (BorderPane) parent;
@@ -19,6 +20,10 @@ public class OverController {
             }
         }
         return null;
+    }
+
+    public void setMessages(UserMessages messages) {
+        this.messages = messages;
     }
 
 

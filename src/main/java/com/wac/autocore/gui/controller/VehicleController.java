@@ -51,7 +51,6 @@ public class VehicleController extends OverController {
     @FXML
     private ComboBox<Customer> customerComboBox;
 
-    private UserMessages messages;
     private final VehicleService vehicleService;
     private final CustomerService customerService;
 
@@ -200,8 +199,4 @@ public class VehicleController extends OverController {
         }
         return null;
     }
-    public void setMessages(UserMessages messages) {
-        this.messages = messages;
-    }
-
 }

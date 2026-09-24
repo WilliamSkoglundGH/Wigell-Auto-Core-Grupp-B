@@ -18,14 +18,17 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 @Controller
 public class BookingController extends OverController {
+
 
     // TABLE VIEW (BookingView.fxml)
     @FXML private TableView<Booking> bookingTable;
@@ -37,7 +40,7 @@ public class BookingController extends OverController {
     @FXML private TableColumn<Booking, String> mechanicColumn;
 
 
-    private UserMessages messages;
+
 
     // FORM FIELDS (NewBookingView.fxml)
     @FXML private ComboBox<String> vehicleIdField;
@@ -50,14 +53,18 @@ public class BookingController extends OverController {
     private final BookingService bookingService;
     private final VehicleService vehicleService;
     private final MechanicService mechanicService;
+    private final ApplicationContext applicationContext;
+
 
     private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
 
-    public BookingController(BookingService bookingService, VehicleService vehicleService, MechanicService mechanicService) {
+    public BookingController(BookingService bookingService, VehicleService vehicleService, MechanicService mechanicService, ApplicationContext applicationContext) {
         this.bookingService = bookingService;
         this.vehicleService = vehicleService;
         this.mechanicService = mechanicService;
+        this.applicationContext = applicationContext;
     }
+
     // ---------------------------------------------------------
     // INITIALIZE
     // ---------------------------------------------------------
@@ -158,7 +165,9 @@ public class BookingController extends OverController {
     // ---------------------------------------------------------
     @FXML
     private void handleNewBooking() {
-        messages.clearMessage();
+        if (messages != null) {
+            messages.clearMessage();
+        }
         loadCenterView("/com/wac/autocore/gui/view/NewBookingView.fxml");
     }
 
@@ -238,26 +247,33 @@ public class BookingController extends OverController {
     // ---------------------------------------------------------
     private void loadCenterView(String fxmlPath) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            ResourceBundle bundle = ResourceBundle.getBundle("com.wac.autocore.gui.lang.messages");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath), bundle); // Använder fxmlPath här!
+            loader.setControllerFactory(applicationContext::getBean);
             Parent view = loader.load();
 
-            BookingController controller = loader.getController();
-            controller.setMessages(messages);
+            Object controller = loader.getController();
+            if (controller instanceof BookingController) {
+                BookingController bc = (BookingController) controller;
+                bc.setMessages(messages);
 
-            BorderPane mainLayout = findMainLayout();
-            if (mainLayout != null) {
-                mainLayout.setCenter(view);
+                BorderPane mainLayout = findMainLayout();
+                if (mainLayout != null) {
+                    mainLayout.setCenter(view);
 
-                if (controller.vehicleIdField != null) {
-                    controller.vehicleIdField.requestFocus();
-                } else if (controller.bookingTable != null) {
-                    controller.bookingTable.requestFocus();
+                    if (bc.vehicleIdField != null) {
+                        bc.vehicleIdField.requestFocus();
+                    } else if (bc.bookingTable != null) {
+                        bc.bookingTable.requestFocus();
+                    }
                 }
             }
 
         } catch (IOException e) {
             e.printStackTrace();
-            messages.showError("Could not open the booking view. Please try again.");
+            if (messages != null) {
+                messages.showError("Could not open the booking view. Please try again.");
+            }
         }
     }
 
@@ -286,9 +302,7 @@ public class BookingController extends OverController {
 
 
 
-    public void setMessages(UserMessages messages) {
-        this.messages = messages;
-    }
+
 }
 
 
