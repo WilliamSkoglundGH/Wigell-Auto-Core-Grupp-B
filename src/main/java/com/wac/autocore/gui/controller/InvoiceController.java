@@ -17,6 +17,7 @@ import com.wac.autocore.model.WorkOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
+@Scope("prototype")
 public class InvoiceController extends OverController {
 
     @FXML private TableView<Invoice> invoiceTable;

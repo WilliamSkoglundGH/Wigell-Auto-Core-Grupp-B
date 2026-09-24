@@ -15,7 +15,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.dao.DataAccessException;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  * Controller for the payment view. Fetches data directly from the database.
  */
 @Controller
+@Scope("prototype")
 public class PaymentController extends OverController {
 
     @FXML private TableView<Payment> paymentTable;

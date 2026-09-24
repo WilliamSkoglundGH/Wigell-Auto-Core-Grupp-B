@@ -5,8 +5,8 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.layout.HBox?>
+
 <BorderPane fx:id="mainRoot"
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -28,10 +28,6 @@
         </VBox>
     </top>
 
-
-
-
-
     <!-- MENY TILL VÄNSTER -->
     <left>
         <VBox spacing="20" styleClass="nav-padding">
@@ -39,29 +35,28 @@
             <VBox spacing="10" styleClass="button-spacing,text-center">
                 <Button fx:id="customerButton" text="%nav.customers"
                         onAction="#showCustomerView" prefWidth="130"/>
-                <Button text="%nav.vehicles"
+                <Button fx:id="vehicleButton" text="%nav.vehicles"
                         onAction="#showVehicleView" prefWidth="130"/>
-                <Button text="%nav.bookings"
+                <Button fx:id="bookingButton" text="%nav.bookings"
                         onAction="#showBookingView" prefWidth="130"/>
-                <Button text="%nav.workorders"
+                <Button fx:id="workOrderButton" text="%nav.workorders"
                         onAction="#showWorkOrderView" prefWidth="130"/>
-                <Button text="%nav.invoices"
+                <Button fx:id="invoiceButton" text="%nav.invoices"
                         onAction="#showInvoiceView" prefWidth="130"/>
-                <Button text="%nav.payments"
+                <Button fx:id="paymentButton" text="%nav.payments"
                         onAction="#showPaymentView" prefWidth="130"/>
-                <Button text="%nav.serviceitems"
+                <Button fx:id="serviceItemButton" text="%nav.serviceitems"
                         onAction="#showServiceItemView" prefWidth="130"/>
-                <Button text="%nav.mechanics"
+                <Button fx:id="mechanicButton" text="%nav.mechanics"
                         onAction="#showMechanicView" prefWidth="130"/>
-                <Button text="%nav.language"
+                <Button fx:id="languageButton" text="%nav.language"
                         onAction="#handleToggleLanguage" prefWidth="130"/>
-                <Button text="%nav.exit"
+                <Button fx:id="exitButton" text="%nav.exit"
                         onAction="#handleExit" prefWidth="130"/>
             </VBox>
 
         </VBox>
     </left>
-
 
     <!-- MEDDELANDEN TILL ANVÄNDAREN -->
     <bottom>
@@ -73,14 +68,10 @@
                    wrapText="true"
                    alignment="CENTER"
                    maxWidth="Infinity"
-                   prefHeight="60"
-                   maxHeight="60"
+                   prefHeight="90"
                    HBox.hgrow="ALWAYS"
                    styleClass="msg-area"/>
         </HBox>
     </bottom>
-
-
-
 
 </BorderPane>

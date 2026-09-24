@@ -19,6 +19,7 @@ import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Controller
+@Scope("prototype")
 public class WorkOrderController extends OverController {
 
     @FXML private TableView<WorkOrder> workOrderTable;

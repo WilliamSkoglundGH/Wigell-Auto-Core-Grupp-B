@@ -111,4 +111,6 @@ public abstract class OverController {
         }
         return key; // Fallback så att inte appen kraschar om nyckeln saknas
     }
+
+
 }
