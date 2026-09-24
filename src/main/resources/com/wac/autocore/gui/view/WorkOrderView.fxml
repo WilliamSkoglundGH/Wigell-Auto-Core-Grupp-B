@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox styleClass="container-padding,container-spacing"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.WorkOrderController">
+
+    <children>
+        <Label text="%workOrder.heading" styleClass="heading-2" />
+
+        <TableView fx:id="workOrderTable">
+            <columns>
+                <TableColumn fx:id="idColumn" text="%table.id" />
+                <TableColumn fx:id="bookingIdColumn" text="%workOrder.bookingIdColumn" />
+                <TableColumn fx:id="mechanicIdColumn" text="%workOrder.mechanicIdColumn" />
+                <TableColumn fx:id="statusColumn" text="%table.status" />
+                <TableColumn fx:id="servicesColumn" text="%workOrder.servicesColumn" />
+                <TableColumn fx:id="startTimeColumn" text="%workOrder.startTimeColumn" />
+                <TableColumn fx:id="estimatedTimeColumn" text="%workOrder.estimatedTimeColumn" />
+            </columns>
+        </TableView>
+
+        <HBox styleClass="button-spacing">
+            <Button text="%btn.new" onAction="#handleNewWorkOrder" />
+            <Button text="%workOrder.startButton" onAction="#handleStartWorkOrder" />
+            <Button text="%workOrder.completeButton" onAction="#handleCompleteWorkOrder"/>
+        </HBox>
+    </children>
+</VBox>

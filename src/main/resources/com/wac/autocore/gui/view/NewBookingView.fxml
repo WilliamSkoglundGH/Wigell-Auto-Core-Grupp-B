@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15"
+      styleClass="form-padding"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.BookingController">
+
+
+    <children>
+
+        <!-- Titel -->
+        <Label text="%booking.newHeading" styleClass="heading-2" />
+
+        <!-- Formulär -->
+        <GridPane hgap="10" vgap="12">
+
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" />
+                <ColumnConstraints />
+            </columnConstraints>
+
+            <!-- Vehicle -->
+            <Label text="%booking.vehicleLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <ComboBox fx:id="vehicleIdField"
+                      prefWidth="250"
+                      GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <!-- Date -->
+            <Label text="%booking.dateLabel" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <DatePicker fx:id="datePicker"
+                        promptText="YYYY-MM-DD"
+                        prefWidth="250"
+                        GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <!-- Description -->
+            <Label text="%booking.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <TextArea fx:id="descriptionField"
+                      promptText="Enter description"
+                      prefRowCount="3"
+                      wrapText="true"
+                      prefWidth="250"
+                      GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+            <!-- Mechanic -->
+            <Label text="%booking.mechanicLabel" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <ComboBox fx:id="mechanicField"
+                      prefWidth="250"
+                      GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+
+
+        </GridPane>
+
+        <!-- Buttons -->
+        <HBox spacing="10">
+            <Button fx:id="saveButton" text="%btn.save" onAction="#handleSaveBooking"/>
+            <Button text="%btn.cancel" onAction="#handleCancel"/>
+        </HBox>
+
+    </children>
+</VBox>
+
+
+
+
