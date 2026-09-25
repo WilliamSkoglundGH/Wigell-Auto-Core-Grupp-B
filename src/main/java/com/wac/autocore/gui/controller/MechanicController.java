@@ -2,6 +2,8 @@ package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.Mechanic;
+import com.wac.autocore.model.Vehicle;
+import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.service.MechanicService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -46,6 +48,14 @@ public class MechanicController extends OverController {
     @FXML private TableColumn<Booking, String> descriptionColumn;
     @FXML private TableColumn<Booking, String> statusColumn;
 
+    @FXML private TableView<WorkOrder> workorderTable;
+    @FXML private TableColumn<WorkOrder, Long> woIdColumn;
+    @FXML private TableColumn<WorkOrder, String> woVehicleColumn;
+    @FXML private TableColumn<WorkOrder, String> woDateColumn;
+    @FXML private TableColumn<WorkOrder, String> woDescriptionColumn;
+    @FXML private TableColumn<WorkOrder, String> woStatusColumn;
+
+
 
     @FXML
     public void initialize() {
@@ -86,6 +96,31 @@ public class MechanicController extends OverController {
             statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         }
 
+        if (workorderTable != null) {
+
+            woIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+
+            woVehicleColumn.setCellValueFactory(cellData -> {
+                WorkOrder wo = cellData.getValue();
+                String txt = "";
+
+                if (wo.getBooking() != null && wo.getBooking().getVehicle() != null) {
+                    Vehicle v = wo.getBooking().getVehicle();
+                    txt += v.getBrand() + " " + v.getModel();
+
+                    if (v.getCustomer() != null) {
+                        txt += " | " + v.getCustomer().getName();
+                    }
+                }
+
+                return new javafx.beans.property.SimpleStringProperty(txt);
+            });
+
+            woDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+            woDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+            woStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        }
+
 
     }
 
@@ -122,7 +157,27 @@ public class MechanicController extends OverController {
         bookingTable.setItems(FXCollections.observableArrayList(bookings));
     }
 
+    @FXML
+    private void handleWorkorders() {
 
+        if (messages != null) {
+            messages.clearMessage();
+        }
+
+        Mechanic selected = mechanicTable.getSelectionModel().getSelectedItem();
+
+        if (selected == null) {
+            messages.showError("Please select a mechanic first.");
+            return;
+        }
+
+
+        loadCenterView("/com/wac/autocore/gui/view/WorkorderView.fxml");
+
+        List<WorkOrder> workorders = mechanicService.getWorkOrdersForMechanic(selected.getId());
+
+        workorderTable.setItems(FXCollections.observableArrayList(workorders));
+    }
 
 }
 
