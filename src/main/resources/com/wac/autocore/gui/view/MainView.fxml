@@ -18,14 +18,13 @@
     <top>
         <VBox spacing="10" styleClass="header-box">
             <Label text="WAC"
-                   styleClass="heading-1"
-                   style="-fx-text-fill: #FFC145;" />
+                   styleClass="heading-1,header-top"/>
 
             <Label text="Wigell Auto Core"
                    styleClass="caption"/>
-
             <Separator prefWidth="Infinity"/>
         </VBox>
+
     </top>
 
     <!-- MENY TILL VÄNSTER -->
@@ -52,7 +51,7 @@
                 <Button fx:id="languageButton" text="%nav.language"
                         onAction="#handleToggleLanguage" prefWidth="130"/>
                 <Button fx:id="exitButton" text="%nav.exit"
-                        onAction="#handleExit" prefWidth="130"/>
+                        onAction="#handleExit" prefWidth="130" styleClass="exit"/>
             </VBox>
 
         </VBox>
