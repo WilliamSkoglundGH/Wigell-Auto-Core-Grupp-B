@@ -41,7 +41,7 @@ public class App extends Application {
         loader.setResources(LanguageManager.getBundle());
         Parent root = loader.load();
 
-        Scene scene = new Scene(root, 1000, 800);
+        Scene scene = new Scene(root, 1200, 800);
 
         scene.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
             if (event.getCode() == KeyCode.ENTER
@@ -55,6 +55,7 @@ public class App extends Application {
         scene.getStylesheets().add(getClass().getResource("/com/wac/autocore/gui/css/styleguide.css").toExternalForm());
         stage.setTitle("Wigell Auto Core - Workshop Management System");
         stage.setScene(scene);
+        stage.setResizable(true);
         stage.show();
         root.requestFocus();
     }
