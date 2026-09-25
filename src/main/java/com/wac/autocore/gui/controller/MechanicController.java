@@ -39,6 +39,14 @@ public class MechanicController extends OverController {
     @FXML
     private TableColumn<Mechanic, String> specializationColumn;
 
+    @FXML private TableView<Booking> bookingTable;
+    @FXML private TableColumn<Booking, Long> bookingIdColumn;
+    @FXML private TableColumn<Booking, String> vehicleColumn;
+    @FXML private TableColumn<Booking, String> dateColumn;
+    @FXML private TableColumn<Booking, String> descriptionColumn;
+    @FXML private TableColumn<Booking, String> statusColumn;
+
+
     @FXML
     public void initialize() {
 
@@ -51,7 +59,36 @@ public class MechanicController extends OverController {
             loadMechanicData();
             mechanicTable.requestFocus();
         }
+
+        // När bookings-vyn är laddad kommer de här fälten vara != null
+        if (bookingTable != null) {
+
+            bookingIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+
+            vehicleColumn.setCellValueFactory(cellData -> {
+                Booking b = cellData.getValue();
+
+                String vehicleText = "";
+
+                if (b.getVehicle() != null) {
+                    vehicleText += b.getVehicle().getBrand() + " " + b.getVehicle().getModel();
+                }
+
+                if (b.getVehicle() != null && b.getVehicle().getCustomer() != null) {
+                    vehicleText += " | " + b.getVehicle().getCustomer().getName();
+                }
+
+                return new javafx.beans.property.SimpleStringProperty(vehicleText);
+            });
+
+            dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+            descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+            statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        }
+
+
     }
+
 
     public void loadMechanicData() {
         if (mechanicTable != null) {
@@ -75,31 +112,17 @@ public class MechanicController extends OverController {
             return;
         }
 
+        // Ladda bokningsvyn – samma controller används
         loadCenterView("/com/wac/autocore/gui/view/MechanicBookingsView.fxml");
 
-
-        BorderPane mainLayout = findMainLayout();
-        Parent centerView = mainLayout.getCenter().getParent();
-
-
-        VBox bookingContainer = (VBox) centerView.lookup("#bookingContainer");
-
-
+        // Hämta bokningar
         List<Booking> bookings = mechanicService.getBookingsForMechanic(selected.getId());
 
-
-        for (Booking booking : bookings) {
-
-            Label label = new Label(
-                    "Booking #" + booking.getId() +
-                            " • " + booking.getDate() +
-                            " • " + booking.getDescription()
-            );
-
-
-            bookingContainer.getChildren().add(label);
-        }
+        // Fyll tabellen – fälten är redan injicerade via FXML
+        bookingTable.setItems(FXCollections.observableArrayList(bookings));
     }
+
+
 
 }
 
