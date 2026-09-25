@@ -163,7 +163,7 @@
 .button.secondary:disabled { -fx-opacity: 0.4; }
 
 .button.exit{
-    -fx-spacing-top: 10px;
+    -fx-spacing: 10px;
     -fx-alignment: bottom-center;
 
 }
@@ -222,10 +222,12 @@
 }
 
 .table-cell {
+    -fx-text-overrun: ellipsis;
     -fx-text-fill: -text-primary;
     -fx-font-family: "Inter";
     -fx-font-size: 14px;
     -fx-padding: 8px 10px;
+
 }
 
 /* --------------------------------------------------------------------

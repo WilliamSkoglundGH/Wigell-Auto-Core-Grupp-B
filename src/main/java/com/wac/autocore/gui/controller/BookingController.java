@@ -160,8 +160,12 @@ public class BookingController extends OverController {
                 messages.showError(getString("booking.error.before_date"));
                 return;
             }
-
+            if(descriptionField.getText().length()> 200){
+                messages.showError(getString("booking.error.desc_too_long"));
+                return;}
             String description = descriptionField.getText();
+
+
             if (mechanicField == null) {
                 return;
             }
