@@ -12,12 +12,14 @@
 
     <children>
 
-        <Label text="Workorders for Mechanic" styleClass="heading-2" />
+        <Label fx:id="headerLabel" text="Workorders for:" styleClass="heading-2" />
 
         <TableView fx:id="workorderTable" styleClass="ll-table">
+
             <columns>
                 <TableColumn fx:id="woIdColumn" text="ID" />
                 <TableColumn fx:id="woVehicleColumn" text="Vehicle" />
+                <TableColumn fx:id="woCustomerColumn" text="Customer" />
                 <TableColumn fx:id="bookingDateColumn" text="Booking Date" />
                 <TableColumn fx:id="woDescriptionColumn" text="Description" />
                 <TableColumn fx:id="woStatusColumn" text="Status" />

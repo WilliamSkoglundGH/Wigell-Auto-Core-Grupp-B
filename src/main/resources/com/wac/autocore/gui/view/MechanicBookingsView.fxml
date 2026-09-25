@@ -12,12 +12,14 @@
 
     <children>
 
-        <Label text="Mechanic Bookings" styleClass="heading-2" />
+        <Label fx:id="headerLabel" text="Bookings for:" styleClass="heading-2" />
+
 
         <TableView fx:id="bookingTable" styleClass="ll-table">
             <columns>
                 <TableColumn fx:id="bookingIdColumn" text="ID" />
                 <TableColumn fx:id="vehicleColumn" text="Vehicle" />
+                <TableColumn fx:id="customerColumn" text="Customer" />
                 <TableColumn fx:id="dateColumn" text="Date" />
                 <TableColumn fx:id="descriptionColumn" text="Description" />
                 <TableColumn fx:id="statusColumn" text="Status" />

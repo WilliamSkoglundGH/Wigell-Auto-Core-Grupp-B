@@ -48,6 +48,9 @@ public class MechanicController extends OverController {
     @FXML
     private TableColumn<Mechanic, String> specializationColumn;
 
+    // Label så man ser vilken mekanikers bokningar man är inne på
+    @FXML private Label headerLabel;
+
     @FXML private TableView<Booking> bookingTable;
     @FXML private TableColumn<Booking, Long> bookingIdColumn;
     @FXML private TableColumn<Booking, String> vehicleColumn;
@@ -62,6 +65,9 @@ public class MechanicController extends OverController {
     @FXML private TableColumn<WorkOrder, String> woDescriptionColumn;
     @FXML private TableColumn<WorkOrder, String> woStatusColumn;
 
+    // Fält för visning i MechanicView av kundens namn
+    @FXML private TableColumn<Booking, String> customerColumn;
+    @FXML private TableColumn<WorkOrder, String> woCustomerColumn;
 
 
     @FXML
@@ -82,20 +88,31 @@ public class MechanicController extends OverController {
 
             bookingIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
 
+            // Vehicle = endast brand + model
             vehicleColumn.setCellValueFactory(cellData -> {
                 Booking b = cellData.getValue();
 
-                String vehicleText = "";
-
                 if (b.getVehicle() != null) {
-                    vehicleText += b.getVehicle().getBrand() + " " + b.getVehicle().getModel();
+                    Vehicle v = b.getVehicle();
+                    return new javafx.beans.property.SimpleStringProperty(
+                            v.getBrand() + " " + v.getModel()
+                    );
                 }
+
+                return new javafx.beans.property.SimpleStringProperty("");
+            });
+
+            // Customer = hämtas via vehicle.getCustomer()
+            customerColumn.setCellValueFactory(cellData -> {
+                Booking b = cellData.getValue();
 
                 if (b.getVehicle() != null && b.getVehicle().getCustomer() != null) {
-                    vehicleText += " | " + b.getVehicle().getCustomer().getName();
+                    return new javafx.beans.property.SimpleStringProperty(
+                            b.getVehicle().getCustomer().getName()
+                    );
                 }
 
-                return new javafx.beans.property.SimpleStringProperty(vehicleText);
+                return new javafx.beans.property.SimpleStringProperty("");
             });
 
             dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
@@ -103,24 +120,39 @@ public class MechanicController extends OverController {
             statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         }
 
+
         if (workorderTable != null) {
 
             woIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
 
+            // Vehicle = endast brand + model
             woVehicleColumn.setCellValueFactory(cellData -> {
                 WorkOrder wo = cellData.getValue();
-                String txt = "";
 
                 if (wo.getBooking() != null && wo.getBooking().getVehicle() != null) {
                     Vehicle v = wo.getBooking().getVehicle();
-                    txt += v.getBrand() + " " + v.getModel();
-
-                    if (v.getCustomer() != null) {
-                        txt += " | " + v.getCustomer().getName();
-                    }
+                    return new javafx.beans.property.SimpleStringProperty(
+                            v.getBrand() + " " + v.getModel()
+                    );
                 }
 
-                return new javafx.beans.property.SimpleStringProperty(txt);
+                return new javafx.beans.property.SimpleStringProperty("");
+            });
+
+            // Customer = hämtas via booking.vehicle.customer
+            woCustomerColumn.setCellValueFactory(cellData -> {
+                WorkOrder wo = cellData.getValue();
+
+                if (wo.getBooking() != null &&
+                        wo.getBooking().getVehicle() != null &&
+                        wo.getBooking().getVehicle().getCustomer() != null) {
+
+                    return new javafx.beans.property.SimpleStringProperty(
+                            wo.getBooking().getVehicle().getCustomer().getName()
+                    );
+                }
+
+                return new javafx.beans.property.SimpleStringProperty("");
             });
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -140,6 +172,7 @@ public class MechanicController extends OverController {
             woDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
             woStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         }
+
 
 
 
@@ -180,6 +213,9 @@ public class MechanicController extends OverController {
         MechanicController controller =
                 loadCenterView("/com/wac/autocore/gui/view/MechanicBookingsView.fxml");
 
+        // Sätt in mekanikers namn
+        controller.headerLabel.setText("Bookings for: " + selected.getName());
+
         // Hämta bokningar
         List<Booking> bookings = mechanicService.getBookingsForMechanic(selected.getId());
 
@@ -205,6 +241,9 @@ public class MechanicController extends OverController {
         // Ladda den nya vyn och få rätt controller-instans
         MechanicController controller =
                 loadCenterView("/com/wac/autocore/gui/view/MechanicWorkordersView.fxml");
+
+        // vald mekaniker
+        controller.headerLabel.setText("Workorders for: " + selected.getName());
 
         // Hämta workorders för vald mekaniker
         List<WorkOrder> workorders =

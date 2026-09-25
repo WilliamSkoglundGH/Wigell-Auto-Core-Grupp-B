@@ -39,7 +39,7 @@
             <!-- Description -->
             <Label text="%booking.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
             <TextArea fx:id="descriptionField"
-                      promptText="Enter description"
+                      promptText="%booking.prompt-desc"
                       prefRowCount="3"
                       wrapText="true"
                       prefWidth="250"
