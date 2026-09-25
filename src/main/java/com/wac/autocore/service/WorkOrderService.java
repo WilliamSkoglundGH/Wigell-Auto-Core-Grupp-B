@@ -1,15 +1,18 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.exception.MechanicNotAvailableException;
 import com.wac.autocore.exception.ServiceItemNotFoundException;
 import com.wac.autocore.exception.WorkOrderNotFoundException;
 import com.wac.autocore.model.*;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.datetime.DateFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 @Service
 public class WorkOrderService {
@@ -29,11 +32,8 @@ public class WorkOrderService {
 
     @Transactional(readOnly = true)
     public List<WorkOrder> getAllWorkOrders() {
-        List<WorkOrder> list = workOrderRepository.findAll();
-        if(!list.isEmpty()) {
-            return list;
-        } else throw new WorkOrderNotFoundException("No work orders found.");
-        }
+     return workOrderRepository.findAll();
+    }
 
 
     @Transactional(readOnly = true)
@@ -43,16 +43,13 @@ public class WorkOrderService {
 
     }
 
-    //Create
-    // Skapa en ny WORKORDER - BOOKING - SERVICEITEM och STATUS - STATUS CREATED - SÄTT BOOKINGS status- WORK_ORDER CREATED
-    @Transactional
+     @Transactional
     public void saveWorkOrder(Long bookingId, List<ServiceItem> serviceItems) {
         Booking booking = bookingService.getBooking(bookingId);
-        if(serviceItems == null || serviceItems.isEmpty()) {
-            throw new ServiceItemNotFoundException("No service items where chosen. Please choose needed service item");
-        }
+        booking.setStatus("WORK_ORDER_CREATED");
         WorkOrder newWorkOrder = new WorkOrder(booking, serviceItems, "CREATED");
-        workOrderRepository.save(newWorkOrder);
+
+       workOrderRepository.save(newWorkOrder);
     }
 
     @Transactional
@@ -70,12 +67,15 @@ public class WorkOrderService {
 
         Mechanic mechanic = mechanicService.getMechanic(booking.getMechanic().getId());
         Booking savedBooking = bookingService.getBooking(booking.getId());
+        if (!mechanic.isAvailable()) {
+            throw new MechanicNotAvailableException("Mechanic not available, occupied on another workorder.");
+        }
 
         workOrder.setStatus("IN_PROGRESS");
         savedBooking.setStatus("IN_PROGRESS");
         mechanic.setAvailable(false);
 
-        workOrderRepository.save(workOrder); // sparas alla eller behöver man spara booking och workorder separat??
+        workOrderRepository.save(workOrder);
     }
 
     @Transactional
@@ -98,8 +98,27 @@ public class WorkOrderService {
         savedBooking.setStatus("COMPLETED");
         mechanic.setAvailable(true);
 
-        workOrderRepository.save(workOrder); // sparas alla eller behöver man spara booking och workorder separat??
+        workOrderRepository.save(workOrder);
     }
+
+    public void countAndSetWorkTime(WorkOrder workOrder) {
+        workOrder.setStartTime(LocalDateTime.now());
+        workOrderRepository.save(workOrder);
+        int time= countTotalMin(workOrder.getServiceItems());
+        workOrder.setEndTime(workOrder.getStartTime().plusMinutes(time));
+        workOrderRepository.save(workOrder);
+    }
+
+    public int countTotalMin(List<ServiceItem> serviceItems) {
+        int totalMin = 0;
+        if (serviceItems != null) {
+            for (ServiceItem s : serviceItems) {
+                totalMin += s.getEstimatedMinutes();
+            }
+        }
+        return totalMin;
+    }
+
 
     }
 

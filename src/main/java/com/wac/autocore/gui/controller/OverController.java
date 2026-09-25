@@ -96,4 +96,21 @@ public abstract class OverController {
         }
         return null;
     }
+
+    /**
+     * Hämtar översatt text från den aktuella ResourceBundlen via LanguageManager.
+     * Om nyckeln saknas returneras nyckeln själv som reserv.
+     */
+    protected String getString(String key) {
+        try {
+            if (LanguageManager.getBundle() != null && LanguageManager.getBundle().containsKey(key)) {
+                return LanguageManager.getBundle().getString(key);
+            }
+        } catch (Exception e) {
+            // Logga eller ignorera om bundle saknas
+        }
+        return key; // Fallback så att inte appen kraschar om nyckeln saknas
+    }
+
+
 }

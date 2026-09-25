@@ -18,11 +18,13 @@ import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
 @Controller
+@Scope("prototype")
 public class MechanicController extends OverController {
 
     private final MechanicService mechanicService;
@@ -139,9 +141,7 @@ public class MechanicController extends OverController {
             } catch (Exception e) {
                 logger.error("Could not load mechanics from database. {}", e.getMessage(), e);
                 if (messages != null) {
-                   /* messages.showError(getString("mechanic.error.could_not_load"));
-
-                    */
+                    messages.showError(getString("mechanic.error.could_not_load"));
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.wac.autocore;
 
+import com.wac.autocore.gui.util.LanguageManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -37,10 +38,10 @@ public class App extends Application {
         // Kopplar ihop FXMLLoader med Spring så att Dependency Injection fungerar i controllers
         FXMLLoader loader = new FXMLLoader(fxmlLocation);
         loader.setControllerFactory(springContext::getBean);
-        loader.setResources(ResourceBundle.getBundle("i18n.messages"));
+        loader.setResources(LanguageManager.getBundle());
         Parent root = loader.load();
 
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 1000, 800);
 
         scene.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
             if (event.getCode() == KeyCode.ENTER
