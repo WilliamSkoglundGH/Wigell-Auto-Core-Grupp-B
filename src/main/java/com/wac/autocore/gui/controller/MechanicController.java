@@ -161,15 +161,17 @@ public class MechanicController extends OverController {
             return;
         }
 
-        // Ladda bokningsvyn – samma controller används
-        loadCenterView("/com/wac/autocore/gui/view/MechanicBookingsView.fxml");
+        // Få rätt controller-instans
+        MechanicController controller =
+                loadCenterView("/com/wac/autocore/gui/view/MechanicBookingsView.fxml");
 
         // Hämta bokningar
         List<Booking> bookings = mechanicService.getBookingsForMechanic(selected.getId());
 
-        // Fyll tabellen – fälten är redan injicerade via FXML
-        bookingTable.setItems(FXCollections.observableArrayList(bookings));
+        // Fyll tabellen i rätt controller-instans
+        controller.bookingTable.setItems(FXCollections.observableArrayList(bookings));
     }
+
 
     @FXML
     private void handleWorkorders() {

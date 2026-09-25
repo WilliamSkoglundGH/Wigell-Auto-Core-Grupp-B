@@ -35,8 +35,6 @@ public class Mechanic {
         return bookings;
     }
 
-
-
     public Long getId() {
         return id;
     }
