@@ -14,6 +14,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.WorkOrder;
+import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -36,7 +37,7 @@ public class InvoiceController extends OverController {
     @FXML private TableColumn<Invoice, Double> amountColumn;
     @FXML private TableColumn<Invoice, Double> discountColumn;
     @FXML private TableColumn<Invoice, Double> totalAmountColumn;
-    @FXML private TableColumn<Invoice, Boolean> paidColumn;
+    @FXML private TableColumn<Invoice, String> paidColumn;
 
     @FXML private TextField discountCodeField;
     @FXML private ComboBox<WorkOrder> workOrderComboBox;
@@ -65,7 +66,10 @@ public class InvoiceController extends OverController {
             amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
             discountColumn.setCellValueFactory(new PropertyValueFactory<>("discount"));
             totalAmountColumn.setCellValueFactory(new PropertyValueFactory<>("totalAmount"));
-            paidColumn.setCellValueFactory(new PropertyValueFactory<>("paid"));
+            paidColumn.setCellValueFactory(cellData ->
+                    new SimpleObjectProperty<>(
+                            getString(cellData.getValue().isPaid() ? "common.yes" : "common.no")
+                    ));
 
             loadInvoiceData();
             invoiceTable.requestFocus();
@@ -100,6 +104,22 @@ public class InvoiceController extends OverController {
                     .collect(Collectors.toList());
 
             workOrderComboBox.setItems(FXCollections.observableArrayList(workOrdersList));
+
+            workOrderComboBox.setConverter(new StringConverter<WorkOrder>() {
+                @Override
+                public String toString(WorkOrder workOrder) {
+                    if(workOrder == null){
+                        return "";
+                    }else{
+                        return workOrder.getId() + " - " + workOrder.getBooking().getVehicle().getRegistrationNumber();
+                    }
+                }
+
+                @Override
+                public WorkOrder fromString(String s) {
+                    return null;
+                }
+            });
         }
     }
 
