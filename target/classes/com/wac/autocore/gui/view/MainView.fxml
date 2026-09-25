@@ -4,25 +4,19 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="mainRoot"
-            xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.wac.autocore.gui.controller.MainController"
-            prefHeight="800.0"
-            prefWidth="1000.0">
+<?import javafx.scene.control.Tooltip?>
+<BorderPane fx:id="mainRoot" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wac.autocore.gui.controller.MainController">
 
     <!-- HEADER HÖGST UPP -->
     <top>
         <VBox spacing="10" styleClass="header-box">
-            <Label text="WAC"
-                   styleClass="heading-1,header-top"/>
+            <Label styleClass="heading-1,header-top" text="WAC" />
 
-            <Label text="Wigell Auto Core"
-                   styleClass="caption"/>
-            <Separator prefWidth="Infinity"/>
+            <Label styleClass="caption" text="Wigell Auto Core" />
+            <Separator prefWidth="Infinity" />
         </VBox>
 
     </top>
@@ -32,44 +26,33 @@
         <VBox spacing="20" styleClass="nav-padding">
 
             <VBox spacing="10" styleClass="button-spacing,text-center">
-                <Button fx:id="customerButton" text="%nav.customers"
-                        onAction="#showCustomerView" prefWidth="130"/>
-                <Button fx:id="vehicleButton" text="%nav.vehicles"
-                        onAction="#showVehicleView" prefWidth="130"/>
-                <Button fx:id="bookingButton" text="%nav.bookings"
-                        onAction="#showBookingView" prefWidth="130"/>
-                <Button fx:id="workOrderButton" text="%nav.workorders"
-                        onAction="#showWorkOrderView" prefWidth="130"/>
-                <Button fx:id="invoiceButton" text="%nav.invoices"
-                        onAction="#showInvoiceView" prefWidth="130"/>
-                <Button fx:id="paymentButton" text="%nav.payments"
-                        onAction="#showPaymentView" prefWidth="130"/>
-                <Button fx:id="serviceItemButton" text="%nav.serviceitems"
-                        onAction="#showServiceItemView" prefWidth="130"/>
-                <Button fx:id="mechanicButton" text="%nav.mechanics"
-                        onAction="#showMechanicView" prefWidth="130"/>
-                <Button fx:id="languageButton" text="%nav.language"
-                        onAction="#handleToggleLanguage" prefWidth="130"/>
-                <Button fx:id="exitButton" text="%nav.exit"
-                        onAction="#handleExit" prefWidth="130" styleClass="exit"/>
-            </VBox>
-
+                <Button fx:id="customerButton" onAction="#showCustomerView" prefWidth="130" text="%nav.customers" />
+                <Button fx:id="vehicleButton" onAction="#showVehicleView" prefWidth="130" text="%nav.vehicles" />
+                <Button fx:id="bookingButton" onAction="#showBookingView" prefWidth="130" text="%nav.bookings" />
+                <Button fx:id="workOrderButton" onAction="#showWorkOrderView" prefWidth="130" text="%nav.workorders" />
+                <Button fx:id="invoiceButton" onAction="#showInvoiceView" prefWidth="130" text="%nav.invoices" />
+                <Button fx:id="paymentButton" onAction="#showPaymentView" prefWidth="130" text="%nav.payments" />
+                <Button fx:id="serviceItemButton" onAction="#showServiceItemView" prefWidth="130" text="%nav.serviceitems" />
+                <Button fx:id="mechanicButton" onAction="#showMechanicView" prefWidth="130" text="%nav.mechanics" />
+                </VBox>
         </VBox>
     </left>
 
     <!-- MEDDELANDEN TILL ANVÄNDAREN -->
     <bottom>
-        <HBox spacing="10"
-              alignment="BOTTOM_CENTER"
-              styleClass="container-padding-small">
+        <HBox alignment="BOTTOM_CENTER" spacing="10" styleClass="container-padding-small,msg-area">
 
-            <Label fx:id="messageLabel"
-                   wrapText="true"
-                   alignment="CENTER"
-                   maxWidth="Infinity"
-                   prefHeight="90"
-                   HBox.hgrow="ALWAYS"
-                   styleClass="msg-area"/>
+            <Label fx:id="messageLabel" alignment="CENTER" maxWidth="Infinity" prefHeight="90" styleClass="msg-area" wrapText="true" HBox.hgrow="ALWAYS" />
+         <VBox styleClass="button-spacing,text-center,footer">
+            <children>
+                <Button fx:id="languageButton" onAction="#handleToggleLanguage" prefWidth="130" text="%nav.language">
+                    <tooltip>
+                        <Tooltip text="%tooltip.language-btn"/>
+                    </tooltip>
+                 </Button>
+                <Button fx:id="exitButton" onAction="#handleExit" prefWidth="130" text="%nav.exit" />
+            </children>
+         </VBox>
         </HBox>
     </bottom>
 

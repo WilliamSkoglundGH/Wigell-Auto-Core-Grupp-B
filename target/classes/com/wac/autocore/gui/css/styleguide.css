@@ -102,7 +102,7 @@
    -------------------------------------------------------------------- */
 .msg-area {
     -fx-background-color: -pale-khaki;
-    -fx-padding: 8 12;
+    -fx-padding: 8px 12px 12px 8px;
 
 }
 
@@ -162,11 +162,7 @@
 .button.secondary:pressed { -fx-background-color: derive(-bg-surface, -15%); }
 .button.secondary:disabled { -fx-opacity: 0.4; }
 
-.button.exit{
-    -fx-spacing-top: 10px;
-    -fx-alignment: bottom-center;
 
-}
 
 /* --------------------------------------------------------------------
    TableView
@@ -222,10 +218,12 @@
 }
 
 .table-cell {
+    -fx-text-overrun: ellipsis;
     -fx-text-fill: -text-primary;
     -fx-font-family: "Inter";
     -fx-font-size: 14px;
     -fx-padding: 8px 10px;
+
 }
 
 /* --------------------------------------------------------------------
@@ -314,7 +312,7 @@
     -fx-spacing: 10px;
 }
 .button-spacing {
-    -fx-spacing: 10px;
+    -fx-spacing: 15px;
 }
 .content-center {
     -fx-alignment: center;
@@ -332,7 +330,12 @@
 }
 
 .nav-padding {
-    -fx-padding: 5px;
+    -fx-padding: 45px 5px 10px 10px
 }
+
+VBox.footer {
+    -fx-padding: 8px;
+}
+
 
 
