@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
@@ -57,7 +58,7 @@ public class MechanicController extends OverController {
     @FXML private TableView<WorkOrder> workorderTable;
     @FXML private TableColumn<WorkOrder, Long> woIdColumn;
     @FXML private TableColumn<WorkOrder, String> woVehicleColumn;
-    @FXML private TableColumn<WorkOrder, String> woDateColumn;
+    @FXML private TableColumn<WorkOrder, String> bookingDateColumn;
     @FXML private TableColumn<WorkOrder, String> woDescriptionColumn;
     @FXML private TableColumn<WorkOrder, String> woStatusColumn;
 
@@ -122,10 +123,24 @@ public class MechanicController extends OverController {
                 return new javafx.beans.property.SimpleStringProperty(txt);
             });
 
-            woDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            bookingDateColumn.setCellValueFactory(cellData -> {
+                WorkOrder wo = cellData.getValue();
+
+                if (wo.getBooking() != null && wo.getBooking().getDate() != null) {
+                    return new javafx.beans.property.SimpleStringProperty(
+                            wo.getBooking().getDate().format(formatter)
+                    );
+                }
+
+                return new javafx.beans.property.SimpleStringProperty("");
+            });
+
             woDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
             woStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         }
+
 
 
     }
@@ -187,13 +202,19 @@ public class MechanicController extends OverController {
             return;
         }
 
+        // Ladda den nya vyn och få rätt controller-instans
+        MechanicController controller =
+                loadCenterView("/com/wac/autocore/gui/view/MechanicWorkordersView.fxml");
 
-        loadCenterView("/com/wac/autocore/gui/view/WorkorderView.fxml");
+        // Hämta workorders för vald mekaniker
+        List<WorkOrder> workorders =
+                mechanicService.getWorkOrdersForMechanic(selected.getId());
 
-        List<WorkOrder> workorders = mechanicService.getWorkOrdersForMechanic(selected.getId());
-
-        workorderTable.setItems(FXCollections.observableArrayList(workorders));
+        // Fyll tabellen i rätt controller-instans
+        controller.workorderTable.setItems(FXCollections.observableArrayList(workorders));
     }
+
+
 
 }
 
