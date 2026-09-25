@@ -131,9 +131,19 @@ public class MechanicController extends OverController {
 
     public void loadMechanicData() {
         if (mechanicTable != null) {
-            ObservableList<Mechanic> mechanicData =
-                    FXCollections.observableArrayList(mechanicService.getAllMechanics());
-            mechanicTable.setItems(mechanicData);
+            try {
+                ObservableList<Mechanic> mechanicData = FXCollections.observableArrayList(
+                        mechanicService.getAllMechanics()
+                );
+                mechanicTable.setItems(mechanicData);
+            } catch (Exception e) {
+                logger.error("Could not load mechanics from database. {}", e.getMessage(), e);
+                if (messages != null) {
+                   /* messages.showError(getString("mechanic.error.could_not_load"));
+
+                    */
+                }
+            }
         }
     }
 
