@@ -12,7 +12,7 @@ import java.util.ResourceBundle;
 public class LanguageManager {
 
     private static final ObjectProperty<ResourceBundle> bundle =
-            new SimpleObjectProperty<>(loadBundle(new Locale("sv")));
+            new SimpleObjectProperty<>(loadBundle(new Locale("en")));
 
     private static ResourceBundle loadBundle(Locale locale) {
         try {
