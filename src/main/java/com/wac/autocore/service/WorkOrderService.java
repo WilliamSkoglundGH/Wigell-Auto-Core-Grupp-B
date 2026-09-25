@@ -45,6 +45,7 @@ public class WorkOrderService {
      @Transactional
     public void saveWorkOrder(Long bookingId, List<ServiceItem> serviceItems) {
         Booking booking = bookingService.getBooking(bookingId);
+        booking.setStatus("WORK_ORDER_CREATED");
         WorkOrder newWorkOrder = new WorkOrder(booking, serviceItems, "CREATED");
 
        workOrderRepository.save(newWorkOrder);
