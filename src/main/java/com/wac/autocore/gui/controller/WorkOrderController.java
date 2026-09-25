@@ -157,6 +157,10 @@ public class WorkOrderController extends OverController {
             messages.showError(getString("workorder.error.workorder_already_completed"));
             return;
         }
+        if ("CREATED".equals(selected.getStatus())) {
+            messages.showError(getString("workorder.error.workorder_already_created"));
+            return;
+        }
         try {
             workOrderService.completeWorkOrder(selected);
             workOrderTable.refresh();
