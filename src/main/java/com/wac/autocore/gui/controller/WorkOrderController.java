@@ -1,6 +1,7 @@
 package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.exception.MechanicNotAvailableException;
+import com.wac.autocore.gui.util.FormatUIUtil;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.Mechanic;
 import com.wac.autocore.model.ServiceItem;
@@ -81,10 +82,10 @@ public class WorkOrderController extends OverController {
             startTimeColumn.setCellValueFactory(cellData -> {
                         WorkOrder wo = cellData.getValue();
                         workOrderService.countAndSetWorkTime(wo);
-                        return new javafx.beans.property.SimpleStringProperty(wo.getStartTime().toString());});
+                        return new javafx.beans.property.SimpleStringProperty(FormatUIUtil.formatTime(wo.getStartTime()));});
             endTimeColumn.setCellValueFactory(cellData -> {
                 WorkOrder wo = cellData.getValue();
-                return new javafx.beans.property.SimpleStringProperty(wo.getEndTime().toString());});
+                return new javafx.beans.property.SimpleStringProperty(FormatUIUtil.formatTime(wo.getEndTime()));});
             estimatedTimeColumn.setCellValueFactory(cellData ->
                     new SimpleObjectProperty<>(workOrderService.countTotalMin(cellData.getValue().getServiceItems())));
             if (servicesColumn != null) {
@@ -228,7 +229,7 @@ public class WorkOrderController extends OverController {
                         .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                         .collect(Collectors.toList());
                 if (serviceItems.isEmpty()) {
-                    messages.showError(getString("Service item forgotten. Please add before saving."));
+                    messages.showError(getString(getString("%workorder.error.no_serviceitem")));
                     return;
                 } else {
                     selectedBooking.setStatus("WORK_ORDER_CREATED");
@@ -236,8 +237,8 @@ public class WorkOrderController extends OverController {
                     messages.showSuccess(getString("workorder.success.workorder_created"));
                 }
             }} catch (Exception e){
-                    logger.error("Could not save to database. {}", e.getMessage(), e);
-                    messages.showError(getString("An unexpected error occurred. Please check the list of work orders before trying again."));
+                    logger.error("Something Unexpected. {}", e.getMessage(), e);
+                    messages.showError(getString("%workorder.error.unexpected"));
                     return;
                 }
 

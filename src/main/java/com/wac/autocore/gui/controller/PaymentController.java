@@ -1,7 +1,9 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.gui.util.FormatUIUtil;
 import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.Payment;
+import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.service.InvoiceService;
 import com.wac.autocore.service.PaymentService;
 import javafx.beans.property.SimpleObjectProperty;
@@ -35,7 +37,7 @@ public class PaymentController extends OverController {
     @FXML private TableColumn<Payment, Long> invoiceIdColumn;
     @FXML private TableColumn<Payment, Double> amountColumn;
     @FXML private TableColumn<Payment, String> paymentTypeColumn;
-    @FXML private TableColumn<Payment, LocalDateTime> paymentDateColumn;
+    @FXML private TableColumn<Payment, String> paymentDateColumn;
     @FXML private TableColumn<Payment, Boolean> successfulColumn;
 
     @FXML private ComboBox<Invoice> invoiceComboBox;
@@ -65,7 +67,9 @@ public class PaymentController extends OverController {
                     ));
             amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
             paymentTypeColumn.setCellValueFactory(new PropertyValueFactory<>("paymentType"));
-            paymentDateColumn.setCellValueFactory(new PropertyValueFactory<>("paymentDate"));
+            paymentDateColumn.setCellValueFactory(cellData -> {
+                        Payment pay = cellData.getValue();
+                        return new javafx.beans.property.SimpleStringProperty(FormatUIUtil.formatTime(pay.getPaymentDate()));});
             successfulColumn.setCellValueFactory(new PropertyValueFactory<>("successful"));
 
             loadPaymentData();
