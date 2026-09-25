@@ -15,8 +15,9 @@
     <children>
         <Label text="%workOrder.heading" styleClass="heading-2" />
 
-        <TableView fx:id="workOrderTable">
-            <columns>
+        <TableView fx:id="workOrderTable" >
+
+        <columns>
                 <TableColumn fx:id="idColumn" text="%table.id" />
                 <TableColumn fx:id="bookingIdColumn" text="%workOrder.bookingIdColumn" />
                 <TableColumn fx:id="mechanicIdColumn" text="%workOrder.mechanicIdColumn" />

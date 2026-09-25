@@ -41,6 +41,7 @@
     <!-- MEDDELANDEN TILL ANVÄNDAREN -->
     <bottom>
         <HBox alignment="BOTTOM_CENTER" spacing="10" styleClass="container-padding-small,msg-area">
+             <Label fx:id="messageLabel" alignment="CENTER" maxWidth="Infinity" prefHeight="90" styleClass="msg-area" wrapText="true" HBox.hgrow="ALWAYS" />
             <VBox styleClass="button-spacing,text-center,footer">
                 <children>
                     <Button fx:id="languageButton" onAction="#handleToggleLanguage" prefWidth="130" text="%nav.language">
@@ -51,8 +52,6 @@
                     <Button fx:id="exitButton" onAction="#handleExit" prefWidth="130" text="%nav.exit" />
                 </children>
             </VBox>
-            <Label fx:id="messageLabel" alignment="CENTER" maxWidth="Infinity" prefHeight="90" styleClass="msg-area" wrapText="true" HBox.hgrow="ALWAYS" />
-
         </HBox>
     </bottom>
 

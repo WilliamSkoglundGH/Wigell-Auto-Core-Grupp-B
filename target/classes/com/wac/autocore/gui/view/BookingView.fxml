@@ -16,7 +16,8 @@
 
         <!-- Tabell -->
         <TableView fx:id="bookingTable">
-            <columns>
+
+        <columns>
                 <TableColumn fx:id="idColumn" text="%table.id" />
                 <TableColumn fx:id="vehicleIdColumn" text="%booking.vehicleIdColumn" />
                 <TableColumn fx:id="dateColumn" text="%booking.dateColumn" />
