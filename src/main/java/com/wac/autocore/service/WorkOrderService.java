@@ -1,5 +1,6 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.exception.MechanicNotAvailableException;
 import com.wac.autocore.exception.ServiceItemNotFoundException;
 import com.wac.autocore.exception.WorkOrderNotFoundException;
 import com.wac.autocore.model.*;
@@ -66,6 +67,9 @@ public class WorkOrderService {
 
         Mechanic mechanic = mechanicService.getMechanic(booking.getMechanic().getId());
         Booking savedBooking = bookingService.getBooking(booking.getId());
+        if (!mechanic.isAvailable()) {
+            throw new MechanicNotAvailableException("Mechanic not available, occupied on another workorder.");
+        }
 
         workOrder.setStatus("IN_PROGRESS");
         savedBooking.setStatus("IN_PROGRESS");

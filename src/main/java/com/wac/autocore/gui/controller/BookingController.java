@@ -44,7 +44,7 @@ public class BookingController extends OverController {
     private final BookingService bookingService;
     private final VehicleService vehicleService;
     private final MechanicService mechanicService;
-//testing testing
+
     private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
 
     public BookingController(BookingService bookingService, VehicleService vehicleService,
