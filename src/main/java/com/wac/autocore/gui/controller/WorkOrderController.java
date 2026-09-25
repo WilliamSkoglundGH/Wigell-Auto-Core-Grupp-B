@@ -48,7 +48,6 @@ public class WorkOrderController extends OverController {
     @FXML private ComboBox<Booking> bookingComboBox;
     @FXML private ListView<ServiceItem> servicesListView;
 
-    private final Set<Integer> selectedServiceIds = new HashSet<>(); // Används ej.
     private final Map<Long, javafx.beans.property.BooleanProperty> serviceSelections = new HashMap<>();
 
     private final WorkOrderService workOrderService;
@@ -229,20 +228,20 @@ public class WorkOrderController extends OverController {
                         .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                         .collect(Collectors.toList());
                 if (serviceItems.isEmpty()) {
-                    messages.showError("Service item forgotten. Please add before saving.");
+                    messages.showError(getString("Service item forgotten. Please add before saving."));
                     return;
                 } else {
                     selectedBooking.setStatus("WORK_ORDER_CREATED");
                     workOrderService.saveWorkOrder(selectedBooking.getId(), serviceItems);
+                    messages.showSuccess(getString("workorder.success.workorder_created"));
                 }
             }} catch (Exception e){
                     logger.error("Could not save to database. {}", e.getMessage(), e);
-                    messages.showError("An unexpected error occurred. Please check the list of work orders before trying again.");
+                    messages.showError(getString("An unexpected error occurred. Please check the list of work orders before trying again."));
                     return;
                 }
 
         serviceSelections.clear();
-        messages.showSuccess(getString("workorder.success.workorder_created"));
         navigateToWorkOrderView();
     }
 
