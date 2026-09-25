@@ -10,12 +10,16 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 @Controller
+@Scope("prototype")
 public class CustomerController extends OverController {
-
+    private static final Logger logger = LoggerFactory.getLogger(CustomerController.class);
     private final CustomerService customerService;
 
     // Spring injicerar både CustomerService och ApplicationContext automatiskt
@@ -96,21 +100,22 @@ public class CustomerController extends OverController {
         boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
 
         if (name == null || name.trim().isEmpty()) {
-            messages.showError("Please enter a name.");
+            messages.showError(getString("customer.error.enter_name"));
             return;
         }
 
         if (email == null || email.trim().isEmpty()) {
-            messages.showError("Please enter an email.");
+            messages.showError(getString("customer.error.enter_email"));
             return;
         }
 
         try {
             Customer newCustomer = customerService.createCustomer(name, phone, email, isVip);
-            messages.showSuccess("Customer created: " + newCustomer.getName());
+            messages.showSuccess(getString("customer_success.customer_created") + newCustomer.getName());
             navigateToCustomerView();
         } catch (Exception e) {
-            messages.showError("Could not save customer: " + e.getMessage());
+            logger.error("Could not save customer to database. {}", e.getMessage(), e);
+            messages.showError(getString("customer.error.create_customer"));
         }
     }
 
@@ -125,6 +130,4 @@ public class CustomerController extends OverController {
     private void navigateToCustomerView() {
         loadCenterView("/com/wac/autocore/gui/view/CustomerView.fxml");
     }
-
-    // findMainLayout() är borttagen härifrån eftersom den nu ärvs från OverController!
 }

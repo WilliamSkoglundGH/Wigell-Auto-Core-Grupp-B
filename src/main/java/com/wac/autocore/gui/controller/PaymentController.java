@@ -4,6 +4,7 @@ import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.Payment;
 import com.wac.autocore.service.InvoiceService;
 import com.wac.autocore.service.PaymentService;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,6 +16,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
@@ -25,11 +27,12 @@ import java.util.stream.Collectors;
  * Controller for the payment view. Fetches data directly from the database.
  */
 @Controller
+@Scope("prototype")
 public class PaymentController extends OverController {
 
     @FXML private TableView<Payment> paymentTable;
-    @FXML private TableColumn<Payment, Integer> idColumn;
-    @FXML private TableColumn<Payment, Integer> invoiceIdColumn;
+    @FXML private TableColumn<Payment, Long> idColumn;
+    @FXML private TableColumn<Payment, Long> invoiceIdColumn;
     @FXML private TableColumn<Payment, Double> amountColumn;
     @FXML private TableColumn<Payment, String> paymentTypeColumn;
     @FXML private TableColumn<Payment, LocalDateTime> paymentDateColumn;
@@ -56,7 +59,10 @@ public class PaymentController extends OverController {
         // PaymentView.fxml
         if (paymentTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-            invoiceIdColumn.setCellValueFactory(new PropertyValueFactory<>("invoiceId"));
+            invoiceIdColumn.setCellValueFactory(cellData ->
+                    new SimpleObjectProperty<>(
+                            cellData.getValue().getInvoice().getId()
+                    ));
             amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
             paymentTypeColumn.setCellValueFactory(new PropertyValueFactory<>("paymentType"));
             paymentDateColumn.setCellValueFactory(new PropertyValueFactory<>("paymentDate"));
@@ -81,12 +87,18 @@ public class PaymentController extends OverController {
     }
 
     public void loadPaymentData() {
-        if (paymentTable != null) {
-            ObservableList<Payment> paymentData = FXCollections.observableArrayList(paymentService.getAllPayments());
-            paymentTable.setItems(paymentData);
+        try {
+            if (paymentTable != null) {
+                ObservableList<Payment> paymentData = FXCollections.observableArrayList(paymentService.getAllPayments());
+                paymentTable.setItems(paymentData);
+            }
+        } catch (Exception e) {
+            logger.error("Could not load payments", e);
+            if (messages != null) {
+                messages.showError(getString("payment.error.could_not_load"));
+            }
         }
     }
-
     @FXML
     private void handleNewPayment() {
         if (messages != null) {
@@ -115,10 +127,10 @@ public class PaymentController extends OverController {
 
                 } catch (Exception e) {
                     logger.error("Could not process payment: {}", e.getMessage(), e);
-                    messages.showError("Could not process payment: " + e.getMessage());
+                    messages.showError(getString("payment.error.could_not_process"));
                 }
             } else {
-                messages.showError("Please select an invoice and payment type!");
+                messages.showError(getString("payment.error.select_invoice_type"));
             }
         }
     }
@@ -134,6 +146,4 @@ public class PaymentController extends OverController {
     private void navigateToPaymentView() {
         loadCenterView("/com/wac/autocore/gui/view/PaymentView.fxml");
     }
-
-    // findMainLayout() är helt borttagen eftersom OverController sköter det centralt!
 }

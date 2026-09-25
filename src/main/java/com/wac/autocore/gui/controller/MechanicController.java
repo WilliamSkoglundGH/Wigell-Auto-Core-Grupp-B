@@ -16,11 +16,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
 @Controller
+@Scope("prototype")
 public class MechanicController extends OverController {
 
     private final MechanicService mechanicService;
@@ -127,9 +129,17 @@ public class MechanicController extends OverController {
 
     public void loadMechanicData() {
         if (mechanicTable != null) {
-            ObservableList<Mechanic> mechanicData =
-                    FXCollections.observableArrayList(mechanicService.getAllMechanics());
-            mechanicTable.setItems(mechanicData);
+            try {
+                ObservableList<Mechanic> mechanicData = FXCollections.observableArrayList(
+                        mechanicService.getAllMechanics()
+                );
+                mechanicTable.setItems(mechanicData);
+            } catch (Exception e) {
+                logger.error("Could not load mechanics from database. {}", e.getMessage(), e);
+                if (messages != null) {
+                    messages.showError(getString("mechanic.error.could_not_load"));
+                }
+            }
         }
     }
 

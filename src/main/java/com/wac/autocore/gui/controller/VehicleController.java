@@ -15,9 +15,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 @Controller
+@Scope("prototype")
 public class VehicleController extends OverController {
 
     @FXML private TableView<Vehicle> vehicleTable;
@@ -119,15 +121,15 @@ public class VehicleController extends OverController {
                     Customer customer = customerService.getCustomer(selectedCustomer.getId());
                     Vehicle newVehicle = new Vehicle(regNo, brand.trim(), model.trim(), year, customer);
                     vehicleService.saveVehicle(newVehicle);
-                    messages.showSuccess("Vehicle created.");
+                    messages.showSuccess(getString("vehicle.showsuccess.vehicle_created"));
                     navigateToVehicleView();
                 } else {
                     logger.error("Could not save Vehicle, data missing.");
-                    messages.showError("Please enter all data and choose a customer!");
+                    messages.showError(getString("vehicle.error.enter_data"));
                 }
             } catch (NumberFormatException e) {
                 logger.error("Could not save vehicle: {}", e.getMessage(), e);
-                messages.showError("Not a correct year!");
+                messages.showError(getString("vehicle.error.incorrect_year"));
             }
         }
     }
@@ -143,6 +145,4 @@ public class VehicleController extends OverController {
     private void navigateToVehicleView() {
         loadCenterView("/com/wac/autocore/gui/view/VehicleView.fxml");
     }
-
-    // findMainLayout() är helt borttagen härifrån eftersom den hanteras centralt i OverController!
 }
