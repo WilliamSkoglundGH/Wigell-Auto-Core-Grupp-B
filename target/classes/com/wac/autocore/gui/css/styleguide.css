@@ -1,0 +1,338 @@
+/* ==========================================================================
+   OBS: Ingen färg i paletten klarar AAA (7:1) som text ovanpå -sunflower
+   (bäst är -dark-gray/-sunflower = 5.92:1, bara stor text/UI). Ren svart
+   (-black) är därför fortsatt tillagd, enbart för det syftet. -dark-gray
+   är däremot mörk nog att själv bära brödtext mot -cream-white (9.56:1)
+   och -pale-khaki (7.67:1)
+   ========================================================================== */
+
+@font-face {
+    src: url('fonts/Inter-Regular.ttf');
+}
+@font-face {
+    src: url('fonts/Inter-Medium.ttf');
+}
+@font-face {
+    src: url('fonts/Inter-SemiBold.ttf');
+}
+@font-face {
+    src: url('fonts/Inter-Bold.ttf');
+}
+
+/* --------------------------------------------------------------------
+   Tokens
+   -------------------------------------------------------------------- */
+.root {
+    /* Grundpalett */
+    -cream-white: #FEFBF9;
+            /*#FFFFFB; orginal*/
+    -sunflower:     #FFCB62;
+            /*#F2C14E orginal;
+      FFC145;* orginal*/
+    -willow-green:   #ACCF81;
+    -dark-gray:      #454545;
+    -pale-khaki:     #D7E8C2;
+    -black:          #000000;   /* OBS! Krävs enbart för text på -sunflower */
+
+    /* Härledda toner */
+    -accent-hover:   derive(-sunflower, -10%);
+    -accent-pressed: derive(-sunflower, -20%);
+    -text-accent:    -dark-gray;
+
+    /* Semantiska roller */
+    -bg-base:          -cream-white;
+    -bg-surface:        -pale-khaki;
+    -bg-surface-pale:      derive(pale-khaki, -5%);
+    -text-primary:       -black;
+    -accent-primary:       -sunflower;
+    -accent-secondary:      -dark-gray;
+    -border-default:         -dark-gray;
+    -focus-ring:               derive(-dark-gray,-20%);
+
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+    -fx-background-color: -bg-base;
+    -fx-text-fill: -text-primary;
+}
+
+/* HEADER BOX (WAC + Wigell Auto Core) */
+.header-box {
+    -fx-background-color: transparent; /* Ingen bakgrund */
+    -fx-padding: 20;
+    -fx-alignment: center;
+}
+
+
+.button:focused,
+.tab:focused,
+.text-area:focused,
+.combo-box:focused,
+.table-view:focused {
+    -fx-focus-color: -focus-ring;
+    -fx-faint-focus-color: transparent;
+}
+
+/* --------------------------------------------------------------------
+   Label
+   -------------------------------------------------------------------- */
+.label {
+    -fx-text-fill: -text-primary;
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-line-spacing: 6px;
+}
+
+.label.heading-1 { -fx-font-size: 28px; -fx-font-weight: bold; }
+.label.heading-2 { -fx-font-size: 22px; -fx-font-weight: 600; }
+.label.heading-3 { -fx-font-size: 18px; -fx-font-weight: 600; }
+.label.caption   { -fx-font-size: 12px; -fx-opacity: 0.7;}
+.label.header-top {
+    -fx-text-fill: -willow-green;
+    -fx-font-size: 37px;
+}
+.text-center {
+    -fx-alignment: top-center;
+    -fx-text-alignment: center;
+}
+
+
+/* --------------------------------------------------------------------
+   User Messages (success / error)
+   -------------------------------------------------------------------- */
+.msg-area {
+    -fx-background-color: -pale-khaki;
+    -fx-padding: 8 12;
+
+}
+
+.msg-success {
+    -fx-text-fill: #454545;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+}
+
+.msg-error {
+    -fx-text-fill: #FF6347;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+}
+
+
+/* --------------------------------------------------------------------
+   Button
+   -------------------------------------------------------------------- */
+.button {
+    -fx-background-color: -accent-primary;
+    -fx-text-fill: -black;                 /* 12.97:1, AAA */
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 4px;
+    -fx-padding: 8px 18px;
+    -fx-cursor: hand;
+    -fx-border-color: -accent-hover;
+}
+
+.button:hover { -fx-background-color: -accent-hover; }
+.button:pressed, .button:armed { -fx-background-color: -accent-pressed; }
+
+.button:disabled {
+    -fx-opacity: 0.4;
+    -fx-cursor: default;
+}
+
+.button:focused {
+    -fx-border-color: -focus-ring;
+    -fx-border-width: 2px;
+    -fx-border-insets: -2px;
+    -fx-background-insets: 0;
+}
+
+.button.secondary {
+    -fx-background-color: -cream-white;
+    -fx-text-fill: -text-primary;
+    -fx-border-color: -dark-gray;
+    -fx-border-width: 1px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+
+.button.secondary:hover { -fx-background-color: -bg-surface; }
+.button.secondary:pressed { -fx-background-color: derive(-bg-surface, -15%); }
+.button.secondary:disabled { -fx-opacity: 0.4; }
+
+.button.exit{
+    -fx-spacing-top: 10px;
+    -fx-alignment: bottom-center;
+
+}
+
+/* --------------------------------------------------------------------
+   TableView
+   -------------------------------------------------------------------- */
+.table-view {
+    -fx-background-color: -cream-white;
+    -fx-border-color: -border-default;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+}
+.table-view:focused {
+    -fx-border-color: -focus-ring;
+    -fx-border-width: 2px;
+}
+
+
+.table-view .column-header-background {
+    -fx-background-color: -bg-surface;
+    -fx-border-color: transparent transparent -dark-gray transparent;
+    -fx-border-width: 0 0 2px 0;
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: -bg-surface;
+    -fx-border-color: transparent -border-default transparent transparent;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: -text-primary;
+    -fx-font-family: "Inter";
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.table-row-cell {
+    -fx-background-color: -cream-white;
+    -fx-text-fill: -text-primary;
+    -fx-border-color: transparent transparent -border-default transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: -bg-surface;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: -accent-primary;
+}
+
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: -black;                 /* 12.97:1, AAA */
+}
+
+.table-cell {
+    -fx-text-fill: -text-primary;
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+    -fx-padding: 8px 10px;
+}
+
+/* --------------------------------------------------------------------
+   TextArea
+   -------------------------------------------------------------------- */
+.text-area {
+    -fx-background-color: -cream-white;
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+}
+
+.text-area .content {
+    -fx-background-color: -cream-white;
+    -fx-border-color: -border-default;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-line-spacing: 6px;
+}
+
+.text-area .text { -fx-fill: -text-primary; }
+
+.text-area:focused .content {
+    -fx-border-color: -focus-ring;
+    -fx-border-width: 2px;
+}
+
+.text-area:disabled { -fx-opacity: 0.4; }
+
+/* --------------------------------------------------------------------
+   ComboBox
+   -------------------------------------------------------------------- */
+.combo-box {
+    -fx-background-color: -cream-white;
+    -fx-border-color: -border-default;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: -text-primary;
+    -fx-background-color: transparent;
+    -fx-padding: 6px 10px;
+}
+
+.combo-box:focused {
+    -fx-border-color: -focus-ring;
+    -fx-border-width: 2px;
+}
+
+.combo-box:disabled { -fx-opacity: 0.4; }
+
+.combo-box-popup .list-view {
+    -fx-background-color: -cream-white;
+    -fx-border-color: -border-default;
+    -fx-border-width: 1px;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: -cream-white;
+    -fx-text-fill: -text-primary;
+    -fx-padding: 6px 10px;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: -bg-surface;
+}
+
+.combo-box-popup .list-cell:filled:selected,
+.combo-box-popup .list-cell:filled:selected:hover {
+    -fx-background-color: -accent-primary;
+    -fx-text-fill: -black;                 /* 12.97:1, AAA */
+}
+/* --------------------------------------------------------------------
+   9. Generell padding / spacing till container komponenter
+   -------------------------------------------------------------------- */
+.container-padding-small {
+   -fx-padding: 5px;
+}
+.container-padding {
+    -fx-padding: 0px 16px 16px 16px;
+}
+.container-spacing {
+    -fx-spacing: 10px;
+}
+.button-spacing {
+    -fx-spacing: 10px;
+}
+.content-center {
+    -fx-alignment: center;
+}
+
+.button.active-button {
+    -fx-border-color: -dark-gray;
+    -fx-border-width: 2px;
+    -fx-border-radius: 4px;
+    -fx-border-insets: -2px;
+}
+
+.form-padding {
+    -fx-padding: 0px 16px 16px 50px;
+}
+
+.nav-padding {
+    -fx-padding: 5px;
+}
+
+
