@@ -15,6 +15,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 
@@ -24,6 +26,8 @@ import java.util.List;
 public class MechanicController extends OverController {
 
     private final MechanicService mechanicService;
+
+    private static final Logger logger = LoggerFactory.getLogger(MechanicController.class);
 
     public MechanicController(MechanicService mechanicService, ApplicationContext applicationContext) {
         this.mechanicService = mechanicService;
