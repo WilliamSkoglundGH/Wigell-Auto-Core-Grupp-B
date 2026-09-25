@@ -24,7 +24,7 @@
 
             <Label text="%invoice.discountCodeLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
             <TextField fx:id="discountCodeField"
-                       promptText="%invoice.promt-code"
+                       promptText="%invoice.discountCodePrompt"
                        prefWidth="250"
                        GridPane.columnIndex="1"
                        GridPane.rowIndex="2"/>
