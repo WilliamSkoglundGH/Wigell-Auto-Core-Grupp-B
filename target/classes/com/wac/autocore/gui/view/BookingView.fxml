@@ -6,15 +6,13 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox styleClass="container-padding,container-spacing"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.wac.autocore.gui.controller.BookingController">
+<?import javafx.scene.control.Tooltip?>
+<VBox styleClass="container-padding,container-spacing" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wac.autocore.gui.controller.BookingController">
 
     <children>
 
         <!-- Titel -->
-        <Label text="%booking.heading" styleClass="heading-2" />
+        <Label styleClass="heading-2" text="%booking.heading" />
 
         <!-- Tabell -->
         <TableView fx:id="bookingTable">
@@ -22,17 +20,14 @@
                 <TableColumn fx:id="idColumn" text="%table.id" />
                 <TableColumn fx:id="vehicleIdColumn" text="%booking.vehicleIdColumn" />
                 <TableColumn fx:id="dateColumn" text="%booking.dateColumn" />
-                <TableColumn fx:id="descriptionColumn" text="%table.description" />
+                <TableColumn fx:id="descriptionColumn" maxWidth="275.0" text="%table.description"/>
                 <TableColumn fx:id="statusColumn" text="%table.status" />
                 <TableColumn fx:id="mechanicColumn" text="%booking.mechanicColumn" />
             </columns>
         </TableView>
 
         <!-- Knapp för att skapa ny booking -->
-        <Button text="%btn.new" onAction="#handleNewBooking" />
+        <Button onAction="#handleNewBooking" text="%btn.new" />
 
     </children>
 </VBox>
-
-
-
