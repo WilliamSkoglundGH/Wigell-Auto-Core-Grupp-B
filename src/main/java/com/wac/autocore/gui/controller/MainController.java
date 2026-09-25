@@ -79,6 +79,8 @@ public class MainController implements UserMessages {
                 oc.setApplicationContext(applicationContext);
             }
 
+
+
             mainRoot.setCenter(view);
             markActiveMenuButton(menuButton);
 
