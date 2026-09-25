@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane fx:id="mainRoot"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.wac.autocore.gui.controller.MainController"
+            prefHeight="800.0"
+            prefWidth="1000.0">
+
+    <!-- HEADER HÖGST UPP -->
+    <top>
+        <VBox spacing="10" styleClass="header-box">
+            <Label text="WAC"
+                   styleClass="heading-1,header-top"/>
+
+            <Label text="Wigell Auto Core"
+                   styleClass="caption"/>
+            <Separator prefWidth="Infinity"/>
+        </VBox>
+
+    </top>
+
+    <!-- MENY TILL VÄNSTER -->
+    <left>
+        <VBox spacing="20" styleClass="nav-padding">
+
+            <VBox spacing="10" styleClass="button-spacing,text-center">
+                <Button fx:id="customerButton" text="%nav.customers"
+                        onAction="#showCustomerView" prefWidth="130"/>
+                <Button fx:id="vehicleButton" text="%nav.vehicles"
+                        onAction="#showVehicleView" prefWidth="130"/>
+                <Button fx:id="bookingButton" text="%nav.bookings"
+                        onAction="#showBookingView" prefWidth="130"/>
+                <Button fx:id="workOrderButton" text="%nav.workorders"
+                        onAction="#showWorkOrderView" prefWidth="130"/>
+                <Button fx:id="invoiceButton" text="%nav.invoices"
+                        onAction="#showInvoiceView" prefWidth="130"/>
+                <Button fx:id="paymentButton" text="%nav.payments"
+                        onAction="#showPaymentView" prefWidth="130"/>
+                <Button fx:id="serviceItemButton" text="%nav.serviceitems"
+                        onAction="#showServiceItemView" prefWidth="130"/>
+                <Button fx:id="mechanicButton" text="%nav.mechanics"
+                        onAction="#showMechanicView" prefWidth="130"/>
+                <Button fx:id="languageButton" text="%nav.language"
+                        onAction="#handleToggleLanguage" prefWidth="130"/>
+                <Button fx:id="exitButton" text="%nav.exit"
+                        onAction="#handleExit" prefWidth="130" styleClass="exit"/>
+            </VBox>
+
+        </VBox>
+    </left>
+
+    <!-- MEDDELANDEN TILL ANVÄNDAREN -->
+    <bottom>
+        <HBox spacing="10"
+              alignment="BOTTOM_CENTER"
+              styleClass="container-padding-small">
+
+            <Label fx:id="messageLabel"
+                   wrapText="true"
+                   alignment="CENTER"
+                   maxWidth="Infinity"
+                   prefHeight="90"
+                   HBox.hgrow="ALWAYS"
+                   styleClass="msg-area"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

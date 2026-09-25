@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox styleClass="container-padding,container-spacing"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.BookingController">
+
+    <children>
+
+        <!-- Titel -->
+        <Label text="%booking.heading" styleClass="heading-2" />
+
+        <!-- Tabell -->
+        <TableView fx:id="bookingTable">
+            <columns>
+                <TableColumn fx:id="idColumn" text="%table.id" />
+                <TableColumn fx:id="vehicleIdColumn" text="%booking.vehicleIdColumn" />
+                <TableColumn fx:id="dateColumn" text="%booking.dateColumn" />
+                <TableColumn fx:id="descriptionColumn" text="%table.description" />
+                <TableColumn fx:id="statusColumn" text="%table.status" />
+                <TableColumn fx:id="mechanicColumn" text="%booking.mechanicColumn" />
+            </columns>
+        </TableView>
+
+        <!-- Knapp för att skapa ny booking -->
+        <Button text="%btn.new" onAction="#handleNewBooking" />
+
+    </children>
+</VBox>
+
+
+

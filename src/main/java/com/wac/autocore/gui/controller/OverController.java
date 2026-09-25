@@ -26,7 +26,7 @@ public abstract class OverController {
     // ---------------------------------------------------------
     // GEMENSAM VYLADDARE FÖR ALLA SUB-CONTROLLERS
     // ---------------------------------------------------------
-    protected void loadCenterView(String fxmlPath) {
+    protected <T> T loadCenterView(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath), LanguageManager.getBundle());
 
@@ -46,19 +46,20 @@ public abstract class OverController {
             BorderPane mainLayout = findMainLayout();
             if (mainLayout != null) {
                 mainLayout.setCenter(view);
-            } else {
-                if (messages != null) {
-                    messages.showError("Could not find main layout to load view.");
-                }
             }
+
+            return (T) controller;
 
         } catch (IOException e) {
             e.printStackTrace();
             if (messages != null) {
                 messages.showError("Could not open the requested view. Please try again.");
             }
+            return null;
         }
     }
+
+
 
     // ---------------------------------------------------------
     // HITTA HUVUDFÖNSTRET (BORDERPANE) FÖR JAVA 8

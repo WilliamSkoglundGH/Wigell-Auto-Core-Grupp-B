@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.MechanicController"
+      styleClass="container-padding,container-spacing">
+
+    <children>
+
+        <Label text="Mechanic Bookings" styleClass="heading-2" />
+
+        <TableView fx:id="bookingTable" styleClass="ll-table">
+            <columns>
+                <TableColumn fx:id="bookingIdColumn" text="ID" />
+                <TableColumn fx:id="vehicleColumn" text="Vehicle" />
+                <TableColumn fx:id="dateColumn" text="Date" />
+                <TableColumn fx:id="descriptionColumn" text="Description" />
+                <TableColumn fx:id="statusColumn" text="Status" />
+            </columns>
+        </TableView>
+
+    </children>
+</VBox>
+
+
+
+
+
+
