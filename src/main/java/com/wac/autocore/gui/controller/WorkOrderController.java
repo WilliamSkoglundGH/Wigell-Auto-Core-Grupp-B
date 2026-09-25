@@ -1,5 +1,6 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.exception.MechanicNotAvailableException;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.Mechanic;
 import com.wac.autocore.model.ServiceItem;
@@ -136,6 +137,9 @@ public class WorkOrderController extends OverController {
             workOrderService.startWorkOrder(selected);
             workOrderTable.refresh();
             messages.showSuccess(getString("workorder.success.workorder_started"));
+        } catch (MechanicNotAvailableException e) {
+            messages.showError(getString("workorder.error.mechanic_not_available"));
+
         } catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.unexpected"));
