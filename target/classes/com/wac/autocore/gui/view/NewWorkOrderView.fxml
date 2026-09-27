@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx"
+      styleClass="form-padding"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.WorkOrderController">
+
+    <children>
+        <Label text="%workOrder.newHeading" styleClass="heading-2" />
+
+        <GridPane hgap="10" vgap="10">
+            <Label text="%workOrder.bookingLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <ComboBox fx:id="bookingComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <!-- Tillagd rad för Service Items -->
+            <Label text="%workOrder.servicesLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <ListView fx:id="servicesListView" prefHeight="120" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        </GridPane>
+
+        <HBox styleClass="button-spacing">
+            <Button text="%btn.save" onAction="#handleSaveWorkOrder" />
+            <Button text="%btn.cancel" onAction="#handleCancel" />
+        </HBox>
+    </children>
+</VBox>

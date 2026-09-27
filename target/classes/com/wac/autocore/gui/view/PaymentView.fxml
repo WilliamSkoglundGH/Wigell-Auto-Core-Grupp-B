@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox styleClass="container-padding,container-spacing"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.PaymentController">
+
+    <children>
+        <Label text="%payment.heading" styleClass="heading-2" />
+
+        <TableView fx:id="paymentTable">
+            <columns>
+                <TableColumn fx:id="idColumn" text="%table.id" />
+                <TableColumn fx:id="invoiceIdColumn" text="%payment.invoiceIdColumn" />
+                <TableColumn fx:id="amountColumn" text="%table.amount" />
+                <TableColumn fx:id="paymentTypeColumn" text="%payment.paymentTypeColumn" />
+                <TableColumn fx:id="paymentDateColumn" text="%payment.paymentDateColumn" />
+                <TableColumn fx:id="successfulColumn" text="%payment.successfulColumn" />
+            </columns>
+        </TableView>
+
+        <HBox spacing="10">
+            <Button text="%payment.payInvoiceButton" onAction="#handleNewPayment" />
+        </HBox>
+    </children>
+</VBox>

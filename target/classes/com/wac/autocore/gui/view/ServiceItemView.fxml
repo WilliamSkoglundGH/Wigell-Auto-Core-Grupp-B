@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox styleClass="container-padding,container-spacing"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.ServiceItemController">
+
+    <children>
+        <Label text="%serviceItem.heading" styleClass="heading-2" />
+
+        <TableView fx:id="serviceItemTable">
+            <columns>
+                <TableColumn fx:id="idColumn" text="%table.id" />
+                <TableColumn fx:id="nameColumn" text="%table.name" />
+                <TableColumn fx:id="descriptionColumn" text="%table.description" />
+                <TableColumn fx:id="priceColumn" text="%serviceItem.priceColumn" />
+                <TableColumn fx:id="estimatedMinutesColumn" text="%serviceItem.estimatedMinutesColumn" />
+            </columns>
+        </TableView>
+    </children>
+</VBox>
