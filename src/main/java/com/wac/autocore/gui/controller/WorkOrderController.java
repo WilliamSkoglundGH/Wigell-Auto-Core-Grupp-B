@@ -188,6 +188,34 @@ public class WorkOrderController extends OverController {
                         .collect(Collectors.toList());
 
                 bookingComboBox.setItems(FXCollections.observableArrayList(bookedList));
+
+                bookingComboBox.setConverter(new StringConverter<Booking>() {
+                    @Override
+                    public String toString(Booking booking) {
+                        if(booking == null){
+                            return "";
+                        }else{
+                            String description = booking.getDescription();
+
+                            return getString("booking.option.id") + ": " + booking.getId()
+                                    + " | " + getString("booking.option.vehicle") + ": "
+                                    + booking.getVehicle().getRegistrationNumber()
+                                    + " | " + getString("booking.option.date") + ": "
+                                    + booking.getDate()
+                                    + " | " + getString("booking.option.mechanic") + ": "
+                                    + booking.getMechanic().getName()
+                                    + (description == null || description.trim().isEmpty()
+                                    ? ""
+                                    : " | " + getString("booking.option.description")
+                                    + ": " + description);
+                        }
+                    }
+
+                    @Override
+                    public Booking fromString(String s) {
+                        return null;
+                    }
+                });
             }catch (NullPointerException e){
                  messages.showError(getString("workorder.error.no_bookings"));
             }
