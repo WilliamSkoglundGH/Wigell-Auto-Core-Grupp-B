@@ -89,7 +89,7 @@ public class MainController implements UserMessages {
 
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Could not open the requested view. Please try again.");
+            showError(LanguageManager.get("common.error.open_view"));
         }
     }
 

@@ -12,6 +12,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -68,10 +69,28 @@ public class VehicleController extends OverController {
         if (customerComboBox != null) {
             try {
                 customerComboBox.setItems(FXCollections.observableArrayList(customerService.getAllCustomers()));
+
+                customerComboBox.setConverter(new StringConverter<Customer>() {
+                    @Override
+                    public String toString(Customer customer) {
+                        return customer.getId() + " - " + customer.getName()
+                                + " | " + getString("customer.phoneColumn") + ": "
+                                + customer.getPhone()
+                                + " | " + getString("customer.emailColumn") + ": "
+                                + customer.getEmail()
+                                + " | " + getString("customer.vipColumn") + ": "
+                                + getString(customer.isVip() ? "common.yes" : "common.no");
+                    }
+
+                    @Override
+                    public Customer fromString(String text) {
+                        return null;
+                    }
+                });
             } catch (Exception e) {
                 logger.error("Could not get all customers: {}", e.getMessage(), e);
                 if (messages != null) {
-                    messages.showError("Could not get all customers.");
+                    messages.showError(getString("vehicle.error.load_customers"));
                 }
             }
         }
@@ -91,7 +110,7 @@ public class VehicleController extends OverController {
             } catch (Exception e) {
                 logger.error("Could not load vehicles from database. {}", e.getMessage(), e);
                 if (messages != null) {
-                    messages.showError("Could not load vehicles from database.");
+                    messages.showError(getString("vehicle.error.load_vehicles"));
                 }
             }
         }

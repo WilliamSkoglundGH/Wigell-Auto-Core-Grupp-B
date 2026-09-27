@@ -2,6 +2,7 @@ package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.service.CustomerService;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -33,7 +34,7 @@ public class CustomerController extends OverController {
     @FXML private TableColumn<Customer, String> nameColumn;
     @FXML private TableColumn<Customer, String> emailColumn;
     @FXML private TableColumn<Customer, String> phoneColumn;
-    @FXML private TableColumn<Customer, Boolean> vipColumn;
+    @FXML private TableColumn<Customer, String> vipColumn;
 
     @FXML private TextField nameField;
     @FXML private TextField phoneField;
@@ -48,7 +49,13 @@ public class CustomerController extends OverController {
             nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
             emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
             phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
-            vipColumn.setCellValueFactory(new PropertyValueFactory<>("vip"));
+            vipColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(
+                            getString(cellData.getValue().isVip()
+                                    ? "common.yes"
+                                    : "common.no")
+                    )
+            );
 
             loadCustomerData();
             customerTable.requestFocus();

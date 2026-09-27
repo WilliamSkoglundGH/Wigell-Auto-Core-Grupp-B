@@ -7,6 +7,7 @@ import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.service.InvoiceService;
 import com.wac.autocore.service.PaymentService;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -39,7 +40,7 @@ public class PaymentController extends OverController {
     @FXML private TableColumn<Payment, Double> amountColumn;
     @FXML private TableColumn<Payment, String> paymentTypeColumn;
     @FXML private TableColumn<Payment, String> paymentDateColumn;
-    @FXML private TableColumn<Payment, Boolean> successfulColumn;
+    @FXML private TableColumn<Payment, String> successfulColumn;
 
     @FXML private ComboBox<Invoice> invoiceComboBox;
     @FXML private ComboBox<String> paymentTypeComboBox;
@@ -67,11 +68,20 @@ public class PaymentController extends OverController {
                             cellData.getValue().getInvoice().getId()
                     ));
             amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
-            paymentTypeColumn.setCellValueFactory(new PropertyValueFactory<>("paymentType"));
+            paymentTypeColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(
+                            getString("payment.type." + cellData.getValue().getPaymentType())
+                    )
+            );
             paymentDateColumn.setCellValueFactory(cellData -> {
                         Payment pay = cellData.getValue();
                         return new javafx.beans.property.SimpleStringProperty(FormatUIUtil.formatTime(pay.getPaymentDate()));});
-            successfulColumn.setCellValueFactory(new PropertyValueFactory<>("successful"));
+            successfulColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(
+                            getString(cellData.getValue().isSuccessful()
+                                    ? "common.yes"
+                                    : "common.no"))
+            );
 
             loadPaymentData();
             paymentTable.requestFocus();
@@ -87,10 +97,6 @@ public class PaymentController extends OverController {
             invoiceComboBox.setConverter(new StringConverter<Invoice>() {
                 @Override
                 public String toString(Invoice invoice) {
-                    if (invoice == null) {
-                        return "";
-                    }
-
                     return getString("payment.option.invoice") + ": "
                             + invoice.getId()
                             + " | " + getString("payment.option.workorder") + ": "
@@ -112,6 +118,18 @@ public class PaymentController extends OverController {
 
         if (paymentTypeComboBox != null) {
             paymentTypeComboBox.setItems(FXCollections.observableArrayList("CARD", "SWISH", "CASH"));
+
+            paymentTypeComboBox.setConverter(new StringConverter<String>() {
+                @Override
+                public String toString(String paymentType) {
+                    return getString("payment.type." + paymentType);
+                }
+
+                @Override
+                public String fromString(String text) {
+                    return null;
+                }
+            });
         }
     }
 
@@ -146,7 +164,13 @@ public class PaymentController extends OverController {
             if (selectedInvoice != null && paymentType != null && !paymentType.isEmpty()) {
                 try {
                     // 1. Skicka över jobbet till servicen (Strategy-mönstret i bakgrunden)
-                    String message = paymentService.processPayment(selectedInvoice.getId(), paymentType);
+                    String messageKey = paymentService.processPayment(selectedInvoice.getId(), paymentType);
+
+
+                    String message = String.format(
+                            getString(messageKey),
+                            selectedInvoice.getId()
+                    );
 
                     // 2. Visa snyggt meddelande
                     messages.showSuccess(message);

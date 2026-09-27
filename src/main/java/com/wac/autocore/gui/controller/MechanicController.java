@@ -5,6 +5,7 @@ import com.wac.autocore.model.Mechanic;
 import com.wac.autocore.model.Vehicle;
 import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.service.MechanicService;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -117,7 +118,11 @@ public class MechanicController extends OverController {
 
             dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
             descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-            statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+            statusColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(
+                            getString("status." + cellData.getValue().getStatus())
+                    )
+            );
         }
 
 
@@ -169,8 +174,16 @@ public class MechanicController extends OverController {
                 return new javafx.beans.property.SimpleStringProperty("");
             });
 
-            woDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-            woStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+            woDescriptionColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(
+                            cellData.getValue().getBooking().getDescription()
+                    )
+            );
+            woStatusColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(
+                            getString("status." + cellData.getValue().getStatus())
+                    )
+            );
         }
 
 
@@ -205,7 +218,7 @@ public class MechanicController extends OverController {
         Mechanic selected = mechanicTable.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            messages.showError("Please select a mechanic first.");
+            messages.showError(getString("mechanic.error.select_mechanic"));
             return;
         }
 
@@ -214,7 +227,7 @@ public class MechanicController extends OverController {
                 loadCenterView("/com/wac/autocore/gui/view/MechanicBookingsView.fxml");
 
         // Sätt in mekanikers namn
-        controller.headerLabel.setText("Bookings for: " + selected.getName());
+        controller.headerLabel.setText(getString("mechanic.bookingsFor") + ": " + selected.getName());
 
         // Hämta bokningar
         List<Booking> bookings = mechanicService.getBookingsForMechanic(selected.getId());
@@ -234,7 +247,7 @@ public class MechanicController extends OverController {
         Mechanic selected = mechanicTable.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            messages.showError("Please select a mechanic first.");
+            messages.showError(getString("mechanic.error.select_mechanic"));
             return;
         }
 
@@ -243,7 +256,7 @@ public class MechanicController extends OverController {
                 loadCenterView("/com/wac/autocore/gui/view/MechanicWorkordersView.fxml");
 
         // vald mekaniker
-        controller.headerLabel.setText("Workorders for: " + selected.getName());
+        controller.headerLabel.setText(getString("mechanic.workordersFor") + ": " + selected.getName());
 
         // Hämta workorders för vald mekaniker
         List<WorkOrder> workorders =
