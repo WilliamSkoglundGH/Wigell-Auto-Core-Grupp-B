@@ -25,8 +25,8 @@
         </TableView>
 
         <HBox spacing="10">
-            <Button text="Bookings" onAction="#handleBookings" />
-            <Button text="Workorders" onAction="#handleWorkorders" />
+            <Button text="%nav.bookings" onAction="#handleBookings" />
+            <Button text="%nav.workorders" onAction="#handleWorkorders" />
         </HBox>
 
     </children>

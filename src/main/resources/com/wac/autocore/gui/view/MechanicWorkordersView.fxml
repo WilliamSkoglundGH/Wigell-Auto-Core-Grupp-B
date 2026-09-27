@@ -12,17 +12,17 @@
 
     <children>
 
-        <Label fx:id="headerLabel" text="Workorders for:" styleClass="heading-2" />
+        <Label fx:id="headerLabel" text="%mechanic.workordersFor" styleClass="heading-2" />
 
         <TableView fx:id="workorderTable" styleClass="ll-table">
 
             <columns>
-                <TableColumn fx:id="woIdColumn" text="ID" />
-                <TableColumn fx:id="woVehicleColumn" text="Vehicle" />
-                <TableColumn fx:id="woCustomerColumn" text="Customer" />
-                <TableColumn fx:id="bookingDateColumn" text="Booking Date" />
-                <TableColumn fx:id="woDescriptionColumn" text="Description" />
-                <TableColumn fx:id="woStatusColumn" text="Status" />
+                <TableColumn fx:id="woIdColumn" text="%table.id" />
+                <TableColumn fx:id="woVehicleColumn" text="%mechanic.workorders.vehicleColumn" />
+                <TableColumn fx:id="woCustomerColumn" text="%mechanic.workorders.customerColumn" />
+                <TableColumn fx:id="bookingDateColumn" text="%mechanic.workorders.dateColumn" />
+                <TableColumn fx:id="woDescriptionColumn" text="%table.description" />
+                <TableColumn fx:id="woStatusColumn" text="%table.status" />
             </columns>
         </TableView>
 

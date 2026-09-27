@@ -53,7 +53,7 @@ public abstract class OverController {
         } catch (IOException e) {
             e.printStackTrace();
             if (messages != null) {
-                messages.showError("Could not open the requested view. Please try again.");
+                messages.showError(getString("common.error.open_view"));
             }
             return null;
         }

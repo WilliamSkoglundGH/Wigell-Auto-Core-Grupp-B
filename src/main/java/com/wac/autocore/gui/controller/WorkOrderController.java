@@ -78,7 +78,11 @@ public class WorkOrderController extends OverController {
                     new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBooking().getId().toString()));
             mechanicIdColumn.setCellValueFactory(cellData ->
                     new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBooking().getMechanic().getId() + " - " + cellData.getValue().getBooking().getMechanic().getName()));
-            statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+            statusColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(
+                            getString("status." + cellData.getValue().getStatus())
+                    )
+            );
             startTimeColumn.setCellValueFactory(cellData -> {
                         WorkOrder wo = cellData.getValue();
                         workOrderService.countAndSetWorkTime(wo);
@@ -92,12 +96,12 @@ public class WorkOrderController extends OverController {
                 servicesColumn.setCellValueFactory(cellData -> {
                     WorkOrder wo = cellData.getValue();
                     if (wo.getServiceItems() == null || wo.getServiceItems().isEmpty()) {
-                        return new SimpleStringProperty("No services");
+                        return new SimpleStringProperty(getString("workOrder.noServices"));
                     }
                     String serviceInfo = wo.getServiceItems().stream()
                             .map(id -> serviceItemService.getAllServiceItems()
                                     .stream()
-                                    .filter(s -> s.getId() == id.getId())
+                                    .filter(s -> s.getId().equals(id.getId()))
                                     .map(s -> s.getId() + ": " + s.getName())
                                     .findFirst()
                                     .orElse("ID " + id + ": Unknown"))
@@ -158,7 +162,7 @@ public class WorkOrderController extends OverController {
             return;
         }
         if ("CREATED".equals(selected.getStatus())) {
-            messages.showError(getString("workorder.error.workorder_already_created"));
+            messages.showError(getString("workorder.error.workorder_not_started"));
             return;
         }
         try {
@@ -192,9 +196,6 @@ public class WorkOrderController extends OverController {
                 bookingComboBox.setConverter(new StringConverter<Booking>() {
                     @Override
                     public String toString(Booking booking) {
-                        if(booking == null){
-                            return "";
-                        }else{
                             String description = booking.getDescription();
 
                             return getString("booking.option.id") + ": " + booking.getId()
@@ -209,7 +210,6 @@ public class WorkOrderController extends OverController {
                                     : " | " + getString("booking.option.description")
                                     + ": " + description);
                         }
-                    }
 
                     @Override
                     public Booking fromString(String s) {
@@ -236,7 +236,7 @@ public class WorkOrderController extends OverController {
                     new StringConverter<ServiceItem>() {
                         @Override
                         public String toString(ServiceItem item) {
-                            return item != null ? item.getId() + ": " + item.getName() : "";
+                            return item.getId() + ": " + item.getName();
                         }
                         @Override
                         public ServiceItem fromString(String string) {
@@ -261,7 +261,7 @@ public class WorkOrderController extends OverController {
                         .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                         .collect(Collectors.toList());
                 if (serviceItems.isEmpty()) {
-                    messages.showError(getString(getString("%workorder.error.no_serviceitem")));
+                    messages.showError(getString("workorder.error.no_serviceitem"));
                     return;
                 } else {
                     selectedBooking.setStatus("WORK_ORDER_CREATED");
@@ -270,7 +270,7 @@ public class WorkOrderController extends OverController {
                 }
             }} catch (Exception e){
                     logger.error("Something Unexpected. {}", e.getMessage(), e);
-                    messages.showError(getString("%workorder.error.unexpected"));
+                    messages.showError(getString("workorder.error.unexpected"));
                     return;
                 }
 

@@ -110,14 +110,10 @@ public class InvoiceController extends OverController {
             workOrderComboBox.setConverter(new StringConverter<WorkOrder>() {
                 @Override
                 public String toString(WorkOrder workOrder) {
-                    if(workOrder == null){
-                        return "";
-                    }else{
                         return getString("invoice.option.workorderId") + ": "
                                 + workOrder.getId()
                                 + " | " + getString("invoice.option.vehicle") + ": "
                                 + workOrder.getBooking().getVehicle().getRegistrationNumber();
-                    }
                 }
 
                 @Override
@@ -149,8 +145,11 @@ public class InvoiceController extends OverController {
 
         try {
             invoiceService.createInvoice(selectedWorkOrder.getId(), discountCode);
-        } catch (WorkOrderNotFoundException | IllegalStateException e) {
-            messages.showError(e.getMessage());
+        } catch (WorkOrderNotFoundException e) {
+            messages.showError(getString("invoice.error.workorder_not_found"));
+            return;
+        } catch (IllegalStateException e) {
+            messages.showError(getString(e.getMessage()));
             return;
         } catch (DataAccessException e) {
             logger.error("Could not create invoice", e);

@@ -48,7 +48,7 @@ public class PaymentService {
         }
 
         // 3. Utför betalningen via strategin (sätter t.ex. fakturan som betald)
-        String message = strategy.processPayment(invoice, amount);
+        String messageKey = strategy.processPayment(invoice, amount);
 
         // 4. Skapa och spara betalningshistoriken
         Payment payment = new Payment(invoice, amount, paymentType.toUpperCase());
@@ -59,6 +59,6 @@ public class PaymentService {
         logger.info("Payment of amount {} processed successfully using strategy [{}] for invoice ID {}",
                 amount, paymentType, invoiceId);
 
-        return message;
+        return messageKey;
     }
 }

@@ -4,6 +4,7 @@ import com.wac.autocore.model.Booking;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
 import com.wac.autocore.service.VehicleService;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -67,7 +68,11 @@ public class BookingController extends OverController {
                     new javafx.beans.property.SimpleStringProperty(cellData.getValue().getVehicle().getId() + " - " + cellData.getValue().getVehicle().getRegistrationNumber()));
             dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
             descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-            statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+            statusColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(
+                            getString("status." + cellData.getValue().getStatus())
+                    )
+            );
             mechanicColumn.setCellValueFactory(cellData ->
                     new javafx.beans.property.SimpleStringProperty(cellData.getValue().getMechanic().getId() + " - " + cellData.getValue().getMechanic().getName()));
 
@@ -122,8 +127,9 @@ public class BookingController extends OverController {
 
     private void loadMechanicDropdown() {
         List<String> mechanicList = mechanicService.getAllMechanics().stream()
-                .map(m -> m.getId() + " - " +
-                        m.getName())
+                .map(m -> m.getId() + " - " + m.getName()
+                        + " | " + getString("mechanic.specializationColumn")
+                        + ": " + m.getSpecialization())
                 .collect(Collectors.toList());
 
         mechanicField.setItems(FXCollections.observableArrayList(mechanicList));

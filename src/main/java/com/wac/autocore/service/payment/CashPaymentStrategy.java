@@ -9,7 +9,7 @@ public class CashPaymentStrategy implements PaymentStrategy {
     public String processPayment(Invoice invoice, double amount) {
         // Vad ska vara specifikt för denna?
         invoice.setPaid(true);
-        return"Invoice id: " + invoice.getId() + " paid by cash.";
+        return "payment.success.CASH";
     }
 
     @Override

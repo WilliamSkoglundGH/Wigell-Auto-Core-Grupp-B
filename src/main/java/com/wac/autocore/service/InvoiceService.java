@@ -48,13 +48,13 @@ public class InvoiceService {
         ));
         if (!selectedWorkOrder.getStatus().equals("COMPLETED")) {
             throw new IllegalStateException(
-                    "Invoice can only be created for a completed work order"
+                    "invoice.error.workorder_not_completed"
             );
         }
 
         if (invoiceRepository.existsByWorkOrderId(workOrderId)) {
             throw new IllegalStateException(
-                    "An invoice already exists for this work order"
+                    "invoice.error.already_exists"
             );
         }
 
