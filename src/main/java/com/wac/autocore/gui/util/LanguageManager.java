@@ -4,6 +4,8 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -11,14 +13,16 @@ import java.util.ResourceBundle;
 
 public class LanguageManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(LanguageManager.class);
     private static final ObjectProperty<ResourceBundle> bundle =
             new SimpleObjectProperty<>(loadBundle(new Locale("en")));
+
 
     private static ResourceBundle loadBundle(Locale locale) {
         try {
             return ResourceBundle.getBundle("i18n.messages", locale);
         } catch (MissingResourceException e) {
-            System.err.println("Varning: Hittade inte resursfilen 'i18n.messages' för locale: " + locale);
+            logger.error("Varning: Hittade inte resursfilen 'i18n.messages' för locale: {}", locale, e);
             return null;
         }
     }
