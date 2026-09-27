@@ -113,7 +113,10 @@ public class InvoiceController extends OverController {
                     if(workOrder == null){
                         return "";
                     }else{
-                        return workOrder.getId() + " - " + workOrder.getBooking().getVehicle().getRegistrationNumber();
+                        return getString("invoice.option.workorderId") + ": "
+                                + workOrder.getId()
+                                + " | " + getString("invoice.option.vehicle") + ": "
+                                + workOrder.getBooking().getVehicle().getRegistrationNumber();
                     }
                 }
 

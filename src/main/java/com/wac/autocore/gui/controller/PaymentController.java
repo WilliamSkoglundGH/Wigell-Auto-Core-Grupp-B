@@ -15,6 +15,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -82,6 +83,30 @@ public class PaymentController extends OverController {
                     .filter(invoice -> !invoice.isPaid())
                     .collect(Collectors.toList());
             invoiceComboBox.setItems(FXCollections.observableArrayList(unpaidInvoices));
+
+            invoiceComboBox.setConverter(new StringConverter<Invoice>() {
+                @Override
+                public String toString(Invoice invoice) {
+                    if (invoice == null) {
+                        return "";
+                    }
+
+                    return getString("payment.option.invoice") + ": "
+                            + invoice.getId()
+                            + " | " + getString("payment.option.workorder") + ": "
+                            + invoice.getWorkOrder().getId()
+                            + " | " + getString("payment.option.invoiceDate") + ": "
+                            + invoice.getInvoiceDate()
+                            + " | " + getString("payment.option.amountDue") + ": "
+                            + invoice.getTotalAmount();
+                }
+
+                @Override
+                public Invoice fromString(String text) {
+                    return null;
+                }
+            });
+
             invoiceComboBox.requestFocus();
         }
 
