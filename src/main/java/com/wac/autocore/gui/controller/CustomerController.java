@@ -120,6 +120,8 @@ public class CustomerController extends OverController {
             Customer newCustomer = customerService.createCustomer(name, phone, email, isVip);
             messages.showSuccess(getString("customer_success.customer_created") + newCustomer.getName());
             navigateToCustomerView();
+        } catch (IllegalArgumentException e) {
+            messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
             logger.error("Could not save customer to database. {}", e.getMessage(), e);
             messages.showError(getString("customer.error.create_customer"));

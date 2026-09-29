@@ -26,7 +26,7 @@ public class VehicleService {
     @Transactional(readOnly = true)
     public Vehicle getVehicle(Long id) {
         return vehicleRepository.findById(id)
-                .orElseThrow(() -> new VehicleNotFoundException("Vehicle with ID " + id + " not found."));
+                .orElseThrow(() -> new VehicleNotFoundException("vehicle.error.not_found"));
     }
     @Transactional
     public Vehicle saveVehicle(Vehicle vehicle) {
@@ -34,7 +34,7 @@ public class VehicleService {
             return vehicleRepository.save(vehicle);
         } catch (Exception e) {
             logger.error("Could not save vehicle: {}", e.getMessage(), e);
-            throw new RuntimeException("Could not save vehicle.", e);
+            throw new RuntimeException("vehicle.error.save_vehicle", e);
         }
     }
 }
