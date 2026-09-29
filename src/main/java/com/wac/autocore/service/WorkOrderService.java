@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 @Service
 public class WorkOrderService {
@@ -47,8 +48,10 @@ public class WorkOrderService {
     public void saveWorkOrder(Long bookingId, List<ServiceItem> serviceItems) {
         Booking booking = bookingService.getBooking(bookingId);
         booking.setStatus("WORK_ORDER_CREATED");
-        WorkOrder newWorkOrder = new WorkOrder(booking, serviceItems, "CREATED");
 
+//TODO glöm inte ändra tillbaka till något vettigt
+//WorkOrder newWorkOrder = new WorkOrder(booking, serviceItems, "CREATED");
+         WorkOrder newWorkOrder = new WorkOrder(booking, new ArrayList<>(), "CREATED");
        workOrderRepository.save(newWorkOrder);
     }
 
@@ -104,7 +107,8 @@ public class WorkOrderService {
     public void countAndSetWorkTime(WorkOrder workOrder) {
         workOrder.setStartTime(LocalDateTime.now());
         workOrderRepository.save(workOrder);
-        int time= countTotalMin(workOrder.getServiceItems());
+        //TODO glöm inte byta till något vettigt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        int time= 120;//countTotalMin(workOrder.getServiceItems());
         workOrder.setEndTime(workOrder.getStartTime().plusMinutes(time));
         workOrderRepository.save(workOrder);
     }

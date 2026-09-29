@@ -59,9 +59,11 @@ public class InvoiceService {
         }
 
         double workOrderPrice = 0.0;
-        for (ServiceItem serviceItem : selectedWorkOrder.getServiceItems()) {
+        //TODO glöm inte att byta tillbaka här!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        /*for (ServiceItem serviceItem : selectedWorkOrder.getServiceItems()) {
             workOrderPrice += serviceItem.getPrice();
-        }
+        }*/
+
 
         double discount = 0.0;
         Customer customer = selectedWorkOrder.getBooking().getVehicle().getCustomer();

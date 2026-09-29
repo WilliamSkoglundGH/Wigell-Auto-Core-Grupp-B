@@ -1,10 +1,12 @@
 package com.wac.autocore.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
+
 @Entity
 @Table(name = "work_order")
 public class WorkOrder {
@@ -14,13 +16,13 @@ public class WorkOrder {
     @OneToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "work_order_services",
-            joinColumns = @JoinColumn(name = "work_order_id"),
-            inverseJoinColumns = @JoinColumn(name = "service_item_id")
-    )
-    private List<ServiceItem> serviceItems = new ArrayList<>();
+
+    @OneToMany(mappedBy = "workOrder",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<WorkOrderServiceItem> serviceItems = new ArrayList<>();
+
     @Column(name = "status", length = 20, nullable = false)
     private String status;
     @Column(name = "start_time", nullable = true)
@@ -30,11 +32,20 @@ public class WorkOrder {
 
     protected WorkOrder() {
     }
+//TODO denna ska senare bort!!
 
-    public WorkOrder(Booking booking, List<ServiceItem> serviceItems, String status) {
+    public WorkOrder(Booking booking, List<WorkOrderServiceItem> serviceItems, String status) {
         this.booking = booking;
         this.serviceItems = serviceItems;
         this.status = status;
+    }
+
+    public WorkOrder(Booking booking, List<WorkOrderServiceItem> serviceItems, String status, LocalDateTime startTime, LocalDateTime endTime) {
+        this.booking = booking;
+        this.serviceItems = serviceItems;
+        this.status = status;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     public Long getId() {
@@ -49,13 +60,7 @@ public class WorkOrder {
         this.booking = booking;
     }
 
-    public List<ServiceItem> getServiceItems() {
-        return serviceItems;
-    }
 
-    public void setServiceItems(List<ServiceItem> serviceItems) {
-        this.serviceItems = serviceItems;
-    }
 
     public LocalDateTime getStartTime() {
         return startTime;
@@ -81,15 +86,24 @@ public class WorkOrder {
         this.status = status;
     }
 
-public void addServiceItem(ServiceItem serviceItem) {
-        this.serviceItems.add(serviceItem);
-}
+    public void addServiceItem(ServiceItem serviceItem, BigDecimal price, int duration) {
+        WorkOrderServiceItem item = new WorkOrderServiceItem();
+        item.setWorkOrder(this);
+        item.setServiceItem(serviceItem);
+        item.setPriceAtTime(price);
+        item.setDurationAtTime(duration);
+        this.serviceItems.add(item);
+    }
+
+    public List<WorkOrderServiceItem> getServiceItems() {
+        return serviceItems;
+    }
 
     @Override
     public String toString() {
         return id +
                 " - Booking ID: " + booking.getId() +
-                " - ServiceItems: " + serviceItems.toString() +
+                //" - ServiceItems: " + serviceItems.toString() +
                 " - Start time: " + startTime +
                 " - End time: " + endTime +
                 " | Status: " + status;
