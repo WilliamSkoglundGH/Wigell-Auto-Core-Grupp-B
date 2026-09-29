@@ -91,7 +91,10 @@ public class WorkOrderController extends OverController {
                 WorkOrder wo = cellData.getValue();
                 return new javafx.beans.property.SimpleStringProperty(FormatUIUtil.formatTime(wo.getEndTime()));});
             estimatedTimeColumn.setCellValueFactory(cellData ->
-                    new SimpleObjectProperty<>(workOrderService.countTotalMin(cellData.getValue().getServiceItems())));
+                    //new SimpleObjectProperty<>(workOrderService.countTotalMin(cellData.getValue().getServiceItems())));
+//TODO glöm inte att byta tillbaka från fejkat värde
+                    new javafx.beans.property.SimpleObjectProperty<>(120));
+
             if (servicesColumn != null) {
                 servicesColumn.setCellValueFactory(cellData -> {
                     WorkOrder wo = cellData.getValue();
