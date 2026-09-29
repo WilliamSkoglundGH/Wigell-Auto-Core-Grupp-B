@@ -184,9 +184,12 @@ public class BookingController extends OverController {
             }
             Long mechanicId = Long.parseLong(mechanicString.split(" - ")[0]);
 
+            /* TILLFÄLLIGT FÖR ATT PROGRAMMET SKA KUNNA STARTA INNNAN JAG TAR TAG I DETTA (WILLIAM)
             bookingService.saveBooking(vehicleId, selectedDate, description, mechanicId);
 
             messages.showSuccess(getString("booking.success.booking_created"));
+
+             */
             navigateToBookingView();
 
         } catch (Exception e) {
