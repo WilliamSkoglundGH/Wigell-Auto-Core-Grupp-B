@@ -19,4 +19,50 @@ public class InvoiceLine {
     private double amount;
     @Column(name = "discount", nullable = false)
     private double discount;
+
+    protected InvoiceLine() {
+    }
+
+    public InvoiceLine(Invoice invoice, String nameOfService, double amount, double discount) {
+        this.invoice = invoice;
+        this.nameOfService = nameOfService;
+        this.amount = amount;
+        this.discount = discount;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Invoice getInvoice() {
+        return invoice;
+    }
+
+    public void setInvoice(Invoice invoice) {
+        this.invoice = invoice;
+    }
+
+    public String getNameOfService() {
+        return nameOfService;
+    }
+
+    public void setNameOfService(String nameOfService) {
+        this.nameOfService = nameOfService;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(double discount) {
+        this.discount = discount;
+    }
 }

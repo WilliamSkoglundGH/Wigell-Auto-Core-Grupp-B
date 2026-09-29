@@ -1,7 +1,6 @@
 package com.wac.autocore.model;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
@@ -42,7 +41,7 @@ public class Invoice {
         this.amount = amount;
         this.discount = discount;
         this.invoiceLines = invoiceLines;
-        this.paid = paid;
+        this.paid = false;
     }
 
     public Long getId() {
