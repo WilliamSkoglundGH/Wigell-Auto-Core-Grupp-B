@@ -24,6 +24,8 @@
                 <TableColumn fx:id="descriptionColumn" maxWidth="275.0" text="%table.description"/>
                 <TableColumn fx:id="statusColumn" text="%table.status" />
                 <TableColumn fx:id="mechanicColumn" text="%booking.mechanicColumn" />
+                <TableColumn fx:id="totalTimeColumn" text="%booking.totalTimeColumn"/>
+                <TableColumn fx:id="totalPriceColumn" text="%booking.totalPriceColumn"/>
             </columns>
         </TableView>
 
