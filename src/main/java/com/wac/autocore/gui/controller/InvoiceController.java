@@ -98,6 +98,7 @@ public class InvoiceController extends OverController {
     private void populateComboBox() {
         if (workOrderComboBox != null) {
             List<Invoice> invoices = invoiceService.getAllInvoices();
+            /*
 
             List<WorkOrder> workOrdersList = workOrderService.getAllWorkOrders().stream()
                     .filter(wo -> "COMPLETED".equalsIgnoreCase(wo.getStatus())) // Endast färdiga
@@ -105,7 +106,10 @@ public class InvoiceController extends OverController {
                             .noneMatch(inv -> inv.getWorkOrder().getId().equals(wo.getId()))) // Som INTE redan har en faktura
                     .collect(Collectors.toList());
 
+
+
             workOrderComboBox.setItems(FXCollections.observableArrayList(workOrdersList));
+            */
 
             workOrderComboBox.setConverter(new StringConverter<WorkOrder>() {
                 @Override

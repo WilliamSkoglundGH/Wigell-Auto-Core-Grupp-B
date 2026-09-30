@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +51,8 @@ public class BookingController extends OverController {
     @FXML private Button saveButton;
     @FXML private ComboBox<String> mechanicField;
     @FXML private ListView<ServiceItem> servicesListView;
+    @FXML private TableColumn<Booking, Integer> totalTimeColumn;
+    @FXML private TableColumn<Booking, BigDecimal> totalPriceColumn;
 
     private final BookingService bookingService;
     private final VehicleService vehicleService;
@@ -248,6 +251,7 @@ public class BookingController extends OverController {
             }
 
             bookingService.saveBooking(vehicleId, selectedDate, description, mechanicId, selectedServices);
+            messages.showSuccess(getString("booking.success.booking_created"));
             navigateToBookingView();
 
         } catch (Exception e) {
