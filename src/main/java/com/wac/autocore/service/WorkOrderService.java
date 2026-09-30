@@ -1,8 +1,13 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.WorkOrderResponseDto;
+import com.wac.autocore.dto.WorkOrderServiceItemDto;
+import com.wac.autocore.dto.WorkOrderSummaryDto;
+import com.wac.autocore.exception.BookingWithoutServicesException;
 import com.wac.autocore.exception.MechanicNotAvailableException;
 import com.wac.autocore.exception.ServiceItemNotFoundException;
 import com.wac.autocore.exception.WorkOrderNotFoundException;
+import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.*;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
@@ -15,6 +20,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class WorkOrderService {
 
@@ -32,16 +39,32 @@ public class WorkOrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<WorkOrder> getAllWorkOrders() {
-     return workOrderRepository.findAll();
+    public List<WorkOrderSummaryDto> getAllWorkOrders() {
+        List<WorkOrder> workOrders = workOrderRepository.findAll();
+
+        return workOrders.stream()
+                .map(WorkOrderMapper::toSummaryDto)
+                .collect(Collectors.toList());
     }
 
-
+    /*
+     * WorkOrder gets serviceItems from Booking if workorder has status=CREATED else it gets it from it's own data
+     */
     @Transactional(readOnly = true)
-    public WorkOrder getWorkOrderById(long id) {
-        return workOrderRepository.findById(id).orElseThrow(() -> new WorkOrderNotFoundException(
-                "Work order with ID: " + id + " not found"));
+    public WorkOrderResponseDto getWorkOrderById(long id) {
 
+        WorkOrderResponseDto dto;
+        WorkOrder workOrder = workOrderRepository.findById(id).orElseThrow(() -> new WorkOrderNotFoundException(
+                "Work order with ID: " + id + " not found"));
+        if ("CREATED".equals(workOrder.getStatus())) {
+            List<BookingServiceItem> serviceItems = (workOrder.getBooking() != null) ? workOrder.getBooking().getServiceItems() : null;
+
+            dto = WorkOrderMapper.toResponseDto(workOrder, WorkOrderMapper.toServiceItemDtoListFromBooking(serviceItems));
+        } else {
+            List<WorkOrderServiceItem> serviceItems = workOrder.getServiceItems();
+            dto = WorkOrderMapper.toResponseDto(workOrder, WorkOrderMapper.toServiceItemDtoList(serviceItems));
+        }
+        return dto;
     }
 
      @Transactional
@@ -56,10 +79,14 @@ public class WorkOrderService {
     }
 
     @Transactional
-    public void startWorkOrder (WorkOrder workOrder) {
-        if (workOrder == null) {
+    public void startWorkOrder (Long workOrderId) {
+
+        if (workOrderId == null) {
             throw new IllegalArgumentException("Work order cannot be null.");
         }
+        WorkOrder workOrder = workOrderRepository.findById(workOrderId)
+                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+
         if (!"CREATED".equals(workOrder.getStatus())) {
             throw new IllegalStateException("A work order must have status CREATED to be started.");
         }
@@ -69,23 +96,37 @@ public class WorkOrderService {
         }
 
         Mechanic mechanic = mechanicService.getMechanic(booking.getMechanic().getId());
-        Booking savedBooking = bookingService.getBooking(booking.getId());
         if (!mechanic.isAvailable()) {
             throw new MechanicNotAvailableException("Mechanic not available, occupied on another workorder.");
         }
-
+        if (booking.getServiceItems() != null) {
+            for (BookingServiceItem bookingItem : booking.getServiceItems()) {
+                WorkOrderServiceItem item = new WorkOrderServiceItem(
+                        workOrder,
+                        bookingItem.getServiceItem(),
+                        bookingItem.getPriceAtTime(),
+                        bookingItem.getDurationAtTime()
+                );
+                workOrder.getServiceItems().add(item);
+            }
+        } else {
+            throw new BookingWithoutServicesException("Booking has no Services, please add services to booking first.");
+        }
         workOrder.setStatus("IN_PROGRESS");
-        savedBooking.setStatus("IN_PROGRESS");
+        booking.setStatus("IN_PROGRESS");
         mechanic.setAvailable(false);
 
         workOrderRepository.save(workOrder);
     }
 
     @Transactional
-    public void completeWorkOrder (WorkOrder workOrder) {
-        if (workOrder == null) {
+    public void completeWorkOrder (Long workOrderId) {
+        if (workOrderId == null) {
             throw new IllegalArgumentException("Work order cannot be null.");
         }
+        WorkOrder workOrder = workOrderRepository.findById(workOrderId)
+                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+
         if (!"IN_PROGRESS".equals(workOrder.getStatus())) {
             throw new IllegalStateException(" Check your work order status. Must be IN_PROGRESS to be completed. Start work order first.");
         }
@@ -95,10 +136,9 @@ public class WorkOrderService {
         }
 
         Mechanic mechanic = mechanicService.getMechanic(booking.getMechanic().getId());
-        Booking savedBooking = bookingService.getBooking(booking.getId());
 
         workOrder.setStatus("COMPLETED");
-        savedBooking.setStatus("COMPLETED");
+        booking.setStatus("COMPLETED");
         mechanic.setAvailable(true);
 
         workOrderRepository.save(workOrder);
