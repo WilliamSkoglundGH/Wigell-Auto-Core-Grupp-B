@@ -1,17 +1,23 @@
 package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.model.Booking;
+import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
+import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.VehicleService;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -19,7 +25,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -41,19 +49,24 @@ public class BookingController extends OverController {
     @FXML private TextArea descriptionField;
     @FXML private Button saveButton;
     @FXML private ComboBox<String> mechanicField;
+    @FXML private ListView<ServiceItem> servicesListView;
 
     private final BookingService bookingService;
     private final VehicleService vehicleService;
     private final MechanicService mechanicService;
+    private final ServiceItemService serviceItemService;
+    private final Map<Long, BooleanProperty> serviceSelections = new HashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
 
     public BookingController(BookingService bookingService, VehicleService vehicleService,
-                             MechanicService mechanicService, ApplicationContext applicationContext) {
+                             MechanicService mechanicService, ApplicationContext applicationContext,
+                             ServiceItemService serviceItemService) {
         this.bookingService = bookingService;
         this.vehicleService = vehicleService;
         this.mechanicService = mechanicService;
         this.applicationContext = applicationContext;
+        this.serviceItemService = serviceItemService;
     }
 
     // ---------------------------------------------------------
@@ -88,6 +101,8 @@ public class BookingController extends OverController {
         if (mechanicField != null) {
             loadMechanicDropdown();
         }
+
+        loadServiceList();
 
         if (descriptionField != null) {
             descriptionField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -124,6 +139,45 @@ public class BookingController extends OverController {
 
         vehicleIdField.setItems(FXCollections.observableArrayList(vehicleList));
     }
+
+    private void loadServiceList() {
+        if (servicesListView != null) {
+            ObservableList<ServiceItem> serviceItems =
+                    FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
+
+            for (ServiceItem item : serviceItems) {
+                serviceSelections.putIfAbsent(item.getId(),
+                        new SimpleBooleanProperty(false));
+            }
+
+            servicesListView.setCellFactory(CheckBoxListCell.forListView(
+                    item -> serviceSelections.get(item.getId()),
+                    new StringConverter<ServiceItem>() {
+                        @Override
+                        public String toString(ServiceItem item) {
+
+                            String text = item.getName() + " — " + item.getPrice() + " SEK"
+                                    + " — " + item.getEstimatedMinutes() + " min";
+
+                            String description = item.getDescription();
+
+                            if (description != null && !description.trim().isEmpty()) {
+                                text += "\n" + description;
+                            }
+                            return text;
+                        }
+
+                        @Override
+                        public ServiceItem fromString(String text) {
+                            return null;
+                        }
+                    }
+            ));
+
+            servicesListView.setItems(serviceItems);
+        }
+    }
+
 
     private void loadMechanicDropdown() {
         List<String> mechanicList = mechanicService.getAllMechanics().stream()
@@ -184,12 +238,16 @@ public class BookingController extends OverController {
             }
             Long mechanicId = Long.parseLong(mechanicString.split(" - ")[0]);
 
-            /* TILLFÄLLIGT FÖR ATT PROGRAMMET SKA KUNNA STARTA INNNAN JAG TAR TAG I DETTA (WILLIAM)
-            bookingService.saveBooking(vehicleId, selectedDate, description, mechanicId);
+            List<ServiceItem> selectedServices = servicesListView.getItems().stream()
+                    .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
+                    .collect(Collectors.toList());
 
-            messages.showSuccess(getString("booking.success.booking_created"));
+            if (selectedServices.isEmpty()) {
+                messages.showError(getString("booking.error.select_services"));
+                return;
+            }
 
-             */
+            bookingService.saveBooking(vehicleId, selectedDate, description, mechanicId, selectedServices);
             navigateToBookingView();
 
         } catch (Exception e) {
