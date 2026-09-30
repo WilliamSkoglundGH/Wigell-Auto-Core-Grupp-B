@@ -63,7 +63,7 @@ public class InvoiceService {
         }
 
         BigDecimal workOrderTotalPrice = BigDecimal.ZERO; //STORA TOTALEN
-        BigDecimal discount = BigDecimal.ZERO; // Stora i kronor
+        BigDecimal discount = BigDecimal.ZERO; // STORA DISCOUNT
 
         List<InvoiceLine> invoiceLines = new ArrayList<>();
 
@@ -80,7 +80,7 @@ public class InvoiceService {
                         discountCodeStrategy = new FixedDiscount(BigDecimal.valueOf(200));
                         //om discountCodeStrategy is instanceOf FixedDiscount gör såhär.
                         if (customer.isVip()){}
-                        break; // Lämna
+                        break; 
                     }*/
 
                     if (customer.isVip()) {
