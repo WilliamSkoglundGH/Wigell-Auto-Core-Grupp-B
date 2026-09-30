@@ -1,12 +1,14 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.WorkOrderDetailsDto;
+import com.wac.autocore.dto.WorkOrderServiceItemDto;
 import com.wac.autocore.dto.WorkOrderSummaryDto;
+import com.wac.autocore.exception.BookingNotStateCreatedException;
 import com.wac.autocore.exception.BookingWithoutServicesException;
 import com.wac.autocore.exception.MechanicNotAvailableException;
 import com.wac.autocore.gui.util.FormatUIUtil;
+import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.Booking;
-import com.wac.autocore.model.BookingServiceItem;
-import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.ServiceItemService;
@@ -16,7 +18,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.StringConverter;
 import org.slf4j.Logger;
@@ -25,8 +26,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -47,11 +48,35 @@ public class WorkOrderController extends OverController {
     @FXML
     private TableColumn<WorkOrderSummaryDto, String> statusColumn;
     @FXML
-    private TableColumn<WorkOrderSummaryDto, Integer> estimatedTimeColumn;
-    @FXML
     private TableColumn<WorkOrderSummaryDto, String> startTimeColumn;
     @FXML
     private TableColumn<WorkOrderSummaryDto, String> endTimeColumn;
+    @FXML
+    private Label statusLabel;
+    @FXML
+    private Label mechanicLabel;
+    @FXML
+    private Label vehicleLabel;
+    @FXML
+    private Label customerLabel;
+    @FXML
+    private Label startTimeLabel;
+    @FXML
+    private Label endTimeLabel;
+    @FXML
+    private Label estTimeLabel;
+    @FXML
+    private Label estPriceLabel;
+    @FXML
+    private TableView<WorkOrderServiceItemDto> serviceItemTable;
+    @FXML
+    private TableColumn<WorkOrderServiceItemDto, String> serviceNameColumn;
+    @FXML
+    private TableColumn<WorkOrderServiceItemDto, BigDecimal> servicePriceColumn;
+    @FXML
+    private TableColumn<WorkOrderServiceItemDto, Integer> serviceDurationColumn;
+
+
 
     @FXML
     private ComboBox<Booking> bookingComboBox;
@@ -59,6 +84,8 @@ public class WorkOrderController extends OverController {
  //   private ListView<ServiceItem> servicesListView;
 
     private final Map<Long, javafx.beans.property.BooleanProperty> serviceSelections = new HashMap<>();
+
+    private static Long currentWorkOrderId;
 
     private final WorkOrderService workOrderService;
     private final ServiceItemService serviceItemService;
@@ -108,18 +135,23 @@ public class WorkOrderController extends OverController {
                 return new javafx.beans.property.SimpleStringProperty(formattedTime);
             });
 
-            estimatedTimeColumn.setCellValueFactory(cellData ->
-                    // Om ni vill ha beräknad tid i DTO:n lägger ni till fältet där.
-                    // Annars kan ni ha ett fast värde så länge:
-                    new javafx.beans.property.SimpleObjectProperty<>(120));
-
             loadWorkOrderData();
             workOrderTable.requestFocus();
+            workOrderTable.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 1) {
+                    WorkOrderSummaryDto selectedOrder = workOrderTable.getSelectionModel().getSelectedItem();
+                    if (selectedOrder != null) {
+                        currentWorkOrderId = selectedOrder.getId();
+                        navigateToWorkOrderInfoView();
+                    }
+                }
+            });
         }
 
-        // NewWorkOrderView.fxml
         loadBookingComboBox();
-        //loadServiceList();
+        if (statusLabel != null && currentWorkOrderId != null) {
+            loadWorkOrderDetails();
+        }
     }
 
 
@@ -138,20 +170,19 @@ public class WorkOrderController extends OverController {
 
     @FXML
     private void handleStartWorkOrder() {
-        WorkOrderSummaryDto selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
-        if (selected == null) {
-            messages.showError(getString("workorder.error.choose_workorder"));
-            return;
-        }
+
         try {
-            workOrderService.startWorkOrder(selected.getId());
-            loadWorkOrderData();
+            workOrderService.startWorkOrder(currentWorkOrderId);
+            loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_started"));
         } catch (MechanicNotAvailableException e) {
             messages.showError(getString("workorder.error.mechanic_not_available"));
 
         } catch (BookingWithoutServicesException e) {
             messages.showError(getString("workorder.error.booking_without_service_item"));
+
+        } catch (BookingNotStateCreatedException e) {
+            messages.showError(getString("workorder.error.booking_not_state_created"));
 
         } catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
@@ -161,21 +192,10 @@ public class WorkOrderController extends OverController {
 
     @FXML
     private void handleCompleteWorkOrder() {
-        WorkOrderSummaryDto selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
-        if (selected == null) {
-            messages.showError(getString("workorder.error.choose_workorder"));
-            return;
-        }
-        if ("COMPLETED".equals(selected.getStatus())) {
-            messages.showError(getString("workorder.error.workorder_already_completed"));
-            return;
-        }
-        if ("CREATED".equals(selected.getStatus())) {
-            messages.showError(getString("workorder.error.workorder_not_started"));
-            return;
-        }
+
+
         try {
-            workOrderService.completeWorkOrder(selected.getId());
+            workOrderService.completeWorkOrder(currentWorkOrderId);
             workOrderTable.refresh();
             messages.showSuccess(getString("workorder.success.workorder_completed"));
             loadWorkOrderData();
@@ -294,4 +314,49 @@ public class WorkOrderController extends OverController {
     private void navigateToWorkOrderView() {
         loadCenterView("/com/wac/autocore/gui/view/WorkOrderView.fxml");
     }
+
+    private void navigateToWorkOrderInfoView() {
+        loadCenterView("/com/wac/autocore/gui/view/WorkOrderInfoView.fxml");
+
+    }
+
+    private void loadWorkOrderDetails(){
+        if (messages != null) {
+            messages.clearMessage();
+        }
+        try {
+            //hämta workorders och ladda labels
+            WorkOrderDetailsDto dto = workOrderService.getWorkOrderInfoById(currentWorkOrderId);
+            statusLabel.setText(dto.getStatus());
+            mechanicLabel.setText(dto.getMechanicName());
+            vehicleLabel.setText(dto.getVehicleRegistrationNumber());
+            customerLabel.setText(dto.getCustomerName());
+            startTimeLabel.setText(dto.getStartTime() != null ? FormatUIUtil.formatTime(dto.getStartTime()) : "-");
+            endTimeLabel.setText(dto.getEndTime() != null ? FormatUIUtil.formatTime(dto.getEndTime()) : "-");
+
+            estTimeLabel.setText(dto.getEstimatedDuration() != null ? dto.getEstimatedDuration() + " min" : "-");
+            estPriceLabel.setText(dto.getEstimatedPrice() != null ? dto.getEstimatedPrice() + " SEK" : "-");
+
+            serviceNameColumn.setCellValueFactory(new PropertyValueFactory<>("serviceName"));
+            servicePriceColumn.setCellValueFactory(new PropertyValueFactory<>("priceAtTime"));
+            serviceDurationColumn.setCellValueFactory(new PropertyValueFactory<>("durationAtTime"));
+        populateServiceItemsTable(dto);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private void populateServiceItemsTable(WorkOrderDetailsDto dto) {
+        if (dto != null && dto.getServiceItems() != null) {
+            // Omvandla entiteter till DTO:er (gör detta i en transaktion/service-lager om det är LAZY)
+            List<WorkOrderServiceItemDto> dtoList = dto.getServiceItems();
+
+            // Gör om till ObservableList för JavaFX
+            ObservableList<WorkOrderServiceItemDto> observableList = FXCollections.observableArrayList(dtoList);
+
+            // Fyll tabellen
+            serviceItemTable.getItems().setAll(observableList);
+        }
+    }
+
 }
