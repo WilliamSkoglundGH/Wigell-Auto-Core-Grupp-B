@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ public class PaymentService {
                 .filter(s -> s.getPaymentType().equalsIgnoreCase(paymentType))
                 .findFirst()
                 .orElse(null);
-        double amount = invoice.getTotalAmount();
+        BigDecimal amount = invoice.getTotalAmount();
         if (strategy == null) {
             throw new IllegalArgumentException("Unsupported payment type: " + paymentType);
         }

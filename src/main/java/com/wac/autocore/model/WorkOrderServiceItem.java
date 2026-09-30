@@ -16,8 +16,7 @@ public class WorkOrderServiceItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_item_id", nullable = false)
     private ServiceItem serviceItem;
-
-    @Column(name = "price_at_time", nullable = true)
+    @Column(name = "price_at_time", precision = 10, scale = 2, nullable = true)
     private BigDecimal priceAtTime;
 
     @Column(name = "duration_at_time", nullable = true)

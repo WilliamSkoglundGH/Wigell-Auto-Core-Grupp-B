@@ -1,13 +1,13 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.WorkOrderSummaryDto;
+import com.wac.autocore.exception.BookingWithoutServicesException;
 import com.wac.autocore.exception.MechanicNotAvailableException;
 import com.wac.autocore.gui.util.FormatUIUtil;
 import com.wac.autocore.model.Booking;
-import com.wac.autocore.model.Mechanic;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.service.BookingService;
-import com.wac.autocore.service.MechanicService;
 import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.WorkOrderService;
 import javafx.beans.property.*;
@@ -27,8 +27,6 @@ import org.springframework.stereotype.Controller;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
@@ -36,18 +34,27 @@ import java.util.stream.Collectors;
 @Scope("prototype")
 public class WorkOrderController extends OverController {
 
-    @FXML private TableView<WorkOrder> workOrderTable;
-    @FXML private TableColumn<WorkOrder, Long> idColumn;
-    @FXML private TableColumn<WorkOrder, String> bookingIdColumn;
-    @FXML private TableColumn<WorkOrder, String> mechanicIdColumn;
-    @FXML private TableColumn<WorkOrder, String> statusColumn;
-    @FXML private TableColumn<WorkOrder, String> servicesColumn;
-    @FXML private TableColumn<WorkOrder, Integer> estimatedTimeColumn;
-    @FXML private TableColumn<WorkOrder, String> startTimeColumn;
-    @FXML private TableColumn<WorkOrder, String> endTimeColumn;
+    @FXML
+    private TableView<WorkOrderSummaryDto> workOrderTable;
+    @FXML
+    private TableColumn<WorkOrderSummaryDto, Long> idColumn;
+    @FXML
+    private TableColumn<WorkOrderSummaryDto, String> bookingIdColumn;
+    @FXML
+    private TableColumn<WorkOrderSummaryDto, String> mechanicIdColumn;
+    @FXML
+    private TableColumn<WorkOrderSummaryDto, String> statusColumn;
+    @FXML
+    private TableColumn<WorkOrderSummaryDto, Integer> estimatedTimeColumn;
+    @FXML
+    private TableColumn<WorkOrderSummaryDto, String> startTimeColumn;
+    @FXML
+    private TableColumn<WorkOrderSummaryDto, String> endTimeColumn;
 
-    @FXML private ComboBox<Booking> bookingComboBox;
-    @FXML private ListView<ServiceItem> servicesListView;
+    @FXML
+    private ComboBox<Booking> bookingComboBox;
+    @FXML
+    private ListView<ServiceItem> servicesListView;
 
     private final Map<Long, javafx.beans.property.BooleanProperty> serviceSelections = new HashMap<>();
 
@@ -74,47 +81,40 @@ public class WorkOrderController extends OverController {
         // WorkOrderView.fxml
         if (workOrderTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+
             bookingIdColumn.setCellValueFactory(cellData ->
-                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBooking().getId().toString()));
+                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBookingId().toString()));
+
             mechanicIdColumn.setCellValueFactory(cellData ->
-                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBooking().getMechanic().getId() + " - " + cellData.getValue().getBooking().getMechanic().getName()));
+                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getMechanicName()));
+
             statusColumn.setCellValueFactory(cellData ->
                     new SimpleStringProperty(
                             getString("status." + cellData.getValue().getStatus())
                     )
             );
+
             startTimeColumn.setCellValueFactory(cellData -> {
-                        WorkOrder wo = cellData.getValue();
-                        workOrderService.countAndSetWorkTime(wo);
-                        return new javafx.beans.property.SimpleStringProperty(FormatUIUtil.formatTime(wo.getStartTime()));});
+                LocalDateTime startTime = cellData.getValue().getStartTime();
+                String formattedTime = (startTime != null) ? FormatUIUtil.formatTime(startTime) : "";
+                return new javafx.beans.property.SimpleStringProperty(formattedTime);
+            });
+
             endTimeColumn.setCellValueFactory(cellData -> {
-                WorkOrder wo = cellData.getValue();
-                return new javafx.beans.property.SimpleStringProperty(FormatUIUtil.formatTime(wo.getEndTime()));});
+                LocalDateTime endTime = cellData.getValue().getEndTime();
+                String formattedTime = (endTime != null) ? FormatUIUtil.formatTime(endTime) : "";
+                return new javafx.beans.property.SimpleStringProperty(formattedTime);
+            });
+
             estimatedTimeColumn.setCellValueFactory(cellData ->
-                    //new SimpleObjectProperty<>(workOrderService.countTotalMin(cellData.getValue().getServiceItems())));
-//TODO glöm inte att byta tillbaka från fejkat värde
+                    // Om ni vill ha beräknad tid i DTO:n lägger ni till fältet där.
+                    // Annars kan ni ha ett fast värde så länge:
                     new javafx.beans.property.SimpleObjectProperty<>(120));
 
-            if (servicesColumn != null) {
-                servicesColumn.setCellValueFactory(cellData -> {
-                    WorkOrder wo = cellData.getValue();
-                    if (wo.getServiceItems() == null || wo.getServiceItems().isEmpty()) {
-                        return new SimpleStringProperty(getString("workOrder.noServices"));
-                    }
-                    String serviceInfo = wo.getServiceItems().stream()
-                            .map(id -> serviceItemService.getAllServiceItems()
-                                    .stream()
-                                    .filter(s -> s.getId().equals(id.getId()))
-                                    .map(s -> s.getId() + ": " + s.getName())
-                                    .findFirst()
-                                    .orElse("ID " + id + ": Unknown"))
-                            .collect(Collectors.joining(", "));
-                    return new SimpleStringProperty(serviceInfo);
-                });
-            }
             loadWorkOrderData();
             workOrderTable.requestFocus();
         }
+
         // NewWorkOrderView.fxml
         loadBookingComboBox();
         loadServiceList();
@@ -124,28 +124,32 @@ public class WorkOrderController extends OverController {
     public void loadWorkOrderData() {
         if (workOrderTable != null) {
             try {
-                ObservableList<WorkOrder> workOrderData = FXCollections.observableArrayList(
+                ObservableList<WorkOrderSummaryDto> workOrderData = FXCollections.observableArrayList(
                         workOrderService.getAllWorkOrders()
                 );
                 workOrderTable.setItems(workOrderData);
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 logger.error("Could not load work orders from database. {}", e.getMessage(), e);
-                } }}
+            }
+        }
+    }
 
     @FXML
     private void handleStartWorkOrder() {
-        WorkOrder selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
+        WorkOrderSummaryDto selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             messages.showError(getString("workorder.error.choose_workorder"));
             return;
         }
         try {
-            workOrderService.startWorkOrder(selected);
-            workOrderTable.refresh();
+            workOrderService.startWorkOrder(selected.getId());
+            loadWorkOrderData();
             messages.showSuccess(getString("workorder.success.workorder_started"));
         } catch (MechanicNotAvailableException e) {
             messages.showError(getString("workorder.error.mechanic_not_available"));
+
+        } catch (BookingWithoutServicesException e) {
+            messages.showError(getString("workorder.error.booking_without_service_item"));
 
         } catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
@@ -155,7 +159,7 @@ public class WorkOrderController extends OverController {
 
     @FXML
     private void handleCompleteWorkOrder() {
-        WorkOrder selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
+        WorkOrderSummaryDto selected = workOrderTable != null ? workOrderTable.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             messages.showError(getString("workorder.error.choose_workorder"));
             return;
@@ -169,7 +173,7 @@ public class WorkOrderController extends OverController {
             return;
         }
         try {
-            workOrderService.completeWorkOrder(selected);
+            workOrderService.completeWorkOrder(selected.getId());
             workOrderTable.refresh();
             messages.showSuccess(getString("workorder.success.workorder_completed"));
         } catch (Exception e) {
@@ -199,28 +203,28 @@ public class WorkOrderController extends OverController {
                 bookingComboBox.setConverter(new StringConverter<Booking>() {
                     @Override
                     public String toString(Booking booking) {
-                            String description = booking.getDescription();
+                        String description = booking.getDescription();
 
-                            return getString("booking.option.id") + ": " + booking.getId()
-                                    + " | " + getString("booking.option.vehicle") + ": "
-                                    + booking.getVehicle().getRegistrationNumber()
-                                    + " | " + getString("booking.option.date") + ": "
-                                    + booking.getDate()
-                                    + " | " + getString("booking.option.mechanic") + ": "
-                                    + booking.getMechanic().getName()
-                                    + (description == null || description.trim().isEmpty()
-                                    ? ""
-                                    : " | " + getString("booking.option.description")
-                                    + ": " + description);
-                        }
+                        return getString("booking.option.id") + ": " + booking.getId()
+                                + " | " + getString("booking.option.vehicle") + ": "
+                                + booking.getVehicle().getRegistrationNumber()
+                                + " | " + getString("booking.option.date") + ": "
+                                + booking.getDate()
+                                + " | " + getString("booking.option.mechanic") + ": "
+                                + booking.getMechanic().getName()
+                                + (description == null || description.trim().isEmpty()
+                                ? ""
+                                : " | " + getString("booking.option.description")
+                                  + ": " + description);
+                    }
 
                     @Override
                     public Booking fromString(String s) {
                         return null;
                     }
                 });
-            }catch (NullPointerException e){
-                 messages.showError(getString("workorder.error.no_bookings"));
+            } catch (NullPointerException e) {
+                messages.showError(getString("workorder.error.no_bookings"));
             }
             bookingComboBox.requestFocus();
         }
@@ -241,6 +245,7 @@ public class WorkOrderController extends OverController {
                         public String toString(ServiceItem item) {
                             return item.getId() + ": " + item.getName();
                         }
+
                         @Override
                         public ServiceItem fromString(String string) {
                             return null;
@@ -271,11 +276,12 @@ public class WorkOrderController extends OverController {
                     workOrderService.saveWorkOrder(selectedBooking.getId(), serviceItems);
                     messages.showSuccess(getString("workorder.success.workorder_created"));
                 }
-            }} catch (Exception e){
-                    logger.error("Something Unexpected. {}", e.getMessage(), e);
-                    messages.showError(getString("workorder.error.unexpected"));
-                    return;
-                }
+            }
+        } catch (Exception e) {
+            logger.error("Something Unexpected. {}", e.getMessage(), e);
+            messages.showError(getString("workorder.error.unexpected"));
+            return;
+        }
 
         serviceSelections.clear();
         navigateToWorkOrderView();

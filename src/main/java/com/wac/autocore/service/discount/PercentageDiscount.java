@@ -1,15 +1,25 @@
 package com.wac.autocore.service.discount;
 
-public class PercentageDiscount implements DiscountStrategy{
-    private final double percentage;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-    public PercentageDiscount(double percentage){
+public class PercentageDiscount implements DiscountStrategy{
+    private final BigDecimal percentage;
+
+    public PercentageDiscount(BigDecimal percentage){
         this.percentage = percentage;
     }
 
 
     @Override
-    public double calculateDiscount(double amount) {
-        return amount * percentage / 100.0;
+    public BigDecimal calculateDiscount(BigDecimal amount) {
+        if (amount == null || percentage == null) {
+            return BigDecimal.ZERO;
+        }
+
+        // 1. Multiplicera med procenten
+        // 2. Dividera med 100 (som BigDecimal) och ange avrundning (t.ex. 2 decimaler, HALF_UP)
+        return amount.multiply(percentage)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
 }

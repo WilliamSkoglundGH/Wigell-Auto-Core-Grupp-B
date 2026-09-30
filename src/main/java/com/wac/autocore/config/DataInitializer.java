@@ -6,6 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 
@@ -39,10 +40,10 @@ public class DataInitializer {
                 vehicleRepository.saveAll(Arrays.asList(vehicle1, vehicle2, vehicle3));
 
                 // 3. Skapa Tjänster (ServiceItems)
-                ServiceItem service1 = new ServiceItem("Oil change", "Engine oil and oil filter replacement", 1295.0, 45);
-                ServiceItem service2 = new ServiceItem("Brake service", "Inspection and replacement of front brake pads", 2495.0, 90);
-                ServiceItem service3 = new ServiceItem("Diagnostics", "Electronic fault code diagnostics", 995.0, 60);
-                ServiceItem service4 = new ServiceItem("Annual service", "Standard annual vehicle service", 3495.0, 120);
+                ServiceItem service1 = new ServiceItem("Oil change", "Engine oil and oil filter replacement", BigDecimal.valueOf( 1295.0), 45);
+                ServiceItem service2 = new ServiceItem("Brake service", "Inspection and replacement of front brake pads", BigDecimal.valueOf(2495.0), 90);
+                ServiceItem service3 = new ServiceItem("Diagnostics", "Electronic fault code diagnostics", BigDecimal.valueOf(995.0), 60);
+                ServiceItem service4 = new ServiceItem("Annual service", "Standard annual vehicle service", BigDecimal.valueOf(3495.0), 120);
 
                 serviceItemRepository.saveAll(Arrays.asList(service1, service2, service3, service4));
 
