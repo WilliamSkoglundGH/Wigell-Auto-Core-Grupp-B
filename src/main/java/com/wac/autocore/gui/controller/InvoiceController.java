@@ -123,7 +123,7 @@ public class InvoiceController extends OverController {
             });
         }
     }
-*/
+
     @FXML
     private void handleNewInvoice() {
         if (messages != null) {
