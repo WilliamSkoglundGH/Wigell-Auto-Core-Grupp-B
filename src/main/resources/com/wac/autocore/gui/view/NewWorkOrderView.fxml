@@ -21,9 +21,7 @@
             <ComboBox fx:id="bookingComboBox" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
             <!-- Tillagd rad för Service Items -->
-            <Label text="%workOrder.servicesLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-            <ListView fx:id="servicesListView" prefHeight="120" prefWidth="250" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        </GridPane>
+           </GridPane>
 
         <HBox styleClass="button-spacing">
             <Button text="%btn.save" onAction="#handleSaveWorkOrder" />

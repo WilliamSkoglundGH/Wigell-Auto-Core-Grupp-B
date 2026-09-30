@@ -96,7 +96,7 @@ public class InvoiceController extends OverController {
     }
 
     private void populateComboBox() {
-        if (workOrderComboBox != null) {
+/*        if (workOrderComboBox != null) {
             List<Invoice> invoices = invoiceService.getAllInvoices();
 
             List<WorkOrder> workOrdersList = workOrderService.getAllWorkOrders().stream()
@@ -122,6 +122,7 @@ public class InvoiceController extends OverController {
                 }
             });
         }
+        */
     }
 
     @FXML

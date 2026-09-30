@@ -68,13 +68,12 @@ public class WorkOrderService {
     }
 
      @Transactional
-    public void saveWorkOrder(Long bookingId, List<ServiceItem> serviceItems) {
+    public void saveWorkOrder(Long bookingId) {
         Booking booking = bookingService.getBooking(bookingId);
         booking.setStatus("WORK_ORDER_CREATED");
+         WorkOrder newWorkOrder = new WorkOrder(booking, "CREATED");
+        newWorkOrder.setServiceItems(WorkOrderMapper.toWorkOrderServicesFromBookingServices(booking, newWorkOrder));
 
-//TODO glöm inte ändra tillbaka till något vettigt
-//WorkOrder newWorkOrder = new WorkOrder(booking, serviceItems, "CREATED");
-         WorkOrder newWorkOrder = new WorkOrder(booking, new ArrayList<>(), "CREATED");
        workOrderRepository.save(newWorkOrder);
     }
 
