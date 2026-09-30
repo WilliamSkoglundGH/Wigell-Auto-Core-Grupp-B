@@ -72,6 +72,11 @@ public class InvoiceService {
             for (WorkOrderServiceItem serviceItem : selectedWorkOrder.getServiceItems()) {
                 BigDecimal amount = serviceItem.getPriceAtTime();
                 BigDecimal lineDiscount = BigDecimal.ZERO;
+/*
+                if (discountCode == null && discountCode.isEmpty() && customer.isVip()) {
+                    DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
+                    lineDiscount = vipDiscount.calculateDiscount(amount);
+                }*/
 
                 if (discountCode != null && !discountCode.trim().isEmpty()) {
                     DiscountStrategy discountCodeStrategy = null;
@@ -90,6 +95,7 @@ public class InvoiceService {
                         DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
                         lineDiscount = vipDiscount.calculateDiscount(amount);
                     }
+
                     if (discountCode.equalsIgnoreCase("WELCOME10"))
                     { discountCodeStrategy = new PercentageDiscount(BigDecimal.valueOf(10));
                         lineDiscount = discountCodeStrategy.calculateDiscount(amount);
@@ -101,6 +107,7 @@ public class InvoiceService {
 
                 InvoiceLine line = new InvoiceLine(serviceItem.getServiceItem().getName(), amount, lineDiscount);
                 invoiceLines.add(line);
+
 
              // Uppdaterar stora summorna efter varje rad.
                 workOrderTotalPrice = workOrderTotalPrice.add(serviceItem.getPriceAtTime());
