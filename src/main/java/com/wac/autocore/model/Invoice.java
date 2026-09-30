@@ -1,5 +1,6 @@
 package com.wac.autocore.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,10 +16,11 @@ public class Invoice {
     private WorkOrder workOrder;
     @Column(name = "invoice_date", length = 20, nullable = false)
     private LocalDate invoiceDate;
-    @Column(name = "amount", nullable = false)
-    private double amount;
-    @Column(name = "discount", nullable = false)
-    private double discount;
+    @Column(name = "amount", precision = 10, scale = 2, nullable = false)
+    private BigDecimal amount;
+    @Column(name = "discount", precision = 10, scale = 2, nullable = false)
+
+    private BigDecimal discount;
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<InvoiceLine> invoiceLines = new ArrayList<>();
     @Column(name = "paid", nullable = false)
@@ -27,7 +29,7 @@ public class Invoice {
     protected Invoice() {
     }
 
-    public Invoice(WorkOrder workOrder, LocalDate invoiceDate, double amount, double discount) {
+    public Invoice(WorkOrder workOrder, LocalDate invoiceDate, BigDecimal amount, BigDecimal discount) {
         this.workOrder = workOrder;
         this.invoiceDate = invoiceDate;
         this.amount = amount;
@@ -35,7 +37,7 @@ public class Invoice {
         this.paid = false;
     }
 
-    public Invoice(WorkOrder workOrder, LocalDate invoiceDate, double amount, double discount, List<InvoiceLine> invoiceLines) {
+    public Invoice(WorkOrder workOrder, LocalDate invoiceDate, BigDecimal amount, BigDecimal discount, List<InvoiceLine> invoiceLines) {
         this.workOrder = workOrder;
         this.invoiceDate = invoiceDate;
         this.amount = amount;
@@ -65,24 +67,33 @@ public class Invoice {
         this.invoiceDate = invoiceDate;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
-    public double getDiscount() {
+    public BigDecimal getDiscount() {
         return discount;
     }
 
-    public void setDiscount(double discount) {
+    public void setDiscount(BigDecimal discount) {
         this.discount = discount;
     }
 
-    public double getTotalAmount() {
-        return amount - discount;
+    public BigDecimal getTotalAmount() {
+
+        if (amount == null) {
+            return BigDecimal.ZERO;
+        }
+        if (discount == null) {
+            return amount;
+        }
+
+
+        return amount.subtract(discount);
     }
 
     public boolean isPaid() {
@@ -100,7 +111,7 @@ public class Invoice {
                 " | Date: " + invoiceDate +
                 " | Amount: " + amount + " SEK" +
                 " | Discount: " + discount + " SEK" +
-                " | Total: " + (amount - discount) + " SEK" +
+                " | Total: " + (amount.subtract(discount)) + " SEK" +
                 " | Paid: " + (paid ? "Yes" : "No");
     }
 }

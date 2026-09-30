@@ -1,14 +1,16 @@
 package com.wac.autocore.service.discount;
 
-public class FixedDiscount implements DiscountStrategy{
-    private final double discountAmount;
+import java.math.BigDecimal;
 
-    public FixedDiscount(double discountAmount){
+public class FixedDiscount implements DiscountStrategy{
+    private final BigDecimal discountAmount;
+
+    public FixedDiscount(BigDecimal discountAmount){
         this.discountAmount = discountAmount;
     }
 
     @Override
-    public double calculateDiscount(double amount) {
+    public BigDecimal calculateDiscount(BigDecimal amount) {
         return discountAmount;
     }
 }

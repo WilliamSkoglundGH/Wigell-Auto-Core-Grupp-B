@@ -1,5 +1,7 @@
 package com.wac.autocore.service.discount;
 
+import java.math.BigDecimal;
+
 public interface DiscountStrategy {
-    double calculateDiscount(double amount);
+    BigDecimal calculateDiscount(BigDecimal amount);
 }
