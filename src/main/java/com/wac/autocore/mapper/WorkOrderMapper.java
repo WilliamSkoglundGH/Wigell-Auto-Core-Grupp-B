@@ -1,0 +1,112 @@
+package com.wac.autocore.mapper;
+
+import com.wac.autocore.dto.WorkOrderResponseDto;
+import com.wac.autocore.dto.WorkOrderServiceItemDto;
+import com.wac.autocore.dto.WorkOrderSummaryDto;
+import com.wac.autocore.model.BookingServiceItem;
+import com.wac.autocore.model.WorkOrder;
+import com.wac.autocore.model.WorkOrderServiceItem;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public final class WorkOrderMapper {
+
+    private WorkOrderMapper() {
+        // Privat konstruktör för att förhindra instansiering av util-klass
+    }
+
+    /**
+     * Mappar en WorkOrder till WorkOrderSummaryDto (används i tabeller/listor utan serviceItems).
+     */
+    public static WorkOrderSummaryDto toSummaryDto(WorkOrder workOrder) {
+        if (workOrder == null) {
+            return null;
+        }
+
+        // Säker hämtning av mekanikerns namn via bokningen
+        String mechanicName = "Ej tilldelad";
+        if (workOrder.getBooking() != null && workOrder.getBooking().getMechanic() != null) {
+            mechanicName = workOrder.getBooking().getMechanic().getName(); // Byt till .getUsername() om det är det fältet som används
+        }
+
+        return new WorkOrderSummaryDto(
+                workOrder.getId(),
+                workOrder.getBooking() != null ? workOrder.getBooking().getId() : null,
+                mechanicName, // 3:e argumentet
+                workOrder.getStatus(), // 4:e argumentet
+                workOrder.getStartTime(),
+                workOrder.getEndTime()
+        );
+    }
+
+    /**
+     * Mappar en WorkOrder till WorkOrderResponseDto (används i detaljvyn med tillhörande serviceItems).
+     */
+    public static WorkOrderResponseDto toResponseDto(WorkOrder workOrder, List<WorkOrderServiceItemDto> serviceItems) {
+        if (workOrder == null) {
+            return null;
+        }
+
+        return new WorkOrderResponseDto(
+                workOrder.getId(),
+                workOrder.getBooking() != null ? workOrder.getBooking().getId() : null,
+                workOrder.getStatus(),
+                workOrder.getStartTime(),
+                workOrder.getEndTime(),
+                serviceItems
+        );
+    }
+
+    /**
+     * Mappar en enskild WorkOrderServiceItem till WorkOrderServiceItemDto.
+     */
+    public static WorkOrderServiceItemDto toServiceItemDto(WorkOrderServiceItem item) {
+        if (item == null) {
+            return null;
+        }
+
+        String serviceName = (item.getServiceItem() != null) ? item.getServiceItem().getName() : "Okänd tjänst";
+        String description = (item.getServiceItem() != null) ? item.getServiceItem().getDescription() : "";
+
+        return new WorkOrderServiceItemDto(
+                serviceName,
+                description,
+                item.getPriceAtTime(),
+                item.getDurationAtTime()
+        );
+    }
+
+    /**
+     * Mappar en hel lista med WorkOrderServiceItems till en DTO-lista.
+     */
+    public static List<WorkOrderServiceItemDto> toServiceItemDtoList(List<WorkOrderServiceItem> items) {
+        if (items == null) {
+            return null;
+        }
+
+        return items.stream()
+                .map(WorkOrderMapper::toServiceItemDto)
+                .collect(Collectors.toList());
+    }
+    /**
+     * Mappar en lista med BookingServiceItems till en DTO-lista (används när WorkOrder har status CREATED).
+     */
+    public static List<WorkOrderServiceItemDto> toServiceItemDtoListFromBooking(List<BookingServiceItem> bookingItems) {
+        if (bookingItems == null) {
+            return null;
+        }
+
+        return bookingItems.stream().map(item -> {
+            String serviceName = (item.getServiceItem() != null) ? item.getServiceItem().getName() : "Okänd tjänst";
+            String description = (item.getServiceItem() != null) ? item.getServiceItem().getDescription() : "";
+
+            return new WorkOrderServiceItemDto(
+                    serviceName,
+                    description,
+                    item.getPriceAtTime(),
+                    item.getDurationAtTime()
+            );
+        }).collect(Collectors.toList());
+    }
+}

@@ -15,6 +15,7 @@ import com.wac.autocore.repository.WorkOrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -58,38 +59,39 @@ public class InvoiceService {
             );
         }
 
-        double workOrderPrice = 0.0;
+        BigDecimal workOrderPrice = BigDecimal.ZERO;
         //TODO glöm inte att byta tillbaka här!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         /*for (ServiceItem serviceItem : selectedWorkOrder.getServiceItems()) {
             workOrderPrice += serviceItem.getPrice();
         }*/
 
 
-        double discount = 0.0;
+        BigDecimal discount = BigDecimal.ZERO;
         Customer customer = selectedWorkOrder.getBooking().getVehicle().getCustomer();
 
         if (customer.isVip()) {
-            DiscountStrategy vipDiscount = new PercentageDiscount(10);
-            discount += vipDiscount.calculateDiscount(workOrderPrice);
+            DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
+            discount = discount.add(vipDiscount.calculateDiscount(workOrderPrice));
         }
 
         if (discountCode != null && !discountCode.trim().isEmpty()) {
             DiscountStrategy discountCodeStrategy = null;
 
             if (discountCode.equalsIgnoreCase("WELCOME10")) {
-                discountCodeStrategy = new PercentageDiscount(10);
+                discountCodeStrategy = new PercentageDiscount(BigDecimal.valueOf(10));
             } else if (discountCode.equalsIgnoreCase("SERVICE200")) {
-                discountCodeStrategy = new FixedDiscount(200);
+                discountCodeStrategy = new FixedDiscount(BigDecimal.valueOf(200));
             }
 
             if (discountCodeStrategy != null) {
-                discount += discountCodeStrategy.calculateDiscount(workOrderPrice);
+                discount = discount.add(discountCodeStrategy.calculateDiscount(workOrderPrice));
             }
         }
-
-            if (discount > workOrderPrice) {
+        if (discount.compareTo(workOrderPrice) > 0) {
+            // Gör någonting, t.ex. sätt rabatten till att maximalt vara lika med priset
             discount = workOrderPrice;
-            }
+        }
+
 
             Invoice invoice = new Invoice(selectedWorkOrder, LocalDate.now(),
                     workOrderPrice, discount);

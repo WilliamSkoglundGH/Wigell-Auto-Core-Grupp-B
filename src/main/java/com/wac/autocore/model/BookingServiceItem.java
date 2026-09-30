@@ -17,7 +17,7 @@ public class BookingServiceItem {
     @JoinColumn(name = "service_item_id", nullable = false)
     private ServiceItem serviceItem;
 
-    @Column(name = "price_at_time", nullable = false)
+    @Column(name = "price_at_time", precision = 10, scale = 2, nullable = false)
     private BigDecimal priceAtTime;
 
     @Column(name = "duration_at_time", nullable = false)
