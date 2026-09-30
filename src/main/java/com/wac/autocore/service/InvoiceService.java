@@ -48,7 +48,7 @@ public class InvoiceService {
     @Transactional
     public Invoice createInvoice(Long workOrderId, String discountCode) {
         WorkOrder selectedWorkOrder = workOrderRepository.findById(workOrderId).orElseThrow(() -> new WorkOrderNotFoundException(
-                "WorkOrder with ID: " + workOrderId + " not found"
+                "WorkOrder with ID: " + workOrderId+  " not found"
         ));
         if (!selectedWorkOrder.getStatus().equals("COMPLETED")) {
             throw new IllegalStateException(
@@ -76,19 +76,21 @@ public class InvoiceService {
                 if (discountCode != null && !discountCode.trim().isEmpty()) {
                     DiscountStrategy discountCodeStrategy = null;
 
-                    /*if (discountCode.equalsIgnoreCase("SERVICE200")) {
+                    if (discountCode.equalsIgnoreCase("SERVICE200")) {
                         discountCodeStrategy = new FixedDiscount(BigDecimal.valueOf(200));
-                        //om discountCodeStrategy is instanceOf FixedDiscount gör såhär.
-                        if (customer.isVip()){}
+                        workOrderTotalPrice = discountCodeStrategy.calculateDiscount(amount);
+                          if (customer.isVip()){
+                              DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
+                              discount = vipDiscount.calculateDiscount(amount);
+                          }
                         break;
-                    }*/
+                    }
 
                     if (customer.isVip()) {
                         DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
                         lineDiscount = vipDiscount.calculateDiscount(amount);
                     }
                     if (discountCode.equalsIgnoreCase("WELCOME10"))
-                    // ? Lägga in godkända discountkoder i en fil kopplad till antal procent och loopa igenom denna för att sätta discount värderna.
                     { discountCodeStrategy = new PercentageDiscount(BigDecimal.valueOf(10));
                         lineDiscount = discountCodeStrategy.calculateDiscount(amount);
                     }
@@ -100,12 +102,12 @@ public class InvoiceService {
                 InvoiceLine line = new InvoiceLine(serviceItem.getServiceItem().getName(), amount, lineDiscount);
                 invoiceLines.add(line);
 
-                // Uppdaterar stora summorna
+             // Uppdaterar stora summorna efter varje rad.
                 workOrderTotalPrice = workOrderTotalPrice.add(serviceItem.getPriceAtTime());
-                discount = discount.add(lineDiscount);
-                if (discount.compareTo(workOrderTotalPrice) > 0) {
+                discount = discount.add(lineDiscount);}
+
+            if (discount.compareTo(workOrderTotalPrice) > 0) {
                     discount = workOrderTotalPrice;
-                }
             }
 
             //Skapa invoicen

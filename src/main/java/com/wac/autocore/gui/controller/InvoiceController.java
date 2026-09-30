@@ -47,7 +47,6 @@ public class InvoiceController extends OverController {
     private final WorkOrderService workOrderService;
     private static final Logger logger = LoggerFactory.getLogger(InvoiceController.class);
 
-    // Spring injicerar tjänster samt ApplicationContext (som sätts via superklassen)
     public InvoiceController(InvoiceService invoiceService, WorkOrderService workOrderService, ApplicationContext applicationContext) {
         this.invoiceService = invoiceService;
         this.workOrderService = workOrderService;
@@ -99,7 +98,6 @@ public class InvoiceController extends OverController {
     private void populateComboBox() {
         if (workOrderComboBox != null) {
             List<Invoice> invoices = invoiceService.getAllInvoices();
-            // TODO här kommer workordersumamryDTO i listan.
             List<WorkOrderSummaryDto> workOrdersList = workOrderService.getAllWorkOrders().stream()
                     .filter(wo -> "COMPLETED".equalsIgnoreCase(wo.getStatus())) // Endast färdiga
                     .filter(wo -> invoices.stream()
@@ -107,21 +105,20 @@ public class InvoiceController extends OverController {
                     .collect(Collectors.toList());
 
             workOrderComboBox.setItems(FXCollections.observableArrayList(workOrdersList));
-/*
+
             workOrderComboBox.setConverter(new StringConverter<WorkOrderSummaryDto>() {
                 @Override
-                public String toString(WorkOrder workOrder) {
+                public String toString(WorkOrderSummaryDto dto) {
                         return getString("invoice.option.workorderId") + ": "
-                                + workOrder.getId()
-                                + " | " + getString("invoice.option.vehicle") + ": "
-                                + workOrder.getBooking().getVehicle().getRegistrationNumber();
+                                + dto.getId()
+                                + " | " + getString("invoice.option.bookingId") + ": "
+                                +dto.getBookingId();
                 }
-
                 @Override
-                public WorkOrder fromString(String s) {
+                public WorkOrderSummaryDto fromString(String s) {
                     return null;
                 }
-            });*/
+            });
         }
     }
 
