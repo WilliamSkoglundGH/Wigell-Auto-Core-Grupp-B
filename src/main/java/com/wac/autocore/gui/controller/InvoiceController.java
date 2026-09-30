@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import com.wac.autocore.model.Invoice;
@@ -79,7 +80,7 @@ public class InvoiceController extends OverController {
                 });
                 return row;
             });
-            //Detaljerknappen är disabled tills den rad är vald.
+            //Detaljer-knappen är disabled tills den rad är vald.
             detailsButton.disableProperty().bind(
                     invoiceTable.getSelectionModel().selectedItemProperty().isNull()
             );
@@ -129,6 +130,21 @@ public class InvoiceController extends OverController {
     //-----------------------------------
 
     private void openInvoiceDetailsModal(Long invoiceId){
+
+            loadCenterView("/com/wac/autocore/gui/view/InvoiceDetailsModal.fxml");
+            /*
+            Stage stage = new Stage();
+            stage.setTitle("Faktura " + id);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(invoiceTable.getScene().getWindow());
+            stage.setScene(new Scene(root));
+            stage.showAndWait();   // blockerar tills fönstret stängs
+
+            invoiceTable.refresh(); // om något kan ha ändrats i dialogen
+        } catch (IOException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Kunde inte öppna detaljer: " + e.getMessage()).showAndWait();
+        }*/
                 System.out.println("Snart kommer en modal som visar info om Fakturnr."+ invoiceId);
     }
 
