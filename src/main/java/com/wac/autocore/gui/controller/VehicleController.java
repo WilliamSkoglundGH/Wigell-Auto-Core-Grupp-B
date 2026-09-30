@@ -1,5 +1,6 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.exception.CustomerNotFoundException;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.model.Vehicle;
 import com.wac.autocore.service.CustomerService;
@@ -149,6 +150,11 @@ public class VehicleController extends OverController {
             } catch (NumberFormatException e) {
                 logger.error("Could not save vehicle: {}", e.getMessage(), e);
                 messages.showError(getString("vehicle.error.incorrect_year"));
+            } catch (CustomerNotFoundException e) {
+                messages.showError(getString(e.getMessage()));
+            } catch (Exception e) {
+                logger.error("Could not save vehicle: {}", e.getMessage(), e);
+                messages.showError(getString("vehicle.error.save_vehicle"));
             }
         }
     }
