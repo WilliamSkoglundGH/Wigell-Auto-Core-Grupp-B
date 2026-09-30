@@ -57,7 +57,7 @@ public class BookingService {
         Booking newBooking = new Booking(vehicle, selectedDate, description, "BOOKED", mechanic, items);
 
         for(ServiceItem item : serviceItems){
-            newBooking.addServiceItem(item, BigDecimal.valueOf(item.getPrice()), item.getEstimatedMinutes());
+            newBooking.addServiceItem(item, item.getPrice(), item.getEstimatedMinutes());
         }
 
         return bookingRepository.save(newBooking);
@@ -79,7 +79,7 @@ public class BookingService {
             throw new IllegalStateException("booking.error.not_editable");
         }
 
-        bookingForUpdate.addServiceItem(selectedServiceItem, BigDecimal.valueOf(selectedServiceItem.getPrice()), selectedServiceItem.getEstimatedMinutes());
+        bookingForUpdate.addServiceItem(selectedServiceItem, selectedServiceItem.getPrice(), selectedServiceItem.getEstimatedMinutes());
 
         return bookingRepository.save(bookingForUpdate);
 

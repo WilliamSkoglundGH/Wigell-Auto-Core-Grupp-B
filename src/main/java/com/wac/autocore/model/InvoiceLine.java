@@ -1,6 +1,7 @@
 package com.wac.autocore.model;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "invoice_line")
@@ -15,15 +16,16 @@ public class InvoiceLine {
 
     @Column(name = "name_of_service", length = 60, nullable = false)
     private String nameOfService;
-    @Column(name = "amount", nullable = false)
-    private double amount;
-    @Column(name = "discount", nullable = false)
-    private double discount;
+    @Column(name = "amount", precision = 10, scale = 2, nullable = false)
+    private BigDecimal amount;
+    @Column(name = "discount", precision = 10, scale = 2, nullable = false)
+
+    private BigDecimal discount;
 
     protected InvoiceLine() {
     }
 
-    public InvoiceLine(Invoice invoice, String nameOfService, double amount, double discount) {
+    public InvoiceLine(Invoice invoice, String nameOfService, BigDecimal amount, BigDecimal discount) {
         this.invoice = invoice;
         this.nameOfService = nameOfService;
         this.amount = amount;
@@ -50,19 +52,19 @@ public class InvoiceLine {
         this.nameOfService = nameOfService;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
-    public double getDiscount() {
+    public BigDecimal getDiscount() {
         return discount;
     }
 
-    public void setDiscount(double discount) {
+    public void setDiscount(BigDecimal discount) {
         this.discount = discount;
     }
 }

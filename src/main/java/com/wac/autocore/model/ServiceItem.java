@@ -1,5 +1,7 @@
 package com.wac.autocore.model;
 import javax.persistence.*;
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "service_item")
 public class ServiceItem {
@@ -10,15 +12,15 @@ public class ServiceItem {
     private String name;
     @Column(name = "description", length = 200, nullable = true)
     private String description;
-    @Column(name = "price", nullable = false)
-    private double price;
+    @Column(name = "price", precision = 10, scale = 2, nullable = false)
+    private BigDecimal price;
     @Column(name = "estimated_minutes", nullable = false)
     private int estimatedMinutes;
 
     protected ServiceItem() {
     }
 
-    public ServiceItem(String name, String description, double price, int estimatedMinutes) {
+    public ServiceItem(String name, String description, BigDecimal price, int estimatedMinutes) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -45,11 +47,11 @@ public class ServiceItem {
         this.description = description;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

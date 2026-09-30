@@ -1,4 +1,4 @@
-package com.wac.autocore.gui.util;
+/*package com.wac.autocore.gui.util;
 
 import java.math.BigDecimal;
 
@@ -7,3 +7,5 @@ public class Money {
     private final String currency = "SEK";
 }
 
+
+ */
