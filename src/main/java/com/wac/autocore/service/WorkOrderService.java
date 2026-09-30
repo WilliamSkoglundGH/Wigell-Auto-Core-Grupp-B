@@ -10,14 +10,11 @@ import com.wac.autocore.model.*;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.format.datetime.DateFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -86,7 +83,7 @@ public class WorkOrderService {
                 .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
 
         if (!"CREATED".equals(workOrder.getStatus())) {
-            throw new BookingNotStateCreatedException("A work order must have status CREATED to be started.");
+            throw new BookingWrongStatusException("A work order must have status CREATED to be started.");
         }
         Booking booking = workOrder.getBooking();
         if (booking == null || booking.getMechanic() == null) {
@@ -109,7 +106,7 @@ public class WorkOrderService {
         workOrder.getServiceItems().addAll(workOrderItems);
         BigDecimal estPrice = BigDecimal.ZERO;
         int estTime = 0;
-        for(WorkOrderServiceItem item : workOrderItems) {
+        for (WorkOrderServiceItem item : workOrderItems) {
             estTime += item.getDurationAtTime();
             estPrice.add(item.getPriceAtTime());
         }
@@ -124,7 +121,7 @@ public class WorkOrderService {
 
     @Transactional
     public void completeWorkOrder(Long workOrderId) {
-
+//kolla om workorders serviceitems är tom, skicka exception, inga serviceItems valda, vänligen gå tillbaka till bokning
         if (workOrderId == null) {
             throw new IllegalArgumentException("Work order cannot be null.");
         }
@@ -132,7 +129,7 @@ public class WorkOrderService {
                 .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
 
         if (!"IN_PROGRESS".equals(workOrder.getStatus())) {
-            throw new IllegalStateException(" Check your work order status. Must be IN_PROGRESS to be completed. Start work order first.");
+            throw new WorkOrderWrongStatusException(" Check your work order status. Must be IN_PROGRESS to be completed. Start work order first.");
         }
         Booking booking = workOrder.getBooking();
         if (booking == null || booking.getMechanic() == null) {
@@ -147,7 +144,8 @@ public class WorkOrderService {
 
         workOrderRepository.save(workOrder);
     }
-@Transactional
+
+    @Transactional
     public WorkOrderDetailsDto getWorkOrderInfoById(Long workOrderId) {
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
@@ -157,14 +155,27 @@ public class WorkOrderService {
         dto.setMechanicName(booking.getMechanic().getName());
         dto.setVehicleRegistrationNumber(booking.getVehicle().getRegistrationNumber());
         dto.setCustomerName(booking.getVehicle().getCustomer().getName());
-        List<WorkOrderServiceItemDto> serviceItemList = WorkOrderMapper.toServiceItemDtoList(workOrder.getServiceItems());
+
+        List<WorkOrderServiceItemDto> serviceItemList;
+        if ("CREATED".equals(dto.getStatus())) {
+            serviceItemList = WorkOrderMapper.toServiceItemDtoListFromBooking(workOrder.getBooking().getServiceItems());
+
+        } else {
+            serviceItemList = WorkOrderMapper.toServiceItemDtoList(workOrder.getServiceItems());
+
+        }
         int estTime = 0;
         BigDecimal estPrice = BigDecimal.ZERO;
         for (WorkOrderServiceItemDto item : serviceItemList) {
             estTime += item.getDurationAtTime();
-            estPrice.add(item.getPriceAtTime());
+            estPrice = estPrice.add(item.getPriceAtTime());
         }
         dto.setServiceItems(serviceItemList);
+        dto.setEstimatedDuration(estTime);
+        dto.setEstimatedPrice(estPrice);
+        dto.setBookingId(workOrder.getBooking().getId());
+
+
         return dto;
     }
 /*

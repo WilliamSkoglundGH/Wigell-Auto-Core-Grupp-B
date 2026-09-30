@@ -15,6 +15,7 @@ public class WorkOrderDetailsDto {
     private Integer estimatedDuration;
     private BigDecimal estimatedPrice; // eller double/int beroende på vad du använder
     private List<WorkOrderServiceItemDto> serviceItems;
+    private Long bookingId;
 
     public WorkOrderDetailsDto() {
     }
@@ -104,5 +105,13 @@ public class WorkOrderDetailsDto {
 
     public void setServiceItems(List<WorkOrderServiceItemDto> serviceItems) {
         this.serviceItems = serviceItems;
+    }
+
+    public Long getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
     }
 }

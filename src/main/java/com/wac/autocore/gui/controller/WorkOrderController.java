@@ -3,13 +3,9 @@ package com.wac.autocore.gui.controller;
 import com.wac.autocore.dto.WorkOrderDetailsDto;
 import com.wac.autocore.dto.WorkOrderServiceItemDto;
 import com.wac.autocore.dto.WorkOrderSummaryDto;
-import com.wac.autocore.exception.BookingNotStateCreatedException;
-import com.wac.autocore.exception.BookingWithoutServicesException;
-import com.wac.autocore.exception.MechanicNotAvailableException;
+import com.wac.autocore.exception.*;
 import com.wac.autocore.gui.util.FormatUIUtil;
-import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.Booking;
-import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.WorkOrderService;
@@ -67,6 +63,8 @@ public class WorkOrderController extends OverController {
     private Label estTimeLabel;
     @FXML
     private Label estPriceLabel;
+    @FXML
+    private Label bookingIdLabel;
     @FXML
     private TableView<WorkOrderServiceItemDto> serviceItemTable;
     @FXML
@@ -181,7 +179,7 @@ public class WorkOrderController extends OverController {
         } catch (BookingWithoutServicesException e) {
             messages.showError(getString("workorder.error.booking_without_service_item"));
 
-        } catch (BookingNotStateCreatedException e) {
+        } catch (BookingWrongStatusException e) {
             messages.showError(getString("workorder.error.booking_not_state_created"));
 
         } catch (Exception e) {
@@ -196,10 +194,17 @@ public class WorkOrderController extends OverController {
 
         try {
             workOrderService.completeWorkOrder(currentWorkOrderId);
-            workOrderTable.refresh();
+            loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_completed"));
             loadWorkOrderData();
-        } catch (Exception e) {
+
+        }catch (WorkOrderWrongStatusException e) {
+            logger.error("Could not save to database. {}", e.getMessage(), e);
+            messages.showError(getString("workorder.error.work_order_wrong_status"));
+        } catch (WorkOrderNotFoundException e) {
+            logger.error("Could not save to database. {}", e.getMessage(), e);
+            messages.showError(getString("workorder.error.work_order_not_found"));
+        }catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.unexpected"));
         }
@@ -210,7 +215,6 @@ public class WorkOrderController extends OverController {
         if (messages != null) {
             messages.clearMessage();
         }
-        // Använder OverControllers gemensamma metod
         loadCenterView("/com/wac/autocore/gui/view/NewWorkOrderView.fxml");
     }
 
@@ -336,6 +340,7 @@ public class WorkOrderController extends OverController {
 
             estTimeLabel.setText(dto.getEstimatedDuration() != null ? dto.getEstimatedDuration() + " min" : "-");
             estPriceLabel.setText(dto.getEstimatedPrice() != null ? dto.getEstimatedPrice() + " SEK" : "-");
+            bookingIdLabel.setText(String.valueOf(dto.getBookingId()));
 
             serviceNameColumn.setCellValueFactory(new PropertyValueFactory<>("serviceName"));
             servicePriceColumn.setCellValueFactory(new PropertyValueFactory<>("priceAtTime"));
@@ -348,7 +353,7 @@ public class WorkOrderController extends OverController {
     }
     private void populateServiceItemsTable(WorkOrderDetailsDto dto) {
         if (dto != null && dto.getServiceItems() != null) {
-            // Omvandla entiteter till DTO:er (gör detta i en transaktion/service-lager om det är LAZY)
+
             List<WorkOrderServiceItemDto> dtoList = dto.getServiceItems();
 
             // Gör om till ObservableList för JavaFX

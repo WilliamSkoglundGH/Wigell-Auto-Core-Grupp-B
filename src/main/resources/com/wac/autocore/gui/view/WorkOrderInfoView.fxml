@@ -55,6 +55,11 @@
 
             <Label text="%workOrder.estPrice" GridPane.columnIndex="2" GridPane.rowIndex="3" styleClass="bold-label"/>
             <Label fx:id="estPriceLabel" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
+
+            <Label text="%workOrder.bookingId" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="bold-label"/>
+            <Label fx:id="bookingIdLabel" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+
         </GridPane>
 
         <!-- Sektion för Service Items -->
