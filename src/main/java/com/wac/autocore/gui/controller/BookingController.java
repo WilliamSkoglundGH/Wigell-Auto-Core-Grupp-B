@@ -1,6 +1,8 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.exception.BookingNotFoundException;
 import com.wac.autocore.model.Booking;
+import com.wac.autocore.model.BookingServiceItem;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
@@ -8,15 +10,19 @@ import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.VehicleService;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +35,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -43,6 +50,8 @@ public class BookingController extends OverController {
     @FXML private TableColumn<Booking, String> descriptionColumn;
     @FXML private TableColumn<Booking, String> statusColumn;
     @FXML private TableColumn<Booking, String> mechanicColumn;
+    @FXML private TableColumn<Booking, Integer> totalTimeColumn;
+    @FXML private TableColumn<Booking, BigDecimal> totalPriceColumn;
 
     // FORM FIELDS (NewBookingView.fxml)
     @FXML private ComboBox<String> vehicleIdField;
@@ -51,8 +60,17 @@ public class BookingController extends OverController {
     @FXML private Button saveButton;
     @FXML private ComboBox<String> mechanicField;
     @FXML private ListView<ServiceItem> servicesListView;
-    @FXML private TableColumn<Booking, Integer> totalTimeColumn;
-    @FXML private TableColumn<Booking, BigDecimal> totalPriceColumn;
+
+    // SERVICES VIEW (BookingServicesView.fxml)
+    @FXML private TableView<BookingServiceItem> bookingServicesTable;
+    @FXML private TableColumn<BookingServiceItem, String> serviceNameColumn;
+    @FXML private TableColumn<BookingServiceItem, BigDecimal> servicePriceColumn;
+    @FXML private TableColumn<BookingServiceItem, Integer> serviceDurationColumn;
+    @FXML private Button removeServiceButton;
+    @FXML private Button addServiceButton;
+
+    private Long currentBookingId;
+
 
     private final BookingService bookingService;
     private final VehicleService vehicleService;
@@ -91,9 +109,44 @@ public class BookingController extends OverController {
             );
             mechanicColumn.setCellValueFactory(cellData ->
                     new javafx.beans.property.SimpleStringProperty(cellData.getValue().getMechanic().getId() + " - " + cellData.getValue().getMechanic().getName()));
+            totalTimeColumn.setCellValueFactory(cellData -> {
+                int totalMinutes = 0;
+
+                for (BookingServiceItem item : cellData.getValue().getServiceItems()) {
+                    totalMinutes += item.getDurationAtTime();
+                }
+                return new SimpleObjectProperty<>(totalMinutes);
+            });
+
+            totalPriceColumn.setCellValueFactory(cellData -> {
+                BigDecimal totalPrice = BigDecimal.ZERO;
+
+                for (BookingServiceItem item : cellData.getValue().getServiceItems()) {
+                    totalPrice = totalPrice.add(item.getPriceAtTime());
+                }
+
+                return new SimpleObjectProperty<>(totalPrice);
+            });
 
             loadBookingData();
             bookingTable.requestFocus();
+        }
+
+        // BookingServicesView.fxml
+        if (bookingServicesTable != null) {
+            serviceNameColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(
+                            cellData.getValue().getServiceItem().getName()
+                    )
+            );
+
+            servicePriceColumn.setCellValueFactory(
+                    new PropertyValueFactory<>("priceAtTime")
+            );
+
+            serviceDurationColumn.setCellValueFactory(
+                    new PropertyValueFactory<>("durationAtTime")
+            );
         }
 
         // NewBookingView.fxml
@@ -121,7 +174,7 @@ public class BookingController extends OverController {
         if (bookingTable != null) {
             try {
                 ObservableList<Booking> bookingData = FXCollections.observableArrayList(
-                        bookingService.getAllBookings()
+                        bookingService.getAllBookingsWithServiceItems()
                 );
                 bookingTable.setItems(bookingData);
             } catch (Exception e) {
@@ -131,6 +184,18 @@ public class BookingController extends OverController {
                 }
             }
         }
+    }
+
+
+    public void setBooking(Booking booking) {
+        currentBookingId = booking.getId();
+        bookingServicesTable.setItems(
+                FXCollections.observableArrayList(booking.getServiceItems()));
+
+        boolean editable = booking.getStatus().equalsIgnoreCase("BOOKED") ||
+                booking.getStatus().equalsIgnoreCase("WORK_ORDER_CREATED");
+        removeServiceButton.setDisable(!editable);
+        addServiceButton.setDisable(!editable);
     }
 
     private void loadVehicleDropdown() {
@@ -261,9 +326,133 @@ public class BookingController extends OverController {
     }
 
     @FXML
+    private void handleAddBookingService() {
+        try {
+            ChoiceDialog<ServiceItem> dialog = new ChoiceDialog<>(
+                    null,
+                    serviceItemService.getAllServiceItems()
+            );
+
+            dialog.initStyle(StageStyle.UNDECORATED);
+            dialog.setHeaderText(getString("booking.services.select"));
+            dialog.initOwner(bookingServicesTable.getScene().getWindow());
+            dialog.setGraphic(null);
+            dialog.getDialogPane().getStyleClass().add("booking-service-dialog");
+            dialog.getDialogPane().setPrefHeight(250);
+
+            dialog.getDialogPane().getStylesheets().addAll(
+                    bookingServicesTable.getScene().getStylesheets()
+            );
+
+            Button confirmButton =
+                    (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+            confirmButton.setText(getString("booking.services.add"));
+
+            Button cancelButton =
+                    (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+            cancelButton.setText(getString("btn.cancel"));
+
+            Parent mainView = bookingServicesTable.getScene().getRoot();
+
+            ColorAdjust dimming = new ColorAdjust();
+            dimming.setBrightness(-0.35);
+
+            Optional<ServiceItem> selectedService;
+
+            mainView.setEffect(dimming);
+            try {
+                selectedService = dialog.showAndWait();
+            } finally {
+                mainView.setEffect(null);
+            }
+
+            if (!selectedService.isPresent()) {
+                return;
+            }
+
+            bookingService.addServiceItemToBooking(
+                    currentBookingId,
+                    selectedService.get()
+            );
+
+            for (Booking booking : bookingService.getAllBookingsWithServiceItems()) {
+                if (booking.getId().equals(currentBookingId)) {
+                    setBooking(booking);
+                    break;
+                }
+            }
+
+            messages.showSuccess(getString("booking.success.service_added"));
+
+        } catch (BookingNotFoundException | IllegalArgumentException
+                 | IllegalStateException e) {
+            messages.showError(getString(e.getMessage()));
+
+        } catch (Exception e) {
+            logger.error("Could not add service to booking.", e);
+            messages.showError(getString("booking.error.add_service"));
+        }
+    }
+
+    @FXML
     private void handleCancel() {
         messages.clearMessage();
         navigateToBookingView();
+    }
+
+    @FXML
+    private void handleBackToBookings() {
+        messages.clearMessage();
+        navigateToBookingView();
+    }
+
+    @FXML
+    private void handleRemoveBookingService() {
+        BookingServiceItem selectedItem =
+                bookingServicesTable.getSelectionModel().getSelectedItem();
+
+        if (selectedItem == null) {
+            messages.showError(getString("booking.error.select_service_to_remove"));
+            return;
+        }
+
+        try {
+            bookingService.removeServiceItemFromBooking(
+                    currentBookingId,
+                    selectedItem.getId()
+            );
+
+            bookingServicesTable.getItems().remove(selectedItem);
+            messages.showSuccess(getString("booking.success.service_removed"));
+
+        } catch (BookingNotFoundException | IllegalArgumentException
+                 | IllegalStateException e) {
+            messages.showError(getString(e.getMessage()));
+
+        } catch (Exception e) {
+            logger.error("Could not remove service from booking.", e);
+            messages.showError(getString("booking.error.remove_service"));
+        }
+    }
+
+    @FXML
+    private void handleShowBookingServices() {
+        Booking selectedBooking =
+                bookingTable.getSelectionModel().getSelectedItem();
+
+        if (selectedBooking == null) {
+            messages.showError(getString("booking.error.select_booking"));
+            return;
+        }
+
+        BookingController controller = loadCenterView(
+                "/com/wac/autocore/gui/view/BookingServicesView.fxml"
+        );
+
+        if (controller != null) {
+            controller.setBooking(selectedBooking);
+            messages.clearMessage();
+        }
     }
 
     private void navigateToBookingView() {
