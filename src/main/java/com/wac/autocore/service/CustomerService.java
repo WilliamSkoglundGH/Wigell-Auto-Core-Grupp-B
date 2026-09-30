@@ -26,22 +26,22 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public Customer getCustomer(Long id) {
         return repo.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException("Customer with ID " + id + " not found."));
+                .orElseThrow(() -> new CustomerNotFoundException("customer.error.not_found"));
     }
 
     @Transactional
     public Customer createCustomer(String name, String phone, String email, boolean vip) {
 
         if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Name is required.");
+            throw new IllegalArgumentException("customer.error.enter_name");
         }
 
         if (email == null || email.isEmpty()) {
-            throw new IllegalArgumentException("Email is required.");
+            throw new IllegalArgumentException("customer.error.enter_email");
         }
 
         if (!email.contains("@") || !email.contains(".")) {
-            throw new IllegalArgumentException("You need a valid e-mail");
+            throw new IllegalArgumentException("customer.error.invalid_email");
         }
 
         if (phone != null && !phone.isEmpty()) {
@@ -52,7 +52,7 @@ public class CustomerService {
             String normalized = phone.replace("-", "");
 
             if (!normalized.matches(regex)) {
-                throw new IllegalArgumentException("Invalid Swedish phone number");
+                throw new IllegalArgumentException("customer.error.invalid_phone");
             }
 
             if (normalized.length() == 10) { // t.ex. 0701234567

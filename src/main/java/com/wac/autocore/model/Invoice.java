@@ -1,7 +1,8 @@
 package com.wac.autocore.model;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.*;
 @Entity
 @Table(name = "invoice")
@@ -18,12 +19,8 @@ public class Invoice {
     private double amount;
     @Column(name = "discount", nullable = false)
     private double discount;
-    /*
-    redundant information, remove?
-
-    @Column(name = "total_amount", nullable = false)
-    private double totalAmount;
-     */
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<InvoiceLine> invoiceLines = new ArrayList<>();
     @Column(name = "paid", nullable = false)
     private boolean paid;
 
@@ -35,6 +32,15 @@ public class Invoice {
         this.invoiceDate = invoiceDate;
         this.amount = amount;
         this.discount = discount;
+        this.paid = false;
+    }
+
+    public Invoice(WorkOrder workOrder, LocalDate invoiceDate, double amount, double discount, List<InvoiceLine> invoiceLines) {
+        this.workOrder = workOrder;
+        this.invoiceDate = invoiceDate;
+        this.amount = amount;
+        this.discount = discount;
+        this.invoiceLines = invoiceLines;
         this.paid = false;
     }
 
