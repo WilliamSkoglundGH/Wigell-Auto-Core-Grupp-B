@@ -80,7 +80,7 @@ public class InvoiceService {
                         discountCodeStrategy = new FixedDiscount(BigDecimal.valueOf(200));
                         //om discountCodeStrategy is instanceOf FixedDiscount gör såhär.
                         if (customer.isVip()){}
-                        break; 
+                        break;
                     }*/
 
                     if (customer.isVip()) {
