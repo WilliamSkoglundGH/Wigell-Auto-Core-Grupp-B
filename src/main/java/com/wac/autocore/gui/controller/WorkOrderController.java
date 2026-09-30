@@ -5,6 +5,7 @@ import com.wac.autocore.exception.BookingWithoutServicesException;
 import com.wac.autocore.exception.MechanicNotAvailableException;
 import com.wac.autocore.gui.util.FormatUIUtil;
 import com.wac.autocore.model.Booking;
+import com.wac.autocore.model.BookingServiceItem;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.service.BookingService;
@@ -25,6 +26,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -53,8 +55,8 @@ public class WorkOrderController extends OverController {
 
     @FXML
     private ComboBox<Booking> bookingComboBox;
-    @FXML
-    private ListView<ServiceItem> servicesListView;
+ //   @FXML
+ //   private ListView<ServiceItem> servicesListView;
 
     private final Map<Long, javafx.beans.property.BooleanProperty> serviceSelections = new HashMap<>();
 
@@ -117,7 +119,7 @@ public class WorkOrderController extends OverController {
 
         // NewWorkOrderView.fxml
         loadBookingComboBox();
-        loadServiceList();
+        //loadServiceList();
     }
 
 
@@ -176,6 +178,7 @@ public class WorkOrderController extends OverController {
             workOrderService.completeWorkOrder(selected.getId());
             workOrderTable.refresh();
             messages.showSuccess(getString("workorder.success.workorder_completed"));
+            loadWorkOrderData();
         } catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.unexpected"));
@@ -230,7 +233,7 @@ public class WorkOrderController extends OverController {
         }
     }
 
-    private void loadServiceList() {
+/*    private void loadServiceList() {
         if (servicesListView != null) {
             ObservableList<ServiceItem> serviceItems = FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
             servicesListView.setItems(serviceItems);
@@ -254,7 +257,7 @@ public class WorkOrderController extends OverController {
             ));
         }
     }
-
+*/
     @FXML
     private void handleSaveWorkOrder() {
         try {
@@ -264,18 +267,11 @@ public class WorkOrderController extends OverController {
                     messages.showError(getString("workorder.error.select_booking"));
                     return;
                 }
-                // Samla tjänster från checkbox.
-                List<ServiceItem> serviceItems = serviceItemService.getAllServiceItems().stream()
-                        .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
-                        .collect(Collectors.toList());
-                if (serviceItems.isEmpty()) {
-                    messages.showError(getString("workorder.error.no_serviceitem"));
-                    return;
-                } else {
-                    selectedBooking.setStatus("WORK_ORDER_CREATED");
-                    workOrderService.saveWorkOrder(selectedBooking.getId(), serviceItems);
+                      selectedBooking.setStatus("WORK_ORDER_CREATED");
+
+                    workOrderService.saveWorkOrder(selectedBooking.getId());
                     messages.showSuccess(getString("workorder.success.workorder_created"));
-                }
+
             }
         } catch (Exception e) {
             logger.error("Something Unexpected. {}", e.getMessage(), e);

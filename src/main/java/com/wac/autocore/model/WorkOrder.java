@@ -32,6 +32,11 @@ public class WorkOrder {
 
     protected WorkOrder() {
     }
+
+    public WorkOrder(Booking booking, String status) {
+        this.booking = booking;
+        this.status = status;
+    }
 //TODO denna ska senare bort!!
 
     public WorkOrder(Booking booking, List<WorkOrderServiceItem> serviceItems, String status) {
@@ -93,6 +98,10 @@ public class WorkOrder {
         item.setPriceAtTime(price);
         item.setDurationAtTime(duration);
         this.serviceItems.add(item);
+    }
+
+    public void setServiceItems(List<WorkOrderServiceItem> serviceItems) {
+        this.serviceItems = serviceItems;
     }
 
     public List<WorkOrderServiceItem> getServiceItems() {
