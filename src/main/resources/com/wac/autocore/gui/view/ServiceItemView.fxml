@@ -19,7 +19,11 @@
                 <TableColumn fx:id="idColumn" text="%table.id" />
                 <TableColumn fx:id="nameColumn" text="%table.name" />
                 <TableColumn fx:id="descriptionColumn" text="%table.description" />
-                <TableColumn fx:id="priceColumn" text="%serviceItem.priceColumn" editable="true"/>
+                <TableColumn fx:id="priceColumn"
+                             text="%serviceItem.priceColumn"
+                             editable="true"
+                             styleClass="editable-column"/>
+
                 <TableColumn fx:id="estimatedMinutesColumn" text="%serviceItem.estimatedMinutesColumn" />
             </columns>
         </TableView>

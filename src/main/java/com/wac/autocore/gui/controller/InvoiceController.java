@@ -77,7 +77,7 @@ public class InvoiceController extends OverController {
 
         // NewInvoiceView.fxml
         if (workOrderComboBox != null) {
-            populateComboBox();
+           // populateComboBox();
             workOrderComboBox.requestFocus();
         }
     }
@@ -94,7 +94,7 @@ public class InvoiceController extends OverController {
             }
         }
     }
-
+    /*
     private void populateComboBox() {
         if (workOrderComboBox != null) {
             List<Invoice> invoices = invoiceService.getAllInvoices();
@@ -123,6 +123,8 @@ public class InvoiceController extends OverController {
             });
         }
     }
+
+     */
 
     @FXML
     private void handleNewInvoice() {
