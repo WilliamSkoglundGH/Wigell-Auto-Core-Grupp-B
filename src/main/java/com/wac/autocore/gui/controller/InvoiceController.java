@@ -1,5 +1,6 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.WorkOrderSummaryDto;
 import com.wac.autocore.exception.WorkOrderNotFoundException;
 import com.wac.autocore.service.InvoiceService;
 import com.wac.autocore.service.WorkOrderService;
@@ -40,7 +41,7 @@ public class InvoiceController extends OverController {
     @FXML private TableColumn<Invoice, String> paidColumn;
 
     @FXML private TextField discountCodeField;
-    @FXML private ComboBox<WorkOrder> workOrderComboBox;
+    @FXML private ComboBox<WorkOrderSummaryDto> workOrderComboBox;
 
     private final InvoiceService invoiceService;
     private final WorkOrderService workOrderService;
@@ -99,15 +100,15 @@ public class InvoiceController extends OverController {
         if (workOrderComboBox != null) {
             List<Invoice> invoices = invoiceService.getAllInvoices();
             // TODO här kommer workordersumamryDTO i listan.
-            List<WorkOrder> workOrdersList = workOrderService.getAllWorkOrders().stream()
+            List<WorkOrderSummaryDto> workOrdersList = workOrderService.getAllWorkOrders().stream()
                     .filter(wo -> "COMPLETED".equalsIgnoreCase(wo.getStatus())) // Endast färdiga
                     .filter(wo -> invoices.stream()
                             .noneMatch(inv -> inv.getWorkOrder().getId().equals(wo.getId()))) // Som INTE redan har en faktura
                     .collect(Collectors.toList());
 
             workOrderComboBox.setItems(FXCollections.observableArrayList(workOrdersList));
-
-            workOrderComboBox.setConverter(new StringConverter<WorkOrder>() {
+/*
+            workOrderComboBox.setConverter(new StringConverter<WorkOrderSummaryDto>() {
                 @Override
                 public String toString(WorkOrder workOrder) {
                         return getString("invoice.option.workorderId") + ": "
@@ -120,7 +121,7 @@ public class InvoiceController extends OverController {
                 public WorkOrder fromString(String s) {
                     return null;
                 }
-            });
+            });*/
         }
     }
 
@@ -140,7 +141,7 @@ public class InvoiceController extends OverController {
             return;
         }
 
-        WorkOrder selectedWorkOrder = workOrderComboBox.getValue();
+        WorkOrderSummaryDto selectedWorkOrder = workOrderComboBox.getValue();
         String discountCode = discountCodeField != null ? discountCodeField.getText().trim() : "";
 
         try {

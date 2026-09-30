@@ -61,8 +61,6 @@ public class InvoiceService {
                     "invoice.error.already_exists"
             );
         }
-        // Går bara att ha Service 200 kr på totalen - hur räknar man då??
-
 
         BigDecimal workOrderTotalPrice = BigDecimal.ZERO; //STORA TOTALEN
         BigDecimal discount = BigDecimal.ZERO; // Stora i kronor
@@ -71,101 +69,51 @@ public class InvoiceService {
 
         Customer customer = selectedWorkOrder.getBooking().getVehicle().getCustomer();
 
-        if(isDiscount(customer, discountCode)) {
-
-
-            if (discountCode != null && !discountCode.trim().isEmpty()) {
-            DiscountStrategy discountCodeStrategy = null;
-
-            if (discountCode.equalsIgnoreCase("WELCOME10")) {
-                discountCodeStrategy = new PercentageDiscount(10);
-            }
-            /*else if (discountCode.equalsIgnoreCase("SERVICE200")) {
-                discountCodeStrategy = new FixedDiscount(200);
-            }*/
-        }
             for (WorkOrderServiceItem serviceItem : selectedWorkOrder.getServiceItems()) {
                 BigDecimal amount = serviceItem.getPriceAtTime();
                 BigDecimal lineDiscount = BigDecimal.ZERO;
-                if(customer.isVip()){
-                    DiscountStrategy vipDiscount = new PercentageDiscount(10);
-                    lineDiscount = vipDiscount.calculateDiscount(amount);
-                }
+
                 if (discountCode != null && !discountCode.trim().isEmpty()) {
                     DiscountStrategy discountCodeStrategy = null;
-                    if (discountCode.equalsIgnoreCase("WELCOME10")) {
-                        discountCodeStrategy = new PercentageDiscount(10);
+
+                    /*if (discountCode.equalsIgnoreCase("SERVICE200")) {
+                        discountCodeStrategy = new FixedDiscount(BigDecimal.valueOf(200));
+                        //om discountCodeStrategy is instanceOf FixedDiscount gör såhär.
+                        if (customer.isVip()){}
+                        break; // Lämna
+                    }*/
+
+                    if (customer.isVip()) {
+                        DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
+                        lineDiscount = vipDiscount.calculateDiscount(amount);
+                    }
+                    if (discountCode.equalsIgnoreCase("WELCOME10"))
+                    // ? Lägga in godkända discountkoder i en fil kopplad till antal procent och loopa igenom denna för att sätta discount värderna.
+                    { discountCodeStrategy = new PercentageDiscount(BigDecimal.valueOf(10));
                         lineDiscount = discountCodeStrategy.calculateDiscount(amount);
-                    }}
-                if (lineDiscount.compareTo(workOrderTotalPrice) > 0) {
-                    lineDiscount = workOrderTotalPrice;
+                    }
+                }
+                if (lineDiscount.compareTo(amount) > 0) {
+                    lineDiscount = amount;
                 }
 
-            InvoiceLine line = createInvoiceLine(serviceItem.getServiceItem().getName(),amount,lineDiscount);
-            invoiceLines.add(line);
+                InvoiceLine line = new InvoiceLine(serviceItem.getServiceItem().getName(), amount, lineDiscount);
+                invoiceLines.add(line);
 
-            // Uppdaterar stora summorna
-            workOrderTotalPrice = workOrderTotalPrice.add(serviceItem.getPriceAtTime());
-            discount = discount.add(lineDiscount);
+                // Uppdaterar stora summorna
+                workOrderTotalPrice = workOrderTotalPrice.add(serviceItem.getPriceAtTime());
+                discount = discount.add(lineDiscount);
                 if (discount.compareTo(workOrderTotalPrice) > 0) {
                     discount = workOrderTotalPrice;
                 }
             }
 
-             // skriv om med metoder
-         /*   if (discountCodeStrategy != null) {
-                discount += discountCodeStrategy.calculateDiscount(workOrderTotalPrice.doubleValue());
-            }*/
-        }
-
-
             //Skapa invoicen
             Invoice invoice = new Invoice(selectedWorkOrder, LocalDate.now(),
-                    workOrderTotalPrice.doubleValue(), discount.doubleValue(),invoiceLines);
+                    workOrderTotalPrice, discount,invoiceLines);
 
             return invoiceRepository.save(invoice);
     }
-
-    // Lägg totala discount och summan?? utanför.
-
-    // lägg en loopish där du checkar av för varje line om kund är vip och discountcode.
-    // Lägg till i totala discounten summan samt radens på line.
-/*
-    public BigDecimal countTotal(WorkOrder selectedWorkOrder,Customer customer) {
-        BigDecimal total = BigDecimal.ZERO; //STORA TOTALEN
-        List<InvoiceLine> lines = new ArrayList<>();
-        for (WorkOrderServiceItem serviceItem : selectedWorkOrder.getServiceItems()) {
-
-
-            lines.add(line);
-            total = total.add(serviceItem.getPriceAtTime()); }
-
-        return total;
-    }
-    /*
- */
-    public double checkVipSetDiscount(Customer customer, BigDecimal total) {
-     if (customer.isVip()) {
-         DiscountStrategy vipDiscount = new PercentageDiscount(10);
-         return vipDiscount.calculateDiscount(total.doubleValue());
-     } else {return 0.0;}
- }
-
-
-
-    public boolean isDiscount(Customer customer, String discountCode){
-        if(customer.isVip()|| discountCode != null && !discountCode.trim().isEmpty()){ return true;}
-        else {return false;}
-    }
-
-
-
-    public InvoiceLine createInvoiceLine(String name, BigDecimal amount, BigDecimal discount) {
-        return new InvoiceLine(name,amount.doubleValue(),discount.doubleValue());
-         }
-
-
-
 
 
 }
