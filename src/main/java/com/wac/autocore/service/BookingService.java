@@ -85,6 +85,11 @@ public class BookingService {
 
     }
 
+    @Transactional(readOnly = true)
+    public List<Booking> getAllBookingsWithServiceItems() {
+        return bookingRepository.findAllWithServiceItems();
+    }
+
     @Transactional
     public Booking removeServiceItemFromBooking(Long bookingId, Long bookingServiceItemId){
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow( () ->
