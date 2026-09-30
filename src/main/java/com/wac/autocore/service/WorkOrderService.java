@@ -72,7 +72,7 @@ public class WorkOrderService {
         Booking booking = bookingService.getBooking(bookingId);
         booking.setStatus("WORK_ORDER_CREATED");
          WorkOrder newWorkOrder = new WorkOrder(booking, "CREATED");
-        newWorkOrder.setServiceItems(WorkOrderMapper.toWorkOrderServicesFromBookingServices(booking, newWorkOrder));
+
 
        workOrderRepository.save(newWorkOrder);
     }
@@ -98,24 +98,25 @@ public class WorkOrderService {
         if (!mechanic.isAvailable()) {
             throw new MechanicNotAvailableException("Mechanic not available, occupied on another workorder.");
         }
-        if (booking.getServiceItems() != null) {
-            for (BookingServiceItem bookingItem : booking.getServiceItems()) {
-                WorkOrderServiceItem item = new WorkOrderServiceItem(
-                        workOrder,
-                        bookingItem.getServiceItem(),
-                        bookingItem.getPriceAtTime(),
-                        bookingItem.getDurationAtTime()
-                );
-                workOrder.getServiceItems().add(item);
-            }
-        } else {
+
+
+        if (booking.getServiceItems() == null || booking.getServiceItems().isEmpty()) {
             throw new BookingWithoutServicesException("Booking has no Services, please add services to booking first.");
         }
+
+        List<WorkOrderServiceItem> workOrderItems = WorkOrderMapper.toWorkOrderServicesFromBookingServices(booking, workOrder);
+//sätt time started i workorder
+
+        workOrder.getServiceItems().clear();
+        workOrder.getServiceItems().addAll(workOrderItems);
+
+        workOrder.setStartTime(LocalDateTime.now());
         workOrder.setStatus("IN_PROGRESS");
         booking.setStatus("IN_PROGRESS");
         mechanic.setAvailable(false);
 
         workOrderRepository.save(workOrder);
+
     }
 
     @Transactional
@@ -135,7 +136,7 @@ public class WorkOrderService {
         }
 
         Mechanic mechanic = mechanicService.getMechanic(booking.getMechanic().getId());
-
+        workOrder.setEndTime(LocalDateTime.now());
         workOrder.setStatus("COMPLETED");
         booking.setStatus("COMPLETED");
         mechanic.setAvailable(true);

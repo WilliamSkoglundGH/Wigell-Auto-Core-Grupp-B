@@ -178,6 +178,7 @@ public class WorkOrderController extends OverController {
             workOrderService.completeWorkOrder(selected.getId());
             workOrderTable.refresh();
             messages.showSuccess(getString("workorder.success.workorder_completed"));
+            loadWorkOrderData();
         } catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.unexpected"));
@@ -266,19 +267,11 @@ public class WorkOrderController extends OverController {
                     messages.showError(getString("workorder.error.select_booking"));
                     return;
                 }
-                // Samla tjänster från checkbox.
- /*               List<ServiceItem> serviceItems = serviceItemService.getAllServiceItems().stream()
-                        .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
-                        .collect(Collectors.toList());
-                if (serviceItems.isEmpty()) {
-                    messages.showError(getString("workorder.error.no_serviceitem"));
-                    return;
-                } else {
-   */                 selectedBooking.setStatus("WORK_ORDER_CREATED");
+                      selectedBooking.setStatus("WORK_ORDER_CREATED");
 
                     workOrderService.saveWorkOrder(selectedBooking.getId());
                     messages.showSuccess(getString("workorder.success.workorder_created"));
-                //}
+
             }
         } catch (Exception e) {
             logger.error("Something Unexpected. {}", e.getMessage(), e);
