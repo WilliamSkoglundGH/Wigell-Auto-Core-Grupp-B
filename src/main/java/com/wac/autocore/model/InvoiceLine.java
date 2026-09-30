@@ -8,11 +8,9 @@ public class InvoiceLine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invoice_id", nullable = false)
     private Invoice invoice;
-
     @Column(name = "name_of_service", length = 60, nullable = false)
     private String nameOfService;
     @Column(name = "amount", nullable = false)
@@ -23,12 +21,13 @@ public class InvoiceLine {
     protected InvoiceLine() {
     }
 
-    public InvoiceLine(Invoice invoice, String nameOfService, double amount, double discount) {
-        this.invoice = invoice;
+    public InvoiceLine(String nameOfService, double amount, double discount) {
         this.nameOfService = nameOfService;
         this.amount = amount;
         this.discount = discount;
+        // Invoice skapas efter och sätts då.
     }
+
 
     public Long getId() {
         return id;

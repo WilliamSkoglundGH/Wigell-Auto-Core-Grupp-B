@@ -98,7 +98,7 @@ public class InvoiceController extends OverController {
     private void populateComboBox() {
         if (workOrderComboBox != null) {
             List<Invoice> invoices = invoiceService.getAllInvoices();
-
+            // TODO här kommer workordersumamryDTO i listan.
             List<WorkOrder> workOrdersList = workOrderService.getAllWorkOrders().stream()
                     .filter(wo -> "COMPLETED".equalsIgnoreCase(wo.getStatus())) // Endast färdiga
                     .filter(wo -> invoices.stream()

@@ -53,6 +53,11 @@ public class Invoice {
         return workOrder;
     }
 
+    public void addInvoiceLine(InvoiceLine invoiceLine) {
+        invoiceLines.add(invoiceLine);
+        invoiceLine.setInvoice(this);
+    }
+
     public void setWorkOrder(WorkOrder workOrder) {
         this.workOrder = workOrder;
     }
