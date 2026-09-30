@@ -7,6 +7,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.converter.DoubleStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -37,16 +39,40 @@ public class ServiceItemController extends OverController {
     @FXML
     public void initialize() {
         if (serviceItemTable != null) {
+
+            // Vanliga celler
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
             descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
             priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
             estimatedMinutesColumn.setCellValueFactory(new PropertyValueFactory<>("estimatedMinutes"));
 
+            serviceItemTable.setEditable(true);
+
+            // Redigera priset
+            priceColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+
+            priceColumn.setOnEditCommit(event -> {
+                ServiceItem item = event.getRowValue();
+                double newPrice = event.getNewValue();
+
+                try {
+                    serviceItemService.changePrice(item.getId(), newPrice);
+
+                    item.setPrice(newPrice);
+                    serviceItemTable.refresh();
+
+                } catch (Exception e) {
+                    messages.showError("Kunde inte ändra priset: " + e.getMessage());
+                    serviceItemTable.refresh();
+                }
+            });
+
             loadServiceItemData();
             serviceItemTable.requestFocus();
         }
     }
+
 
     public void loadServiceItemData() {
         if (serviceItemTable != null) {
