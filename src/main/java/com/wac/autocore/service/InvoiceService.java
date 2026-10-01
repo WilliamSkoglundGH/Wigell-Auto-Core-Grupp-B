@@ -1,6 +1,8 @@
 
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.invoiceLine.InvoiceDto;
+import com.wac.autocore.mapper.InvoiceMapper;
 import com.wac.autocore.model.*;
 import com.wac.autocore.service.discount.DiscountStrategy;
 import com.wac.autocore.service.discount.FixedDiscount;
@@ -39,10 +41,11 @@ public class InvoiceService {
     }
 
     @Transactional(readOnly = true)
-    public Invoice getInvoice(Long invoiceId) {
-        return invoiceRepository.findById(invoiceId).orElseThrow(() -> new InvoiceNotFoundException(
+    public InvoiceDto getInvoice(Long invoiceId) {
+         Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(() -> new InvoiceNotFoundException(
                 "Invoice with ID: " + invoiceId + " not found"
         ));
+        return InvoiceMapper.toInvoiceDto(invoice);
     }
 
     @Transactional
@@ -72,11 +75,11 @@ public class InvoiceService {
             for (WorkOrderServiceItem serviceItem : selectedWorkOrder.getServiceItems()) {
                 BigDecimal amount = serviceItem.getPriceAtTime();
                 BigDecimal lineDiscount = BigDecimal.ZERO;
-/*
-                if (discountCode == null && discountCode.isEmpty() && customer.isVip()) {
+
+                if (discountCode == null && customer.isVip()) { // FUnkar detta???
                     DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
                     lineDiscount = vipDiscount.calculateDiscount(amount);
-                }*/
+                }
 
                 if (discountCode != null && !discountCode.trim().isEmpty()) {
                     DiscountStrategy discountCodeStrategy = null;

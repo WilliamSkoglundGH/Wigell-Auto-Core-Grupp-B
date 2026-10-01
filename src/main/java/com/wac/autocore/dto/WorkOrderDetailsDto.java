@@ -13,7 +13,7 @@ public class WorkOrderDetailsDto {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private Integer estimatedDuration;
-    private BigDecimal estimatedPrice; // eller double/int beroende på vad du använder
+    private BigDecimal estimatedPrice;
     private List<WorkOrderServiceItemDto> serviceItems;
     private Long bookingId;
 
