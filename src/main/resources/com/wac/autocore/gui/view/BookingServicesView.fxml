@@ -20,6 +20,9 @@
                styleClass="heading-2"/>
 
         <TableView fx:id="bookingServicesTable" VBox.vgrow="ALWAYS">
+            <placeholder>
+                <Label text="%booking.services.empty"/>
+            </placeholder>
             <columns>
                 <TableColumn fx:id="serviceNameColumn"
                              text="%table.name"
