@@ -91,7 +91,7 @@ public class InvoiceController extends OverController {
 
         // NewInvoiceView.fxml
         if (workOrderComboBox != null) {
-            populateComboBox();
+           // populateComboBox();
             workOrderComboBox.requestFocus();
         }
 

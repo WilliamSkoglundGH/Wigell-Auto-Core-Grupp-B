@@ -1,5 +1,6 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.gui.util.BigDecimalStringConverter;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.service.ServiceItemService;
 import javafx.collections.FXCollections;
@@ -7,12 +8,16 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.converter.DoubleStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
+
+import java.math.BigDecimal;
 
 @Controller
 @Scope("prototype")
@@ -22,13 +27,12 @@ public class ServiceItemController extends OverController {
     @FXML private TableColumn<ServiceItem, Long> idColumn;
     @FXML private TableColumn<ServiceItem, String> nameColumn;
     @FXML private TableColumn<ServiceItem, String> descriptionColumn;
-    @FXML private TableColumn<ServiceItem, Double> priceColumn;
+    @FXML private TableColumn<ServiceItem, BigDecimal> priceColumn;
     @FXML private TableColumn<ServiceItem, Integer> estimatedMinutesColumn;
 
     private final ServiceItemService serviceItemService;
     private static final Logger logger = LoggerFactory.getLogger(ServiceItemController.class);
 
-    // Spring injicerar ServiceItemService och ApplicationContext (som skickas vidare till OverController)
     public ServiceItemController(ServiceItemService serviceItemService, ApplicationContext applicationContext) {
         this.serviceItemService = serviceItemService;
         this.applicationContext = applicationContext;
@@ -37,11 +41,43 @@ public class ServiceItemController extends OverController {
     @FXML
     public void initialize() {
         if (serviceItemTable != null) {
+
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
             descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
             priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
             estimatedMinutesColumn.setCellValueFactory(new PropertyValueFactory<>("estimatedMinutes"));
+
+            serviceItemTable.setEditable(true);
+
+            priceColumn.setCellFactory(TextFieldTableCell.forTableColumn(new BigDecimalStringConverter()));
+
+            priceColumn.setOnEditCommit(event -> {
+                ServiceItem item = event.getRowValue();
+                BigDecimal newPrice = event.getNewValue();
+
+                int rowIndex = event.getTablePosition().getRow();
+
+                try {
+                    serviceItemService.changePrice(item.getId(), newPrice);
+                    item.setPrice(newPrice);
+
+                    messages.showSuccess("Pris ändrat till " + newPrice + " SEK");
+
+                } catch (Exception e) {
+                    messages.showError("Kunde inte ändra priset: " + e.getMessage());
+                }
+                // allt jag vill är att stå kvar på samma raaaaaad!!
+                javafx.application.Platform.runLater(() -> {
+                    javafx.application.Platform.runLater(() -> {
+                        serviceItemTable.getSelectionModel().select(rowIndex);
+                        serviceItemTable.scrollTo(rowIndex);
+                        serviceItemTable.requestFocus();
+                    });
+                });
+            });
+
+
 
             loadServiceItemData();
             serviceItemTable.requestFocus();
