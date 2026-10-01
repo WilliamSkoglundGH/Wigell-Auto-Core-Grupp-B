@@ -1,9 +1,6 @@
 package com.wac.autocore.service;
 
-import com.wac.autocore.dto.workorder.WorkOrderDetailsDto;
-import com.wac.autocore.dto.workorder.WorkOrderResponseDto;
-import com.wac.autocore.dto.workorder.WorkOrderServiceItemDto;
-import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
+import com.wac.autocore.dto.workorder.*;
 import com.wac.autocore.exception.*;
 import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.*;
@@ -24,13 +21,11 @@ public class WorkOrderService {
     private final Logger logger = LoggerFactory.getLogger(WorkOrderService.class);
     private WorkOrderRepository workOrderRepository;
     private BookingService bookingService;
-    private ServiceItemService serviceItemService;
     private MechanicService mechanicService;
 
-    public WorkOrderService(WorkOrderRepository workOrderRepository, BookingService bookingService, ServiceItemService serviceItemService, MechanicService mechanicService) {
+    public WorkOrderService(WorkOrderRepository workOrderRepository, BookingService bookingService, MechanicService mechanicService) {
         this.workOrderRepository = workOrderRepository;
         this.bookingService = bookingService;
-        this.serviceItemService = serviceItemService;
         this.mechanicService = mechanicService;
     }
 
@@ -186,5 +181,6 @@ public class WorkOrderService {
 
         return dto;
     }
+
 }
 
