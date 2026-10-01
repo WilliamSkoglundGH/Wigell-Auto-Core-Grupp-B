@@ -73,7 +73,7 @@
 
     <!-- Knappar -->
     <HBox styleClass="button-spacing">
-        <Button text="%btn.cancel" />
+        <Button text="%btn.back" onAction="#handleBackToInvoiceView" />
     </HBox>
 
 </VBox>

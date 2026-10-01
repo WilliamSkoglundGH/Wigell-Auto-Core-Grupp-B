@@ -51,7 +51,18 @@ public class InvoiceLine {
     public void setNameOfService(String nameOfService) {
         this.nameOfService = nameOfService;
     }
+    public BigDecimal getTotalAmount() {
 
+        if (amount == null) {
+            return BigDecimal.ZERO;
+        }
+        if (discount == null) {
+            return amount;
+        }
+
+
+        return amount.subtract(discount);
+    }
     public BigDecimal getAmount() {
         return amount;
     }
