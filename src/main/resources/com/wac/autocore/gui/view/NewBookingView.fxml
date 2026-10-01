@@ -36,20 +36,31 @@
                         prefWidth="250"
                         GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
+            <!-- Val av tjänster -->
+            <Label text="%booking.servicesLabel"
+                   GridPane.columnIndex="0"
+                   GridPane.rowIndex="2"/>
+
+            <ListView fx:id="servicesListView"
+                      prefHeight="200"
+                      prefWidth="450"
+                      GridPane.columnIndex="1"
+                      GridPane.rowIndex="2"/>
+
             <!-- Description -->
-            <Label text="%booking.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <Label text="%booking.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
             <TextArea fx:id="descriptionField"
                       promptText="%booking.prompt-desc"
                       prefRowCount="3"
                       wrapText="true"
                       prefWidth="250"
-                      GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                      GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
             <!-- Mechanic -->
-            <Label text="%booking.mechanicLabel" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <Label text="%booking.mechanicLabel" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
             <ComboBox fx:id="mechanicField"
                       prefWidth="250"
-                      GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                      GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 
 
 

@@ -25,8 +25,7 @@ public class InvoiceLine {
     protected InvoiceLine() {
     }
 
-    public InvoiceLine(Invoice invoice, String nameOfService, BigDecimal amount, BigDecimal discount) {
-        this.invoice = invoice;
+    public InvoiceLine(String nameOfService,BigDecimal amount, BigDecimal discount) {
         this.nameOfService = nameOfService;
         this.amount = amount;
         this.discount = discount;

@@ -1,6 +1,7 @@
 
 package com.wac.autocore.service;
 
+import com.wac.autocore.model.*;
 import com.wac.autocore.service.discount.DiscountStrategy;
 import com.wac.autocore.service.discount.FixedDiscount;
 import com.wac.autocore.service.discount.PercentageDiscount;
@@ -12,11 +13,13 @@ import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.repository.InvoiceRepository;
 import com.wac.autocore.repository.WorkOrderRepository;
+import org.hibernate.jdbc.Work;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,7 +48,7 @@ public class InvoiceService {
     @Transactional
     public Invoice createInvoice(Long workOrderId, String discountCode) {
         WorkOrder selectedWorkOrder = workOrderRepository.findById(workOrderId).orElseThrow(() -> new WorkOrderNotFoundException(
-                "WorkOrder with ID: " + workOrderId + " not found"
+                "WorkOrder with ID: " + workOrderId+  " not found"
         ));
         if (!selectedWorkOrder.getStatus().equals("COMPLETED")) {
             throw new IllegalStateException(
@@ -59,45 +62,68 @@ public class InvoiceService {
             );
         }
 
-        BigDecimal workOrderPrice = BigDecimal.ZERO;
-        //TODO glöm inte att byta tillbaka här!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        /*for (ServiceItem serviceItem : selectedWorkOrder.getServiceItems()) {
-            workOrderPrice += serviceItem.getPrice();
-        }*/
+        BigDecimal workOrderTotalPrice = BigDecimal.ZERO; //STORA TOTALEN
+        BigDecimal discount = BigDecimal.ZERO; // STORA DISCOUNT
 
+        List<InvoiceLine> invoiceLines = new ArrayList<>();
 
-        BigDecimal discount = BigDecimal.ZERO;
         Customer customer = selectedWorkOrder.getBooking().getVehicle().getCustomer();
 
-        if (customer.isVip()) {
-            DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
-            discount = discount.add(vipDiscount.calculateDiscount(workOrderPrice));
-        }
+            for (WorkOrderServiceItem serviceItem : selectedWorkOrder.getServiceItems()) {
+                BigDecimal amount = serviceItem.getPriceAtTime();
+                BigDecimal lineDiscount = BigDecimal.ZERO;
+/*
+                if (discountCode == null && discountCode.isEmpty() && customer.isVip()) {
+                    DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
+                    lineDiscount = vipDiscount.calculateDiscount(amount);
+                }*/
 
-        if (discountCode != null && !discountCode.trim().isEmpty()) {
-            DiscountStrategy discountCodeStrategy = null;
+                if (discountCode != null && !discountCode.trim().isEmpty()) {
+                    DiscountStrategy discountCodeStrategy = null;
 
-            if (discountCode.equalsIgnoreCase("WELCOME10")) {
-                discountCodeStrategy = new PercentageDiscount(BigDecimal.valueOf(10));
-            } else if (discountCode.equalsIgnoreCase("SERVICE200")) {
-                discountCodeStrategy = new FixedDiscount(BigDecimal.valueOf(200));
+                    if (discountCode.equalsIgnoreCase("SERVICE200")) {
+                        discountCodeStrategy = new FixedDiscount(BigDecimal.valueOf(200));
+                        workOrderTotalPrice = discountCodeStrategy.calculateDiscount(amount);
+                          if (customer.isVip()){
+                              DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
+                              discount = vipDiscount.calculateDiscount(amount);
+                          }
+                        break;
+                    }
+
+                    if (customer.isVip()) {
+                        DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
+                        lineDiscount = vipDiscount.calculateDiscount(amount);
+                    }
+
+                    if (discountCode.equalsIgnoreCase("WELCOME10"))
+                    { discountCodeStrategy = new PercentageDiscount(BigDecimal.valueOf(10));
+                        lineDiscount = discountCodeStrategy.calculateDiscount(amount);
+                    }
+                }
+                if (lineDiscount.compareTo(amount) > 0) {
+                    lineDiscount = amount;
+                }
+
+                InvoiceLine line = new InvoiceLine(serviceItem.getServiceItem().getName(), amount, lineDiscount);
+                invoiceLines.add(line);
+
+
+             // Uppdaterar stora summorna efter varje rad.
+                workOrderTotalPrice = workOrderTotalPrice.add(serviceItem.getPriceAtTime());
+                discount = discount.add(lineDiscount);}
+
+            if (discount.compareTo(workOrderTotalPrice) > 0) {
+                    discount = workOrderTotalPrice;
             }
 
-            if (discountCodeStrategy != null) {
-                discount = discount.add(discountCodeStrategy.calculateDiscount(workOrderPrice));
-            }
-        }
-        if (discount.compareTo(workOrderPrice) > 0) {
-            // Gör någonting, t.ex. sätt rabatten till att maximalt vara lika med priset
-            discount = workOrderPrice;
-        }
-
-
+            //Skapa invoicen
             Invoice invoice = new Invoice(selectedWorkOrder, LocalDate.now(),
-                    workOrderPrice, discount);
+                    workOrderTotalPrice, discount,invoiceLines);
 
             return invoiceRepository.save(invoice);
     }
+
 
 }
 

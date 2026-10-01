@@ -1,5 +1,6 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.WorkOrderSummaryDto;
 import com.wac.autocore.exception.WorkOrderNotFoundException;
 import com.wac.autocore.service.InvoiceService;
 import com.wac.autocore.service.WorkOrderService;
@@ -7,10 +8,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.WorkOrder;
@@ -40,13 +39,13 @@ public class InvoiceController extends OverController {
     @FXML private TableColumn<Invoice, String> paidColumn;
 
     @FXML private TextField discountCodeField;
-    @FXML private ComboBox<WorkOrder> workOrderComboBox;
+    @FXML private ComboBox<WorkOrderSummaryDto> workOrderComboBox;
+    @FXML private Button detailsButton;
 
     private final InvoiceService invoiceService;
     private final WorkOrderService workOrderService;
     private static final Logger logger = LoggerFactory.getLogger(InvoiceController.class);
 
-    // Spring injicerar tjänster samt ApplicationContext (som sätts via superklassen)
     public InvoiceController(InvoiceService invoiceService, WorkOrderService workOrderService, ApplicationContext applicationContext) {
         this.invoiceService = invoiceService;
         this.workOrderService = workOrderService;
@@ -70,6 +69,21 @@ public class InvoiceController extends OverController {
                     new SimpleObjectProperty<>(
                             getString(cellData.getValue().isPaid() ? "common.yes" : "common.no")
                     ));
+            //Ritar in funktion i tabellen, om man dubbelklickar kommer
+            // man till detaljer eller om man markerar och trycker på knappen hänger radens info med.
+            invoiceTable.setRowFactory(tv -> {
+                TableRow<Invoice> row = new TableRow<>();
+                row.setOnMouseClicked(e -> {
+                    if (e.getClickCount() == 2 && !row.isEmpty()) {
+                        openInvoiceDetailsModal(row.getItem().getId());
+                    }
+                });
+                return row;
+            });
+            //Detaljer-knappen är disabled tills den rad är vald.
+            detailsButton.disableProperty().bind(
+                    invoiceTable.getSelectionModel().selectedItemProperty().isNull()
+            );
 
             loadInvoiceData();
             invoiceTable.requestFocus();
@@ -80,6 +94,7 @@ public class InvoiceController extends OverController {
            // populateComboBox();
             workOrderComboBox.requestFocus();
         }
+
     }
 
     public void loadInvoiceData() {
@@ -94,12 +109,54 @@ public class InvoiceController extends OverController {
             }
         }
     }
-    /*
+
+    //-----------------------------------
+    // Invoice functions first page + modal
+    //-----------------------------------
+
+
+    @FXML
+    private void handleDetails() {
+        Invoice selected = invoiceTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            return;
+        }
+        Long id = selected.getId();
+        openInvoiceDetailsModal(id);
+
+    }
+    //-----------------------------------
+    // Invoice Detail Modal
+    //-----------------------------------
+
+    private void openInvoiceDetailsModal(Long invoiceId){
+
+            loadCenterView("/com/wac/autocore/gui/view/InvoiceDetailsModal.fxml");
+            /*
+            Stage stage = new Stage();
+            stage.setTitle("Faktura " + id);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(invoiceTable.getScene().getWindow());
+            stage.setScene(new Scene(root));
+            stage.showAndWait();   // blockerar tills fönstret stängs
+
+            invoiceTable.refresh(); // om något kan ha ändrats i dialogen
+        } catch (IOException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Kunde inte öppna detaljer: " + e.getMessage()).showAndWait();
+        }*/
+                System.out.println("Snart kommer en modal som visar info om Fakturnr."+ invoiceId);
+    }
+
+
+    //-----------------------------------
+    // New Invoice Functions
+    //-----------------------------------
+
     private void populateComboBox() {
         if (workOrderComboBox != null) {
             List<Invoice> invoices = invoiceService.getAllInvoices();
-
-            List<WorkOrder> workOrdersList = workOrderService.getAllWorkOrders().stream()
+            List<WorkOrderSummaryDto> workOrdersList = workOrderService.getAllWorkOrders().stream()
                     .filter(wo -> "COMPLETED".equalsIgnoreCase(wo.getStatus())) // Endast färdiga
                     .filter(wo -> invoices.stream()
                             .noneMatch(inv -> inv.getWorkOrder().getId().equals(wo.getId()))) // Som INTE redan har en faktura
@@ -107,24 +164,22 @@ public class InvoiceController extends OverController {
 
             workOrderComboBox.setItems(FXCollections.observableArrayList(workOrdersList));
 
-            workOrderComboBox.setConverter(new StringConverter<WorkOrder>() {
+            workOrderComboBox.setConverter(new StringConverter<WorkOrderSummaryDto>() {
                 @Override
-                public String toString(WorkOrder workOrder) {
-                        return getString("invoice.option.workorderId") + ": "
-                                + workOrder.getId()
-                                + " | " + getString("invoice.option.vehicle") + ": "
-                                + workOrder.getBooking().getVehicle().getRegistrationNumber();
+                public String toString(WorkOrderSummaryDto dto) {
+                    return getString("invoice.option.workorderId") + ": "
+                            + dto.getId()
+                            + " | " + getString("invoice.option.bookingId") + ": "
+                            +dto.getBookingId();
                 }
-
                 @Override
-                public WorkOrder fromString(String s) {
+                public WorkOrderSummaryDto fromString(String s) {
                     return null;
                 }
             });
         }
     }
 
-     */
 
     @FXML
     private void handleNewInvoice() {
@@ -142,7 +197,7 @@ public class InvoiceController extends OverController {
             return;
         }
 
-        WorkOrder selectedWorkOrder = workOrderComboBox.getValue();
+        WorkOrderSummaryDto selectedWorkOrder = workOrderComboBox.getValue();
         String discountCode = discountCodeField != null ? discountCodeField.getText().trim() : "";
 
         try {

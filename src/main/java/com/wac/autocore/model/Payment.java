@@ -28,7 +28,7 @@ public class Payment {
         this.invoice = invoice;
         this.amount = amount;
         this.paymentType = paymentType;
-        this.paymentDate = LocalDateTime.now(); // Sätter nuvarande tid automatiskt
+        this.paymentDate = LocalDateTime.now();
         this.successful = true;
     }
 

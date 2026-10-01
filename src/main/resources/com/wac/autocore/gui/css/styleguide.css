@@ -344,5 +344,22 @@ VBox.footer {
     -fx-padding: 8px;
 }
 
+.dialog-pane.booking-service-dialog {
+    -fx-background-color: -cream-white;
+    -fx-background-radius: 8px;
+    -fx-border-color: black;
+    -fx-border-width: 2px;
+    -fx-border-radius: 4px;
+    -fx-padding: 16px;
+}
+
+.dialog-pane.booking-service-dialog .header-panel {
+    -fx-background-color: transparent;
+}
+
+.dialog-pane.booking-service-dialog .header-panel .label {
+    -fx-font-size: 20px;
+}
+
 
 

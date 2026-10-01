@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
 <VBox styleClass="container-padding,container-spacing" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wac.autocore.gui.controller.BookingController">
 
     <children>
@@ -24,11 +25,18 @@
                 <TableColumn fx:id="descriptionColumn" maxWidth="275.0" text="%table.description"/>
                 <TableColumn fx:id="statusColumn" text="%table.status" />
                 <TableColumn fx:id="mechanicColumn" text="%booking.mechanicColumn" />
+                <TableColumn fx:id="totalTimeColumn" text="%booking.totalTimeColumn"/>
+                <TableColumn fx:id="totalPriceColumn" text="%booking.totalPriceColumn"/>
             </columns>
         </TableView>
 
-        <!-- Knapp för att skapa ny booking -->
-        <Button onAction="#handleNewBooking" text="%btn.new" />
+        <HBox styleClass="button-spacing">
+            <Button text="%btn.new"
+                    onAction="#handleNewBooking"/>
+
+            <Button text="%booking.services.show"
+                    onAction="#handleShowBookingServices"/>
+        </HBox>
 
     </children>
 </VBox>

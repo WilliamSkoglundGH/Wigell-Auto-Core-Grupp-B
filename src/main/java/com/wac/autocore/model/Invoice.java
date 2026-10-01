@@ -42,7 +42,7 @@ public class Invoice {
         this.invoiceDate = invoiceDate;
         this.amount = amount;
         this.discount = discount;
-        this.invoiceLines = invoiceLines;
+        addInvoiceLine(invoiceLines);
         this.paid = false;
     }
 
@@ -53,6 +53,13 @@ public class Invoice {
     public WorkOrder getWorkOrder() {
 
         return workOrder;
+    }
+
+    public void addInvoiceLine(List<InvoiceLine> invoiceLine) {
+        for (InvoiceLine i : invoiceLine) {
+        invoiceLines.add(i);
+        i.setInvoice(this);
+        }
     }
 
     public void setWorkOrder(WorkOrder workOrder) {

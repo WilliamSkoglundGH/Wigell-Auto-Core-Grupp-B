@@ -3,10 +3,10 @@ package com.wac.autocore.mapper;
 import com.wac.autocore.dto.WorkOrderResponseDto;
 import com.wac.autocore.dto.WorkOrderServiceItemDto;
 import com.wac.autocore.dto.WorkOrderSummaryDto;
-import com.wac.autocore.model.BookingServiceItem;
-import com.wac.autocore.model.WorkOrder;
-import com.wac.autocore.model.WorkOrderServiceItem;
+import com.wac.autocore.model.*;
+import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -89,6 +89,7 @@ public final class WorkOrderMapper {
                 .map(WorkOrderMapper::toServiceItemDto)
                 .collect(Collectors.toList());
     }
+
     /**
      * Mappar en lista med BookingServiceItems till en DTO-lista (används när WorkOrder har status CREATED).
      */
@@ -109,4 +110,21 @@ public final class WorkOrderMapper {
             );
         }).collect(Collectors.toList());
     }
+
+    public static List<WorkOrderServiceItem> toWorkOrderServicesFromBookingServices(Booking booking, WorkOrder workOrder) {
+
+        List<BookingServiceItem> bookingServiceItems = booking.getServiceItems();
+
+        List<WorkOrderServiceItem> workOrderItems = booking.getServiceItems().stream()
+                .map(bItem -> new WorkOrderServiceItem(
+                        workOrder,
+                        bItem.getServiceItem(),
+                        bItem.getPriceAtTime(),
+                        bItem.getDurationAtTime()
+                ))
+                .collect(Collectors.toList());
+
+        return workOrderItems;
+    }
+
 }

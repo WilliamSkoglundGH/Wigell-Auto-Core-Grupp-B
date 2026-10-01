@@ -52,6 +52,10 @@ public abstract class OverController {
 
         } catch (IOException e) {
             e.printStackTrace();
+            if (e.getCause() != null) {
+                System.out.println("Riktiga felet: " + e.getCause().getMessage());
+                e.getCause().printStackTrace();
+            }
             if (messages != null) {
                 messages.showError(getString("common.error.open_view"));
             }

@@ -1,12 +1,10 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.WorkOrderDetailsDto;
 import com.wac.autocore.dto.WorkOrderResponseDto;
 import com.wac.autocore.dto.WorkOrderServiceItemDto;
 import com.wac.autocore.dto.WorkOrderSummaryDto;
-import com.wac.autocore.exception.BookingWithoutServicesException;
-import com.wac.autocore.exception.MechanicNotAvailableException;
-import com.wac.autocore.exception.ServiceItemNotFoundException;
-import com.wac.autocore.exception.WorkOrderNotFoundException;
+import com.wac.autocore.exception.*;
 import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.*;
 import com.wac.autocore.repository.WorkOrderRepository;
@@ -16,6 +14,7 @@ import org.springframework.format.datetime.DateFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,10 +25,10 @@ import java.util.stream.Collectors;
 public class WorkOrderService {
 
     private final Logger logger = LoggerFactory.getLogger(WorkOrderService.class);
-     private WorkOrderRepository workOrderRepository;
-     private BookingService bookingService;
-     private ServiceItemService serviceItemService;
-     private MechanicService mechanicService;
+    private WorkOrderRepository workOrderRepository;
+    private BookingService bookingService;
+    private ServiceItemService serviceItemService;
+    private MechanicService mechanicService;
 
     public WorkOrderService(WorkOrderRepository workOrderRepository, BookingService bookingService, ServiceItemService serviceItemService, MechanicService mechanicService) {
         this.workOrderRepository = workOrderRepository;
@@ -67,19 +66,18 @@ public class WorkOrderService {
         return dto;
     }
 
-     @Transactional
-    public void saveWorkOrder(Long bookingId, List<ServiceItem> serviceItems) {
+    @Transactional
+    public void saveWorkOrder(Long bookingId) {
         Booking booking = bookingService.getBooking(bookingId);
         booking.setStatus("WORK_ORDER_CREATED");
+        WorkOrder newWorkOrder = new WorkOrder(booking, "CREATED");
 
-//TODO glöm inte ändra tillbaka till något vettigt
-//WorkOrder newWorkOrder = new WorkOrder(booking, serviceItems, "CREATED");
-         WorkOrder newWorkOrder = new WorkOrder(booking, new ArrayList<>(), "CREATED");
-       workOrderRepository.save(newWorkOrder);
+
+        workOrderRepository.save(newWorkOrder);
     }
 
     @Transactional
-    public void startWorkOrder (Long workOrderId) {
+    public void startWorkOrder(Long workOrderId) {
 
         if (workOrderId == null) {
             throw new IllegalArgumentException("Work order cannot be null.");
@@ -88,7 +86,7 @@ public class WorkOrderService {
                 .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
 
         if (!"CREATED".equals(workOrder.getStatus())) {
-            throw new IllegalStateException("A work order must have status CREATED to be started.");
+            throw new BookingNotStateCreatedException("A work order must have status CREATED to be started.");
         }
         Booking booking = workOrder.getBooking();
         if (booking == null || booking.getMechanic() == null) {
@@ -99,28 +97,34 @@ public class WorkOrderService {
         if (!mechanic.isAvailable()) {
             throw new MechanicNotAvailableException("Mechanic not available, occupied on another workorder.");
         }
-        if (booking.getServiceItems() != null) {
-            for (BookingServiceItem bookingItem : booking.getServiceItems()) {
-                WorkOrderServiceItem item = new WorkOrderServiceItem(
-                        workOrder,
-                        bookingItem.getServiceItem(),
-                        bookingItem.getPriceAtTime(),
-                        bookingItem.getDurationAtTime()
-                );
-                workOrder.getServiceItems().add(item);
-            }
-        } else {
+
+
+        if (booking.getServiceItems() == null || booking.getServiceItems().isEmpty()) {
             throw new BookingWithoutServicesException("Booking has no Services, please add services to booking first.");
         }
+
+        List<WorkOrderServiceItem> workOrderItems = WorkOrderMapper.toWorkOrderServicesFromBookingServices(booking, workOrder);
+
+        workOrder.getServiceItems().clear();
+        workOrder.getServiceItems().addAll(workOrderItems);
+        BigDecimal estPrice = BigDecimal.ZERO;
+        int estTime = 0;
+        for(WorkOrderServiceItem item : workOrderItems) {
+            estTime += item.getDurationAtTime();
+            estPrice.add(item.getPriceAtTime());
+        }
+        workOrder.setStartTime(LocalDateTime.now());
         workOrder.setStatus("IN_PROGRESS");
         booking.setStatus("IN_PROGRESS");
         mechanic.setAvailable(false);
 
         workOrderRepository.save(workOrder);
+
     }
 
     @Transactional
-    public void completeWorkOrder (Long workOrderId) {
+    public void completeWorkOrder(Long workOrderId) {
+
         if (workOrderId == null) {
             throw new IllegalArgumentException("Work order cannot be null.");
         }
@@ -136,14 +140,34 @@ public class WorkOrderService {
         }
 
         Mechanic mechanic = mechanicService.getMechanic(booking.getMechanic().getId());
-
+        workOrder.setEndTime(LocalDateTime.now());
         workOrder.setStatus("COMPLETED");
         booking.setStatus("COMPLETED");
         mechanic.setAvailable(true);
 
         workOrderRepository.save(workOrder);
     }
+@Transactional
+    public WorkOrderDetailsDto getWorkOrderInfoById(Long workOrderId) {
 
+        WorkOrder workOrder = workOrderRepository.findById(workOrderId)
+                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+        WorkOrderDetailsDto dto = new WorkOrderDetailsDto(workOrderId, workOrder.getStatus(), workOrder.getStartTime(), workOrder.getEndTime());
+        Booking booking = workOrder.getBooking();
+        dto.setMechanicName(booking.getMechanic().getName());
+        dto.setVehicleRegistrationNumber(booking.getVehicle().getRegistrationNumber());
+        dto.setCustomerName(booking.getVehicle().getCustomer().getName());
+        List<WorkOrderServiceItemDto> serviceItemList = WorkOrderMapper.toServiceItemDtoList(workOrder.getServiceItems());
+        int estTime = 0;
+        BigDecimal estPrice = BigDecimal.ZERO;
+        for (WorkOrderServiceItemDto item : serviceItemList) {
+            estTime += item.getDurationAtTime();
+            estPrice.add(item.getPriceAtTime());
+        }
+        dto.setServiceItems(serviceItemList);
+        return dto;
+    }
+/*
     public void countAndSetWorkTime(WorkOrder workOrder) {
         workOrder.setStartTime(LocalDateTime.now());
         workOrderRepository.save(workOrder);
@@ -163,6 +187,6 @@ public class WorkOrderService {
         return totalMin;
     }
 
-
-    }
+*/
+}
 
