@@ -1,12 +1,10 @@
 package com.wac.autocore.mapper;
 
-import com.wac.autocore.dto.WorkOrderResponseDto;
-import com.wac.autocore.dto.WorkOrderServiceItemDto;
-import com.wac.autocore.dto.WorkOrderSummaryDto;
+import com.wac.autocore.dto.workorder.WorkOrderResponseDto;
+import com.wac.autocore.dto.workorder.WorkOrderServiceItemDto;
+import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.model.*;
-import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
