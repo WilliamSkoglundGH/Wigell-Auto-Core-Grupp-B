@@ -1,4 +1,4 @@
-package com.wac.autocore.dto;
+package com.wac.autocore.dto.workorder;
 
 import java.math.BigDecimal;
 

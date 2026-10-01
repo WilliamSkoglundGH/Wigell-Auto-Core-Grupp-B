@@ -1,4 +1,6 @@
-package com.wac.autocore.dto;
+package com.wac.autocore.dto.workorder;
+
+import com.wac.autocore.model.WorkOrderState;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,12 +9,12 @@ public class WorkOrderResponseDto {
 
     private final Long id;
     private final Long bookingId;
-    private final String status;
+    private final WorkOrderState status;
     private final LocalDateTime startTime;
     private final LocalDateTime endTime;
     private final List<WorkOrderServiceItemDto> serviceItems;
 
-    public WorkOrderResponseDto(Long id, Long bookingId, String status, LocalDateTime startTime, LocalDateTime endTime, List<WorkOrderServiceItemDto> serviceItems) {
+    public WorkOrderResponseDto(Long id, Long bookingId, WorkOrderState status, LocalDateTime startTime, LocalDateTime endTime, List<WorkOrderServiceItemDto> serviceItems) {
         this.id = id;
         this.bookingId = bookingId;
         this.status = status;
@@ -23,7 +25,7 @@ public class WorkOrderResponseDto {
 
     public Long getId() { return id; }
     public Long getBookingId() { return bookingId; }
-    public String getStatus() { return status; }
+    public WorkOrderState getStatus() { return status; }
     public LocalDateTime getStartTime() { return startTime; }
     public LocalDateTime getEndTime() { return endTime; }
     public List<WorkOrderServiceItemDto> getServiceItems() { return serviceItems; }

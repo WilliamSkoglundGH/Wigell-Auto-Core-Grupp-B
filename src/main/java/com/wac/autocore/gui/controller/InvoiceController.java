@@ -1,12 +1,12 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.dto.WorkOrderServiceItemDto;
-import com.wac.autocore.dto.WorkOrderSummaryDto;
+import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.dto.invoiceLine.InvoiceDto;
 import com.wac.autocore.dto.invoiceLine.InvoiceLineDto;
 import com.wac.autocore.exception.WorkOrderNotFoundException;
 import com.wac.autocore.gui.util.FormatUIUtil;
 import com.wac.autocore.model.InvoiceLine;
+import com.wac.autocore.model.WorkOrderState;
 import com.wac.autocore.service.InvoiceService;
 import com.wac.autocore.service.WorkOrderService;
 import javafx.beans.property.SimpleObjectProperty;
@@ -35,18 +35,29 @@ import java.util.stream.Collectors;
 public class InvoiceController extends OverController {
 
     //InvoiceView.fxml
-    @FXML private TableView<Invoice> invoiceTable;
-    @FXML private TableColumn<Invoice, Long> idColumn;
-    @FXML private TableColumn<Invoice, Long> workOrderIdColumn;
-    @FXML private TableColumn<Invoice, LocalDate> invoiceDateColumn;
-    @FXML private TableColumn<Invoice, Double> amountColumn;
-    @FXML private TableColumn<Invoice, Double> discountColumn;
-    @FXML private TableColumn<Invoice, Double> totalAmountColumn;
-    @FXML private TableColumn<Invoice, String> paidColumn;
+    @FXML
+    private TableView<Invoice> invoiceTable;
+    @FXML
+    private TableColumn<Invoice, Long> idColumn;
+    @FXML
+    private TableColumn<Invoice, Long> workOrderIdColumn;
+    @FXML
+    private TableColumn<Invoice, LocalDate> invoiceDateColumn;
+    @FXML
+    private TableColumn<Invoice, Double> amountColumn;
+    @FXML
+    private TableColumn<Invoice, Double> discountColumn;
+    @FXML
+    private TableColumn<Invoice, Double> totalAmountColumn;
+    @FXML
+    private TableColumn<Invoice, String> paidColumn;
 
-    @FXML private TextField discountCodeField;
-    @FXML private ComboBox<WorkOrderSummaryDto> workOrderComboBox;
-    @FXML private Button detailsButton;
+    @FXML
+    private TextField discountCodeField;
+    @FXML
+    private ComboBox<WorkOrderSummaryDto> workOrderComboBox;
+    @FXML
+    private Button detailsButton;
 
     //InvoiceDetailsView.fxml
     @FXML private Label idLabel;
@@ -153,8 +164,10 @@ public class InvoiceController extends OverController {
     }
 
 
+    private void navigateToInvoiceDetailsView() {
+        loadCenterView("/com/wac/autocore/gui/view/InvoiceDetailsView.fxml");
 
-
+    }
 
 
     //-----------------------------------
@@ -197,27 +210,27 @@ public class InvoiceController extends OverController {
         if (workOrderComboBox != null) {
             List<Invoice> invoices = invoiceService.getAllInvoices();
             List<WorkOrderSummaryDto> workOrdersList = workOrderService.getAllWorkOrders().stream()
-                    .filter(wo -> "COMPLETED".equalsIgnoreCase(wo.getStatus())) // Endast färdiga
+                    .filter(wo -> WorkOrderState.COMPLETED.equals(wo.getStatus())) // Endast färdiga
                     .filter(wo -> invoices.stream()
                             .noneMatch(inv -> inv.getWorkOrder().getId().equals(wo.getId()))) // Som INTE redan har en faktura
                     .collect(Collectors.toList());
 
             workOrderComboBox.setItems(FXCollections.observableArrayList(workOrdersList));
-
-            workOrderComboBox.setConverter(new StringConverter<WorkOrderSummaryDto>() {
-                @Override
-                public String toString(WorkOrderSummaryDto dto) {
-                    return getString("invoice.option.workorderId") + ": "
-                            + dto.getId()
-                            + " | " + getString("invoice.option.bookingId") + ": "
-                            +dto.getBookingId();
-                }
-                @Override
-                public WorkOrderSummaryDto fromString(String s) {
-                    return null;
-                }
-            });
         }
+        workOrderComboBox.setConverter(new StringConverter<WorkOrderSummaryDto>() {
+            @Override
+            public String toString(WorkOrderSummaryDto dto) {
+                return getString("invoice.option.workorderId") + ": "
+                        + dto.getId()
+                        + " | " + getString("invoice.option.bookingId") + ": "
+                        + dto.getBookingId();
+            }
+
+            @Override
+            public WorkOrderSummaryDto fromString(String s) {
+                return null;
+            }
+        });
     }
 
 
