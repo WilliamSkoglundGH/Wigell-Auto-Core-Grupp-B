@@ -17,8 +17,6 @@ public class ServiceItem {
     @Column(name = "estimated_minutes", nullable = false)
     private int estimatedMinutes;
 
-    private String code;
-
     protected ServiceItem() {
     }
 
@@ -63,15 +61,6 @@ public class ServiceItem {
 
     public void setEstimatedMinutes(int estimatedMinutes) {
         this.estimatedMinutes = estimatedMinutes;
-    }
-
-    // För att anropa rätt språk
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.wac.autocore.gui.controller;
 import com.wac.autocore.gui.util.BigDecimalStringConverter;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.service.ServiceItemService;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
@@ -44,17 +43,8 @@ public class ServiceItemController extends OverController {
         if (serviceItemTable != null) {
 
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-            nameColumn.setCellValueFactory(cellData -> {
-                ServiceItem item = cellData.getValue();
-                String key = "serviceitem." + item.getCode() + ".name";
-                return new SimpleStringProperty(getString(key));
-            });
-
-            descriptionColumn.setCellValueFactory(cellData -> {
-                ServiceItem item = cellData.getValue();
-                String key = "serviceitem." + item.getCode() + ".description";
-                return new SimpleStringProperty(getString(key));
-            });
+            nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+            descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
             priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
             estimatedMinutesColumn.setCellValueFactory(new PropertyValueFactory<>("estimatedMinutes"));
 
@@ -108,21 +98,11 @@ public class ServiceItemController extends OverController {
     public void loadServiceItemData() {
         if (serviceItemTable != null) {
             try {
-                java.util.List<ServiceItem> items = serviceItemService.getAllServiceItems();
-
-                for (ServiceItem item : items) {
-                    String name = item.getName();
-                    if (name != null) {
-                        // gör om "Oil change" → "oilchange"
-                        String code = name.toLowerCase().replace(" ", "");
-                        item.setCode(code);
-                    }
-                }
-
                 serviceItemTable.setItems(
-                        FXCollections.observableArrayList(items)
+                        FXCollections.observableArrayList(
+                                serviceItemService.getAllServiceItems()
+                        )
                 );
-
             } catch (DataAccessException e) {
                 logger.error("Could not load service items.", e);
 
@@ -132,6 +112,4 @@ public class ServiceItemController extends OverController {
             }
         }
     }
-
-
 }
