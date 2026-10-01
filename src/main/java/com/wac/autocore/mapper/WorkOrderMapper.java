@@ -1,5 +1,6 @@
 package com.wac.autocore.mapper;
 
+import com.wac.autocore.dto.workorder.WorkOrderForMechanicDto;
 import com.wac.autocore.dto.workorder.WorkOrderResponseDto;
 import com.wac.autocore.dto.workorder.WorkOrderServiceItemDto;
 import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
@@ -108,7 +109,31 @@ public final class WorkOrderMapper {
             );
         }).collect(Collectors.toList());
     }
+    public static WorkOrderForMechanicDto toMechanicDto(WorkOrder workOrder) {
+        if (workOrder == null) {
+            return null;
+        }
 
+        Long bookingId = (workOrder.getBooking() != null) ? workOrder.getBooking().getId() : null;
+
+        String vehicleReg = (workOrder.getBooking() != null && workOrder.getBooking().getVehicle() != null)
+                ? workOrder.getBooking().getVehicle().getRegistrationNumber()
+                : "-";
+
+        String description = (workOrder.getBooking() != null)
+                ? workOrder.getBooking().getDescription()
+                : "-";
+
+        return new WorkOrderForMechanicDto(
+                workOrder.getId(),
+                bookingId,
+                vehicleReg,
+                workOrder.getStartTime(),
+                workOrder.getEndTime(),
+                description,
+                workOrder.getStatus()
+        );
+    }
     public static List<WorkOrderServiceItem> toWorkOrderServicesFromBookingServices(Booking booking, WorkOrder workOrder) {
 
         List<BookingServiceItem> bookingServiceItems = booking.getServiceItems();

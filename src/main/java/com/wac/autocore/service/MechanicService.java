@@ -1,6 +1,9 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.workorder.WorkOrderForMechanicDto;
+import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.exception.MechanicNotFoundException;
+import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.Mechanic;
 import com.wac.autocore.model.WorkOrder;
@@ -12,13 +15,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MechanicService {
     private static final Logger logger = LoggerFactory.getLogger(MechanicService.class);
     private final MechanicRepository mechanicRepository;
     private final WorkOrderRepository workOrderRepository;
-
 
     public MechanicService(MechanicRepository mechanicRepository,
                            WorkOrderRepository workOrderRepository) {
@@ -30,6 +33,7 @@ public class MechanicService {
     public List<Mechanic> getAllMechanics() {
         return mechanicRepository.findAll();
     }
+
     @Transactional(readOnly = true)
     public Mechanic getMechanic(Long id) {
         return mechanicRepository.findById(id)
@@ -49,12 +53,11 @@ public class MechanicService {
     }
 
     @Transactional(readOnly = true)
-    public List<WorkOrder> getWorkOrdersForMechanic(Long mechanicId) {
-        return workOrderRepository.findByBooking_Mechanic_Id(mechanicId);
+    public List<WorkOrderForMechanicDto> getWorkOrdersForMechanic(Long mechanicId) {
+        List<WorkOrder> workOrders = workOrderRepository.findByBooking_Mechanic_Id(mechanicId);
+
+        return workOrders.stream()
+                .map(WorkOrderMapper::toMechanicDto)
+                .collect(Collectors.toList());
     }
-
-
-
-
-
 }
