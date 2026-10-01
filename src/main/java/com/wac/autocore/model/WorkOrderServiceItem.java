@@ -20,12 +20,12 @@ public class WorkOrderServiceItem {
     private BigDecimal priceAtTime;
 
     @Column(name = "duration_at_time", nullable = true)
-    private int durationAtTime;
+    private Integer durationAtTime;
 
     protected WorkOrderServiceItem() {
     }
 
-    public WorkOrderServiceItem(WorkOrder workOrder, ServiceItem serviceItem, BigDecimal priceAtTime, int durationAtTime) {
+    public WorkOrderServiceItem(WorkOrder workOrder, ServiceItem serviceItem, BigDecimal priceAtTime, Integer durationAtTime) {
         this.workOrder = workOrder;
         this.serviceItem = serviceItem;
         this.priceAtTime = priceAtTime;
@@ -60,11 +60,11 @@ public class WorkOrderServiceItem {
         this.priceAtTime = priceAtTime;
     }
 
-    public int getDurationAtTime() {
+    public Integer getDurationAtTime() {
         return durationAtTime;
     }
 
-    public void setDurationAtTime(int durationAtTime) {
+    public void setDurationAtTime(Integer durationAtTime) {
         this.durationAtTime = durationAtTime;
     }
 }
