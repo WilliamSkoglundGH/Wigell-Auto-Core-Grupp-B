@@ -65,9 +65,8 @@ public class WorkOrderService {
 
     @Transactional
     public void saveWorkOrder(Long bookingId) {
-//måste sätta estTime och estPrice
         Booking booking = bookingService.getBooking(bookingId);
-        booking.setStatus("WORK_ORDER_CREATED");
+        booking.setStatus(booking.getStatus().getNext());
         WorkOrder newWorkOrder = new WorkOrder(booking);
 
 
@@ -117,7 +116,7 @@ public class WorkOrderService {
         }
         workOrder.setStartTime(LocalDateTime.now());
         workOrder.setStatus(workOrder.getStatus().getNext());
-        booking.setStatus("IN_PROGRESS");
+        booking.setStatus(booking.getStatus().getNext());
         mechanic.setAvailable(false);
 
         workOrderRepository.save(workOrder);
@@ -144,7 +143,7 @@ public class WorkOrderService {
         Mechanic mechanic = mechanicService.getMechanic(booking.getMechanic().getId());
         workOrder.setEndTime(LocalDateTime.now());
         workOrder.setStatus(workOrder.getStatus().getNext());
-        booking.setStatus("COMPLETED");
+        booking.setStatus(booking.getStatus().getNext());
         mechanic.setAvailable(true);
 
         workOrderRepository.save(workOrder);

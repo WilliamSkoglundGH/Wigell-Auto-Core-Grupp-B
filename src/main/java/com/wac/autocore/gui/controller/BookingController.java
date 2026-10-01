@@ -3,6 +3,7 @@ package com.wac.autocore.gui.controller;
 import com.wac.autocore.exception.BookingNotFoundException;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.BookingServiceItem;
+import com.wac.autocore.model.BookingState;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
@@ -188,14 +189,17 @@ public class BookingController extends OverController {
 
 
     public void setBooking(Booking booking) {
+        if (booking == null) {
+            return;
+        }
         currentBookingId = booking.getId();
         bookingServicesTable.setItems(
                 FXCollections.observableArrayList(booking.getServiceItems()));
 
-        boolean editable = booking.getStatus().equalsIgnoreCase("BOOKED") ||
-                booking.getStatus().equalsIgnoreCase("WORK_ORDER_CREATED");
-        removeServiceButton.setDisable(!editable);
-        addServiceButton.setDisable(!editable);
+        BookingState state = booking.getStatus();
+
+        removeServiceButton.setDisable(state == null || !state.canRemoveServiceItem());
+        addServiceButton.setDisable(state == null || !state.canAddServiceItem());
     }
 
     private void loadVehicleDropdown() {

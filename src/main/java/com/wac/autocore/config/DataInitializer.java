@@ -55,8 +55,8 @@ public class DataInitializer {
                 mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2, mechanic3));
 
                 // 5. Skapa Bokningar
-                Booking booking1 = new Booking(vehicle1, LocalDate.now().plusDays(2), "Annual service and general inspection", "BOOKED", mechanic1);
-                Booking booking2 = new Booking(vehicle2, LocalDate.now().plusDays(4), "Noise from front brakes", "BOOKED", mechanic2);
+                Booking booking1 = new Booking(vehicle1, LocalDate.now().plusDays(2), "Annual service and general inspection",  mechanic1);
+                Booking booking2 = new Booking(vehicle2, LocalDate.now().plusDays(4), "Noise from front brakes",  mechanic2);
 
                 bookingRepository.saveAll(Arrays.asList(booking1, booking2));
 
