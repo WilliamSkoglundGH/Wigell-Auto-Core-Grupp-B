@@ -163,13 +163,6 @@ public class InvoiceController extends OverController {
         navigateToInvoiceDetailsView();
     }
 
-
-    private void navigateToInvoiceDetailsView() {
-        loadCenterView("/com/wac/autocore/gui/view/InvoiceDetailsView.fxml");
-
-    }
-
-
     //-----------------------------------
     // Invoice Detail Modal
     //-----------------------------------
