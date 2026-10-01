@@ -48,5 +48,11 @@
                     onAction="#handleBackToBookings"/>
         </HBox>
 
+            <Label fx:id="servicesLockedLabel"
+               styleClass="booking-services-info"
+               wrapText="true"
+               managed="false"
+               visible="false"/>
+
     </children>
 </VBox>

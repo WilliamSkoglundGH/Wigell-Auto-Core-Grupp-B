@@ -3,6 +3,7 @@ package com.wac.autocore.gui.controller;
 import com.wac.autocore.exception.BookingNotFoundException;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.BookingServiceItem;
+import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
@@ -32,10 +33,7 @@ import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -50,8 +48,7 @@ public class BookingController extends OverController {
     @FXML private TableColumn<Booking, String> descriptionColumn;
     @FXML private TableColumn<Booking, String> statusColumn;
     @FXML private TableColumn<Booking, String> mechanicColumn;
-    @FXML private TableColumn<Booking, Integer> totalTimeColumn;
-    @FXML private TableColumn<Booking, BigDecimal> totalPriceColumn;
+    @FXML private TableColumn<Booking, String> estimateColumn;
 
     // FORM FIELDS (NewBookingView.fxml)
     @FXML private ComboBox<String> vehicleIdField;
@@ -68,6 +65,7 @@ public class BookingController extends OverController {
     @FXML private TableColumn<BookingServiceItem, Integer> serviceDurationColumn;
     @FXML private Button removeServiceButton;
     @FXML private Button addServiceButton;
+    @FXML private Label servicesLockedLabel;
 
     private Long currentBookingId;
 
@@ -99,37 +97,44 @@ public class BookingController extends OverController {
         if (bookingTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             vehicleIdColumn.setCellValueFactory(cellData ->
-                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getVehicle().getId() + " - " + cellData.getValue().getVehicle().getRegistrationNumber()));
+                    new SimpleStringProperty(
+                            cellData.getValue().getVehicle().getRegistrationNumber()
+                    )
+            );
             dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
             descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
             statusColumn.setCellValueFactory(cellData ->
                     new SimpleStringProperty(
-                            getString("status." + cellData.getValue().getStatus())
-                    )
-            );
+                            getString("status." + cellData.getValue().getStatus())));
             mechanicColumn.setCellValueFactory(cellData ->
-                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getMechanic().getId() + " - " + cellData.getValue().getMechanic().getName()));
-            totalTimeColumn.setCellValueFactory(cellData -> {
+                    new SimpleStringProperty(
+                            cellData.getValue().getMechanic().getName()));
+            estimateColumn.setCellValueFactory(cellData -> {
                 int totalMinutes = 0;
-
-                for (BookingServiceItem item : cellData.getValue().getServiceItems()) {
-                    totalMinutes += item.getDurationAtTime();
-                }
-                return new SimpleObjectProperty<>(totalMinutes);
-            });
-
-            totalPriceColumn.setCellValueFactory(cellData -> {
                 BigDecimal totalPrice = BigDecimal.ZERO;
 
                 for (BookingServiceItem item : cellData.getValue().getServiceItems()) {
+                    totalMinutes += item.getDurationAtTime();
                     totalPrice = totalPrice.add(item.getPriceAtTime());
                 }
 
-                return new SimpleObjectProperty<>(totalPrice);
+                return new SimpleStringProperty(
+                        totalMinutes + " min | " + totalPrice.toPlainString() + " SEK"
+                );
             });
 
             loadBookingData();
             bookingTable.requestFocus();
+
+            bookingTable.setRowFactory(tv -> {
+                TableRow<Booking> row = new TableRow<>();
+                row.setOnMouseClicked(e -> {
+                    if (e.getClickCount() == 2 && !row.isEmpty()) {
+                        handleShowBookingServices();
+                    }
+                });
+                return row;
+            });
         }
 
         // BookingServicesView.fxml
@@ -196,6 +201,14 @@ public class BookingController extends OverController {
                 booking.getStatus().equalsIgnoreCase("WORK_ORDER_CREATED");
         removeServiceButton.setDisable(!editable);
         addServiceButton.setDisable(!editable);
+        servicesLockedLabel.setVisible(!editable);
+        servicesLockedLabel.setManaged(!editable);
+
+        if(booking.getStatus().equalsIgnoreCase("IN_PROGRESS")){
+            servicesLockedLabel.setText(getString("booking.services.locked_in_progress"));
+        }else if(booking.getStatus().equalsIgnoreCase("COMPLETED")){
+            servicesLockedLabel.setText(getString("booking.services.locked_completed"));
+        }
     }
 
     private void loadVehicleDropdown() {
@@ -328,10 +341,21 @@ public class BookingController extends OverController {
     @FXML
     private void handleAddBookingService() {
         try {
-            ChoiceDialog<ServiceItem> dialog = new ChoiceDialog<>(
-                    null,
-                    serviceItemService.getAllServiceItems()
-            );
+            List<ServiceItem> availableServices =
+                    new ArrayList<>(serviceItemService.getAllServiceItems());
+
+            for (BookingServiceItem bookingItem : bookingServicesTable.getItems()) {
+                availableServices.removeIf(service ->
+                        service.getId().equals(bookingItem.getServiceItem().getId()));
+            }
+
+            if (availableServices.isEmpty()) {
+                messages.showError(getString("booking.services.none_available"));
+                return;
+            }
+
+            ChoiceDialog<ServiceItem> dialog =
+                    new ChoiceDialog<>(null, availableServices);
 
             dialog.initStyle(StageStyle.UNDECORATED);
             dialog.setHeaderText(getString("booking.services.select"));
