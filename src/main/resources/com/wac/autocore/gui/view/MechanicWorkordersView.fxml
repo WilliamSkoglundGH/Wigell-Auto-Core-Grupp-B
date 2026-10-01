@@ -5,6 +5,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.Button?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.wac.autocore.gui.controller.MechanicController"
@@ -25,6 +26,8 @@
                 <TableColumn fx:id="woStatusColumn" text="%table.status" />
             </columns>
         </TableView>
+
+        <Button text="%btn.back" onAction="#handleBackToMechanics" />
 
     </children>
 </VBox>
