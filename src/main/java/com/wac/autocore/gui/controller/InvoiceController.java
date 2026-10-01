@@ -149,7 +149,6 @@ public class InvoiceController extends OverController {
     }
 
 
-
     //-----------------------------------
     // New Invoice Functions
     //-----------------------------------
