@@ -34,7 +34,9 @@ public class InvoiceDto {
     public Long getWorkOrderId() { return workOrderId; }
     public LocalDate getInvoiceDate() { return invoiceDate; }
     public BigDecimal getAmount() { return amount; }
+
     public BigDecimal getDiscount() { return discount; }
+
     public BigDecimal getTotalAmount() { return totalAmount; }
     public boolean isPaid() { return paid; }
     public List<InvoiceLineDto> getLines() { return lines; }
