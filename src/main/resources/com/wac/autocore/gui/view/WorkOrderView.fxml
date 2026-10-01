@@ -29,7 +29,7 @@
 
         <HBox styleClass="button-spacing">
             <Button text="%btn.new" onAction="#handleNewWorkOrder" />
-
+            <Button fx:id="detailsButton" text="%btn.moreInfo" onAction="#handleDetails"/>
         </HBox>
     </children>
 </VBox>

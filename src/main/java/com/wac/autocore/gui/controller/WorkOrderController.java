@@ -1,11 +1,13 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.dto.WorkOrderDetailsDto;
-import com.wac.autocore.dto.WorkOrderServiceItemDto;
-import com.wac.autocore.dto.WorkOrderSummaryDto;
+import com.wac.autocore.dto.workorder.WorkOrderDetailsDto;
+import com.wac.autocore.dto.workorder.WorkOrderServiceItemDto;
+import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.exception.*;
 import com.wac.autocore.gui.util.FormatUIUtil;
 import com.wac.autocore.model.Booking;
+import com.wac.autocore.model.BookingState;
+import com.wac.autocore.model.WorkOrderState;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.WorkOrderService;
@@ -48,6 +50,8 @@ public class WorkOrderController extends OverController {
     @FXML
     private TableColumn<WorkOrderSummaryDto, String> endTimeColumn;
     @FXML
+    private Button detailsButton;
+    @FXML
     private Label statusLabel;
     @FXML
     private Label mechanicLabel;
@@ -73,7 +77,10 @@ public class WorkOrderController extends OverController {
     private TableColumn<WorkOrderServiceItemDto, BigDecimal> servicePriceColumn;
     @FXML
     private TableColumn<WorkOrderServiceItemDto, Integer> serviceDurationColumn;
-
+    @FXML
+    private Button startButton;
+    @FXML
+    private Button completeButton;
 
 
     @FXML
@@ -132,11 +139,16 @@ public class WorkOrderController extends OverController {
                 String formattedTime = (endTime != null) ? FormatUIUtil.formatTime(endTime) : "";
                 return new javafx.beans.property.SimpleStringProperty(formattedTime);
             });
+            if (detailsButton != null) {
+                detailsButton.disableProperty().bind(
+                        workOrderTable.getSelectionModel().selectedItemProperty().isNull()
+                );
+            }
 
             loadWorkOrderData();
             workOrderTable.requestFocus();
             workOrderTable.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 1) {
+                if (event.getClickCount() == 2) {
                     WorkOrderSummaryDto selectedOrder = workOrderTable.getSelectionModel().getSelectedItem();
                     if (selectedOrder != null) {
                         currentWorkOrderId = selectedOrder.getId();
@@ -218,13 +230,24 @@ public class WorkOrderController extends OverController {
         loadCenterView("/com/wac/autocore/gui/view/NewWorkOrderView.fxml");
     }
 
+    @FXML
+    private void handleDetails() {
+        Long id  = workOrderTable.getSelectionModel().getSelectedItem().getId();
+        if (id == null) {
+            return;
+        }
+        currentWorkOrderId = id;
+        navigateToWorkOrderInfoView();
+    }
+
     private void loadBookingComboBox() {
         if (bookingComboBox != null) {
             try {
                 List<Booking> bookedList = bookingService.getAllBookings().stream()
-                        .filter(b -> "BOOKED".equalsIgnoreCase(b.getStatus()))
+                        //.filter(b -> "BOOKED".equalsIgnoreCase(b.getStatus()))
+                        .filter(b -> BookingState.BOOKED.equals(b.getStatus()))
                         .collect(Collectors.toList());
-
+//
                 bookingComboBox.setItems(FXCollections.observableArrayList(bookedList));
 
                 bookingComboBox.setConverter(new StringConverter<Booking>() {
@@ -291,7 +314,7 @@ public class WorkOrderController extends OverController {
                     messages.showError(getString("workorder.error.select_booking"));
                     return;
                 }
-                      selectedBooking.setStatus("WORK_ORDER_CREATED");
+                      selectedBooking.setStatus(selectedBooking.getStatus().getNext());
 
                     workOrderService.saveWorkOrder(selectedBooking.getId());
                     messages.showSuccess(getString("workorder.success.workorder_created"));
@@ -331,7 +354,7 @@ public class WorkOrderController extends OverController {
         try {
             //hämta workorders och ladda labels
             WorkOrderDetailsDto dto = workOrderService.getWorkOrderInfoById(currentWorkOrderId);
-            statusLabel.setText(dto.getStatus());
+            statusLabel.setText(getString(dto.getStatus().name()));
             mechanicLabel.setText(dto.getMechanicName());
             vehicleLabel.setText(dto.getVehicleRegistrationNumber());
             customerLabel.setText(dto.getCustomerName());
@@ -341,6 +364,8 @@ public class WorkOrderController extends OverController {
             estTimeLabel.setText(dto.getEstimatedDuration() != null ? dto.getEstimatedDuration() + " min" : "-");
             estPriceLabel.setText(dto.getEstimatedPrice() != null ? dto.getEstimatedPrice() + " SEK" : "-");
             bookingIdLabel.setText(String.valueOf(dto.getBookingId()));
+
+            updateButtonStates(dto.getStatus());
 
             serviceNameColumn.setCellValueFactory(new PropertyValueFactory<>("serviceName"));
             servicePriceColumn.setCellValueFactory(new PropertyValueFactory<>("priceAtTime"));
@@ -356,12 +381,23 @@ public class WorkOrderController extends OverController {
 
             List<WorkOrderServiceItemDto> dtoList = dto.getServiceItems();
 
-            // Gör om till ObservableList för JavaFX
             ObservableList<WorkOrderServiceItemDto> observableList = FXCollections.observableArrayList(dtoList);
 
-            // Fyll tabellen
             serviceItemTable.getItems().setAll(observableList);
         }
     }
+    private void updateButtonStates(WorkOrderState status) {
+        if (startButton == null || completeButton == null) {
+            return;
+        }
 
+        if (status == null) {
+            startButton.setDisable(true);
+            completeButton.setDisable(true);
+            return;
+        }
+
+        startButton.setDisable(!status.canStart());
+        completeButton.setDisable(!status.canComplete());
+    }
 }

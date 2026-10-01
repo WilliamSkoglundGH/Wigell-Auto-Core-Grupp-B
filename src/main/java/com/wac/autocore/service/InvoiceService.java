@@ -1,6 +1,8 @@
 
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.invoiceLine.InvoiceDto;
+import com.wac.autocore.mapper.InvoiceMapper;
 import com.wac.autocore.model.*;
 import com.wac.autocore.service.discount.DiscountStrategy;
 import com.wac.autocore.service.discount.FixedDiscount;
@@ -39,10 +41,11 @@ public class InvoiceService {
     }
 
     @Transactional(readOnly = true)
-    public Invoice getInvoice(Long invoiceId) {
-        return invoiceRepository.findById(invoiceId).orElseThrow(() -> new InvoiceNotFoundException(
+    public InvoiceDto getInvoice(Long invoiceId) {
+         Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(() -> new InvoiceNotFoundException(
                 "Invoice with ID: " + invoiceId + " not found"
         ));
+        return InvoiceMapper.toInvoiceDto(invoice);
     }
 
     @Transactional
@@ -50,7 +53,7 @@ public class InvoiceService {
         WorkOrder selectedWorkOrder = workOrderRepository.findById(workOrderId).orElseThrow(() -> new WorkOrderNotFoundException(
                 "WorkOrder with ID: " + workOrderId+  " not found"
         ));
-        if (!selectedWorkOrder.getStatus().equals("COMPLETED")) {
+        if (!WorkOrderState.COMPLETED.equals(selectedWorkOrder.getStatus())){
             throw new IllegalStateException(
                     "invoice.error.workorder_not_completed"
             );
@@ -69,14 +72,11 @@ public class InvoiceService {
 
         Customer customer = selectedWorkOrder.getBooking().getVehicle().getCustomer();
 
+
             for (WorkOrderServiceItem serviceItem : selectedWorkOrder.getServiceItems()) {
                 BigDecimal amount = serviceItem.getPriceAtTime();
                 BigDecimal lineDiscount = BigDecimal.ZERO;
-/*
-                if (discountCode == null && discountCode.isEmpty() && customer.isVip()) {
-                    DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
-                    lineDiscount = vipDiscount.calculateDiscount(amount);
-                }*/
+
 
                 if (discountCode != null && !discountCode.trim().isEmpty()) {
                     DiscountStrategy discountCodeStrategy = null;
@@ -100,6 +100,10 @@ public class InvoiceService {
                     { discountCodeStrategy = new PercentageDiscount(BigDecimal.valueOf(10));
                         lineDiscount = discountCodeStrategy.calculateDiscount(amount);
                     }
+
+                }else if(customer.isVip()) {
+                    DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
+                    lineDiscount = vipDiscount.calculateDiscount(amount);
                 }
                 if (lineDiscount.compareTo(amount) > 0) {
                     lineDiscount = amount;

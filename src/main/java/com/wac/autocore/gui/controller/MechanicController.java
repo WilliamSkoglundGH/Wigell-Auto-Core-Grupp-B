@@ -185,10 +185,6 @@ public class MechanicController extends OverController {
                     )
             );
         }
-
-
-
-
     }
 
 
@@ -264,6 +260,11 @@ public class MechanicController extends OverController {
 
         // Fyll tabellen i rätt controller-instans
         controller.workorderTable.setItems(FXCollections.observableArrayList(workorders));
+    }
+    // Backa till alla mekanikerView
+    @FXML
+    private void handleBackToMechanics() {
+        loadCenterView("/com/wac/autocore/gui/view/MechanicView.fxml");
     }
 
 

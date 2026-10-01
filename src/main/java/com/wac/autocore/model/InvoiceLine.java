@@ -17,7 +17,7 @@ public class InvoiceLine {
     @Column(name = "name_of_service", length = 60, nullable = false)
     private String nameOfService;
     @Column(name = "amount", precision = 10, scale = 2, nullable = false)
-    private BigDecimal amount;
+    private BigDecimal amount; //Summan utan ev. rabatt
     @Column(name = "discount", precision = 10, scale = 2, nullable = false)
 
     private BigDecimal discount;
@@ -25,7 +25,8 @@ public class InvoiceLine {
     protected InvoiceLine() {
     }
 
-    public InvoiceLine(String nameOfService,BigDecimal amount, BigDecimal discount) {
+
+    public InvoiceLine(String nameOfService, BigDecimal amount, BigDecimal discount) {
         this.nameOfService = nameOfService;
         this.amount = amount;
         this.discount = discount;
@@ -50,7 +51,18 @@ public class InvoiceLine {
     public void setNameOfService(String nameOfService) {
         this.nameOfService = nameOfService;
     }
+    public BigDecimal getTotalAmount() {
 
+        if (amount == null) {
+            return BigDecimal.ZERO;
+        }
+        if (discount == null) {
+            return amount;
+        }
+
+
+        return amount.subtract(discount);
+    }
     public BigDecimal getAmount() {
         return amount;
     }
@@ -65,5 +77,16 @@ public class InvoiceLine {
 
     public void setDiscount(BigDecimal discount) {
         this.discount = discount;
+    }
+
+    @Override
+    public String toString() {
+        return "InvoiceLine{" +
+                "id=" + id +
+                ", invoice=" + invoice +
+                ", nameOfService='" + nameOfService + '\'' +
+                ", amount=" + amount +
+                ", discount=" + discount +
+                '}';
     }
 }

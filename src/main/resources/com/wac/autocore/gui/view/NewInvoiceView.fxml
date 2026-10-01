@@ -32,7 +32,7 @@
 
         <HBox styleClass="button-spacing">
             <Button onAction="#handleSaveInvoice" text="%btn.save" />
-            <Button text="%btn.cancel" onAction="#handleCancel" />
+            <Button text="%btn.cancel" onAction="#handleBackToInvoiceView" />
         </HBox>
     </children>
 </VBox>

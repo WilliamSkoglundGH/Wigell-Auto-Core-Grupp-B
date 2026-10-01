@@ -46,6 +46,10 @@ public class Invoice {
         this.paid = false;
     }
 
+    public List<InvoiceLine> getInvoiceLines() {
+        return invoiceLines;
+    }
+
     public Long getId() {
         return id;
     }

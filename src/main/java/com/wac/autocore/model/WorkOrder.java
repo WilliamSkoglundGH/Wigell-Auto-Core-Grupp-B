@@ -13,7 +13,7 @@ public class WorkOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
@@ -23,8 +23,9 @@ public class WorkOrder {
             fetch = FetchType.LAZY)
     private List<WorkOrderServiceItem> serviceItems = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
-    private String status;
+    private WorkOrderState status = WorkOrderState.CREATED;
     @Column(name = "start_time", nullable = true)
     private LocalDateTime startTime;
     @Column(name = "end_time", nullable = true)
@@ -33,19 +34,17 @@ public class WorkOrder {
     protected WorkOrder() {
     }
 
-    public WorkOrder(Booking booking, String status) {
+    public WorkOrder(Booking booking) {
         this.booking = booking;
-        this.status = status;
-    }
-//TODO denna ska senare bort!!
-
-    public WorkOrder(Booking booking, List<WorkOrderServiceItem> serviceItems, String status) {
-        this.booking = booking;
-        this.serviceItems = serviceItems;
-        this.status = status;
     }
 
-    public WorkOrder(Booking booking, List<WorkOrderServiceItem> serviceItems, String status, LocalDateTime startTime, LocalDateTime endTime) {
+    /*
+        public WorkOrder(Booking booking, WorkOrderState status) {
+            this.booking = booking;
+            this.status = status;
+        }
+    */
+    public WorkOrder(Booking booking, List<WorkOrderServiceItem> serviceItems, WorkOrderState status, LocalDateTime startTime, LocalDateTime endTime) {
         this.booking = booking;
         this.serviceItems = serviceItems;
         this.status = status;
@@ -83,11 +82,11 @@ public class WorkOrder {
         this.endTime = endTime;
     }
 
-    public String getStatus() {
+    public WorkOrderState getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(WorkOrderState status) {
         this.status = status;
     }
 

@@ -1,4 +1,4 @@
-package com.wac.autocore.dto;
+package com.wac.autocore.dto.workorder;
 
 import java.math.BigDecimal;
 
@@ -6,9 +6,9 @@ public class WorkOrderServiceItemDto {
     private final String serviceName;
     private final String description;
     private final BigDecimal priceAtTime;
-    private final int durationAtTime;
+    private final Integer durationAtTime;
 
-    public WorkOrderServiceItemDto(String serviceName, String description, BigDecimal priceAtTime, int durationAtTime) {
+    public WorkOrderServiceItemDto(String serviceName, String description, BigDecimal priceAtTime, Integer durationAtTime) {
         this.serviceName = serviceName;
         this.description = description;
         this.priceAtTime = priceAtTime;
@@ -28,7 +28,7 @@ public class WorkOrderServiceItemDto {
         return priceAtTime;
     }
 
-    public int getDurationAtTime() {
+    public Integer getDurationAtTime() {
         return durationAtTime;
     }
 }

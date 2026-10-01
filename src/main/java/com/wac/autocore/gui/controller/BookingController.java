@@ -3,7 +3,7 @@ package com.wac.autocore.gui.controller;
 import com.wac.autocore.exception.BookingNotFoundException;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.BookingServiceItem;
-import com.wac.autocore.model.Invoice;
+import com.wac.autocore.model.BookingState;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
@@ -11,7 +11,6 @@ import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.VehicleService;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -191,25 +190,39 @@ public class BookingController extends OverController {
         }
     }
 
-
     public void setBooking(Booking booking) {
+        if (booking == null) {
+            return;
+        }
+
         currentBookingId = booking.getId();
         bookingServicesTable.setItems(
-                FXCollections.observableArrayList(booking.getServiceItems()));
+                FXCollections.observableArrayList(booking.getServiceItems())
+        );
 
-        boolean editable = booking.getStatus().equalsIgnoreCase("BOOKED") ||
-                booking.getStatus().equalsIgnoreCase("WORK_ORDER_CREATED");
-        removeServiceButton.setDisable(!editable);
-        addServiceButton.setDisable(!editable);
-        servicesLockedLabel.setVisible(!editable);
-        servicesLockedLabel.setManaged(!editable);
+        BookingState state = booking.getStatus();
 
-        if(booking.getStatus().equalsIgnoreCase("IN_PROGRESS")){
-            servicesLockedLabel.setText(getString("booking.services.locked_in_progress"));
-        }else if(booking.getStatus().equalsIgnoreCase("COMPLETED")){
-            servicesLockedLabel.setText(getString("booking.services.locked_completed"));
+        boolean canAdd = state.canAddServiceItem();
+        boolean canRemove = state.canRemoveServiceItem();
+
+        addServiceButton.setDisable(!canAdd);
+        removeServiceButton.setDisable(!canRemove);
+
+        boolean locked = !canAdd && !canRemove;
+        servicesLockedLabel.setVisible(locked);
+        servicesLockedLabel.setManaged(locked);
+
+        if (state == BookingState.IN_PROGRESS) {
+            servicesLockedLabel.setText(
+                    getString("booking.services.locked_in_progress")
+            );
+        } else if (state == BookingState.COMPLETED) {
+            servicesLockedLabel.setText(
+                    getString("booking.services.locked_completed")
+            );
         }
     }
+
 
     private void loadVehicleDropdown() {
         List<String> vehicleList = vehicleService.getAllVehicles().stream()
