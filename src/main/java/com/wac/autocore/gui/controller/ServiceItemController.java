@@ -62,11 +62,22 @@ public class ServiceItemController extends OverController {
                     serviceItemService.changePrice(item.getId(), newPrice);
                     item.setPrice(newPrice);
 
-                    messages.showSuccess("Pris ändrat till " + newPrice + " SEK");
+                    logger.info("Pris ändrat för serviceItem {} till {}", item.getId(), newPrice);
+
+                    messages.showSuccess(
+                            getString("serviceitem.price_changed") + " " + newPrice
+                    );
 
                 } catch (Exception e) {
-                    messages.showError("Kunde inte ändra priset: " + e.getMessage());
+                    logger.error("Kunde inte ändra priset för serviceItem {}: {}", item.getId(), e.getMessage(), e);
+
+                    messages.showError(
+                            getString("serviceitem.price_change_failed") + " " + e.getMessage()
+                    );
                 }
+
+
+
                 // allt jag vill är att stå kvar på samma raaaaaad!!
                 javafx.application.Platform.runLater(() -> {
                     javafx.application.Platform.runLater(() -> {
