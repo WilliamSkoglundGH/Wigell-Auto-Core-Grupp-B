@@ -109,6 +109,10 @@ public class BookingController extends OverController {
                     new SimpleStringProperty(
                             cellData.getValue().getMechanic().getName()));
             estimateColumn.setCellValueFactory(cellData -> {
+                if (cellData.getValue().getServiceItems().isEmpty()) {
+                    return new SimpleStringProperty(
+                            getString("booking.estimate.missing"));
+                }
                 int totalMinutes = 0;
                 BigDecimal totalPrice = BigDecimal.ZERO;
 
