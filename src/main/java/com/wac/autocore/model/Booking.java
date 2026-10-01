@@ -19,8 +19,11 @@ public class Booking {
     private LocalDate date;
     @Column(name = "description", length = 200, nullable = true)
     private String description;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
-    private String status;
+    private BookingState status = BookingState.BOOKED;
+
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "mechanic_id", nullable = false)
     private Mechanic mechanic;
@@ -34,19 +37,17 @@ public class Booking {
     protected Booking() {
     }
 
-    public Booking(Vehicle vehicle, LocalDate date, String description, String status, Mechanic mechanic) {
+    public Booking(Vehicle vehicle, LocalDate date, String description,  Mechanic mechanic) {
         this.vehicle = vehicle;
         this.date = date;
         this.description = description;
-        this.status = status;
         this.mechanic = mechanic;
     }
 
-    public Booking(Vehicle vehicle, LocalDate date, String description, String status, Mechanic mechanic, List<BookingServiceItem> serviceItems) {
+    public Booking(Vehicle vehicle, LocalDate date, String description,  Mechanic mechanic, List<BookingServiceItem> serviceItems) {
         this.vehicle = vehicle;
         this.date = date;
         this.description = description;
-        this.status = status;
         this.mechanic = mechanic;
         this.serviceItems = serviceItems;
     }
@@ -80,11 +81,11 @@ public class Booking {
         this.description = description;
     }
 
-    public String getStatus() {
+    public BookingState getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(BookingState status) {
         this.status = status;
     }
 

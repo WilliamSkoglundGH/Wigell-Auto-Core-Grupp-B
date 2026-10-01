@@ -6,6 +6,7 @@ import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.exception.*;
 import com.wac.autocore.gui.util.FormatUIUtil;
 import com.wac.autocore.model.Booking;
+import com.wac.autocore.model.BookingState;
 import com.wac.autocore.model.WorkOrderState;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.ServiceItemService;
@@ -243,9 +244,10 @@ public class WorkOrderController extends OverController {
         if (bookingComboBox != null) {
             try {
                 List<Booking> bookedList = bookingService.getAllBookings().stream()
-                        .filter(b -> "BOOKED".equalsIgnoreCase(b.getStatus()))
+                        //.filter(b -> "BOOKED".equalsIgnoreCase(b.getStatus()))
+                        .filter(b -> BookingState.BOOKED.equals(b.getStatus()))
                         .collect(Collectors.toList());
-
+//
                 bookingComboBox.setItems(FXCollections.observableArrayList(bookedList));
 
                 bookingComboBox.setConverter(new StringConverter<Booking>() {
@@ -312,7 +314,7 @@ public class WorkOrderController extends OverController {
                     messages.showError(getString("workorder.error.select_booking"));
                     return;
                 }
-                      selectedBooking.setStatus("WORK_ORDER_CREATED");
+                      selectedBooking.setStatus(selectedBooking.getStatus().getNext());
 
                     workOrderService.saveWorkOrder(selectedBooking.getId());
                     messages.showSuccess(getString("workorder.success.workorder_created"));
