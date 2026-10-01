@@ -361,5 +361,16 @@ VBox.footer {
     -fx-font-size: 20px;
 }
 
+.label.booking-services-info {
+    -fx-background-color: transparent;
+    -fx-border-color: #ACCF81;
+    -fx-border-width: 1px 1px 1px 3px;
+    -fx-border-radius: 0;
+    -fx-padding: 8px 12px;
+    -fx-text-fill: #454545;
+    -fx-font-size: 13px;
+    -fx-font-weight: normal;
+}
+
 
 

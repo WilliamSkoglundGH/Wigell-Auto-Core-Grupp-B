@@ -1,16 +1,13 @@
 package com.wac.autocore.service;
 
 import com.wac.autocore.exception.BookingNotFoundException;
-import com.wac.autocore.exception.MechanicNotFoundException;
 import com.wac.autocore.model.*;
 import com.wac.autocore.repository.BookingRepository;
-import com.wac.autocore.repository.MechanicRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,12 +70,6 @@ public class BookingService {
             throw new IllegalArgumentException("booking.error.select_services");
         }
 
-        //String status = bookingForUpdate.getStatus();
-
-      /*  if(!status.equalsIgnoreCase("BOOKED") && !status.equalsIgnoreCase("WORK_ORDER_CREATED")){
-            throw new IllegalStateException("booking.error.not_editable");
-        }
-*/
         if (!bookingForUpdate.getStatus().canAddServiceItem()) {
             throw new IllegalStateException("booking.error.not_editable");
         }
@@ -97,13 +88,7 @@ public class BookingService {
     public Booking removeServiceItemFromBooking(Long bookingId, Long bookingServiceItemId) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new BookingNotFoundException("booking.error.not_found"));
-/*
-        String status = bookingForUpdate.getStatus();
 
-        if(!status.equalsIgnoreCase("BOOKED") && !status.equalsIgnoreCase("WORK_ORDER_CREATED")){
-            throw new IllegalStateException("booking.error.not_editable");
-        }
-*/
         if (!bookingForUpdate.getStatus().canRemoveServiceItem()) {
             throw new IllegalStateException("booking.error.not_editable");
         }

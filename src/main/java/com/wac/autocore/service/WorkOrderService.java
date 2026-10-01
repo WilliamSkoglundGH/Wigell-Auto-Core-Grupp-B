@@ -52,7 +52,7 @@ public class WorkOrderService {
         WorkOrderResponseDto dto;
         WorkOrder workOrder = workOrderRepository.findById(id).orElseThrow(() -> new WorkOrderNotFoundException(
                 "Work order with ID: " + id + " not found"));
-        if ("CREATED".equals(workOrder.getStatus())) {
+        if (workOrder.getStatus() == WorkOrderState.CREATED) {
             List<BookingServiceItem> serviceItems = (workOrder.getBooking() != null) ? workOrder.getBooking().getServiceItems() : null;
 
             dto = WorkOrderMapper.toResponseDto(workOrder, WorkOrderMapper.toServiceItemDtoListFromBooking(serviceItems));
