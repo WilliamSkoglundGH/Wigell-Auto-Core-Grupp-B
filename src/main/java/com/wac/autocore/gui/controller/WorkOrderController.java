@@ -378,10 +378,8 @@ public class WorkOrderController extends OverController {
 
             List<WorkOrderServiceItemDto> dtoList = dto.getServiceItems();
 
-            // Gör om till ObservableList för JavaFX
             ObservableList<WorkOrderServiceItemDto> observableList = FXCollections.observableArrayList(dtoList);
 
-            // Fyll tabellen
             serviceItemTable.getItems().setAll(observableList);
         }
     }
