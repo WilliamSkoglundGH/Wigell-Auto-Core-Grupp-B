@@ -1,4 +1,6 @@
-package com.wac.autocore.dto;
+package com.wac.autocore.dto.workorder;
+
+import com.wac.autocore.model.WorkOrderState;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -6,7 +8,7 @@ import java.util.List;
 
 public class WorkOrderDetailsDto {
     private Long id;
-    private String status;
+    private WorkOrderState status;
     private String mechanicName;
     private String vehicleRegistrationNumber;
     private String customerName;
@@ -20,7 +22,7 @@ public class WorkOrderDetailsDto {
     public WorkOrderDetailsDto() {
     }
 
-    public WorkOrderDetailsDto(Long id, String status, LocalDateTime startTime, LocalDateTime endTime) {
+    public WorkOrderDetailsDto(Long id, WorkOrderState status, LocalDateTime startTime, LocalDateTime endTime) {
         this.id = id;
         this.status = status;
         this.startTime = startTime;
@@ -35,11 +37,11 @@ public class WorkOrderDetailsDto {
         this.id = id;
     }
 
-    public String getStatus() {
+    public WorkOrderState getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(WorkOrderState status) {
         this.status = status;
     }
 

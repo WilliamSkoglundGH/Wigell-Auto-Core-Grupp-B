@@ -1,9 +1,9 @@
 package com.wac.autocore.service;
 
-import com.wac.autocore.dto.WorkOrderDetailsDto;
-import com.wac.autocore.dto.WorkOrderResponseDto;
-import com.wac.autocore.dto.WorkOrderServiceItemDto;
-import com.wac.autocore.dto.WorkOrderSummaryDto;
+import com.wac.autocore.dto.workorder.WorkOrderDetailsDto;
+import com.wac.autocore.dto.workorder.WorkOrderResponseDto;
+import com.wac.autocore.dto.workorder.WorkOrderServiceItemDto;
+import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.exception.*;
 import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.*;
@@ -65,9 +65,10 @@ public class WorkOrderService {
 
     @Transactional
     public void saveWorkOrder(Long bookingId) {
+//måste sätta estTime och estPrice
         Booking booking = bookingService.getBooking(bookingId);
         booking.setStatus("WORK_ORDER_CREATED");
-        WorkOrder newWorkOrder = new WorkOrder(booking, "CREATED");
+        WorkOrder newWorkOrder = new WorkOrder(booking);
 
 
         workOrderRepository.save(newWorkOrder);
@@ -82,8 +83,8 @@ public class WorkOrderService {
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
 
-        if (!"CREATED".equals(workOrder.getStatus())) {
-            throw new BookingWrongStatusException("A work order must have status CREATED to be started.");
+        if (!workOrder.getStatus().canStart()) {
+            throw new WorkOrderWrongStatusException("Wrong status for start: " + workOrder.getStatus());
         }
         Booking booking = workOrder.getBooking();
         if (booking == null || booking.getMechanic() == null) {
@@ -115,7 +116,7 @@ public class WorkOrderService {
             }
         }
         workOrder.setStartTime(LocalDateTime.now());
-        workOrder.setStatus("IN_PROGRESS");
+        workOrder.setStatus(workOrder.getStatus().getNext());
         booking.setStatus("IN_PROGRESS");
         mechanic.setAvailable(false);
 
@@ -125,15 +126,15 @@ public class WorkOrderService {
 
     @Transactional
     public void completeWorkOrder(Long workOrderId) {
-//kolla om workorders serviceitems är tom, skicka exception, inga serviceItems valda, vänligen gå tillbaka till bokning
+
         if (workOrderId == null) {
             throw new IllegalArgumentException("Work order cannot be null.");
         }
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
 
-        if (!"IN_PROGRESS".equals(workOrder.getStatus())) {
-            throw new WorkOrderWrongStatusException(" Check your work order status. Must be IN_PROGRESS to be completed. Start work order first.");
+        if (!workOrder.getStatus().canComplete()) {
+            throw new WorkOrderWrongStatusException("Wrong status for complete: " + workOrder.getStatus());
         }
         Booking booking = workOrder.getBooking();
         if (booking == null || booking.getMechanic() == null) {
@@ -142,7 +143,7 @@ public class WorkOrderService {
 
         Mechanic mechanic = mechanicService.getMechanic(booking.getMechanic().getId());
         workOrder.setEndTime(LocalDateTime.now());
-        workOrder.setStatus("COMPLETED");
+        workOrder.setStatus(workOrder.getStatus().getNext());
         booking.setStatus("COMPLETED");
         mechanic.setAvailable(true);
 
@@ -151,7 +152,7 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrderDetailsDto getWorkOrderInfoById(Long workOrderId) {
-
+//kolla status, om den är created, hämta från booking
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
         WorkOrderDetailsDto dto = new WorkOrderDetailsDto(workOrderId, workOrder.getStatus(), workOrder.getStartTime(), workOrder.getEndTime());
@@ -161,7 +162,7 @@ public class WorkOrderService {
         dto.setCustomerName(booking.getVehicle().getCustomer().getName());
 
         List<WorkOrderServiceItemDto> serviceItemList;
-        if ("CREATED".equals(dto.getStatus())) {
+        if (WorkOrderState.CREATED.equals(dto.getStatus())) {
             serviceItemList = WorkOrderMapper.toServiceItemDtoListFromBooking(workOrder.getBooking().getServiceItems());
 
         } else {
@@ -186,26 +187,5 @@ public class WorkOrderService {
 
         return dto;
     }
-/*
-    public void countAndSetWorkTime(WorkOrder workOrder) {
-        workOrder.setStartTime(LocalDateTime.now());
-        workOrderRepository.save(workOrder);
-        //TODO glöm inte byta till något vettigt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        int time= 120;//countTotalMin(workOrder.getServiceItems());
-        workOrder.setEndTime(workOrder.getStartTime().plusMinutes(time));
-        workOrderRepository.save(workOrder);
-    }
-
-    public int countTotalMin(List<ServiceItem> serviceItems) {
-        int totalMin = 0;
-        if (serviceItems != null) {
-            for (ServiceItem s : serviceItems) {
-                totalMin += s.getEstimatedMinutes();
-            }
-        }
-        return totalMin;
-    }
-
-*/
 }
 

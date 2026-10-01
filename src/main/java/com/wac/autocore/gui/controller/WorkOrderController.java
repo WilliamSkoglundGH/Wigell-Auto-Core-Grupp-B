@@ -1,11 +1,12 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.dto.WorkOrderDetailsDto;
-import com.wac.autocore.dto.WorkOrderServiceItemDto;
-import com.wac.autocore.dto.WorkOrderSummaryDto;
+import com.wac.autocore.dto.workorder.WorkOrderDetailsDto;
+import com.wac.autocore.dto.workorder.WorkOrderServiceItemDto;
+import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.exception.*;
 import com.wac.autocore.gui.util.FormatUIUtil;
 import com.wac.autocore.model.Booking;
+import com.wac.autocore.model.WorkOrderState;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.WorkOrderService;
@@ -351,7 +352,7 @@ public class WorkOrderController extends OverController {
         try {
             //hämta workorders och ladda labels
             WorkOrderDetailsDto dto = workOrderService.getWorkOrderInfoById(currentWorkOrderId);
-            statusLabel.setText(dto.getStatus());
+            statusLabel.setText(getString(dto.getStatus().name()));
             mechanicLabel.setText(dto.getMechanicName());
             vehicleLabel.setText(dto.getVehicleRegistrationNumber());
             customerLabel.setText(dto.getCustomerName());
@@ -383,7 +384,7 @@ public class WorkOrderController extends OverController {
             serviceItemTable.getItems().setAll(observableList);
         }
     }
-    private void updateButtonStates(String status) {
+    private void updateButtonStates(WorkOrderState status) {
         if (startButton == null || completeButton == null) {
             return;
         }
@@ -394,13 +395,7 @@ public class WorkOrderController extends OverController {
             return;
         }
 
-        String upperStatus = status.toUpperCase();
-
-        boolean isCreated = upperStatus.contains("CREATED");
-        boolean isStarted = upperStatus.contains("IN_PROGRESS");
-
-        startButton.setDisable(!isCreated);
-        completeButton.setDisable(!isStarted);
+        startButton.setDisable(!status.canStart());
+        completeButton.setDisable(!status.canComplete());
     }
-
 }
