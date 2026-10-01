@@ -152,11 +152,6 @@ public class InvoiceController extends OverController {
         navigateToInvoiceDetailsView();
     }
 
-
-
-
-
-
     //-----------------------------------
     // Invoice Detail Modal
     //-----------------------------------
