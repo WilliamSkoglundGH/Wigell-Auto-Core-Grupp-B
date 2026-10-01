@@ -48,6 +48,8 @@ public class WorkOrderController extends OverController {
     @FXML
     private TableColumn<WorkOrderSummaryDto, String> endTimeColumn;
     @FXML
+    private Button detailsButton;
+    @FXML
     private Label statusLabel;
     @FXML
     private Label mechanicLabel;
@@ -73,7 +75,10 @@ public class WorkOrderController extends OverController {
     private TableColumn<WorkOrderServiceItemDto, BigDecimal> servicePriceColumn;
     @FXML
     private TableColumn<WorkOrderServiceItemDto, Integer> serviceDurationColumn;
-
+    @FXML
+    private Button startButton;
+    @FXML
+    private Button completeButton;
 
 
     @FXML
@@ -132,11 +137,16 @@ public class WorkOrderController extends OverController {
                 String formattedTime = (endTime != null) ? FormatUIUtil.formatTime(endTime) : "";
                 return new javafx.beans.property.SimpleStringProperty(formattedTime);
             });
+            if (detailsButton != null) {
+                detailsButton.disableProperty().bind(
+                        workOrderTable.getSelectionModel().selectedItemProperty().isNull()
+                );
+            }
 
             loadWorkOrderData();
             workOrderTable.requestFocus();
             workOrderTable.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 1) {
+                if (event.getClickCount() == 2) {
                     WorkOrderSummaryDto selectedOrder = workOrderTable.getSelectionModel().getSelectedItem();
                     if (selectedOrder != null) {
                         currentWorkOrderId = selectedOrder.getId();
@@ -216,6 +226,16 @@ public class WorkOrderController extends OverController {
             messages.clearMessage();
         }
         loadCenterView("/com/wac/autocore/gui/view/NewWorkOrderView.fxml");
+    }
+
+    @FXML
+    private void handleDetails() {
+        Long id  = workOrderTable.getSelectionModel().getSelectedItem().getId();
+        if (id == null) {
+            return;
+        }
+        currentWorkOrderId = id;
+        navigateToWorkOrderInfoView();
     }
 
     private void loadBookingComboBox() {
@@ -342,6 +362,8 @@ public class WorkOrderController extends OverController {
             estPriceLabel.setText(dto.getEstimatedPrice() != null ? dto.getEstimatedPrice() + " SEK" : "-");
             bookingIdLabel.setText(String.valueOf(dto.getBookingId()));
 
+            updateButtonStates(dto.getStatus());
+
             serviceNameColumn.setCellValueFactory(new PropertyValueFactory<>("serviceName"));
             servicePriceColumn.setCellValueFactory(new PropertyValueFactory<>("priceAtTime"));
             serviceDurationColumn.setCellValueFactory(new PropertyValueFactory<>("durationAtTime"));
@@ -362,6 +384,25 @@ public class WorkOrderController extends OverController {
             // Fyll tabellen
             serviceItemTable.getItems().setAll(observableList);
         }
+    }
+    private void updateButtonStates(String status) {
+        if (startButton == null || completeButton == null) {
+            return;
+        }
+
+        if (status == null) {
+            startButton.setDisable(true);
+            completeButton.setDisable(true);
+            return;
+        }
+
+        String upperStatus = status.toUpperCase();
+
+        boolean isCreated = upperStatus.contains("CREATED");
+        boolean isStarted = upperStatus.contains("IN_PROGRESS");
+
+        startButton.setDisable(!isCreated);
+        completeButton.setDisable(!isStarted);
     }
 
 }
