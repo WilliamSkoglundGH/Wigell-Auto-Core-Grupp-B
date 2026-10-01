@@ -53,7 +53,7 @@ public class InvoiceService {
         WorkOrder selectedWorkOrder = workOrderRepository.findById(workOrderId).orElseThrow(() -> new WorkOrderNotFoundException(
                 "WorkOrder with ID: " + workOrderId+  " not found"
         ));
-        if (!selectedWorkOrder.getStatus().equals("COMPLETED")) {
+        if (!WorkOrderState.COMPLETED.equals(selectedWorkOrder.getStatus())){
             throw new IllegalStateException(
                     "invoice.error.workorder_not_completed"
             );
@@ -72,14 +72,11 @@ public class InvoiceService {
 
         Customer customer = selectedWorkOrder.getBooking().getVehicle().getCustomer();
 
+
             for (WorkOrderServiceItem serviceItem : selectedWorkOrder.getServiceItems()) {
                 BigDecimal amount = serviceItem.getPriceAtTime();
                 BigDecimal lineDiscount = BigDecimal.ZERO;
 
-                if (discountCode == null && customer.isVip()) { // FUnkar detta???
-                    DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
-                    lineDiscount = vipDiscount.calculateDiscount(amount);
-                }
 
                 if (discountCode != null && !discountCode.trim().isEmpty()) {
                     DiscountStrategy discountCodeStrategy = null;
@@ -103,6 +100,10 @@ public class InvoiceService {
                     { discountCodeStrategy = new PercentageDiscount(BigDecimal.valueOf(10));
                         lineDiscount = discountCodeStrategy.calculateDiscount(amount);
                     }
+
+                }else if(customer.isVip()) {
+                    DiscountStrategy vipDiscount = new PercentageDiscount(BigDecimal.valueOf(10));
+                    lineDiscount = vipDiscount.calculateDiscount(amount);
                 }
                 if (lineDiscount.compareTo(amount) > 0) {
                     lineDiscount = amount;
