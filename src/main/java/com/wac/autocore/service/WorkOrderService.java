@@ -105,10 +105,14 @@ public class WorkOrderService {
         workOrder.getServiceItems().clear();
         workOrder.getServiceItems().addAll(workOrderItems);
         BigDecimal estPrice = BigDecimal.ZERO;
-        int estTime = 0;
+        Integer estTime = 0;
         for (WorkOrderServiceItem item : workOrderItems) {
-            estTime += item.getDurationAtTime();
-            estPrice.add(item.getPriceAtTime());
+            if (item.getDurationAtTime() != null) {
+                estTime += item.getDurationAtTime();
+            }
+            if (item.getPriceAtTime() != null) {
+                estPrice = estPrice.add(item.getPriceAtTime()); // Spara det nya BigDecimal-värdet!
+            }
         }
         workOrder.setStartTime(LocalDateTime.now());
         workOrder.setStatus("IN_PROGRESS");
@@ -164,11 +168,15 @@ public class WorkOrderService {
             serviceItemList = WorkOrderMapper.toServiceItemDtoList(workOrder.getServiceItems());
 
         }
-        int estTime = 0;
+        Integer estTime = 0;
         BigDecimal estPrice = BigDecimal.ZERO;
         for (WorkOrderServiceItemDto item : serviceItemList) {
-            estTime += item.getDurationAtTime();
-            estPrice = estPrice.add(item.getPriceAtTime());
+            if (item.getDurationAtTime() != null) {
+                estTime += item.getDurationAtTime();
+            }
+            if (item.getPriceAtTime() != null) {
+                estPrice = estPrice.add(item.getPriceAtTime());
+            }
         }
         dto.setServiceItems(serviceItemList);
         dto.setEstimatedDuration(estTime);
