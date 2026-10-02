@@ -28,14 +28,14 @@
     <!-- Fakturainfo -->
     <GridPane hgap="12" vgap="8">
         <columnConstraints>
-            <ColumnConstraints minWidth="120" prefWidth="140"/>
+            <ColumnConstraints minWidth="120" />
             <ColumnConstraints hgrow="ALWAYS"/>
         </columnConstraints>
 
         <Label text="%invoice.invoiceId"  GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
         <Label fx:id="idLabel"        GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="%invoice.workorderLabel"    GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <Label text="%invoice.option.workorderId"    GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
         <Label fx:id="workOrderLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
         <Label text="%invoice.invoiceDateColumn"   GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
@@ -45,7 +45,7 @@
         <Label fx:id="amountLabel"    GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
         <Label text="%invoice.discountColumn"         GridPane.rowIndex="4" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
-        <Label fx:id="discountLabel"  GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+        <Label fx:id="discountLabel"  GridPane.rowIndex="4" GridPane.columnIndex="1" />
 
         <Label text="%invoice.totalAmountColumn"         GridPane.rowIndex="5" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
         <Label fx:id="totalLabel"     GridPane.rowIndex="5" GridPane.columnIndex="1"/>
@@ -66,7 +66,7 @@
         <columns>
             <TableColumn fx:id="lineNameOfServiceColumn" text="%invoice.nameOfService"/>
             <TableColumn fx:id="lineAmountBeforeColumn"    text="%invoice.amountColumn"/>
-            <TableColumn fx:id="lineDiscountColumn"       text="%invoice.discountColumn"/>
+            <TableColumn fx:id="lineDiscountColumn"       text="%invoice.discountColumn" styleClass="red"/>
             <TableColumn fx:id="lineTotalColumn"       text="%invoice.totalAmountColumn"/>
         </columns>
     </TableView>

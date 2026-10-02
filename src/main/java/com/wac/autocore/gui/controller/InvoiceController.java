@@ -179,9 +179,9 @@ public class InvoiceController extends OverController {
             workOrderLabel.setText(invDTO.getWorkOrderId() != null
                     ? String.valueOf(invDTO.getWorkOrderId()) : "Specialist");
             dateLabel.setText(FormatUIUtil.formatDate(invDTO.getInvoiceDate()));
-            amountLabel.setText(String.valueOf(invDTO.getAmount()));
-            totalLabel.setText(String.valueOf(invDTO.getTotalAmount()));
-            discountLabel.setText(String.valueOf(invDTO.getDiscount()));
+            amountLabel.setText(invDTO.getAmount() != null ? invDTO.getAmount() + " SEK" : "-");
+            totalLabel.setText(invDTO.getTotalAmount() != null ? invDTO.getTotalAmount() + " SEK" : "-");
+            discountLabel.setText( invDTO.getDiscount() != null ? invDTO.getDiscount() + " SEK" : "-");
             paidLabel.setText(invDTO.isPaid()
                             ? "Paid"
                             : "Not paid");
@@ -191,8 +191,6 @@ public class InvoiceController extends OverController {
             lineTotalColumn.setCellValueFactory(cellData ->
                     new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getTotalAmount()));
             linesTable.getItems().setAll(invDTO.getLines());
-
-
     }
 
     //-----------------------------------

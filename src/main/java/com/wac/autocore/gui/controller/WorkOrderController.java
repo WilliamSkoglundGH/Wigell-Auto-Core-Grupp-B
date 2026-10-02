@@ -360,7 +360,6 @@ public class WorkOrderController extends OverController {
             customerLabel.setText(dto.getCustomerName());
             startTimeLabel.setText(dto.getStartTime() != null ? FormatUIUtil.formatTime(dto.getStartTime()) : "-");
             endTimeLabel.setText(dto.getEndTime() != null ? FormatUIUtil.formatTime(dto.getEndTime()) : "-");
-
             estTimeLabel.setText(dto.getEstimatedDuration() != null ? dto.getEstimatedDuration() + " min" : "-");
             estPriceLabel.setText(dto.getEstimatedPrice() != null ? dto.getEstimatedPrice() + " SEK" : "-");
             bookingIdLabel.setText(String.valueOf(dto.getBookingId()));
