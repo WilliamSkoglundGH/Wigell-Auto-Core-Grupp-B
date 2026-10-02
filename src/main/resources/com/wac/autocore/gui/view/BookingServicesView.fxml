@@ -36,7 +36,7 @@
             </columns>
         </TableView>
 
-        <HBox styleClass="button-spacing" alignment="CENTER_LEFT">
+        <HBox styleClass="button-spacing">
             <Button fx:id="removeServiceButton"
                     text="%booking.services.remove"
                     onAction="#handleRemoveBookingService"/>
@@ -44,10 +44,7 @@
             <Button fx:id="addServiceButton"
                     text="%booking.services.add"
                     onAction="#handleAddBookingService"/>
-
-            <Region HBox.hgrow="ALWAYS"/>
-
-            <Button text="%booking.services.back"
+            <Button text="%btn.back"
                     onAction="#handleBackToBookings"/>
         </HBox>
 

@@ -58,7 +58,7 @@
 /* HEADER BOX (WAC + Wigell Auto Core) */
 .header-box {
     -fx-background-color: transparent; /* Ingen bakgrund */
-    -fx-padding: 20;
+    -fx-padding: 5;
     -fx-alignment: center;
 }
 
