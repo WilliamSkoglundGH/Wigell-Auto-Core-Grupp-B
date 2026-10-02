@@ -10,7 +10,7 @@
     <top>
         <VBox spacing="10" styleClass="header-box">
 
-         <ImageView   fitHeight="200" preserveRatio="true">
+         <ImageView   fitHeight="175" preserveRatio="true">
             <image>
                 <!--    <Image url="@../img/lettercombo-logo/lettercombo-light-trp.png" />-->
                <Image url="@../img/wac-wac-logo/wac-wac-yellow-trp.png" />
