@@ -61,19 +61,31 @@ public class InvoiceController extends OverController {
     private Button detailsButton;
 
     //InvoiceDetailsView.fxml
-    @FXML private Label idLabel;
-    @FXML private Label workOrderLabel;
-    @FXML private Label dateLabel;
-    @FXML private Label amountLabel;
-    @FXML private Label totalLabel;
-    @FXML private Label discountLabel;
-    @FXML private Label paidLabel;
+    @FXML
+    private Label idLabel;
+    @FXML
+    private Label workOrderLabel;
+    @FXML
+    private Label dateLabel;
+    @FXML
+    private Label amountLabel;
+    @FXML
+    private Label totalLabel;
+    @FXML
+    private Label discountLabel;
+    @FXML
+    private Label paidLabel;
 
-    @FXML private TableView<InvoiceLineDto> linesTable;
-    @FXML private TableColumn<InvoiceLineDto, String> lineNameOfServiceColumn;
-    @FXML private TableColumn<InvoiceLineDto, BigDecimal> lineAmountBeforeColumn;
-    @FXML private TableColumn<InvoiceLineDto, BigDecimal> lineDiscountColumn;
-    @FXML private TableColumn<InvoiceLineDto, BigDecimal> lineTotalColumn;
+    @FXML
+    private TableView<InvoiceLineDto> linesTable;
+    @FXML
+    private TableColumn<InvoiceLineDto, String> lineNameOfServiceColumn;
+    @FXML
+    private TableColumn<InvoiceLineDto, BigDecimal> lineAmountBeforeColumn;
+    @FXML
+    private TableColumn<InvoiceLineDto, BigDecimal> lineDiscountColumn;
+    @FXML
+    private TableColumn<InvoiceLineDto, BigDecimal> lineTotalColumn;
 
     private static Long currentInvoiceId;
 
@@ -168,30 +180,30 @@ public class InvoiceController extends OverController {
     // Invoice Detail Modal
     //-----------------------------------
 
-    public void loadInvoiceDetails(){
+    public void loadInvoiceDetails() {
 
         if (messages != null) {
             messages.clearMessage();
         }
 
-            //Hämta faktura och ladda info
-            InvoiceDto invDTO = invoiceService.getInvoice(currentInvoiceId);
-            idLabel.setText(String.valueOf(invDTO.getId()));
-            workOrderLabel.setText(invDTO.getWorkOrderId() != null
-                    ? String.valueOf(invDTO.getWorkOrderId()) : "Specialist");
-            dateLabel.setText(FormatUIUtil.formatDate(invDTO.getInvoiceDate()));
-            amountLabel.setText(invDTO.getAmount() != null ? invDTO.getAmount() + " SEK" : "-");
-            totalLabel.setText(invDTO.getTotalAmount() != null ? invDTO.getTotalAmount() + " SEK" : "-");
-            discountLabel.setText( invDTO.getDiscount() != null ? invDTO.getDiscount() + " SEK" : "-");
-            paidLabel.setText(invDTO.isPaid()
-                            ? "Paid"
-                            : "Not paid");
-            lineNameOfServiceColumn.setCellValueFactory(new PropertyValueFactory<>("nameOfService"));
-            lineAmountBeforeColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
-            lineDiscountColumn.setCellValueFactory(new PropertyValueFactory<>("discount"));
-            lineTotalColumn.setCellValueFactory(cellData ->
-                    new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getTotalAmount()));
-            linesTable.getItems().setAll(invDTO.getLines());
+        //Hämta faktura och ladda info
+        InvoiceDto invDTO = invoiceService.getInvoice(currentInvoiceId);
+        idLabel.setText(String.valueOf(invDTO.getId()));
+        workOrderLabel.setText(invDTO.getWorkOrderId() != null
+                ? String.valueOf(invDTO.getWorkOrderId()) : "Specialist");
+        dateLabel.setText(FormatUIUtil.formatDate(invDTO.getInvoiceDate()));
+        amountLabel.setText(invDTO.getAmount() != null ? invDTO.getAmount() + " SEK" : "-");
+        totalLabel.setText(invDTO.getTotalAmount() != null ? invDTO.getTotalAmount() + " SEK" : "-");
+        discountLabel.setText(invDTO.getDiscount() != null ? invDTO.getDiscount() + " SEK" : "-");
+        paidLabel.setText(invDTO.isPaid()
+                ? "Paid"
+                : "Not paid");
+        lineNameOfServiceColumn.setCellValueFactory(new PropertyValueFactory<>("nameOfService"));
+        lineAmountBeforeColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+        lineDiscountColumn.setCellValueFactory(new PropertyValueFactory<>("discount"));
+        lineTotalColumn.setCellValueFactory(cellData ->
+                new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getTotalAmount()));
+        linesTable.getItems().setAll(invDTO.getLines());
     }
 
     //-----------------------------------
@@ -249,6 +261,9 @@ public class InvoiceController extends OverController {
         } catch (WorkOrderNotFoundException e) {
             messages.showError(getString("invoice.error.workorder_not_found"));
             return;
+        } catch (IllegalArgumentException e) {
+            messages.showError(getString("invoice.error.invalid.discount_code"));
+            return;
         } catch (IllegalStateException e) {
             messages.showError(getString(e.getMessage()));
             return;
@@ -270,7 +285,8 @@ public class InvoiceController extends OverController {
             } catch (IllegalArgumentException e) {
                 message += getString("invoice.success.unknown_discount");
             }
-        }       messages.showSuccess(message);
+        }
+        messages.showSuccess(message);
         navigateToInvoiceView();
     }
 
@@ -281,6 +297,7 @@ public class InvoiceController extends OverController {
         }
         navigateToInvoiceView();
     }
+
     private void navigateToInvoiceDetailsView() {
         loadCenterView("/com/wac/autocore/gui/view/InvoiceDetailsView.fxml");
 
