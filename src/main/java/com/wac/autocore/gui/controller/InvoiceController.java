@@ -5,6 +5,7 @@ import com.wac.autocore.dto.invoiceLine.InvoiceDto;
 import com.wac.autocore.dto.invoiceLine.InvoiceLineDto;
 import com.wac.autocore.exception.WorkOrderNotFoundException;
 import com.wac.autocore.gui.util.FormatUIUtil;
+import com.wac.autocore.model.DiscountCode;
 import com.wac.autocore.model.InvoiceLine;
 import com.wac.autocore.model.WorkOrderState;
 import com.wac.autocore.service.InvoiceService;
@@ -258,15 +259,18 @@ public class InvoiceController extends OverController {
         }
 
         String message = getString("invoice.success.invoice_created");
-        //TODO Lägg om koder till enum
-        if (discountCode.equalsIgnoreCase("WELCOME10")) {
-            message += getString("invoice.success.welcome10");
-        } else if (discountCode.equalsIgnoreCase("SERVICE200")) {
-            message += getString("invoice.success.service200");
-        } else if (!discountCode.isEmpty()) {
-            message += getString("invoice.success.unknown_discount");
-        }
-        messages.showSuccess(message);
+        if (!discountCode.isEmpty()) {
+            try {
+                DiscountCode codeEnum = DiscountCode.valueOf(discountCode.toUpperCase());
+                if (codeEnum == DiscountCode.WELCOME10) {
+                    message += getString("invoice.success.welcome10");
+                } else if (codeEnum == DiscountCode.SERVICE200) {
+                    message += getString("invoice.success.service200");
+                }
+            } catch (IllegalArgumentException e) {
+                message += getString("invoice.success.unknown_discount");
+            }
+        }       messages.showSuccess(message);
         navigateToInvoiceView();
     }
 
