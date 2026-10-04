@@ -1,5 +1,7 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.workorder.WorkOrderForMechanicDto;
+import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.Mechanic;
 import com.wac.autocore.model.Vehicle;
@@ -59,12 +61,14 @@ public class MechanicController extends OverController {
     @FXML private TableColumn<Booking, String> descriptionColumn;
     @FXML private TableColumn<Booking, String> statusColumn;
 
-    @FXML private TableView<WorkOrder> workorderTable;
-    @FXML private TableColumn<WorkOrder, Long> woIdColumn;
-    @FXML private TableColumn<WorkOrder, String> woVehicleColumn;
-    @FXML private TableColumn<WorkOrder, String> bookingDateColumn;
-    @FXML private TableColumn<WorkOrder, String> woDescriptionColumn;
-    @FXML private TableColumn<WorkOrder, String> woStatusColumn;
+    @FXML private TableView<WorkOrderForMechanicDto> workorderTable;
+    @FXML private TableColumn<WorkOrderForMechanicDto, Long> woIdColumn;
+    @FXML private TableColumn<WorkOrderForMechanicDto, String> woBookingIdColumn;
+    @FXML private TableColumn<WorkOrderForMechanicDto, String> woVehicleColumn;
+    @FXML private TableColumn<WorkOrderForMechanicDto, String> woStatusColumn;
+    @FXML private TableColumn<WorkOrderForMechanicDto, String> woStartTimeColumn;
+    @FXML private TableColumn<WorkOrderForMechanicDto, String> woEndTimeColumn;
+    @FXML private TableColumn<WorkOrderForMechanicDto, String> woDescriptionColumn;
 
     // Fält för visning i MechanicView av kundens namn
     @FXML private TableColumn<Booking, String> customerColumn;
@@ -125,70 +129,48 @@ public class MechanicController extends OverController {
             );
         }
 
-
         if (workorderTable != null) {
 
             woIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            woVehicleColumn.setCellValueFactory(new PropertyValueFactory<>("vehicleReg"));
+            woDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
 
-            // Vehicle = endast brand + model
-            woVehicleColumn.setCellValueFactory(cellData -> {
-                WorkOrder wo = cellData.getValue();
-
-                if (wo.getBooking() != null && wo.getBooking().getVehicle() != null) {
-                    Vehicle v = wo.getBooking().getVehicle();
-                    return new javafx.beans.property.SimpleStringProperty(
-                            v.getBrand() + " " + v.getModel()
-                    );
+            woBookingIdColumn.setCellValueFactory(cellData -> {
+                WorkOrderForMechanicDto dto = cellData.getValue();
+                if (dto != null && dto.getBookingId() != null) {
+                    return new SimpleStringProperty(String.valueOf(dto.getBookingId()));
                 }
-
-                return new javafx.beans.property.SimpleStringProperty("");
+                return new SimpleStringProperty("");
             });
 
-            // Customer = hämtas via booking.vehicle.customer
-            woCustomerColumn.setCellValueFactory(cellData -> {
-                WorkOrder wo = cellData.getValue();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-                if (wo.getBooking() != null &&
-                        wo.getBooking().getVehicle() != null &&
-                        wo.getBooking().getVehicle().getCustomer() != null) {
-
-                    return new javafx.beans.property.SimpleStringProperty(
-                            wo.getBooking().getVehicle().getCustomer().getName()
-                    );
+            woStartTimeColumn.setCellValueFactory(cellData -> {
+                WorkOrderForMechanicDto dto = cellData.getValue();
+                if (dto != null && dto.getStartTime() != null) {
+                    return new SimpleStringProperty(dto.getStartTime().format(formatter));
                 }
-
-                return new javafx.beans.property.SimpleStringProperty("");
+                return new SimpleStringProperty("");
             });
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-            bookingDateColumn.setCellValueFactory(cellData -> {
-                WorkOrder wo = cellData.getValue();
-
-                if (wo.getBooking() != null && wo.getBooking().getDate() != null) {
-                    return new javafx.beans.property.SimpleStringProperty(
-                            wo.getBooking().getDate().format(formatter)
-                    );
+            woEndTimeColumn.setCellValueFactory(cellData -> {
+                WorkOrderForMechanicDto dto = cellData.getValue();
+                if (dto != null && dto.getEndTime() != null) {
+                    return new SimpleStringProperty(dto.getEndTime().format(formatter));
                 }
-
-                return new javafx.beans.property.SimpleStringProperty("");
+                return new SimpleStringProperty("");
             });
 
-            woDescriptionColumn.setCellValueFactory(cellData ->
-                    new SimpleStringProperty(
-                            cellData.getValue().getBooking().getDescription()
-                    )
-            );
-            woStatusColumn.setCellValueFactory(cellData ->
-                    new SimpleStringProperty(
-                            getString("status." + cellData.getValue().getStatus())
-                    )
-            );
+            woStatusColumn.setCellValueFactory(cellData -> {
+                WorkOrderForMechanicDto dto = cellData.getValue();
+                if (dto != null && dto.getStatus() != null) {
+                    return new SimpleStringProperty(
+                            getString( dto.getStatus().name().toLowerCase())
+                    );
+                }
+                return new SimpleStringProperty("");
+            });
         }
-
-
-
-
     }
 
 
@@ -259,11 +241,16 @@ public class MechanicController extends OverController {
         controller.headerLabel.setText(getString("mechanic.workordersFor") + ": " + selected.getName());
 
         // Hämta workorders för vald mekaniker
-        List<WorkOrder> workorders =
+        List<WorkOrderForMechanicDto> workorders =
                 mechanicService.getWorkOrdersForMechanic(selected.getId());
 
         // Fyll tabellen i rätt controller-instans
         controller.workorderTable.setItems(FXCollections.observableArrayList(workorders));
+    }
+    // Backa till alla mekanikerView
+    @FXML
+    private void handleBackToMechanics() {
+        loadCenterView("/com/wac/autocore/gui/view/MechanicView.fxml");
     }
 
 

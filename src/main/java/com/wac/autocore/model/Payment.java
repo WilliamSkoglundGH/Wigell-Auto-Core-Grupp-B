@@ -1,6 +1,7 @@
 package com.wac.autocore.model;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 @Entity
 @Table(name = "payment")
@@ -11,8 +12,8 @@ public class Payment {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "invoice_id", nullable = false)
     private Invoice invoice;
-    @Column(name = "amount", nullable = false)
-    private double amount;
+    @Column(name = "amount", precision = 10, scale = 2, nullable = false)
+    private BigDecimal amount;
     @Column(name = "payment_type", length = 20, nullable = false)
     private String paymentType;
     @Column(name = "payment_date", nullable = false)
@@ -23,11 +24,11 @@ public class Payment {
     protected Payment() {
     }
 
-    public Payment(Invoice invoice, double amount, String paymentType) {
+    public Payment(Invoice invoice, BigDecimal amount, String paymentType) {
         this.invoice = invoice;
         this.amount = amount;
         this.paymentType = paymentType;
-        this.paymentDate = LocalDateTime.now(); // Sätter nuvarande tid automatiskt
+        this.paymentDate = LocalDateTime.now();
         this.successful = true;
     }
 
@@ -43,11 +44,11 @@ public class Payment {
         this.invoice = invoice;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

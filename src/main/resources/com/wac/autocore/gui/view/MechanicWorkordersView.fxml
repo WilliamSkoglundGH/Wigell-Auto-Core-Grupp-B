@@ -5,6 +5,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.Button?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.wac.autocore.gui.controller.MechanicController"
@@ -18,14 +19,17 @@
 
             <columns>
                 <TableColumn fx:id="woIdColumn" text="%table.id" />
-                <TableColumn fx:id="woVehicleColumn" text="%mechanic.workorders.vehicleColumn" />
-                <TableColumn fx:id="woCustomerColumn" text="%mechanic.workorders.customerColumn" />
-                <TableColumn fx:id="bookingDateColumn" text="%mechanic.workorders.dateColumn" />
-                <TableColumn fx:id="woDescriptionColumn" text="%table.description" />
+                <TableColumn fx:id="woBookingIdColumn" text="%workOrder.bookingIdColumn" />
                 <TableColumn fx:id="woStatusColumn" text="%table.status" />
+                <TableColumn fx:id="woVehicleColumn" text="%mechanic.workorders.vehicleColumn" />
+                <TableColumn fx:id="woStartTimeColumn" text="%workOrder.startTimeColumn" />
+                <TableColumn fx:id="woEndTimeColumn" text="%workOrder.endTimeColumn" />
+                <TableColumn fx:id="woDescriptionColumn" text="%table.description" />
+
             </columns>
         </TableView>
 
+        <Button text="%btn.back" onAction="#handleBackToMechanics" />
+
     </children>
 </VBox>
-

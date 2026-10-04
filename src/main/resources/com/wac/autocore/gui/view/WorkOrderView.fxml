@@ -22,8 +22,6 @@
                 <TableColumn fx:id="bookingIdColumn" text="%workOrder.bookingIdColumn" />
                 <TableColumn fx:id="mechanicIdColumn" text="%workOrder.mechanicIdColumn" />
                 <TableColumn fx:id="statusColumn" text="%table.status" />
-                <TableColumn fx:id="servicesColumn" text="%workOrder.servicesColumn" />
-                <TableColumn fx:id="estimatedTimeColumn" text="%workOrder.estimatedTimeColumn" />
                 <TableColumn fx:id="startTimeColumn" text="%workOrder.startTimeColumn" />
                 <TableColumn fx:id="endTimeColumn" text="%workOrder.endTimeColumn" />
             </columns>
@@ -31,8 +29,7 @@
 
         <HBox styleClass="button-spacing">
             <Button text="%btn.new" onAction="#handleNewWorkOrder" />
-            <Button text="%workOrder.startButton" onAction="#handleStartWorkOrder" />
-            <Button text="%workOrder.completeButton" onAction="#handleCompleteWorkOrder"/>
+            <Button fx:id="detailsButton" text="%btn.moreInfo" onAction="#handleDetails"/>
         </HBox>
     </children>
 </VBox>

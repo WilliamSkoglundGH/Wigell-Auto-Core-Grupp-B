@@ -1,6 +1,9 @@
 package com.wac.autocore.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.*;
 
 @Entity
@@ -16,21 +19,37 @@ public class Booking {
     private LocalDate date;
     @Column(name = "description", length = 200, nullable = true)
     private String description;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
-    private String status;
+    private BookingState status = BookingState.BOOKED;
+
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "mechanic_id", nullable = false)
     private Mechanic mechanic;
+    @OneToMany(mappedBy = "booking",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<BookingServiceItem> serviceItems = new ArrayList<>();
+
 
     protected Booking() {
     }
 
-    public Booking(Vehicle vehicle, LocalDate date, String description, String status, Mechanic mechanic) {
+    public Booking(Vehicle vehicle, LocalDate date, String description,  Mechanic mechanic) {
         this.vehicle = vehicle;
         this.date = date;
         this.description = description;
-        this.status = status;
         this.mechanic = mechanic;
+    }
+
+    public Booking(Vehicle vehicle, LocalDate date, String description,  Mechanic mechanic, List<BookingServiceItem> serviceItems) {
+        this.vehicle = vehicle;
+        this.date = date;
+        this.description = description;
+        this.mechanic = mechanic;
+        this.serviceItems = serviceItems;
     }
 
     public Long getId() {
@@ -62,11 +81,11 @@ public class Booking {
         this.description = description;
     }
 
-    public String getStatus() {
+    public BookingState getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(BookingState status) {
         this.status = status;
     }
 
@@ -76,6 +95,15 @@ public class Booking {
 
     public void setMechanic(Mechanic mechanic) {
         this.mechanic = mechanic;
+    }
+
+    public void addServiceItem(ServiceItem serviceItem, BigDecimal price, int duration) {
+        BookingServiceItem item = new BookingServiceItem(this, serviceItem, price, duration);
+        this.serviceItems.add(item);
+    }
+
+    public List<BookingServiceItem> getServiceItems() {
+        return serviceItems;
     }
 
     @Override

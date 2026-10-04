@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
 <VBox styleClass="container-padding,container-spacing"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -20,11 +21,14 @@
                 <TableColumn fx:id="workOrderIdColumn" text="%invoice.workOrderIdColumn" />
                 <TableColumn fx:id="invoiceDateColumn" text="%invoice.invoiceDateColumn" />
                 <TableColumn fx:id="amountColumn" text="%invoice.amountColumn" />
-                <TableColumn fx:id="discountColumn" text="%invoice.discountColumn" />
+                <TableColumn fx:id="discountColumn" text="%invoice.discountColumn" styleClass="red" />
                 <TableColumn fx:id="totalAmountColumn" text="%invoice.totalAmountColumn" />
                 <TableColumn fx:id="paidColumn" text="%invoice.paidColumn" />
             </columns>
         </TableView>
+        <HBox styleClass="button-spacing">
         <Button text="%btn.new" onAction="#handleNewInvoice" />
+        <Button fx:id="detailsButton" text="%btn.moreInfo" onAction="#handleDetails"/>
+        </HBox>
     </children>
 </VBox>

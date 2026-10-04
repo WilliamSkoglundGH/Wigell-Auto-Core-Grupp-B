@@ -58,7 +58,7 @@
 /* HEADER BOX (WAC + Wigell Auto Core) */
 .header-box {
     -fx-background-color: transparent; /* Ingen bakgrund */
-    -fx-padding: 20;
+    -fx-padding: 5;
     -fx-alignment: center;
 }
 
@@ -117,7 +117,13 @@
     -fx-font-weight: bold;
     -fx-font-size: 24px;
 }
-
+/*----------------------------------------------------
+Editable columns
+ ----------------------------------------------------*/
+.table-column.editable-column {
+    -fx-font-weight: bold;
+    -fx-text-fill: #d32f2f;
+}
 
 /* --------------------------------------------------------------------
    Button
@@ -224,6 +230,10 @@
     -fx-font-size: 14px;
     -fx-padding: 8px 10px;
 
+}
+.table-column.red{
+    -fx-font-weight: bold;
+    -fx-text-fill: #d32f2f;
 }
 
 /* --------------------------------------------------------------------
@@ -335,6 +345,34 @@
 
 VBox.footer {
     -fx-padding: 8px;
+}
+
+.dialog-pane.booking-service-dialog {
+    -fx-background-color: -cream-white;
+    -fx-background-radius: 8px;
+    -fx-border-color: black;
+    -fx-border-width: 2px;
+    -fx-border-radius: 4px;
+    -fx-padding: 16px;
+}
+
+.dialog-pane.booking-service-dialog .header-panel {
+    -fx-background-color: transparent;
+}
+
+.dialog-pane.booking-service-dialog .header-panel .label {
+    -fx-font-size: 20px;
+}
+
+.label.booking-services-info {
+    -fx-background-color: transparent;
+    -fx-border-color: #ACCF81;
+    -fx-border-width: 1px 1px 1px 3px;
+    -fx-border-radius: 0;
+    -fx-padding: 8px 12px;
+    -fx-text-fill: #454545;
+    -fx-font-size: 13px;
+    -fx-font-weight: normal;
 }
 
 

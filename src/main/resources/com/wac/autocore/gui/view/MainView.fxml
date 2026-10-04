@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.scene.control.Tooltip?>
-<BorderPane fx:id="mainRoot" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wac.autocore.gui.controller.MainController">
+<BorderPane fx:id="mainRoot" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wac.autocore.gui.controller.MainController">
 
     <!-- HEADER HÖGST UPP -->
     <top>
         <VBox spacing="10" styleClass="header-box">
-            <Label styleClass="heading-1,header-top" text="WAC" />
 
-            <Label styleClass="caption" text="Wigell Auto Core" />
+         <ImageView   fitHeight="175" preserveRatio="true">
+            <image>
+                <!--    <Image url="@../img/lettercombo-logo/lettercombo-light-trp.png" />-->
+               <Image url="@../img/wac-wac-logo/wac-wac-yellow-trp.png" />
+            </image>
+
+         </ImageView>
+
             <Separator prefWidth="Infinity" />
         </VBox>
 
@@ -46,7 +48,7 @@
                 <children>
                     <Button fx:id="languageButton" onAction="#handleToggleLanguage" prefWidth="130" text="%nav.language">
                         <tooltip>
-                            <Tooltip text="%tooltip.language-btn"/>
+                            <Tooltip text="%tooltip.language-btn" />
                         </tooltip>
                     </Button>
                     <Button fx:id="exitButton" onAction="#handleExit" prefWidth="130" text="%nav.exit" />
