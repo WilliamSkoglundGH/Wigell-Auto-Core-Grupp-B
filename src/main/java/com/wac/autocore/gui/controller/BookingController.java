@@ -1,10 +1,7 @@
 package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.exception.BookingNotFoundException;
-import com.wac.autocore.model.Booking;
-import com.wac.autocore.model.BookingServiceItem;
-import com.wac.autocore.model.BookingState;
-import com.wac.autocore.model.ServiceItem;
+import com.wac.autocore.model.*;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
 import com.wac.autocore.service.ServiceItemService;
@@ -38,7 +35,7 @@ import java.util.stream.Collectors;
 @Controller
 @Scope("prototype")
 public class BookingController extends OverController {
-
+    
     // TABLE VIEW (BookingView.fxml)
     @FXML private TableView<Booking> bookingTable;
     @FXML private TableColumn<Booking, Long> idColumn;
@@ -50,6 +47,7 @@ public class BookingController extends OverController {
     @FXML private TableColumn<Booking, String> estimateColumn;
 
     // FORM FIELDS (NewBookingView.fxml)
+    @FXML private ComboBox<ServicePackage> packageCombo;
     @FXML private ComboBox<String> vehicleIdField;
     @FXML private DatePicker datePicker;
     @FXML private TextArea descriptionField;
@@ -167,6 +165,7 @@ public class BookingController extends OverController {
         }
 
         loadServiceList();
+        //loadCopiedBooking();
 
         if (descriptionField != null) {
             descriptionField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -238,6 +237,7 @@ public class BookingController extends OverController {
         vehicleIdField.setItems(FXCollections.observableArrayList(vehicleList));
     }
 
+
     private void loadServiceList() {
         if (servicesListView != null) {
             ObservableList<ServiceItem> serviceItems =
@@ -290,6 +290,7 @@ public class BookingController extends OverController {
     // ---------------------------------------------------------
     // BUTTON ACTIONS & NAVIGATION
     // ---------------------------------------------------------
+
     @FXML
     private void handleNewBooking() {
         if (messages != null) {
@@ -434,6 +435,10 @@ public class BookingController extends OverController {
             messages.showError(getString("booking.error.add_service"));
         }
     }
+    //____________________________________________________________________
+    //                BookingService Details View
+    //____________________________________________________________________
+
 
     @FXML
     private void handleCancel() {
@@ -496,10 +501,37 @@ public class BookingController extends OverController {
         }
     }
 
+    //____________________________________________________________________
+    //                Copy Booking
+    //____________________________________________________________________
+
+    @FXML
+    private void handleCopyBooking(){
+        Booking selected = bookingTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            messages.showError(getString("booking.error.select_booking"));
+            return;
+        }
+
+        currentBookingId = selected.getId();
+        handleNewBooking();
+
+    }
+    @FXML
+    private void loadCopiedBooking(){
+        /*//Bokningen finns. PLocka ur info rakt av + info som behöver uppdateras = serviceitems.
+        vehicleIdField//combobox
+        datePicker// datum
+        descriptionField// texarea
+        saveButton// spara knappn
+        mechanicField// borde måste väljas om- kan ha slutat
+        servicesListView// hur för i klickar man samma som är klickat????*/
+
+    }
+
     private void navigateToBookingView() {
         loadCenterView("/com/wac/autocore/gui/view/BookingView.fxml");
     }
 
-    // findMainLayout() och loadCenterView(...) är nu borttagna
-    // härifrån eftersom de ärvs direkt från OverController!
+
 }

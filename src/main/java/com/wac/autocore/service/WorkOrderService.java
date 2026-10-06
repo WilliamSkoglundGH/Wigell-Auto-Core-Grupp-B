@@ -28,7 +28,6 @@ public class WorkOrderService {
         this.bookingService = bookingService;
         this.mechanicService = mechanicService;
     }
-
     @Transactional(readOnly = true)
     public List<WorkOrderSummaryDto> getAllWorkOrders() {
         List<WorkOrder> workOrders = workOrderRepository.findAll();
@@ -37,7 +36,6 @@ public class WorkOrderService {
                 .map(WorkOrderMapper::toSummaryDto)
                 .collect(Collectors.toList());
     }
-
     /*
      * WorkOrder gets serviceItems from Booking if workorder has status=CREATED else it gets it from it's own data
      */

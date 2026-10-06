@@ -35,6 +35,11 @@
                         promptText="YYYY-MM-DD"
                         prefWidth="250"
                         GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <!-- Package -->
+            <Label text="%booking.services.packageLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <ComboBox fx:id="packageCombo"
+                      prefWidth="250"
+                      GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
             <!-- Val av tjänster -->
             <Label text="%booking.servicesLabel"
