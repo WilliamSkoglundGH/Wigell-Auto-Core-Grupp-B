@@ -234,6 +234,25 @@ public class WorkOrderService {
         return wo;
     }
 
+    @Transactional
+    public WorkOrder createClaim(Long originalWorkOrderId, String reason) {
+
+        if (originalWorkOrderId == null) {
+            throw new IllegalArgumentException("Original work order ID cannot be null.");
+        }
+        // Hämta originalet
+        WorkOrder original = workOrderRepository.findById(originalWorkOrderId)
+                .orElseThrow(() -> new WorkOrderNotFoundException(
+                        "Original work order not found with ID: " + originalWorkOrderId));
+
+        WorkOrder claim = workOrderFactory.createClaim(original, reason);
+
+        workOrderRepository.save(claim);
+
+        return claim;
+    }
+
+
 
 
 }

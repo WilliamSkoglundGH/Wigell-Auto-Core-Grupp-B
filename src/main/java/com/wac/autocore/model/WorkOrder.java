@@ -47,7 +47,6 @@ public class WorkOrder {
     public void setVehicle(Vehicle vehicle) { this.vehicle = vehicle; }
     // slut här
 
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
     private WorkOrderState status = WorkOrderState.CONFIRMED;

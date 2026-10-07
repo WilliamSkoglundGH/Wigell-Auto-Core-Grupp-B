@@ -13,7 +13,7 @@ public class DefaultWorkOrderFactory implements WorkOrderFactory {
     public WorkOrder createBooked(Booking booking) {
         WorkOrder wo = new WorkOrder();
         wo.setType(WorkOrderType.BOOKED);
-        wo.setStatus(WorkOrderState.CREATED);
+        wo.setStatus(WorkOrderState.CONFIRMED);
         wo.setBooking(booking);
 
         List<WorkOrderServiceItem> items = new ArrayList<>();
@@ -34,8 +34,6 @@ public class DefaultWorkOrderFactory implements WorkOrderFactory {
         wo.setServiceItems(items);
         return wo;
     }
-
-
 
     @Override
     public WorkOrder createDropIn(Customer customer, Vehicle vehicle, List<ServiceItem> serviceItems) {
@@ -68,18 +66,26 @@ public class DefaultWorkOrderFactory implements WorkOrderFactory {
 
     @Override
     public WorkOrder createClaim(WorkOrder original, String reason) {
-        WorkOrder wo = new WorkOrder();
-        wo.setType(WorkOrderType.CLAIM);
+
+        // CLAIM konstruktor
+        WorkOrder wo = new WorkOrder(original, WorkOrderType.CLAIM);
+
+        // CLAIM startar alltid i DRAFT eftersom den är bara rappel
         wo.setStatus(WorkOrderState.DRAFT);
 
+        // Kopiera kund och fordon från originalet
         wo.setCustomer(original.getCustomer());
         wo.setVehicle(original.getVehicle());
-        wo.setOriginalWorkOrder(original);
+
+        // Sätt reklamationsorsak
         wo.setClaimReason(reason);
+
+        // Reklamation startar utan tjänster
         wo.setServiceItems(new ArrayList<>());
 
         return wo;
     }
+
 }
 
 

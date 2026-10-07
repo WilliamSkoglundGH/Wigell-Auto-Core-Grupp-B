@@ -9,7 +9,7 @@ import com.sun.xml.bind.v2.TODO;
 
 
 public enum WorkOrderType {
-    PLANNED("Planerad arbetsorder", "Planned work order"),
+    BOOKED("Planerad arbetsorder", "Planned work order"),
     DROP_IN("Drop-in-arbetsorder", "Drop-in work order"),
     CLAIM("Reklamation", "Claim work order");
 
