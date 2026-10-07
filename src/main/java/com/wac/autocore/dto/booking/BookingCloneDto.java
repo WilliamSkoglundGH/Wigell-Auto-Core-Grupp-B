@@ -6,9 +6,9 @@ import java.util.List;
 
 public class BookingCloneDto {
     private VehicleDto vehicleDto;
-    private List<BookingServiceItem> serviceItems; //Ska vara färska snapshots från db.
+    private List<BookingServiceItemDto> serviceItems; //Ska vara färska snapshots från db.
 
-    public BookingCloneDto(VehicleDto vehicleDto, List<BookingServiceItem> serviceItems) {
+    public BookingCloneDto(VehicleDto vehicleDto, List<BookingServiceItemDto> serviceItems) {
         this.vehicleDto = vehicleDto;
         this.serviceItems = serviceItems;
     }
@@ -18,7 +18,7 @@ public class BookingCloneDto {
         return vehicleDto;
     }
 
-    public List<BookingServiceItem> getServiceItems() {
+    public List<BookingServiceItemDto> getServiceItems() {
         return serviceItems;
     }
 }

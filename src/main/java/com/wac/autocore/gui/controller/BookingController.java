@@ -1,9 +1,9 @@
 package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.dto.booking.BookingCloneDto;
-import com.wac.autocore.dto.vechicle.VehicleDto;
+
 import com.wac.autocore.exception.BookingNotFoundException;
-import com.wac.autocore.mapper.BookingMapper;
+
 import com.wac.autocore.model.*;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
@@ -35,6 +35,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 @Controller
 @Scope("prototype")
 public class BookingController extends OverController {
@@ -57,6 +58,13 @@ public class BookingController extends OverController {
     @FXML private Button saveButton;
     @FXML private ComboBox<String> mechanicField;
     @FXML private ListView<ServiceItem> servicesListView;
+
+    // COPIED NEW BOOKING FORM (NewCopiedBooking.fxml)
+    @FXML private Label vehicleCopiedLabel;
+    @FXML private DatePicker datePickerCopied;
+    @FXML private ListView<ServiceItem> servicesListViewCopied;
+    @FXML private TextArea descriptionFieldCopied;
+    @FXML private ComboBox<String> mechanicFieldCopied;
 
 
     // SERVICES VIEW (BookingServicesView.fxml)
@@ -167,6 +175,13 @@ public class BookingController extends OverController {
         if (mechanicField != null) {
             loadMechanicDropdown();
         }
+        //NewCopiedBooking.fxml
+         if(vehicleCopiedLabel != null && currentBookingId != null) {
+             loadCopiedBooking();}
+         if(mechanicFieldCopied != null) {
+            //Byt mot rätt loadMechanicDropdown();
+             }
+
 
         loadServiceList();
 
@@ -239,16 +254,6 @@ public class BookingController extends OverController {
 
         vehicleCombo.setItems(FXCollections.observableArrayList(vehicleList));
     }
-
-    private void loadVehicleCopiedDropdown(VehicleDto v) {
-        String copiedInfo = v.getId() + " - " +
-                v.getBrand() + " " + v.getModel() +
-                " (" + v.getRegistrationNumber() + ")";
-        List<String> vehicleList = new ArrayList<>();
-        vehicleList.add(copiedInfo);
-        vehicleCombo.setItems(FXCollections.observableArrayList(vehicleList));
-    }
-
 
     private void loadServiceList() {
         if (servicesListView != null) {
@@ -524,27 +529,36 @@ public class BookingController extends OverController {
             return;
         }
         currentBookingId = selected.getId();
-        loadCopiedBooking();
-        handleNewBooking();
+        //KOLLA OM BOKNING HAR RÄTT STATUS INNAN GÅR VIDARE
+        handleNewCopiedBooking();
 
     }
     @FXML
-    private void loadCopiedBooking(){
-        if (currentBookingId == null) {
-            messages.showError(getString("booking.error.select_booking"));
+    private void handleNewCopiedBooking(){
+        if (messages != null) {
+            messages.clearMessage();
         }
-        Booking copiedBooking = bookingService.getBooking(currentBookingId);// Läggger gamla bokningen i en ny
-        BookingCloneDto dto= BookingMapper.toCloneDto(copiedBooking);
+        loadCenterView("/com/wac/autocore/gui/view/NewCopiedBooking.fxml");
 
-        //För ifyll Vehicle i combo
-        loadVehicleCopiedDropdown(dto.getVehicle());
+    }
+
+    @FXML
+    private void loadCopiedBooking(){
+
+        BookingCloneDto dto = bookingService.cloneBooking(currentBookingId);
+        //För ifyll Vehiclelabel
+         vehicleCopiedLabel.setText(dto.getVehicle().toString());
+         //servicesListViewCopied
          // För i fyll serviceItems i listvyn.
         applyPreselection(dto);
        }
 
+
+
+
     private void applyPreselection(BookingCloneDto dto) {
         Set<Long> preSelect = dto.getServiceItems().stream()
-                .map(BookingServiceItem::getId).collect(Collectors.toSet());
+                .map(i -> i.getId()).collect(Collectors.toSet());
         serviceSelections.values().forEach(p -> p.set(false));
 
         //Ändrar utifrån id i HashSet vilka som är true/false så dem blir bockade.
@@ -555,8 +569,11 @@ public class BookingController extends OverController {
             }
         }
     }
-
-
+    // Skapa en metod för att spara NEw Booking:
+    //vehicleCopiedLabel; hämta värde här.
+    // DatePicker datePickerCopied;Hämta data här
+    // descriptionFieldCopied; hämta data här
+    // mechanicFieldCopied; hämta value här
 
     private void navigateToBookingView() {
         loadCenterView("/com/wac/autocore/gui/view/BookingView.fxml");

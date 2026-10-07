@@ -32,4 +32,10 @@ public class VehicleDto {
         return model;
     }
 
+    @Override
+    public String toString() {
+        return id + " - " +
+                brand + " " + model +
+                " (" + registrationNumber + ")";
+    }
 }

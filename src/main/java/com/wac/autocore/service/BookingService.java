@@ -1,6 +1,8 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.booking.BookingCloneDto;
 import com.wac.autocore.exception.BookingNotFoundException;
+import com.wac.autocore.mapper.BookingMapper;
 import com.wac.autocore.model.*;
 import com.wac.autocore.repository.BookingRepository;
 import org.slf4j.Logger;
@@ -35,6 +37,11 @@ public class BookingService {
     public Booking getBooking(Long id) {
         return bookingRepository.findById(id)
                 .orElseThrow(() -> new BookingNotFoundException("booking.error.not_found"));
+    }
+    @Transactional
+    public Booking getBookingByIdWithDetails(Long id) {
+        return bookingRepository.findByIdWithDetails(id)
+                  .orElseThrow(() -> new BookingNotFoundException("booking.error.not_found"));
     }
 
     @Transactional
@@ -104,4 +111,13 @@ public class BookingService {
 
         return bookingRepository.save(bookingForUpdate);
     }
+
+
+    public BookingCloneDto cloneBooking(Long id) {
+        Booking copiedBooking= getBookingByIdWithDetails(id);
+       return BookingMapper.toCloneDto(copiedBooking);
+    }
+
+
+
 }
