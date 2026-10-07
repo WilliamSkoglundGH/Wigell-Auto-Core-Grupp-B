@@ -29,7 +29,8 @@
             </columns>
         </TableView>
         <HBox styleClass="button-spacing">
-            <Button text="%btn.new" onAction="#handleNewServiceItemOrder" />
+           <!-- <Button text="%btn.new" onAction="#handleNewServiceItemOrder" />-->
+            <Button fx:id="showPackageButton" text="%serviceItem.show_packages" onAction="#handleShowPackages"/>
             <Button fx:id="newPackageButton" text="%serviceItem.new_package" onAction="#handleNewPackage"/>
         </HBox>
     </children>
