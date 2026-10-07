@@ -4,6 +4,7 @@ import com.wac.autocore.dto.workorder.*;
 import com.wac.autocore.exception.*;
 import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.WorkOrderState;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

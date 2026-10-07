@@ -1,5 +1,8 @@
 package com.wac.autocore.model;
 
+import com.wac.autocore.model.enums.WorkOrderState;
+import com.wac.autocore.model.enums.WorkOrderType;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
