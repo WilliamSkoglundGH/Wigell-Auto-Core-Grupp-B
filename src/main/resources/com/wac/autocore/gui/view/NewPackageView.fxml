@@ -19,18 +19,18 @@
 <children>
 
     <!-- Titel -->
-    <Label text="%serviceItem.new.package.heading" styleClass="heading-2" />
+    <Label text="%serviceItem.package.heading" styleClass="heading-2" />
     <GridPane hgap="10" vgap="10">
-        <Label text="%serviceItem.new.package.label.name" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="packageNameField" promptText="%serviceItem.new.package.label.name" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label text="%serviceItem.package.label.name" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="packageNameField" promptText="%serviceItem.package.label.name" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="%serviceItem.new.package.label.description" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <TextArea fx:id="packageDescriptionArea" prefHeight="80" prefWidth="300" promptText="%serviceItem.new.package.label.description" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <!--<Label text="%serviceItem.package.label.description" GridPane.rowIndex="1" GridPane.columnIndex="0"/>-->
+        <TextArea fx:id="packageDescriptionArea" prefHeight="80" prefWidth="300" promptText="%serviceItem.package.label.description" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
     </GridPane>
 
-    <Label text="%serviceItem.new.package.label.select_items" styleClass="section-title"/>
+    <Label text="%serviceItem.package.label.select_items" styleClass="section-title"/>
 
-    <Label text="%serviceItem.new.package.label.servicesLabel"
+    <Label text="%serviceItem.package.label.servicesLabel"
            GridPane.columnIndex="0"
            GridPane.rowIndex="2"/>
 
