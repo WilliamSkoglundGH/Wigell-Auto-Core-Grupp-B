@@ -134,7 +134,7 @@ public class WorkOrder {
     public void setOriginalWorkOrder(WorkOrder originalWorkOrder) {
         this.originalWorkOrder = originalWorkOrder;
     }
-/*
+
     @Override
     public String toString() {
         return id +
@@ -145,5 +145,5 @@ public class WorkOrder {
                 " | Status: " + status;
     }
 
- */
+
 }

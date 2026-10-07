@@ -63,8 +63,6 @@ public abstract class OverController {
         }
     }
 
-
-
     // ---------------------------------------------------------
     // HITTA HUVUDFÖNSTRET (BORDERPANE) FÖR JAVA 8
     // ---------------------------------------------------------
