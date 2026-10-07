@@ -64,7 +64,7 @@
 
         <!-- Buttons -->
         <HBox spacing="10">
-            <Button fx:id="saveButton" text="%btn.save"/>
+            <Button fx:id="saveButton" text="%btn.save" onAction="#handleSaveCopiedBooking"/>
             <Button text="%btn.cancel" onAction="#handleCancel"/>
         </HBox>
 

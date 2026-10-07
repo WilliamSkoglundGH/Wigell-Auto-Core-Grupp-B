@@ -212,11 +212,11 @@ public class BookingController extends OverController {
         }
     }
     //Sätter serviceItem-detailsvyn med selectedbooking från BookingView.
+
     public void setBooking(Booking booking) {
         if (booking == null) {
             return;
         }
-
         currentBookingId = booking.getId();
         bookingServicesTable.setItems(
                 FXCollections.observableArrayList(booking.getServiceItems())
@@ -293,7 +293,6 @@ public class BookingController extends OverController {
             listView.setItems(serviceItems);
         }
     }
-
 
     private void loadMechanicDropdown(ComboBox<String> mechanic) {
         List<String> mechanicList = mechanicService.getAllMechanics().stream()
@@ -564,8 +563,64 @@ public class BookingController extends OverController {
             }
         }
     }
+
+    @FXML
+    private void handleSaveCopiedBooking() {
+        try {
+            String vehicleString = vehicleCopiedLabel.getText(); // vad tar jag ut här??
+            if (vehicleString == null) {
+                messages.showError(getString("booking.error.select_vehicle"));
+                return;
+            }
+            Long vehicleId = Long.parseLong(vehicleString.split(" - ")[0]);
+
+            LocalDate selectedDate = datePickerCopied.getValue();
+            LocalDate today = LocalDate.now();
+            if (selectedDate == null) {
+                messages.showError(getString("booking.error.select_date"));
+                return;
+            }
+            if (selectedDate.isBefore(today)) {
+                messages.showError(getString("booking.error.before_date"));
+                return;
+            }
+            if(descriptionFieldCopied.getText().length()> 200){
+                messages.showError(getString("booking.error.desc_too_long"));
+                return;}
+            String description = descriptionFieldCopied.getText();
+
+
+            if (mechanicFieldCopied == null) {
+                return;
+            }
+
+            String mechanicString = mechanicFieldCopied.getValue();
+            if (mechanicString == null) {
+                messages.showError(getString("booking.error.select_mechanic"));
+                return;
+            }
+            Long mechanicId = Long.parseLong(mechanicString.split(" - ")[0]);
+
+            List<ServiceItem> selectedServices = servicesListViewCopied.getItems().stream()
+                    .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
+                    .collect(Collectors.toList());
+
+            if (selectedServices.isEmpty()) {
+                messages.showError(getString("booking.error.select_services"));
+                return;
+            }
+
+            bookingService.saveBooking(vehicleId, selectedDate, description, mechanicId, selectedServices);
+            messages.showSuccess(getString("booking.success.booking_created"));
+            navigateToBookingView();
+
+        } catch (Exception e) {
+            logger.error("Could not save booking to database. {}", e.getMessage(), e);
+            messages.showError(getString("booking.error.unexpected"));
+        }
+    }
     // Skapa en metod för att spara NEw Booking:
-    //vehicleCopiedLabel; hämta värde här.
+    // vehicleCopiedLabel; hämta värde här.
     // DatePicker datePickerCopied;Hämta data här
     // descriptionFieldCopied; hämta data här
     // mechanicFieldCopied; hämta value här
