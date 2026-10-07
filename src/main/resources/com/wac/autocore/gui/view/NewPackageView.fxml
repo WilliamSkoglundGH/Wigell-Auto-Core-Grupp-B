@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ComboBox?>
+
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ListView?>
+<VBox spacing="15" xmlns="http://javafx.com/javafx"
+      styleClass="form-padding"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.ServiceItemController">
+<children>
+
+    <!-- Titel -->
+    <Label text="%serviceItem.new.package.heading" styleClass="heading-2" />
+    <GridPane hgap="10" vgap="10">
+        <Label text="%serviceItem.new.package.label.name" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="packageNameField" promptText="%serviceItem.new.package.label.name" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="%serviceItem.new.package.label.description" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextArea fx:id="packageDescriptionArea" prefHeight="80" prefWidth="300" promptText="%serviceItem.new.package.label.description" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Label text="%serviceItem.new.package.label.select_items" styleClass="section-title"/>
+
+    <Label text="%serviceItem.new.package.label.servicesLabel"
+           GridPane.columnIndex="0"
+           GridPane.rowIndex="2"/>
+
+    <ListView fx:id="servicesListView"
+              prefHeight="200"
+              prefWidth="450"
+              GridPane.columnIndex="1"
+              GridPane.rowIndex="2"/>
+
+
+    <!-- Knappar -->
+    <HBox spacing="10">
+        <Button text="%btn.save" onAction="#handleSavePackage" styleClass="button-save"/>
+        <Button text="%btn.cancel" onAction="#handleCancel" styleClass="button-cancel"/>
+    </HBox>
+</children>
+</VBox>

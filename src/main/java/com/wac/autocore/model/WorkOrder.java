@@ -50,7 +50,7 @@ public class WorkOrder {
     public WorkOrder(WorkOrderType type) {
         this.type = type;
     }
-    
+
     public WorkOrder(WorkOrder originalWorkOrder, WorkOrderType type) {
         this.originalWorkOrder = originalWorkOrder;
         this.type = type;

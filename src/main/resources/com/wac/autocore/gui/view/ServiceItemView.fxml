@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
 <VBox styleClass="container-padding,container-spacing"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -27,6 +28,9 @@
                 <TableColumn fx:id="estimatedMinutesColumn" text="%serviceItem.estimatedMinutesColumn" />
             </columns>
         </TableView>
-
+        <HBox styleClass="button-spacing">
+            <Button text="%btn.new" onAction="#handleNewServiceItemOrder" />
+            <Button fx:id="newPackageButton" text="%serviceItem.new_package" onAction="#handleNewPackage"/>
+        </HBox>
     </children>
 </VBox>

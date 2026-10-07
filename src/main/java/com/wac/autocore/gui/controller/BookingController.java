@@ -55,6 +55,7 @@ public class BookingController extends OverController {
     @FXML private ComboBox<String> mechanicField;
     @FXML private ListView<ServiceItem> servicesListView;
 
+
     // SERVICES VIEW (BookingServicesView.fxml)
     @FXML private TableView<BookingServiceItem> bookingServicesTable;
     @FXML private TableColumn<BookingServiceItem, String> serviceNameColumn;
