@@ -1,6 +1,4 @@
-package com.wac.autocore.model;
-
-import com.sun.xml.bind.v2.TODO;
+package com.wac.autocore.model.enums;
 
 //TODO har bara lagt in något för att få det att kompilera!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

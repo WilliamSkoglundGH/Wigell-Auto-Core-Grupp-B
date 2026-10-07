@@ -3,7 +3,7 @@ package com.wac.autocore.gui.controller;
 import com.wac.autocore.exception.BookingNotFoundException;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.BookingServiceItem;
-import com.wac.autocore.model.BookingState;
+import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
