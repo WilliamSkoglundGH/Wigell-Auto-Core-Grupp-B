@@ -1,5 +1,7 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.ServicePackageSummaryDto;
+import com.wac.autocore.mapper.ServicePackageMapper;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.model.ServicePackage;
 import com.wac.autocore.repository.ServiceItemRepository;
@@ -22,6 +24,11 @@ public class ServicePackageService {
         ServicePackage servicePackage = new ServicePackage(packageName, packageDescription);
         servicePackage.setServiceItems(new java.util.HashSet<>(selectedServices));
         servicePackageRepository.save(servicePackage);
+    }
+    @Transactional
+    public List<ServicePackageSummaryDto> getAllPackages() {
+        List<ServicePackage> packages = servicePackageRepository.findAll();
+        return ServicePackageMapper.toDtoList(packages);
     }
 
 }

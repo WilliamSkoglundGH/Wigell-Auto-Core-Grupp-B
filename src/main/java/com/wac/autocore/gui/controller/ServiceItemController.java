@@ -1,7 +1,9 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.ServicePackageSummaryDto;
 import com.wac.autocore.gui.util.BigDecimalStringConverter;
 import com.wac.autocore.model.ServiceItem;
+import com.wac.autocore.model.ServicePackage;
 import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.ServicePackageService;
 import javafx.beans.property.BooleanProperty;
@@ -44,6 +46,20 @@ public class ServiceItemController extends OverController {
     private TableColumn<ServiceItem, BigDecimal> priceColumn;
     @FXML
     private TableColumn<ServiceItem, Integer> estimatedMinutesColumn;
+
+    @FXML
+    private TableView<ServicePackageSummaryDto> servicePackageTable;
+    @FXML
+    private TableColumn<ServicePackageSummaryDto, Long> packageIdColumn;
+    @FXML
+    private TableColumn<ServicePackageSummaryDto, String> packageNameColumn;
+    @FXML
+    private TableColumn<ServicePackageSummaryDto, String> packageDescriptionColumn;
+    @FXML
+    private TableColumn<ServicePackageSummaryDto, String> packageServicesColumn;
+    @FXML
+    private TableColumn<ServicePackageSummaryDto, String> packageActiveColumn;
+
 
     @FXML
     private ListView<ServiceItem> servicesListView;
@@ -128,8 +144,39 @@ public class ServiceItemController extends OverController {
             }
             loadServiceList();
         }
-    }
+        if (servicePackageTable != null) {
+            packageIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            packageNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+            packageDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+            packageServicesColumn.setCellValueFactory(new PropertyValueFactory<>("services"));
 
+            // Använd getString för att få rätt språk i tabellen
+            packageActiveColumn.setCellValueFactory(cellData -> {
+                boolean active = cellData.getValue().isActive();
+                String text = active ? getString("common.yes") : getString("common.no");
+                return new javafx.beans.property.SimpleStringProperty(text);
+            });
+
+            // Ladda in datan i tabellen!
+            loadServicePackageData();
+        }
+    }
+    private void loadServicePackageData() {
+        if (servicePackageTable != null) {
+            try {
+                servicePackageTable.setItems(
+                        FXCollections.observableArrayList(
+                                servicePackageService.getAllPackages()
+                        )
+                );
+            } catch (Exception e) {
+                logger.error("Could not load service packages.", e);
+                if (messages != null) {
+                    messages.showError(getString("serviceitem.error.could_not_load"));
+                }
+            }
+        }
+    }
     public void loadServiceItemData() {
         if (serviceItemTable != null) {
             try {
@@ -219,13 +266,22 @@ public class ServiceItemController extends OverController {
 
     }
 
+    @FXML
+    public void handleShowPackages() {
+
+
+        if (messages != null) {
+            messages.clearMessage();
+        }
+        loadCenterView("/com/wac/autocore/gui/view/ServicePackageView.fxml");
+    }
+
     public void handleNewPackage() {
 
         if (messages != null) {
             messages.clearMessage();
         }
         loadCenterView("/com/wac/autocore/gui/view/NewPackageView.fxml");
-
     }
 
     @FXML
