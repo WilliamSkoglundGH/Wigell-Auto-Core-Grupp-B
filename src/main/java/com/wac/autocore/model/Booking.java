@@ -1,5 +1,7 @@
 package com.wac.autocore.model;
 
+import com.wac.autocore.model.enums.BookingState;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;

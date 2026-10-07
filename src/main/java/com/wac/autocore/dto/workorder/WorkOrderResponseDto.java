@@ -1,6 +1,6 @@
 package com.wac.autocore.dto.workorder;
 
-import com.wac.autocore.model.WorkOrderState;
+import com.wac.autocore.model.enums.WorkOrderState;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -4,6 +4,7 @@ package com.wac.autocore.service;
 import com.wac.autocore.dto.invoiceLine.InvoiceDto;
 import com.wac.autocore.mapper.InvoiceMapper;
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.WorkOrderState;
 import com.wac.autocore.service.discount.DiscountFactory;
 import com.wac.autocore.service.discount.DiscountStrategy;
 import com.wac.autocore.service.discount.PercentageDiscount;

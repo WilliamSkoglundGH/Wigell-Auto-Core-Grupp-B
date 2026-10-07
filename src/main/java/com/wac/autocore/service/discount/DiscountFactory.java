@@ -1,7 +1,7 @@
 package com.wac.autocore.service.discount;
 
-import com.wac.autocore.model.DiscountCode;
-import com.wac.autocore.model.DiscountType;
+import com.wac.autocore.model.enums.DiscountCode;
+import com.wac.autocore.model.enums.DiscountType;
 import org.springframework.stereotype.Component;
 
 @Component
