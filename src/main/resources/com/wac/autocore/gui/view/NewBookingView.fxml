@@ -25,7 +25,7 @@
 
             <!-- Vehicle -->
             <Label text="%booking.vehicleLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-            <ComboBox fx:id="vehicleIdField"
+            <ComboBox fx:id="vehicleCombo"
                       prefWidth="250"
                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 

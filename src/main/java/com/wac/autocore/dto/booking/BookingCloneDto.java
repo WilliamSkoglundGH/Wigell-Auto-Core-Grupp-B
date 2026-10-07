@@ -1,21 +1,24 @@
 package com.wac.autocore.dto.booking;
 
+import com.wac.autocore.dto.vechicle.VehicleDto;
 import com.wac.autocore.model.BookingServiceItem;
-import com.wac.autocore.model.BookingState;
-import com.wac.autocore.model.Mechanic;
-import com.wac.autocore.model.Vehicle;
-
-
-import java.time.LocalDate;
 import java.util.List;
 
 public class BookingCloneDto {
-    // Dem som ska klonas ut - i vilket skede?
-    private Long id;
-    private Vehicle vehicle;
-//    private LocalDate date;
-//  private String description;
-    private BookingState status;
-    private Mechanic mechanic;
-    private List<BookingServiceItem> serviceItems; //Hämta färska snapshots-
+    private VehicleDto vehicleDto;
+    private List<BookingServiceItem> serviceItems; //Ska vara färska snapshots från db.
+
+    public BookingCloneDto(VehicleDto vehicleDto, List<BookingServiceItem> serviceItems) {
+        this.vehicleDto = vehicleDto;
+        this.serviceItems = serviceItems;
+    }
+
+
+    public VehicleDto getVehicle() {
+        return vehicleDto;
+    }
+
+    public List<BookingServiceItem> getServiceItems() {
+        return serviceItems;
+    }
 }

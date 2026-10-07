@@ -1,6 +1,9 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.booking.BookingCloneDto;
+import com.wac.autocore.dto.vechicle.VehicleDto;
 import com.wac.autocore.exception.BookingNotFoundException;
+import com.wac.autocore.mapper.BookingMapper;
 import com.wac.autocore.model.*;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
@@ -48,7 +51,7 @@ public class BookingController extends OverController {
 
     // FORM FIELDS (NewBookingView.fxml)
     @FXML private ComboBox<ServicePackage> packageCombo;
-    @FXML private ComboBox<String> vehicleIdField;
+    @FXML private ComboBox<String> vehicleCombo;
     @FXML private DatePicker datePicker;
     @FXML private TextArea descriptionField;
     @FXML private Button saveButton;
@@ -157,16 +160,15 @@ public class BookingController extends OverController {
         }
 
         // NewBookingView.fxml
-        if (vehicleIdField != null) {
+        if (vehicleCombo != null) {
             loadVehicleDropdown();
-            vehicleIdField.requestFocus();
+            vehicleCombo.requestFocus();
         }
         if (mechanicField != null) {
             loadMechanicDropdown();
         }
 
         loadServiceList();
-        //loadCopiedBooking();
 
         if (descriptionField != null) {
             descriptionField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -193,7 +195,7 @@ public class BookingController extends OverController {
             }
         }
     }
-
+    //Sätter serviceItem-detailsvyn med selectedbooking från BookingView.
     public void setBooking(Booking booking) {
         if (booking == null) {
             return;
@@ -235,7 +237,16 @@ public class BookingController extends OverController {
                         " (" + v.getRegistrationNumber() + ")")
                 .collect(Collectors.toList());
 
-        vehicleIdField.setItems(FXCollections.observableArrayList(vehicleList));
+        vehicleCombo.setItems(FXCollections.observableArrayList(vehicleList));
+    }
+
+    private void loadVehicleCopiedDropdown(VehicleDto v) {
+        String copiedInfo = v.getId() + " - " +
+                v.getBrand() + " " + v.getModel() +
+                " (" + v.getRegistrationNumber() + ")";
+        List<String> vehicleList = new ArrayList<>();
+        vehicleList.add(copiedInfo);
+        vehicleCombo.setItems(FXCollections.observableArrayList(vehicleList));
     }
 
 
@@ -303,7 +314,7 @@ public class BookingController extends OverController {
     @FXML
     private void handleSaveBooking() {
         try {
-            String vehicleString = vehicleIdField.getValue();
+            String vehicleString = vehicleCombo.getValue();
             if (vehicleString == null) {
                 messages.showError(getString("booking.error.select_vehicle"));
                 return;
@@ -330,7 +341,6 @@ public class BookingController extends OverController {
                 return;
             }
 
-
             String mechanicString = mechanicField.getValue();
             if (mechanicString == null) {
                 messages.showError(getString("booking.error.select_mechanic"));
@@ -356,6 +366,71 @@ public class BookingController extends OverController {
             messages.showError(getString("booking.error.unexpected"));
         }
     }
+
+    @FXML
+    private void handleCancel() {
+        messages.clearMessage();
+        navigateToBookingView();
+    }
+
+    @FXML
+    private void handleBackToBookings() {
+        messages.clearMessage();
+        navigateToBookingView();
+    }
+
+    @FXML
+    private void handleRemoveBookingService() {
+        BookingServiceItem selectedItem =
+                bookingServicesTable.getSelectionModel().getSelectedItem();
+
+        if (selectedItem == null) {
+            messages.showError(getString("booking.error.select_service_to_remove"));
+            return;
+        }
+
+        try {
+            bookingService.removeServiceItemFromBooking(
+                    currentBookingId,
+                    selectedItem.getId()
+            );
+
+            bookingServicesTable.getItems().remove(selectedItem);
+            messages.showSuccess(getString("booking.success.service_removed"));
+
+        } catch (BookingNotFoundException | IllegalArgumentException
+                 | IllegalStateException e) {
+            messages.showError(getString(e.getMessage()));
+
+        } catch (Exception e) {
+            logger.error("Could not remove service from booking.", e);
+            messages.showError(getString("booking.error.remove_service"));
+        }
+    }
+
+    @FXML
+    private void handleShowBookingServices() {
+        Booking selectedBooking =
+                bookingTable.getSelectionModel().getSelectedItem();
+
+        if (selectedBooking == null) {
+            messages.showError(getString("booking.error.select_booking"));
+            return;
+        }
+
+        BookingController controller = loadCenterView(
+                "/com/wac/autocore/gui/view/BookingServicesView.fxml"
+        );
+
+        if (controller != null) {
+            controller.setBooking(selectedBooking);
+            messages.clearMessage();
+        }
+    }
+
+    // ---------------------------------------------------------
+    //                BookingService Details View
+    // ---------------------------------------------------------
 
     @FXML
     private void handleAddBookingService() {
@@ -436,75 +511,10 @@ public class BookingController extends OverController {
             messages.showError(getString("booking.error.add_service"));
         }
     }
-    //____________________________________________________________________
-    //                BookingService Details View
-    //____________________________________________________________________
 
-
-    @FXML
-    private void handleCancel() {
-        messages.clearMessage();
-        navigateToBookingView();
-    }
-
-    @FXML
-    private void handleBackToBookings() {
-        messages.clearMessage();
-        navigateToBookingView();
-    }
-
-    @FXML
-    private void handleRemoveBookingService() {
-        BookingServiceItem selectedItem =
-                bookingServicesTable.getSelectionModel().getSelectedItem();
-
-        if (selectedItem == null) {
-            messages.showError(getString("booking.error.select_service_to_remove"));
-            return;
-        }
-
-        try {
-            bookingService.removeServiceItemFromBooking(
-                    currentBookingId,
-                    selectedItem.getId()
-            );
-
-            bookingServicesTable.getItems().remove(selectedItem);
-            messages.showSuccess(getString("booking.success.service_removed"));
-
-        } catch (BookingNotFoundException | IllegalArgumentException
-                 | IllegalStateException e) {
-            messages.showError(getString(e.getMessage()));
-
-        } catch (Exception e) {
-            logger.error("Could not remove service from booking.", e);
-            messages.showError(getString("booking.error.remove_service"));
-        }
-    }
-
-    @FXML
-    private void handleShowBookingServices() {
-        Booking selectedBooking =
-                bookingTable.getSelectionModel().getSelectedItem();
-
-        if (selectedBooking == null) {
-            messages.showError(getString("booking.error.select_booking"));
-            return;
-        }
-
-        BookingController controller = loadCenterView(
-                "/com/wac/autocore/gui/view/BookingServicesView.fxml"
-        );
-
-        if (controller != null) {
-            controller.setBooking(selectedBooking);
-            messages.clearMessage();
-        }
-    }
-
-    //____________________________________________________________________
-    //                Copy Booking
-    //____________________________________________________________________
+    // ---------------------------------------------------------
+    //  COPY BOOKING
+    // ---------------------------------------------------------
 
     @FXML
     private void handleCopyBooking(){
@@ -513,22 +523,40 @@ public class BookingController extends OverController {
             messages.showError(getString("booking.error.select_booking"));
             return;
         }
-
         currentBookingId = selected.getId();
+        loadCopiedBooking();
         handleNewBooking();
 
     }
     @FXML
     private void loadCopiedBooking(){
-        /*//Bokningen finns. PLocka ur info rakt av + info som behöver uppdateras = serviceitems.
-        vehicleIdField//combobox
-        datePicker// datum
-        descriptionField// texarea
-        saveButton// spara knappn
-        mechanicField// borde måste väljas om- kan ha slutat
-        servicesListView// hur för i klickar man samma som är klickat????*/
+        if (currentBookingId == null) {
+            messages.showError(getString("booking.error.select_booking"));
+        }
+        Booking copiedBooking = bookingService.getBooking(currentBookingId);// Läggger gamla bokningen i en ny
+        BookingCloneDto dto= BookingMapper.toCloneDto(copiedBooking);
 
+        //För ifyll Vehicle i combo
+        loadVehicleCopiedDropdown(dto.getVehicle());
+         // För i fyll serviceItems i listvyn.
+        applyPreselection(dto);
+       }
+
+    private void applyPreselection(BookingCloneDto dto) {
+        Set<Long> preSelect = dto.getServiceItems().stream()
+                .map(BookingServiceItem::getId).collect(Collectors.toSet());
+        serviceSelections.values().forEach(p -> p.set(false));
+
+        //Ändrar utifrån id i HashSet vilka som är true/false så dem blir bockade.
+        for (Long id : preSelect) {
+            BooleanProperty prop = serviceSelections.get(id);
+            if (prop != null) {
+                prop.set(true);
+            }
+        }
     }
+
+
 
     private void navigateToBookingView() {
         loadCenterView("/com/wac/autocore/gui/view/BookingView.fxml");
