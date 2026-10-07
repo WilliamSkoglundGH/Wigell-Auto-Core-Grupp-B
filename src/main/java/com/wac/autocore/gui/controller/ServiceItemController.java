@@ -249,7 +249,7 @@ public class ServiceItemController extends OverController {
                     .collect(Collectors.toList());
 
             if (selectedServices.isEmpty()) {
-                messages.showError(getString("booking.error.select_services"));
+                messages.showError(getString("serviceItem.error.no_service_items"));
                 return;
             }
             servicePackageService.savePackage(packageName, packageDescription, selectedServices);
