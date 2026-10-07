@@ -21,7 +21,7 @@
                 <TableColumn fx:id="workOrderIdColumn" text="%invoice.workOrderIdColumn" />
                 <TableColumn fx:id="invoiceDateColumn" text="%invoice.invoiceDateColumn" />
                 <TableColumn fx:id="amountColumn" text="%invoice.amountColumn" />
-                <TableColumn fx:id="discountColumn" text="%invoice.discountColumn" />
+                <TableColumn fx:id="discountColumn" text="%invoice.discountColumn" styleClass="red" />
                 <TableColumn fx:id="totalAmountColumn" text="%invoice.totalAmountColumn" />
                 <TableColumn fx:id="paidColumn" text="%invoice.paidColumn" />
             </columns>

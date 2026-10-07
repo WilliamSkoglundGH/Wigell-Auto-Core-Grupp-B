@@ -4,22 +4,6 @@ import com.wac.autocore.exception.WorkOrderWrongStatusException;
 
 public enum WorkOrderState {
 
-    DRAFT() {
-        @Override
-        public boolean canStart() {
-            return false;
-        }
-
-        @Override
-        public boolean canComplete() {
-            return false;
-        }
-
-        @Override
-        public WorkOrderState getNext() {
-            return CREATED;
-        }
-    },
 
     CREATED() {
         @Override

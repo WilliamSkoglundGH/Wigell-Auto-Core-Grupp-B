@@ -5,6 +5,7 @@ import com.wac.autocore.dto.invoiceLine.InvoiceDto;
 import com.wac.autocore.dto.invoiceLine.InvoiceLineDto;
 import com.wac.autocore.exception.WorkOrderNotFoundException;
 import com.wac.autocore.gui.util.FormatUIUtil;
+import com.wac.autocore.model.DiscountCode;
 import com.wac.autocore.model.InvoiceLine;
 import com.wac.autocore.model.WorkOrderState;
 import com.wac.autocore.service.InvoiceService;
@@ -60,19 +61,31 @@ public class InvoiceController extends OverController {
     private Button detailsButton;
 
     //InvoiceDetailsView.fxml
-    @FXML private Label idLabel;
-    @FXML private Label workOrderLabel;
-    @FXML private Label dateLabel;
-    @FXML private Label amountLabel;
-    @FXML private Label totalLabel;
-    @FXML private Label discountLabel;
-    @FXML private Label paidLabel;
+    @FXML
+    private Label idLabel;
+    @FXML
+    private Label workOrderLabel;
+    @FXML
+    private Label dateLabel;
+    @FXML
+    private Label amountLabel;
+    @FXML
+    private Label totalLabel;
+    @FXML
+    private Label discountLabel;
+    @FXML
+    private Label paidLabel;
 
-    @FXML private TableView<InvoiceLineDto> linesTable;
-    @FXML private TableColumn<InvoiceLineDto, String> lineNameOfServiceColumn;
-    @FXML private TableColumn<InvoiceLineDto, BigDecimal> lineAmountBeforeColumn;
-    @FXML private TableColumn<InvoiceLineDto, BigDecimal> lineDiscountColumn;
-    @FXML private TableColumn<InvoiceLineDto, BigDecimal> lineTotalColumn;
+    @FXML
+    private TableView<InvoiceLineDto> linesTable;
+    @FXML
+    private TableColumn<InvoiceLineDto, String> lineNameOfServiceColumn;
+    @FXML
+    private TableColumn<InvoiceLineDto, BigDecimal> lineAmountBeforeColumn;
+    @FXML
+    private TableColumn<InvoiceLineDto, BigDecimal> lineDiscountColumn;
+    @FXML
+    private TableColumn<InvoiceLineDto, BigDecimal> lineTotalColumn;
 
     private static Long currentInvoiceId;
 
@@ -167,32 +180,30 @@ public class InvoiceController extends OverController {
     // Invoice Detail Modal
     //-----------------------------------
 
-    public void loadInvoiceDetails(){
+    public void loadInvoiceDetails() {
 
         if (messages != null) {
             messages.clearMessage();
         }
 
-            //Hämta faktura och ladda info
-            InvoiceDto invDTO = invoiceService.getInvoice(currentInvoiceId);
-            idLabel.setText(String.valueOf(invDTO.getId()));
-            workOrderLabel.setText(invDTO.getWorkOrderId() != null
-                    ? String.valueOf(invDTO.getWorkOrderId()) : "Specialist");
-            dateLabel.setText(FormatUIUtil.formatDate(invDTO.getInvoiceDate()));
-            amountLabel.setText(String.valueOf(invDTO.getAmount()));
-            totalLabel.setText(String.valueOf(invDTO.getTotalAmount()));
-            discountLabel.setText(String.valueOf(invDTO.getDiscount()));
-            paidLabel.setText(invDTO.isPaid()
-                            ? "Paid"
-                            : "Not paid");
-            lineNameOfServiceColumn.setCellValueFactory(new PropertyValueFactory<>("nameOfService"));
-            lineAmountBeforeColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
-            lineDiscountColumn.setCellValueFactory(new PropertyValueFactory<>("discount"));
-            lineTotalColumn.setCellValueFactory(cellData ->
-                    new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getTotalAmount()));
-            linesTable.getItems().setAll(invDTO.getLines());
-
-
+        //Hämta faktura och ladda info
+        InvoiceDto invDTO = invoiceService.getInvoice(currentInvoiceId);
+        idLabel.setText(String.valueOf(invDTO.getId()));
+        workOrderLabel.setText(invDTO.getWorkOrderId() != null
+                ? String.valueOf(invDTO.getWorkOrderId()) : "Specialist");
+        dateLabel.setText(FormatUIUtil.formatDate(invDTO.getInvoiceDate()));
+        amountLabel.setText(invDTO.getAmount() != null ? invDTO.getAmount() + " SEK" : "-");
+        totalLabel.setText(invDTO.getTotalAmount() != null ? invDTO.getTotalAmount() + " SEK" : "-");
+        discountLabel.setText(invDTO.getDiscount() != null ? invDTO.getDiscount() + " SEK" : "-");
+        paidLabel.setText(invDTO.isPaid()
+                ? "Paid"
+                : "Not paid");
+        lineNameOfServiceColumn.setCellValueFactory(new PropertyValueFactory<>("nameOfService"));
+        lineAmountBeforeColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+        lineDiscountColumn.setCellValueFactory(new PropertyValueFactory<>("discount"));
+        lineTotalColumn.setCellValueFactory(cellData ->
+                new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getTotalAmount()));
+        linesTable.getItems().setAll(invDTO.getLines());
     }
 
     //-----------------------------------
@@ -250,6 +261,9 @@ public class InvoiceController extends OverController {
         } catch (WorkOrderNotFoundException e) {
             messages.showError(getString("invoice.error.workorder_not_found"));
             return;
+        } catch (IllegalArgumentException e) {
+            messages.showError(getString("invoice.error.invalid.discount_code"));
+            return;
         } catch (IllegalStateException e) {
             messages.showError(getString(e.getMessage()));
             return;
@@ -260,13 +274,17 @@ public class InvoiceController extends OverController {
         }
 
         String message = getString("invoice.success.invoice_created");
-        //TODO Lägg om koder till enum
-        if (discountCode.equalsIgnoreCase("WELCOME10")) {
-            message += getString("invoice.success.welcome10");
-        } else if (discountCode.equalsIgnoreCase("SERVICE200")) {
-            message += getString("invoice.success.service200");
-        } else if (!discountCode.isEmpty()) {
-            message += getString("invoice.success.unknown_discount");
+        if (!discountCode.isEmpty()) {
+            try {
+                DiscountCode codeEnum = DiscountCode.valueOf(discountCode.toUpperCase());
+                if (codeEnum == DiscountCode.WELCOME10) {
+                    message += getString("invoice.success.welcome10");
+                } else if (codeEnum == DiscountCode.SERVICE200) {
+                    message += getString("invoice.success.service200");
+                }
+            } catch (IllegalArgumentException e) {
+                message += getString("invoice.success.unknown_discount");
+            }
         }
         messages.showSuccess(message);
         navigateToInvoiceView();
@@ -279,6 +297,7 @@ public class InvoiceController extends OverController {
         }
         navigateToInvoiceView();
     }
+
     private void navigateToInvoiceDetailsView() {
         loadCenterView("/com/wac/autocore/gui/view/InvoiceDetailsView.fxml");
 

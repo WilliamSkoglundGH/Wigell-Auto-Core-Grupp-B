@@ -13,9 +13,17 @@ public class WorkOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "booking_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "booking_id", nullable = true)
     private Booking booking;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "work_order_type", length = 20, nullable = false)
+    private WorkOrderType type = WorkOrderType.PLANNED;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "original_work_order_id", nullable = true)
+    private WorkOrder originalWorkOrder;
 
     @OneToMany(mappedBy = "workOrder",
             cascade = CascadeType.ALL,
@@ -36,14 +44,17 @@ public class WorkOrder {
 
     public WorkOrder(Booking booking) {
         this.booking = booking;
+        this.type = WorkOrderType.PLANNED;
     }
 
-    /*
-        public WorkOrder(Booking booking, WorkOrderState status) {
-            this.booking = booking;
-            this.status = status;
-        }
-    */
+    public WorkOrder(WorkOrderType type) {
+        this.type = type;
+    }
+
+    public WorkOrder(WorkOrder originalWorkOrder, WorkOrderType type) {
+        this.originalWorkOrder = originalWorkOrder;
+        this.type = type;
+    }
     public WorkOrder(Booking booking, List<WorkOrderServiceItem> serviceItems, WorkOrderState status, LocalDateTime startTime, LocalDateTime endTime) {
         this.booking = booking;
         this.serviceItems = serviceItems;
@@ -106,7 +117,22 @@ public class WorkOrder {
     public List<WorkOrderServiceItem> getServiceItems() {
         return serviceItems;
     }
+    public WorkOrderType getType() {
+        return type;
+    }
 
+    public void setType(WorkOrderType type) {
+        this.type = type;
+    }
+
+    public WorkOrder getOriginalWorkOrder() {
+        return originalWorkOrder;
+    }
+
+    public void setOriginalWorkOrder(WorkOrder originalWorkOrder) {
+        this.originalWorkOrder = originalWorkOrder;
+    }
+/*
     @Override
     public String toString() {
         return id +
@@ -117,5 +143,5 @@ public class WorkOrder {
                 " | Status: " + status;
     }
 
-
+ */
 }
