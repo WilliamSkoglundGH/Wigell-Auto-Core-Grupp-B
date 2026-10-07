@@ -1,7 +1,7 @@
 package com.wac.autocore.model;
 
 public enum WorkOrderType {
-    PLANNED,
+    BOOKED,
     DROP_IN,
     CLAIM
 }

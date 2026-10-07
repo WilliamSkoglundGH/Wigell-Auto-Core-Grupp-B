@@ -5,6 +5,7 @@ import com.wac.autocore.exception.*;
 import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.*;
 import com.wac.autocore.repository.WorkOrderRepository;
+import com.wac.autocore.service.WorkOrderFactory.WorkOrderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,27 @@ public class WorkOrderService {
     private WorkOrderRepository workOrderRepository;
     private BookingService bookingService;
     private MechanicService mechanicService;
+    private WorkOrderFactory workOrderFactory;
 
-    public WorkOrderService(WorkOrderRepository workOrderRepository, BookingService bookingService, MechanicService mechanicService) {
+    private CustomerService customerService;
+    private VehicleService vehicleService;
+    private ServiceItemService serviceItemService;
+
+    public WorkOrderService(WorkOrderRepository workOrderRepository,
+                            BookingService bookingService,
+                            MechanicService mechanicService,
+                            WorkOrderFactory workOrderFactory,
+                            CustomerService customerService,
+                            VehicleService vehicleService,
+                            ServiceItemService serviceItemService) {
+
         this.workOrderRepository = workOrderRepository;
         this.bookingService = bookingService;
         this.mechanicService = mechanicService;
+        this.workOrderFactory = workOrderFactory;
+        this.customerService = customerService;
+        this.vehicleService = vehicleService;
+        this.serviceItemService = serviceItemService;
     }
 
     @Transactional(readOnly = true)
@@ -62,8 +79,7 @@ public class WorkOrderService {
     public void saveWorkOrder(Long bookingId) {
         Booking booking = bookingService.getBooking(bookingId);
         booking.setStatus(booking.getStatus().getNext());
-        WorkOrder newWorkOrder = new WorkOrder(booking);
-
+        WorkOrder newWorkOrder = workOrderFactory.createBooked(booking);
 
         workOrderRepository.save(newWorkOrder);
     }
@@ -181,6 +197,26 @@ public class WorkOrderService {
 
         return dto;
     }
+
+    // Inget Dto än
+    @Transactional
+    public WorkOrder createDropIn(Long customerId, Long vehicleId, List<Long> serviceItemIds) {
+
+        // Hämta kund och fordon
+        Customer customer = customerService.getCustomer(customerId);
+        Vehicle vehicle = vehicleService.getVehicle(vehicleId);
+
+        // Hämta serviceitems
+        List<ServiceItem> serviceItems = serviceItemService.getServiceItemsByIds(serviceItemIds);
+
+        WorkOrder wo = workOrderFactory.createDropIn(customer, vehicle, serviceItems);
+
+        workOrderRepository.save(wo);
+
+        return wo;
+    }
+
+
 
 }
 

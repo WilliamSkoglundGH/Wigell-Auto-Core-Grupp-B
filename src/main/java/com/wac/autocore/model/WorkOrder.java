@@ -19,7 +19,7 @@ public class WorkOrder {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "work_order_type", length = 20, nullable = false)
-    private WorkOrderType type = WorkOrderType.PLANNED;
+    private WorkOrderType type = WorkOrderType.BOOKED;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "original_work_order_id", nullable = true)
@@ -31,6 +31,24 @@ public class WorkOrder {
             fetch = FetchType.LAZY)
     private List<WorkOrderServiceItem> serviceItems = new ArrayList<>();
 
+    // Lägger test in koppling till customer och vehicle för att göra dropIns
+    // Vill vi ha så inte dropIn har en Bokning så behöver WorkOrder veta kund och fordon
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = true)
+    private Customer customer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id", nullable = true)
+    private Vehicle vehicle;
+
+    public Customer getCustomer() { return customer; }
+    public void setCustomer(Customer customer) { this.customer = customer; }
+
+    public Vehicle getVehicle() { return vehicle; }
+    public void setVehicle(Vehicle vehicle) { this.vehicle = vehicle; }
+    // slut här
+
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
     private WorkOrderState status = WorkOrderState.CREATED;
@@ -39,12 +57,12 @@ public class WorkOrder {
     @Column(name = "end_time", nullable = true)
     private LocalDateTime endTime;
 
-    protected WorkOrder() {
+    public WorkOrder() {
     }
 
     public WorkOrder(Booking booking) {
         this.booking = booking;
-        this.type = WorkOrderType.PLANNED;
+        this.type = WorkOrderType.BOOKED;
     }
 
     public WorkOrder(WorkOrderType type) {
@@ -132,6 +150,7 @@ public class WorkOrder {
     public void setOriginalWorkOrder(WorkOrder originalWorkOrder) {
         this.originalWorkOrder = originalWorkOrder;
     }
+
 /*
     @Override
     public String toString() {

@@ -33,6 +33,11 @@ public class ServiceItemService {
                 .orElseThrow(() -> new ServiceItemNotFoundException(
                         "Service item with ID: " + serviceItemId + " not found"));
     }
+    // Funkar med findAllById
+    @Transactional(readOnly = true)
+    public List<ServiceItem> getServiceItemsByIds(List<Long> ids) {
+        return serviceItemRepository.findAllById(ids);
+    }
 
     @Transactional
     public void changePrice(Long serviceItemId, BigDecimal newPrice) {
