@@ -47,7 +47,7 @@ public class WorkOrderService {
         WorkOrderResponseDto dto;
         WorkOrder workOrder = workOrderRepository.findById(id).orElseThrow(() -> new WorkOrderNotFoundException(
                 "Work order with ID: " + id + " not found"));
-        if (workOrder.getStatus() == WorkOrderState.CREATED) {
+        if (workOrder.getStatus() == WorkOrderState.CONFIRMED) {
             List<BookingServiceItem> serviceItems = (workOrder.getBooking() != null) ? workOrder.getBooking().getServiceItems() : null;
 
             dto = WorkOrderMapper.toResponseDto(workOrder, WorkOrderMapper.toServiceItemDtoListFromBooking(serviceItems));
@@ -156,7 +156,7 @@ public class WorkOrderService {
         dto.setCustomerName(booking.getVehicle().getCustomer().getName());
 
         List<WorkOrderServiceItemDto> serviceItemList;
-        if (WorkOrderState.CREATED.equals(dto.getStatus())) {
+        if (WorkOrderState.CONFIRMED.equals(dto.getStatus())) {
             serviceItemList = WorkOrderMapper.toServiceItemDtoListFromBooking(workOrder.getBooking().getServiceItems());
 
         } else {
@@ -180,6 +180,24 @@ public class WorkOrderService {
 
 
         return dto;
+    }
+
+    //Metod för att avbryta en workorder(tillåts initalt nu bara för en workorder med status draft eller confirmed, kan ändras om ni vill)
+    @Transactional
+    public void cancelWorkOrder(Long workOrderId) {
+        WorkOrder workOrder = workOrderRepository.findById(workOrderId)
+                .orElseThrow(() -> new WorkOrderNotFoundException(
+                        "Work order not found with ID: " + workOrderId
+                ));
+
+        if (!workOrder.getStatus().canCancel()) {
+            throw new WorkOrderWrongStatusException(
+                    "Cannot cancel work order in state: " + workOrder.getStatus()
+            );
+        }
+
+        workOrder.setStatus(WorkOrderState.CANCELED);
+        workOrderRepository.save(workOrder);
     }
 
 }
