@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Controller
 @Scope("prototype")
 public class BookingController extends OverController {
-    
+
     // TABLE VIEW (BookingView.fxml)
     @FXML private TableView<Booking> bookingTable;
     @FXML private TableColumn<Booking, Long> idColumn;

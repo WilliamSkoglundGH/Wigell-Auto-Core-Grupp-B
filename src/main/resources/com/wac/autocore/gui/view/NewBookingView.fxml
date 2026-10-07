@@ -36,37 +36,36 @@
                         prefWidth="250"
                         GridPane.columnIndex="1" GridPane.rowIndex="1"/>
             <!-- Package -->
-            <Label text="%booking.services.packageLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <Label text="%booking.services.packageLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
             <ComboBox fx:id="packageCombo"
                       prefWidth="250"
-                      GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                      GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
             <!-- Val av tjänster -->
             <Label text="%booking.servicesLabel"
                    GridPane.columnIndex="0"
-                   GridPane.rowIndex="2"/>
+                   GridPane.rowIndex="3"/>
 
             <ListView fx:id="servicesListView"
                       prefHeight="200"
                       prefWidth="450"
                       GridPane.columnIndex="1"
-                      GridPane.rowIndex="2"/>
+                      GridPane.rowIndex="3"/>
 
             <!-- Description -->
-            <Label text="%booking.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <Label text="%booking.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
             <TextArea fx:id="descriptionField"
                       promptText="%booking.prompt-desc"
                       prefRowCount="3"
                       wrapText="true"
                       prefWidth="250"
-                      GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-
-            <!-- Mechanic -->
-            <Label text="%booking.mechanicLabel" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-            <ComboBox fx:id="mechanicField"
-                      prefWidth="250"
                       GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 
+            <!-- Mechanic -->
+            <Label text="%booking.mechanicLabel" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+            <ComboBox fx:id="mechanicField"
+                      prefWidth="250"
+                      GridPane.columnIndex="1" GridPane.rowIndex="5"/>
 
 
         </GridPane>

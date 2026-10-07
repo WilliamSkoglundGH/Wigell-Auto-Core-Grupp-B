@@ -7,8 +7,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Separator?>
@@ -26,13 +24,13 @@
         <Label text="%booking.mechanicLabel"  GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
         <Label fx:id="mechanicLabel"        GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="%booking.service.id"   GridPane.rowIndex="1" GridPane.columnIndex="1" style="-fx-font-weight: bold;"/>
+        <Label text="%booking.service.id"   GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
         <Label fx:id="bookingIdLabel"      GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label text="%mechanic.bookings.customerColumn"    GridPane.rowIndex="2" GridPane.columnIndex="2" style="-fx-font-weight: bold;"/>
+        <Label text="%mechanic.bookings.customerColumn"    GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
         <Label fx:id="customerLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-        <Label text="%booking.vehicleLabel"   GridPane.rowIndex="3" GridPane.columnIndex="3" style="-fx-font-weight: bold;"/>
+        <Label text="%booking.vehicleLabel"   GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
         <Label fx:id="vehicleLabel"      GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
     </GridPane>
