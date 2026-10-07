@@ -1,7 +1,6 @@
 package com.wac.autocore.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,7 @@ public class WorkOrder {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
-    private WorkOrderState status = WorkOrderState.CREATED;
+    private WorkOrderState status = WorkOrderState.CONFIRMED;
     @Column(name = "start_time", nullable = true)
     private LocalDateTime startTime;
     @Column(name = "end_time", nullable = true)
