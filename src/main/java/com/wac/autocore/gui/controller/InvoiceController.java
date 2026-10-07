@@ -132,7 +132,6 @@ public class InvoiceController extends OverController {
             detailsButton.disableProperty().bind(
                     invoiceTable.getSelectionModel().selectedItemProperty().isNull()
             );
-
             loadInvoiceData();
             invoiceTable.requestFocus();
         }
@@ -145,7 +144,6 @@ public class InvoiceController extends OverController {
         if (idLabel != null && currentInvoiceId != null) {
             loadInvoiceDetails();
         }
-
     }
 
     public void loadInvoiceData() {
@@ -165,7 +163,6 @@ public class InvoiceController extends OverController {
     // Invoice functions first page + modal
     //-----------------------------------
 
-
     @FXML
     private void handleDetails() {
         Invoice selected = invoiceTable.getSelectionModel().getSelectedItem();
@@ -175,11 +172,9 @@ public class InvoiceController extends OverController {
         currentInvoiceId = selected.getId();
         navigateToInvoiceDetailsView();
     }
-
     //-----------------------------------
     // Invoice Detail Modal
     //-----------------------------------
-
     public void loadInvoiceDetails() {
 
         if (messages != null) {
@@ -205,7 +200,6 @@ public class InvoiceController extends OverController {
                 new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getTotalAmount()));
         linesTable.getItems().setAll(invDTO.getLines());
     }
-
     //-----------------------------------
     // New Invoice Functions
     //-----------------------------------

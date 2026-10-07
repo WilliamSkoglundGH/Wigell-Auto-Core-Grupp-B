@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
+<VBox       spacing="15"
+            styleClass="form-padding"
+            xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.wac.autocore.gui.controller.BookingController"
             prefHeight="400.0" prefWidth="600.0">
@@ -14,7 +13,7 @@
     <children>
 
         <!-- Titel -->
-        <Label text="%booking.newHeading" styleClass="heading-2" />
+        <Label text="%booking.copied.heading" styleClass="heading-2" />
 
         <!-- Formulär -->
         <GridPane hgap="10" vgap="12">
