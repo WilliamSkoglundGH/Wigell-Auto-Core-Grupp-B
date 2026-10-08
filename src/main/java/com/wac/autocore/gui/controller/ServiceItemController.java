@@ -1,6 +1,6 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.dto.ServicePackageSummaryDto;
+import com.wac.autocore.dto.servicePackage.ServicePackageSummaryDto;
 import com.wac.autocore.gui.util.BigDecimalStringConverter;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.model.ServicePackage;
