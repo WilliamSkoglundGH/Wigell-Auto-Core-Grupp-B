@@ -4,6 +4,7 @@ import com.wac.autocore.dto.booking.BookingCloneDto;
 import com.wac.autocore.exception.BookingNotFoundException;
 import com.wac.autocore.mapper.BookingMapper;
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.repository.BookingRepository;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.sun.imageio.plugins.common.I18N.getString;
 
 @Service
 public class BookingService {
@@ -118,9 +121,12 @@ public class BookingService {
         return bookingRepository.save(bookingForUpdate);
     }
 
-
+@Transactional
     public BookingCloneDto cloneBooking(Long id) {
         Booking copiedBooking= getBookingByIdWithDetails(id);
+        if(copiedBooking.getStatus() != BookingState.COMPLETED) {
+            throw new IllegalStateException("booking.error.booking_state_completed");
+        }
        return BookingMapper.toCloneDto(copiedBooking);
     }
 

@@ -13,7 +13,7 @@
       fx:controller="com.wac.autocore.gui.controller.ServiceItemController">
 
     <children>
-        <Label text="%serviceItem.package.heading" styleClass="heading-2" />
+        <Label text="%serviceItem.packages.heading" styleClass="heading-2" />
 
         <TableView fx:id="servicePackageTable">
             <columns>

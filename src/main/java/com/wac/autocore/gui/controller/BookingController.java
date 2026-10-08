@@ -14,6 +14,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.LoadException;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxListCell;
@@ -27,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -41,42 +43,78 @@ public class BookingController extends OverController {
 
     private final ServicePackageService servicePackageService;
     // TABLE VIEW (BookingView.fxml)
-    @FXML private TableView<Booking> bookingTable;
-    @FXML private TableColumn<Booking, Long> idColumn;
-    @FXML private TableColumn<Booking, String> vehicleIdColumn;
-    @FXML private TableColumn<Booking, LocalDate> dateColumn;
-    @FXML private TableColumn<Booking, String> descriptionColumn;
-    @FXML private TableColumn<Booking, String> statusColumn;
-    @FXML private TableColumn<Booking, String> mechanicColumn;
-    @FXML private TableColumn<Booking, String> estimateColumn;
+    @FXML
+    private TableView<Booking> bookingTable;
+    @FXML
+    private TableColumn<Booking, Long> idColumn;
+    @FXML
+    private TableColumn<Booking, String> vehicleIdColumn;
+    @FXML
+    private TableColumn<Booking, LocalDate> dateColumn;
+    @FXML
+    private TableColumn<Booking, String> descriptionColumn;
+    @FXML
+    private TableColumn<Booking, String> statusColumn;
+    @FXML
+    private TableColumn<Booking, String> mechanicColumn;
+    @FXML
+    private TableColumn<Booking, String> estimateColumn;
 
     // FORM FIELDS (NewBookingView.fxml)
-    @FXML private ComboBox<ServicePackageDetailDto> packageCombo;
-    @FXML private ComboBox<String> vehicleCombo;
-    @FXML private DatePicker datePicker;
-    @FXML private TextArea descriptionField;
-    @FXML private Button saveButton;
-    @FXML private ComboBox<String> mechanicField;
-    @FXML private ListView<ServiceItem> servicesListView;
+    @FXML
+    private ComboBox<ServicePackageDetailDto> packageCombo;
+    @FXML
+    private ComboBox<String> vehicleCombo;
+    @FXML
+    private DatePicker datePicker;
+    @FXML
+    private TextArea descriptionField;
+    @FXML
+    private Button saveButton;
+    @FXML
+    private ComboBox<String> mechanicField;
+    @FXML
+    private ListView<ServiceItem> servicesListView;
 
     // COPIED NEW BOOKING FORM (NewCopiedBooking.fxml)
-    @FXML private Label vehicleCopiedLabel;
-    @FXML private DatePicker datePickerCopied;
-    @FXML private ListView<ServiceItem> servicesListViewCopied;
-    @FXML private TextArea descriptionFieldCopied;
-    @FXML private ComboBox<String> mechanicFieldCopied;
+    @FXML
+    private Label vehicleCopiedLabel;
+    @FXML
+    private DatePicker datePickerCopied;
+    @FXML
+    private ListView<ServiceItem> servicesListViewCopied;
+    @FXML
+    private TextArea descriptionFieldCopied;
+    @FXML
+    private ComboBox<String> mechanicFieldCopied;
 
 
     // SERVICES VIEW (BookingServicesView.fxml)
-    @FXML private TableView<BookingServiceItem> bookingServicesTable;
-    @FXML private TableColumn<BookingServiceItem, String> serviceNameColumn;
-    @FXML private TableColumn<BookingServiceItem, BigDecimal> servicePriceColumn;
-    @FXML private TableColumn<BookingServiceItem, Integer> serviceDurationColumn;
-    @FXML private Button removeServiceButton;
-    @FXML private Button addServiceButton;
-    @FXML private Label servicesLockedLabel;
+    @FXML
+    private TableView<BookingServiceItem> bookingServicesTable;
+    @FXML
+    private TableColumn<BookingServiceItem, String> serviceNameColumn;
+    @FXML
+    private TableColumn<BookingServiceItem, BigDecimal> servicePriceColumn;
+    @FXML
+    private TableColumn<BookingServiceItem, Integer> serviceDurationColumn;
+    @FXML
+    private Button removeServiceButton;
+    @FXML
+    private Button addServiceButton;
+    @FXML
+    private Label servicesLockedLabel;
+    @FXML
+    private Label bookingIdLabel;
+    @FXML
+    private Label mechanicLabel;
+    @FXML
+    private Label customerLabel;
+    @FXML
+    private Label vehicleLabel;
 
     private static Long currentBookingId;
+    private BookingCloneDto cloneDto;
 
 
     private final BookingService bookingService;
@@ -176,36 +214,41 @@ public class BookingController extends OverController {
         if (mechanicField != null) {
             loadMechanicDropdown(mechanicField);
         }
-        if (packageCombo != null){
+        if (packageCombo != null) {
             loadServicePackageDropDown();
             // Lägg till detta i initialize()
-            packageCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    // Steg 1: Nollställ alla nuvarande val i listan (valfritt, men oftast önskvärt)
-                    for (BooleanProperty prop : serviceSelections.values()) {
-                        prop.set(false);
-                    }
+            packageCombo.getSelectionModel().selectedItemProperty()
+                    .addListener((observable, oldValue, newValue) -> {
+                        if (newValue != null) {
+                            // Steg 1: Nollställ alla nuvarande val i listan (valfritt, men oftast önskvärt)
+                            for (BooleanProperty prop : serviceSelections.values()) {
+                                prop.set(false);
+                            }
 
-                    // Steg 2: Gå igenom tjänsterna som ingår i det valda paketet och sätt dem till true
-                    for (ServiceItem item : newValue.getServiceItems()) {
-                        BooleanProperty prop = serviceSelections.get(item.getId());
-                        if (prop != null) {
-                            prop.set(true); // Detta klickar i checkboxen i ListView automatiskt!
+                            // Steg 2: Gå igenom tjänsterna som ingår i det valda paketet och sätt dem till true
+                            for (ServiceItem item : newValue.getServiceItems()) {
+                                BooleanProperty prop = serviceSelections.get(item.getId());
+                                if (prop != null) {
+                                    prop.set(true); // Detta klickar i checkboxen i ListView automatiskt!
+                                }
+                            }
                         }
-                    }
-                }
-            });
+                    });
         }
         //NewCopiedBooking.fxml
-         if(vehicleCopiedLabel != null && currentBookingId != null) {
-             loadCopiedBooking();}
-         if(mechanicFieldCopied != null) {
+        if (vehicleCopiedLabel != null) {
+            loadServiceList(servicesListViewCopied);
+        } else {
+            loadServiceList(servicesListView);
+        }
+
+        // 2. Kör kopieringen EFTER att listan är laddad
+        if (vehicleCopiedLabel != null && currentBookingId != null) {
+            loadCopiedBooking();
+        }
+        if (mechanicFieldCopied != null) {
             loadMechanicDropdown(mechanicFieldCopied);
-             }
-
-
-        loadServiceList(servicesListView);
-        loadServiceList(servicesListViewCopied);
+        }
 
         if (descriptionField != null) {
             descriptionField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -215,7 +258,6 @@ public class BookingController extends OverController {
                 }
             });
         }
-
     }
 
     private void loadBookingData() {
@@ -245,6 +287,10 @@ public class BookingController extends OverController {
         );
 
         BookingState state = booking.getStatus();
+        bookingIdLabel.setText(String.valueOf(booking.getId()));
+        mechanicLabel.setText(booking.getMechanic().getName());
+        customerLabel.setText(booking.getVehicle().getCustomer().getName());
+        vehicleLabel.setText(booking.getVehicle().getRegistrationNumber());
 
         boolean canAdd = state.canAddServiceItem();
         boolean canRemove = state.canRemoveServiceItem();
@@ -382,9 +428,10 @@ public class BookingController extends OverController {
                 messages.showError(getString("booking.error.before_date"));
                 return;
             }
-            if(descriptionField.getText().length()> 200){
+            if (descriptionField.getText().length() > 200) {
                 messages.showError(getString("booking.error.desc_too_long"));
-                return;}
+                return;
+            }
             String description = descriptionField.getText();
 
 
@@ -568,37 +615,51 @@ public class BookingController extends OverController {
     // ---------------------------------------------------------
 
     @FXML
-    private void handleCopyBooking(){
+    private void handleCopyBooking() {
         Booking selected = bookingTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-           // messages.showError(getString("booking.error.select_booking"));
-            return; }
+            messages.showError(getString("booking.error.select_booking"));
+            return;
+        }
         currentBookingId = selected.getId();
-        //KOLLA OM BOKNING HAR RÄTT STATUS INNAN GÅR VIDARE
+
         navigateToNewCopiedBooking();
     }
 
     @FXML
-    private void loadCopiedBooking(){
+    private void loadCopiedBooking() {
         if (messages != null) {
             messages.clearMessage();
         }
-       if(currentBookingId == null){
+        if (currentBookingId == null) {
             messages.showError(getString("booking.error.select_booking"));
             return;
         }
+        try {
+            BookingCloneDto dto = bookingService.cloneBooking(currentBookingId);
 
-        BookingCloneDto dto = bookingService.cloneBooking(currentBookingId);
-        //För ifyll Vehiclelabel
-        System.out.println("efter hämta dto"+dto.toString());
-        vehicleCopiedLabel.setText(String.valueOf(dto.getVehicle().toString()));
+            // Sätt fordonets text (eller regnummer)
+            if (dto.getVehicle() != null) {
+                vehicleCopiedLabel.setText(dto.getVehicle().getId() + " - " +
+                        dto.getVehicle().getBrand() + " " + dto.getVehicle().getModel() +
+                        " (" + dto.getVehicle().getRegistrationNumber() + ")");
+            }
 
-        applyPreselection(dto);
-       }
+            // 1. Se till att listan laddas först så mapen fylls
+            loadServiceList(servicesListViewCopied);
+
+            // 2. Applicera förvalen efteråt
+            applyPreselection(dto);
+
+        } catch (IllegalStateException e) {
+            messages.showError(getString("booking.error.booking_state_completed"));
+        }
+    }
 
     private void applyPreselection(BookingCloneDto dto) {
+        // Funkar först till
         Set<Long> preSelect = dto.getServiceItems().stream()
-                .map(i -> i.getId()).collect(Collectors.toSet());
+                .map(i -> i.getServiceItemId()).collect(Collectors.toSet());
         serviceSelections.values().forEach(p -> p.set(false));
 
         //Ändrar utifrån id i HashSet vilka som är true/false så dem blir bockade.
@@ -630,9 +691,10 @@ public class BookingController extends OverController {
                 messages.showError(getString("booking.error.before_date"));
                 return;
             }
-            if(descriptionFieldCopied.getText().length()> 200){
+            if (descriptionFieldCopied.getText().length() > 200) {
                 messages.showError(getString("booking.error.desc_too_long"));
-                return;}
+                return;
+            }
             String description = descriptionFieldCopied.getText();
 
 
@@ -665,14 +727,9 @@ public class BookingController extends OverController {
             messages.showError(getString("booking.error.unexpected"));
         }
     }
-    // Skapa en metod för att spara NEw Booking:
-    // vehicleCopiedLabel; hämta värde här.
-    // DatePicker datePickerCopied;Hämta data här
-    // descriptionFieldCopied; hämta data här
-    // mechanicFieldCopied; hämta value här
 
     @FXML
-    private void navigateToNewCopiedBooking(){
+    private void navigateToNewCopiedBooking() {
         loadCenterView("/com/wac/autocore/gui/view/NewCopiedBooking.fxml");
     }
 
