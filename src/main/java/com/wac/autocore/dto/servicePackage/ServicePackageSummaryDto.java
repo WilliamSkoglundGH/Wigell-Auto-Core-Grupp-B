@@ -1,4 +1,4 @@
-package com.wac.autocore.dto;
+package com.wac.autocore.dto.servicePackage;
 
 public class ServicePackageSummaryDto {
 

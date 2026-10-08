@@ -5,6 +5,7 @@ import com.wac.autocore.dto.booking.BookingCloneDto;
 import com.wac.autocore.exception.BookingNotFoundException;
 
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
 import com.wac.autocore.service.ServiceItemService;
@@ -525,7 +526,7 @@ public class BookingController extends OverController {
     private void handleCopyBooking(){
         Booking selected = bookingTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-           // messages.showError(getString("booking.error.select_booking"));
+            messages.showError(getString("booking.error.select_booking"));
             return; }
         currentBookingId = selected.getId();
         //KOLLA OM BOKNING HAR RÄTT STATUS INNAN GÅR VIDARE
@@ -541,7 +542,6 @@ public class BookingController extends OverController {
             messages.showError(getString("booking.error.select_booking"));
             return;
         }
-
         BookingCloneDto dto = bookingService.cloneBooking(currentBookingId);
         //För ifyll Vehiclelabel
         System.out.println("efter hämta dto"+dto.toString());
@@ -619,11 +619,6 @@ public class BookingController extends OverController {
             messages.showError(getString("booking.error.unexpected"));
         }
     }
-    // Skapa en metod för att spara NEw Booking:
-    // vehicleCopiedLabel; hämta värde här.
-    // DatePicker datePickerCopied;Hämta data här
-    // descriptionFieldCopied; hämta data här
-    // mechanicFieldCopied; hämta value här
 
     @FXML
     private void navigateToNewCopiedBooking(){
