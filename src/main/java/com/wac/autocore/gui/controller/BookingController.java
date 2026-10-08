@@ -2,14 +2,12 @@ package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.dto.booking.BookingCloneDto;
 
+import com.wac.autocore.dto.servicePackage.ServicePackageDetailDto;
 import com.wac.autocore.exception.BookingNotFoundException;
 
 import com.wac.autocore.model.*;
 import com.wac.autocore.model.enums.BookingState;
-import com.wac.autocore.service.BookingService;
-import com.wac.autocore.service.MechanicService;
-import com.wac.autocore.service.ServiceItemService;
-import com.wac.autocore.service.VehicleService;
+import com.wac.autocore.service.*;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -41,6 +39,7 @@ import java.util.stream.Collectors;
 @Scope("prototype")
 public class BookingController extends OverController {
 
+    private final ServicePackageService servicePackageService;
     // TABLE VIEW (BookingView.fxml)
     @FXML private TableView<Booking> bookingTable;
     @FXML private TableColumn<Booking, Long> idColumn;
@@ -52,7 +51,7 @@ public class BookingController extends OverController {
     @FXML private TableColumn<Booking, String> estimateColumn;
 
     // FORM FIELDS (NewBookingView.fxml)
-    @FXML private ComboBox<ServicePackage> packageCombo;
+    @FXML private ComboBox<ServicePackageDetailDto> packageCombo;
     @FXML private ComboBox<String> vehicleCombo;
     @FXML private DatePicker datePicker;
     @FXML private TextArea descriptionField;
@@ -90,12 +89,13 @@ public class BookingController extends OverController {
 
     public BookingController(BookingService bookingService, VehicleService vehicleService,
                              MechanicService mechanicService, ApplicationContext applicationContext,
-                             ServiceItemService serviceItemService) {
+                             ServiceItemService serviceItemService, ServicePackageService servicePackageService) {
         this.bookingService = bookingService;
         this.vehicleService = vehicleService;
         this.mechanicService = mechanicService;
         this.applicationContext = applicationContext;
         this.serviceItemService = serviceItemService;
+        this.servicePackageService = servicePackageService;
     }
 
     // ---------------------------------------------------------
@@ -176,6 +176,26 @@ public class BookingController extends OverController {
         if (mechanicField != null) {
             loadMechanicDropdown(mechanicField);
         }
+        if (packageCombo != null){
+            loadServicePackageDropDown();
+            // Lägg till detta i initialize()
+            packageCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    // Steg 1: Nollställ alla nuvarande val i listan (valfritt, men oftast önskvärt)
+                    for (BooleanProperty prop : serviceSelections.values()) {
+                        prop.set(false);
+                    }
+
+                    // Steg 2: Gå igenom tjänsterna som ingår i det valda paketet och sätt dem till true
+                    for (ServiceItem item : newValue.getServiceItems()) {
+                        BooleanProperty prop = serviceSelections.get(item.getId());
+                        if (prop != null) {
+                            prop.set(true); // Detta klickar i checkboxen i ListView automatiskt!
+                        }
+                    }
+                }
+            });
+        }
         //NewCopiedBooking.fxml
          if(vehicleCopiedLabel != null && currentBookingId != null) {
              loadCopiedBooking();}
@@ -195,6 +215,7 @@ public class BookingController extends OverController {
                 }
             });
         }
+
     }
 
     private void loadBookingData() {
@@ -255,6 +276,30 @@ public class BookingController extends OverController {
                 .collect(Collectors.toList());
 
         vehicleCombo.setItems(FXCollections.observableArrayList(vehicleList));
+    }
+
+    private void loadServicePackageDropDown() {
+        if (packageCombo != null) {
+            // Hämta alla och filtrera ut endast aktiva (eller om du har en specifik metod i service-lagret)
+            List<ServicePackageDetailDto> activePackages = servicePackageService.getAllPackagesDetail().stream()
+                    .filter(ServicePackageDetailDto::isActive)
+                    .collect(Collectors.toList());
+
+            packageCombo.setItems(FXCollections.observableArrayList(activePackages));
+
+            // Bestämmer vad som syns i rullistan
+            packageCombo.setConverter(new StringConverter<ServicePackageDetailDto>() {
+                @Override
+                public String toString(ServicePackageDetailDto pkg) {
+                    return pkg == null ? "" : pkg.getName();
+                }
+
+                @Override
+                public ServicePackageDetailDto fromString(String string) {
+                    return null;
+                }
+            });
+        }
     }
 
     private void loadServiceList(ListView<ServiceItem> listView) {
