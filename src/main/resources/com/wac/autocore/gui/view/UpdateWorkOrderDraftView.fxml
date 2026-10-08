@@ -14,7 +14,7 @@
     <children>
 
         <!-- Titel -->
-        <Label text="%workOrder.dropin.heading" styleClass="heading-2" />
+        <Label text="%workOrder.update.heading" styleClass="heading-2" />
 
         <!-- Formulär -->
         <GridPane hgap="10" vgap="12">
@@ -25,32 +25,32 @@
             </columnConstraints>
 
             <!-- Vehicle -->
-            <Label text="%workOrder.dropin.vehicleLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-            <ComboBox fx:id="vehicleComboDropIn"
+            <Label text="%workOrder.update.vehicleLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <ComboBox fx:id="vehicleComboUpdate"
                       prefWidth="250"
                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
             <!-- Date -->
-            <Label text="%workOrder.dropin.dateLabel" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-            <DatePicker fx:id="datePickerDropIn"
+            <Label text="%workOrder.update.dateLabel" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <DatePicker fx:id="datePickerUpdate"
                         promptText="YYYY-MM-DD"
                         prefWidth="250"
                         GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
             <!-- Val av tjänster -->
-            <Label text="%workOrder.dropin.servicesLabel"
+            <Label text="%workOrder.update.servicesLabel"
                    GridPane.columnIndex="0"
                    GridPane.rowIndex="3"/>
 
-            <ListView fx:id="servicesListViewDropIn"
+            <ListView fx:id="servicesListViewUpdate"
                       prefHeight="200"
                       prefWidth="450"
                       GridPane.columnIndex="1"
                       GridPane.rowIndex="3"/>
 
             <!-- Description -->
-            <Label text="%workOrder.dropin.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-            <TextArea fx:id="descriptionFieldDropIn"
+            <Label text="%workOrder.update.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+            <TextArea fx:id="descriptionFieldUpdate"
                       promptText="%booking.prompt-desc"
                       prefRowCount="3"
                       wrapText="true"
@@ -58,17 +58,16 @@
                       GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 
             <!-- Mechanic -->
-            <Label text="%workOrder.dropin.mechanic" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
-            <ComboBox fx:id="mechanicFieldDropIn"
+            <Label text="%workOrder.update.mechanic" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+            <ComboBox fx:id="mechanicFieldUpdate"
                       prefWidth="250"
                       GridPane.columnIndex="1" GridPane.rowIndex="5"/>
-
-
         </GridPane>
 
         <!-- Buttons -->
         <HBox spacing="10">
-            <Button fx:id="saveButton" text="%btn.save"/>
+            <Button fx:id="" text="%btn.confirm"/>
+            <Button fx:id="" text="%workorder.btn.update"/>
             <Button text="%btn.cancel" onAction="#handleCancel"/>
         </HBox>
 
