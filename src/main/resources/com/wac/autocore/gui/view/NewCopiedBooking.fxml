@@ -3,17 +3,17 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="15"
-      styleClass="form-padding"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.wac.autocore.gui.controller.BookingController">
-
+<VBox       spacing="15"
+            styleClass="form-padding"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.wac.autocore.gui.controller.BookingController"
+            prefHeight="400.0" prefWidth="600.0">
 
     <children>
 
         <!-- Titel -->
-        <Label text="%booking.newHeading" styleClass="heading-2" />
+        <Label text="%booking.copied.heading" styleClass="heading-2" />
 
         <!-- Formulär -->
         <GridPane hgap="10" vgap="12">
@@ -25,28 +25,22 @@
 
             <!-- Vehicle -->
             <Label text="%booking.vehicleLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-            <ComboBox fx:id="vehicleCombo"
+            <Label fx:id="vehicleCopiedLabel"
                       prefWidth="250"
                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
             <!-- Date -->
             <Label text="%booking.dateLabel" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-            <DatePicker fx:id="datePicker"
+            <DatePicker fx:id="datePickerCopied"
                         promptText="YYYY-MM-DD"
                         prefWidth="250"
                         GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-            <!-- Package -->
-            <Label text="%booking.services.packageLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-            <ComboBox fx:id="packageCombo"
-                      prefWidth="250"
-                      GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-
             <!-- Val av tjänster -->
             <Label text="%booking.servicesLabel"
                    GridPane.columnIndex="0"
                    GridPane.rowIndex="3"/>
 
-            <ListView fx:id="servicesListView"
+            <ListView fx:id="servicesListViewCopied"
                       prefHeight="200"
                       prefWidth="450"
                       GridPane.columnIndex="1"
@@ -54,7 +48,7 @@
 
             <!-- Description -->
             <Label text="%booking.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-            <TextArea fx:id="descriptionField"
+            <TextArea fx:id="descriptionFieldCopied"
                       promptText="%booking.prompt-desc"
                       prefRowCount="3"
                       wrapText="true"
@@ -63,22 +57,17 @@
 
             <!-- Mechanic -->
             <Label text="%booking.mechanicLabel" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
-            <ComboBox fx:id="mechanicField"
+            <ComboBox fx:id="mechanicFieldCopied"
                       prefWidth="250"
                       GridPane.columnIndex="1" GridPane.rowIndex="5"/>
-
-
         </GridPane>
 
         <!-- Buttons -->
         <HBox spacing="10">
-            <Button fx:id="saveButton" text="%btn.save" onAction="#handleSaveBooking"/>
+            <Button fx:id="saveButton" text="%btn.save" onAction="#handleSaveCopiedBooking"/>
             <Button text="%btn.cancel" onAction="#handleCancel"/>
         </HBox>
 
     </children>
 </VBox>
-
-
-
 

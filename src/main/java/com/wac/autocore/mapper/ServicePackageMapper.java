@@ -1,7 +1,7 @@
 package com.wac.autocore.mapper;
 
-import com.wac.autocore.dto.ServicePackageDetailDto;
-import com.wac.autocore.dto.ServicePackageSummaryDto;
+import com.wac.autocore.dto.servicePackage.ServicePackageDetailDto;
+import com.wac.autocore.dto.servicePackage.ServicePackageSummaryDto;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.model.ServicePackage;
 import org.springframework.stereotype.Component;
@@ -60,6 +60,7 @@ public class ServicePackageMapper {
                 serviceItems
         );
     }
+
 
     /**
      * Omvandlar en lista av paket till en lista av detaljerade DTOs (Java 8-kompatibel).

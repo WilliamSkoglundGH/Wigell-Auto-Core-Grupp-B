@@ -5,6 +5,7 @@ import com.wac.autocore.exception.*;
 import com.wac.autocore.factory.WorkOrderFactory;
 import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.WorkOrderState;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.hibernate.jdbc.Work;
 import org.slf4j.Logger;
@@ -33,7 +34,6 @@ public class WorkOrderService {
         this.mechanicService = mechanicService;
         this.workOrderFactory = workOrderFactory;
     }
-
     @Transactional(readOnly = true)
     public List<WorkOrderSummaryDto> getAllWorkOrders() {
         List<WorkOrder> workOrders = workOrderRepository.findAll();
@@ -42,7 +42,6 @@ public class WorkOrderService {
                 .map(WorkOrderMapper::toSummaryDto)
                 .collect(Collectors.toList());
     }
-
     /*
      * WorkOrder gets serviceItems from Booking if workorder has status=CREATED else it gets it from it's own data
      */

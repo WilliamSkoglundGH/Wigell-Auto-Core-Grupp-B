@@ -1,4 +1,4 @@
-package com.wac.autocore.dto;
+package com.wac.autocore.dto.servicePackage;
 
 public class ServicePackageSummaryDto {
 
@@ -6,7 +6,7 @@ public class ServicePackageSummaryDto {
     private String name;
     private String description;
     private boolean active;
-    private String services; // Ändrat från List<String> till String
+    private String services;
 
     public ServicePackageSummaryDto(Long id, String name, String description, boolean active, String services) {
         this.id = id;
