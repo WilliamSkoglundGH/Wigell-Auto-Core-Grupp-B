@@ -14,6 +14,7 @@ import com.wac.autocore.service.WorkOrderService;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -398,5 +399,22 @@ public class WorkOrderController extends OverController {
 
         startButton.setDisable(!status.canStart());
         completeButton.setDisable(!status.canComplete());
+    }
+
+    public void handleUpdate() {
+        //Uppdatera utkast. Routa om till en ny vy
+    }
+
+    public void handleClaims() {
+        // Reklamera workorder.Routa om till en ny vy
+    }
+
+    private void navigateToClaimsView() {
+        loadCenterView("/com/wac/autocore/gui/view/NewClaimsView.fxml");
+    }
+
+    private void navigateToUpdateDraftView() {
+        loadCenterView("/com/wac/autocore/gui/view/UpdateWorkOrderDraftView.fxml");
+
     }
 }
