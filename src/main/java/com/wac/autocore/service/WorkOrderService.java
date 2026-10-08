@@ -66,9 +66,6 @@ public class WorkOrderService {
         */
     }
 
-    //NYA (BEHÖVS LÄGGAS TILL KONTROLLER, TEX OM UTKAST ELLER CONFIRMED (PRIVAT HJÄLPMETOD I KLASSEN?
-    // DET ÄR INTE RÄTT, EN UTKAST SKA INTE DIREKT BLI CONFIRMED BARA FÖR ALL INFO FINNS, UKTAST ÄR UTKAST TILLS ANVÄNDAREN
-    // BEKRÄFTAT FÖRST)
     @Transactional
     public WorkOrder createPlannedWorkOrder(Long bookingId) {
         Booking booking = bookingService.getBooking(bookingId);
@@ -97,7 +94,6 @@ public class WorkOrderService {
         return workOrderRepository.save(workOrderClaim);
     }
 
-    //
 
     @Transactional
     public void startWorkOrder(Long workOrderId) {
@@ -169,7 +165,7 @@ public class WorkOrderService {
 
         dto.setMechanicName(workOrder.getMechanic() != null ? workOrder.getMechanic().getName() : "-");
         dto.setVehicleRegistrationNumber(workOrder.getVehicle() != null ? workOrder.getVehicle().getRegistrationNumber() : "-");
-        dto.setCustomerName(workOrder.getVehicle().getCustomer() != null ? workOrder.getVehicle().getCustomer().getName() : "-");
+        dto.setCustomerName(workOrder.getVehicle() != null ? workOrder.getVehicle().getCustomer().getName() : "-");
         dto.setBookingId(workOrder.getBooking() != null ? workOrder.getBooking().getId() : null);
 
         List<WorkOrderServiceItemDto> serviceItemList = WorkOrderMapper.toServiceItemDtoList(workOrder.getServiceItems());
