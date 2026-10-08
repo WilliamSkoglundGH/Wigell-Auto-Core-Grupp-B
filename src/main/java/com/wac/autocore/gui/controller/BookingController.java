@@ -113,7 +113,7 @@ public class BookingController extends OverController {
     private final VehicleService vehicleService;
     private final MechanicService mechanicService;
     private final ServiceItemService serviceItemService;
-    private static final Map<Long, BooleanProperty> serviceSelections = new HashMap<>();
+    private final Map<Long, BooleanProperty> serviceSelections = new HashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
 
@@ -228,16 +228,19 @@ public class BookingController extends OverController {
                     });
         }
         //NewCopiedBooking.fxml
+        if (vehicleCopiedLabel != null) {
+            loadServiceList(servicesListViewCopied);
+        } else {
+            loadServiceList(servicesListView);
+        }
+
+        // 2. Kör kopieringen EFTER att listan är laddad
         if (vehicleCopiedLabel != null && currentBookingId != null) {
             loadCopiedBooking();
         }
         if (mechanicFieldCopied != null) {
             loadMechanicDropdown(mechanicFieldCopied);
         }
-
-
-        loadServiceList(servicesListView);
-        loadServiceList(servicesListViewCopied);
 
         if (descriptionField != null) {
             descriptionField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -247,7 +250,6 @@ public class BookingController extends OverController {
                 }
             });
         }
-
     }
 
     private void loadBookingData() {
@@ -623,11 +625,22 @@ public class BookingController extends OverController {
         }
         try {
             BookingCloneDto dto = bookingService.cloneBooking(currentBookingId);
-            vehicleCopiedLabel.setText(String.valueOf(dto.getVehicle().toString()));
+
+            // Sätt fordonets text (eller regnummer)
+            if (dto.getVehicle() != null) {
+                vehicleCopiedLabel.setText(dto.getVehicle().getId() + " - " +
+                        dto.getVehicle().getBrand() + " " + dto.getVehicle().getModel() +
+                        " (" + dto.getVehicle().getRegistrationNumber() + ")");
+            }
+
+            // 1. Se till att listan laddas först så mapen fylls
+            loadServiceList(servicesListViewCopied);
+
+            // 2. Applicera förvalen efteråt
             applyPreselection(dto);
+
         } catch (IllegalStateException e) {
-              messages.showError(getString("booking.error.booking_state_completed"));
-              // Detta fel kastas och landar i ett annat exception i initilizer och sidan laddas inte men felmeddelandet följer inte.
+            messages.showError(getString("booking.error.booking_state_completed"));
         }
     }
 
