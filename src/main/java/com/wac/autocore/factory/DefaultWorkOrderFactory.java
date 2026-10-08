@@ -2,6 +2,8 @@ package com.wac.autocore.factory;
 
 import com.wac.autocore.dto.workorder.CreateWorkOrderDto;
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.WorkOrderState;
+import com.wac.autocore.model.enums.WorkOrderType;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
