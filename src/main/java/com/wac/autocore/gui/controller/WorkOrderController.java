@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 @Scope("prototype")
 public class WorkOrderController extends OverController {
 
+    // WORKORDER-MANAGEMENT TABLE (WorkOrderView.fxml)
     @FXML
     private TableView<WorkOrderSummaryDto> workOrderTable;
     @FXML
@@ -52,38 +53,27 @@ public class WorkOrderController extends OverController {
     private TableColumn<WorkOrderSummaryDto, String> endTimeColumn;
     @FXML
     private Button detailsButton;
-    @FXML
-    private Label statusLabel;
-    @FXML
-    private Label mechanicLabel;
-    @FXML
-    private Label vehicleLabel;
-    @FXML
-    private Label customerLabel;
-    @FXML
-    private Label startTimeLabel;
-    @FXML
-    private Label endTimeLabel;
-    @FXML
-    private Label estTimeLabel;
-    @FXML
-    private Label estPriceLabel;
-    @FXML
-    private Label bookingIdLabel;
-    @FXML
-    private TableView<WorkOrderServiceItemDto> serviceItemTable;
-    @FXML
-    private TableColumn<WorkOrderServiceItemDto, String> serviceNameColumn;
-    @FXML
-    private TableColumn<WorkOrderServiceItemDto, BigDecimal> servicePriceColumn;
-    @FXML
-    private TableColumn<WorkOrderServiceItemDto, Integer> serviceDurationColumn;
-    @FXML
-    private Button startButton;
-    @FXML
-    private Button completeButton;
 
+    // WORK ORDER-DETAILS (WorkOrderInfoView.fxml)
+    @FXML    private Label statusLabel;
+    @FXML    private Label mechanicLabel;
+    @FXML    private Label vehicleLabel;
+    @FXML    private Label customerLabel;
+    @FXML    private Label startTimeLabel;
+    @FXML    private Label endTimeLabel;
+    @FXML    private Label estTimeLabel;
+    @FXML    private Label estPriceLabel;
+    @FXML    private Label bookingIdLabel;
+    @FXML    private TableView<WorkOrderServiceItemDto> serviceItemTable;
+    @FXML    private TableColumn<WorkOrderServiceItemDto, String> serviceNameColumn;
+    @FXML    private TableColumn<WorkOrderServiceItemDto, BigDecimal> servicePriceColumn;
+    @FXML    private TableColumn<WorkOrderServiceItemDto, Integer> serviceDurationColumn;
+    @FXML    private Button startButton;
+    @FXML    private Button completeButton;
+    @FXML    private Button claimsButton;
+    @FXML   private Button updateButton;
 
+    // NEW WORK ORDER (NewWorkOrderView.fxml)
     @FXML
     private ComboBox<Booking> bookingComboBox;
  //   @FXML
@@ -99,7 +89,6 @@ public class WorkOrderController extends OverController {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkOrderController.class);
 
-    // Spring injicerar tjänster samt ApplicationContext
     public WorkOrderController(BookingService bookingService, ServiceItemService serviceItemService,
                                WorkOrderService workOrderService, ApplicationContext applicationContext) {
         this.bookingService = bookingService;
@@ -203,7 +192,6 @@ public class WorkOrderController extends OverController {
 
     @FXML
     private void handleCompleteWorkOrder() {
-
 
         try {
             workOrderService.completeWorkOrder(currentWorkOrderId);
@@ -402,11 +390,15 @@ public class WorkOrderController extends OverController {
     }
 
     public void handleUpdate() {
-        //Uppdatera utkast. Routa om till en ny vy
+
+        //currentWorkOrderId
+        navigateToUpdateDraftView();
     }
 
     public void handleClaims() {
-        // Reklamera workorder.Routa om till en ny vy
+
+        //currentWorkOrderId
+        navigateToClaimsView();
     }
 
     private void navigateToClaimsView() {
