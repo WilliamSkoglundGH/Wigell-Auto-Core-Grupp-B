@@ -84,7 +84,7 @@ public class BookingController extends OverController {
     private final VehicleService vehicleService;
     private final MechanicService mechanicService;
     private final ServiceItemService serviceItemService;
-    private final Map<Long, BooleanProperty> serviceSelections = new HashMap<>();
+    private static final Map<Long, BooleanProperty> serviceSelections = new HashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
 
@@ -544,15 +544,14 @@ public class BookingController extends OverController {
         }
         BookingCloneDto dto = bookingService.cloneBooking(currentBookingId);
         //För ifyll Vehiclelabel
-        System.out.println("efter hämta dto"+dto.toString());
         vehicleCopiedLabel.setText(String.valueOf(dto.getVehicle().toString()));
-
         applyPreselection(dto);
        }
 
     private void applyPreselection(BookingCloneDto dto) {
+        //Metod fungerar inte!
         Set<Long> preSelect = dto.getServiceItems().stream()
-                .map(i -> i.getId()).collect(Collectors.toSet());
+                .map(i -> i.getServiceItemId()).collect(Collectors.toSet());
         serviceSelections.values().forEach(p -> p.set(false));
 
         //Ändrar utifrån id i HashSet vilka som är true/false så dem blir bockade.
