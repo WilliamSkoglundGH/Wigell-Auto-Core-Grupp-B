@@ -61,6 +61,7 @@ public class ServicePackageMapper {
         );
     }
 
+
     /**
      * Omvandlar en lista av paket till en lista av detaljerade DTOs (Java 8-kompatibel).
      */
