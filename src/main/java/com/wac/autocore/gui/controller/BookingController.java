@@ -104,6 +104,14 @@ public class BookingController extends OverController {
     private Button addServiceButton;
     @FXML
     private Label servicesLockedLabel;
+    @FXML
+    private Label bookingIdLabel;
+    @FXML
+    private Label mechanicLabel;
+    @FXML
+    private Label customerLabel;
+    @FXML
+    private Label vehicleLabel;
 
     private static Long currentBookingId;
     private BookingCloneDto cloneDto;
@@ -279,6 +287,10 @@ public class BookingController extends OverController {
         );
 
         BookingState state = booking.getStatus();
+        bookingIdLabel.setText(String.valueOf(booking.getId()));
+        mechanicLabel.setText(booking.getMechanic().getName());
+        customerLabel.setText(booking.getVehicle().getCustomer().getName());
+        vehicleLabel.setText(booking.getVehicle().getRegistrationNumber());
 
         boolean canAdd = state.canAddServiceItem();
         boolean canRemove = state.canRemoveServiceItem();
