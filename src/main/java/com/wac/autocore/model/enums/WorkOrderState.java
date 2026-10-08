@@ -21,6 +21,16 @@ public enum WorkOrderState {
         }
 
         @Override
+        public boolean canConfirm(){
+            return true;
+        }
+
+        @Override
+        public boolean canEdit(){
+            return true;
+        }
+
+        @Override
         public WorkOrderState getNext() {
             return CONFIRMED;
         }
@@ -39,7 +49,17 @@ public enum WorkOrderState {
 
         @Override
         public boolean canCancel(){
-            return true;
+            return false;
+        }
+
+        @Override
+        public boolean canConfirm(){
+            return false;
+        }
+
+        @Override
+        public boolean canEdit(){
+            return false;
         }
 
         @Override
@@ -65,6 +85,16 @@ public enum WorkOrderState {
         }
 
         @Override
+        public boolean canConfirm(){
+            return false;
+        }
+
+        @Override
+        public boolean canEdit(){
+            return false;
+        }
+
+        @Override
         public WorkOrderState getNext() { return COMPLETED; }
     },
 
@@ -81,6 +111,16 @@ public enum WorkOrderState {
 
         @Override
         public boolean canCancel(){
+            return false;
+        }
+
+        @Override
+        public boolean canConfirm(){
+            return false;
+        }
+
+        @Override
+        public boolean canEdit(){
             return false;
         }
 
@@ -107,6 +147,16 @@ public enum WorkOrderState {
         }
 
         @Override
+        public boolean canConfirm(){
+            return false;
+        }
+
+        @Override
+        public boolean canEdit(){
+            return false;
+        }
+
+        @Override
         public WorkOrderState getNext() {
             throw new WorkOrderWrongStatusException("No more states after cancellation.");
         }
@@ -115,5 +165,7 @@ public enum WorkOrderState {
     public abstract boolean canStart();
     public abstract boolean canComplete();
     public abstract boolean canCancel();
+    public abstract boolean canConfirm();
+    public abstract boolean canEdit();
     public abstract WorkOrderState getNext();
 }

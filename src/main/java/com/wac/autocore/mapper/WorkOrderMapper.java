@@ -23,10 +23,9 @@ public final class WorkOrderMapper {
             return null;
         }
 
-        // Säker hämtning av mekanikerns namn via bokningen
         String mechanicName = "Ej tilldelad";
-        if (workOrder.getBooking() != null && workOrder.getBooking().getMechanic() != null) {
-            mechanicName = workOrder.getBooking().getMechanic().getName(); // Byt till .getUsername() om det är det fältet som används
+        if (workOrder.getMechanic() != null) {
+            mechanicName = workOrder.getMechanic().getName(); // Byt till .getUsername() om det är det fältet som används
         }
 
         return new WorkOrderSummaryDto(
@@ -116,13 +115,15 @@ public final class WorkOrderMapper {
 
         Long bookingId = (workOrder.getBooking() != null) ? workOrder.getBooking().getId() : null;
 
-        String vehicleReg = (workOrder.getBooking() != null && workOrder.getBooking().getVehicle() != null)
-                ? workOrder.getBooking().getVehicle().getRegistrationNumber()
-                : "-";
+        String vehicleReg = "-";
+        if (workOrder.getVehicle() != null) {
+            vehicleReg = workOrder.getVehicle().getRegistrationNumber();
+        }
 
-        String description = (workOrder.getBooking() != null)
-                ? workOrder.getBooking().getDescription()
-                : "-";
+        String description = "-";
+        if (workOrder.getDescription() != null) {
+            description = workOrder.getDescription();
+        }
 
         return new WorkOrderForMechanicDto(
                 workOrder.getId(),

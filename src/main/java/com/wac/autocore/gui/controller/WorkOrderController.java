@@ -106,8 +106,10 @@ public class WorkOrderController extends OverController {
         if (workOrderTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
 
-            bookingIdColumn.setCellValueFactory(cellData ->
-                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBookingId().toString()));
+            bookingIdColumn.setCellValueFactory(cellData -> {
+                Long bookingId = cellData.getValue().getBookingId();
+                return new SimpleStringProperty(bookingId != null ? bookingId.toString() : "-");
+            });
 
             mechanicIdColumn.setCellValueFactory(cellData ->
                     new javafx.beans.property.SimpleStringProperty(cellData.getValue().getMechanicName()));
