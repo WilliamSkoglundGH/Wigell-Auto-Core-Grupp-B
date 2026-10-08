@@ -166,7 +166,7 @@ public class ServiceItemController extends OverController {
             try {
                 servicePackageTable.setItems(
                         FXCollections.observableArrayList(
-                                servicePackageService.getAllPackages()
+                                servicePackageService.getAllPackagesSummary()
                         )
                 );
             } catch (Exception e) {

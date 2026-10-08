@@ -27,9 +27,14 @@ public class ServicePackageService {
         servicePackageRepository.save(servicePackage);
     }
     @Transactional(readOnly = true)
-    public List<ServicePackageSummaryDto> getAllPackages() {
+    public List<ServicePackageSummaryDto> getAllPackagesSummary() {
         List<ServicePackage> packages = servicePackageRepository.findAll();
         return ServicePackageMapper.toDtoList(packages);
+    }
+    @Transactional(readOnly = true)
+    public List<ServicePackageDetailDto> getAllPackagesDetail() {
+        List<ServicePackage> packages = servicePackageRepository.findAll();
+        return ServicePackageMapper.toDetailDtoList(packages);
     }
     @Transactional(readOnly = true)
     public ServicePackageDetailDto getPackage(Long id) {
