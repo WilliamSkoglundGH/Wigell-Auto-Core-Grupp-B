@@ -316,7 +316,7 @@ public class WorkOrderController extends OverController {
                 }
                       selectedBooking.setStatus(selectedBooking.getStatus().getNext());
 
-                    workOrderService.saveWorkOrder(selectedBooking.getId());
+                    workOrderService.createPlannedWorkOrder(selectedBooking.getId());
                     messages.showSuccess(getString("workorder.success.workorder_created"));
 
             }
