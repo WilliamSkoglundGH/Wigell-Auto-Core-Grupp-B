@@ -5,9 +5,9 @@ import com.wac.autocore.exception.*;
 import com.wac.autocore.factory.WorkOrderFactory;
 import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.model.enums.WorkOrderState;
 import com.wac.autocore.repository.WorkOrderRepository;
-import org.hibernate.jdbc.Work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -48,9 +48,13 @@ public class WorkOrderService {
     @Transactional(readOnly = true)
     public WorkOrderResponseDto getWorkOrderById(long id) {
 
-        WorkOrderResponseDto dto;
         WorkOrder workOrder = workOrderRepository.findById(id).orElseThrow(() -> new WorkOrderNotFoundException(
                 "Work order with ID: " + id + " not found"));
+
+            return WorkOrderMapper.toResponseDto(workOrder,
+                    WorkOrderMapper.toServiceItemDtoList(workOrder.getServiceItems()));
+
+            /*
         if (workOrder.getStatus() == WorkOrderState.CONFIRMED) {
             List<BookingServiceItem> serviceItems = (workOrder.getBooking() != null) ? workOrder.getBooking().getServiceItems() : null;
 
@@ -59,10 +63,12 @@ public class WorkOrderService {
             List<WorkOrderServiceItem> serviceItems = workOrder.getServiceItems();
             dto = WorkOrderMapper.toResponseDto(workOrder, WorkOrderMapper.toServiceItemDtoList(serviceItems));
         }
-        return dto;
+        */
     }
 
-    //NYA (BEHÖVS LÄGGAS TILL KONTROLLER, TEX OM UTKAST ELLER CONFIRMED (PRIVAT HJÄLPMETOD I KLASSEN?)
+    //NYA (BEHÖVS LÄGGAS TILL KONTROLLER, TEX OM UTKAST ELLER CONFIRMED (PRIVAT HJÄLPMETOD I KLASSEN?
+    // DET ÄR INTE RÄTT, EN UTKAST SKA INTE DIREKT BLI CONFIRMED BARA FÖR ALL INFO FINNS, UKTAST ÄR UTKAST TILLS ANVÄNDAREN
+    // BEKRÄFTAT FÖRST)
     @Transactional
     public WorkOrder createPlannedWorkOrder(Long bookingId) {
         Booking booking = bookingService.getBooking(bookingId);
@@ -73,13 +79,13 @@ public class WorkOrderService {
     }
 
     @Transactional
-    public WorkOrder createDropInWorkOrder(CreateWorkOrderDto dto){
+    public WorkOrder createDropInWorkOrder(WorkOrderCreateDto dto){
         WorkOrder workOrder = workOrderFactory.createDropIn(dto);
         return workOrderRepository.save(workOrder);
     }
 
     @Transactional
-    public WorkOrder createClaimWorkOrder(Long originalWorkOrderId, CreateWorkOrderDto dto){
+    public WorkOrder createClaimWorkOrder(Long originalWorkOrderId, WorkOrderCreateDto dto){
         WorkOrder workOrderOriginal = workOrderRepository.findById(originalWorkOrderId).orElseThrow(
                 () -> new WorkOrderNotFoundException("Work order not found with ID: " + originalWorkOrderId));
 
@@ -105,42 +111,26 @@ public class WorkOrderService {
         if (!workOrder.getStatus().canStart()) {
             throw new WorkOrderWrongStatusException("Wrong status for start: " + workOrder.getStatus());
         }
-        Booking booking = workOrder.getBooking();
-        if (booking == null || booking.getMechanic() == null) {
-            throw new IllegalStateException("Work order is missing booking or mechanic information.");
-        }
 
-        Mechanic mechanic = mechanicService.getMechanic(booking.getMechanic().getId());
+        Mechanic mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
         if (!mechanic.isAvailable()) {
             throw new MechanicNotAvailableException("Mechanic not available, occupied on another workorder.");
         }
 
-
-        if (booking.getServiceItems() == null || booking.getServiceItems().isEmpty()) {
-            throw new BookingWithoutServicesException("Booking has no Services, please add services to booking first.");
+        if (workOrder.getServiceItems().isEmpty()) {
+            throw new BookingWithoutServicesException("Work order has no services.");
         }
 
-        List<WorkOrderServiceItem> workOrderItems = WorkOrderMapper.toWorkOrderServicesFromBookingServices(booking, workOrder);
-
-        workOrder.getServiceItems().clear();
-        workOrder.getServiceItems().addAll(workOrderItems);
-        BigDecimal estPrice = BigDecimal.ZERO;
-        Integer estTime = 0;
-        for (WorkOrderServiceItem item : workOrderItems) {
-            if (item.getDurationAtTime() != null) {
-                estTime += item.getDurationAtTime();
-            }
-            if (item.getPriceAtTime() != null) {
-                estPrice = estPrice.add(item.getPriceAtTime()); // Spara det nya BigDecimal-värdet!
-            }
-        }
         workOrder.setStartTime(LocalDateTime.now());
         workOrder.setStatus(workOrder.getStatus().getNext());
-        booking.setStatus(booking.getStatus().getNext());
         mechanic.setAvailable(false);
 
-        workOrderRepository.save(workOrder);
+        Booking booking = workOrder.getBooking();
+        if (booking != null) {
+            booking.setStatus(booking.getStatus().getNext());
+        }
 
+        workOrderRepository.save(workOrder);
     }
 
     @Transactional
@@ -155,16 +145,16 @@ public class WorkOrderService {
         if (!workOrder.getStatus().canComplete()) {
             throw new WorkOrderWrongStatusException("Wrong status for complete: " + workOrder.getStatus());
         }
-        Booking booking = workOrder.getBooking();
-        if (booking == null || booking.getMechanic() == null) {
-            throw new IllegalStateException("Work order is missing booking or mechanic information.");
-        }
 
-        Mechanic mechanic = mechanicService.getMechanic(booking.getMechanic().getId());
+        Mechanic mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
         workOrder.setEndTime(LocalDateTime.now());
         workOrder.setStatus(workOrder.getStatus().getNext());
-        booking.setStatus(booking.getStatus().getNext());
         mechanic.setAvailable(true);
+
+        Booking booking = workOrder.getBooking();
+        if (booking != null) {
+            booking.setStatus(booking.getStatus().getNext());
+        }
 
         workOrderRepository.save(workOrder);
     }
@@ -174,20 +164,16 @@ public class WorkOrderService {
 //kolla status, om den är created, hämta från booking
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+
         WorkOrderDetailsDto dto = new WorkOrderDetailsDto(workOrderId, workOrder.getStatus(), workOrder.getStartTime(), workOrder.getEndTime());
-        Booking booking = workOrder.getBooking();
-        dto.setMechanicName(booking.getMechanic().getName());
-        dto.setVehicleRegistrationNumber(booking.getVehicle().getRegistrationNumber());
-        dto.setCustomerName(booking.getVehicle().getCustomer().getName());
 
-        List<WorkOrderServiceItemDto> serviceItemList;
-        if (WorkOrderState.CONFIRMED.equals(dto.getStatus())) {
-            serviceItemList = WorkOrderMapper.toServiceItemDtoListFromBooking(workOrder.getBooking().getServiceItems());
+        dto.setMechanicName(workOrder.getMechanic() != null ? workOrder.getMechanic().getName() : "-");
+        dto.setVehicleRegistrationNumber(workOrder.getVehicle() != null ? workOrder.getVehicle().getRegistrationNumber() : "-");
+        dto.setCustomerName(workOrder.getVehicle().getCustomer() != null ? workOrder.getVehicle().getCustomer().getName() : "-");
+        dto.setBookingId(workOrder.getBooking() != null ? workOrder.getBooking().getId() : null);
 
-        } else {
-            serviceItemList = WorkOrderMapper.toServiceItemDtoList(workOrder.getServiceItems());
+        List<WorkOrderServiceItemDto> serviceItemList = WorkOrderMapper.toServiceItemDtoList(workOrder.getServiceItems());
 
-        }
         Integer estTime = 0;
         BigDecimal estPrice = BigDecimal.ZERO;
         for (WorkOrderServiceItemDto item : serviceItemList) {
@@ -201,13 +187,27 @@ public class WorkOrderService {
         dto.setServiceItems(serviceItemList);
         dto.setEstimatedDuration(estTime);
         dto.setEstimatedPrice(estPrice);
-        dto.setBookingId(workOrder.getBooking().getId());
-
 
         return dto;
     }
 
-    //Metod för att avbryta en workorder(tillåts initalt nu bara för en workorder med status draft eller confirmed, kan ändras om ni vill)
+    @Transactional
+    public void confirmWorkOrder(Long workOrderId) {
+        WorkOrder workOrder = workOrderRepository.findById(workOrderId)
+                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+
+        if (!workOrder.getStatus().canConfirm()) {
+            throw new WorkOrderWrongStatusException("Cannot confirm work order in state: " + workOrder.getStatus());
+        }
+
+        if (!workOrder.isReadyToConfirm()) {
+            throw new IllegalStateException("Work order is missing vehicle, mechanic or services.");
+        }
+
+        workOrder.setStatus(workOrder.getStatus().getNext());
+        workOrderRepository.save(workOrder);
+    }
+
     @Transactional
     public void cancelWorkOrder(Long workOrderId) {
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
@@ -224,6 +224,86 @@ public class WorkOrderService {
         workOrder.setStatus(WorkOrderState.CANCELED);
         workOrderRepository.save(workOrder);
     }
+
+    @Transactional
+    public void addServiceItemToWorkOrder(Long workOrderId, ServiceItem serviceItem) {
+        if (serviceItem == null) {
+            throw new IllegalArgumentException("Service item is required.");
+        }
+
+        WorkOrder workOrder = workOrderRepository.findById(workOrderId)
+                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+
+        if (!workOrder.getStatus().canEdit()) {
+            throw new WorkOrderWrongStatusException("Cannot edit services in state: " + workOrder.getStatus());
+        }
+
+        if (workOrder.getBooking() != null) {
+            throw new IllegalStateException("Services on a planned work order are managed through its booking.");
+        }
+
+        workOrder.addServiceItem(serviceItem, serviceItem.getPrice(), serviceItem.getEstimatedMinutes());
+        workOrderRepository.save(workOrder);
+    }
+
+    @Transactional
+    public void removeServiceItemFromWorkOrder(Long workOrderId, Long workOrderServiceItemId) {
+        WorkOrder workOrder = workOrderRepository.findById(workOrderId)
+                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+
+        if (!workOrder.getStatus().canEdit()) {
+            throw new WorkOrderWrongStatusException("Cannot edit services in state: " + workOrder.getStatus());
+        }
+
+        if (workOrder.getBooking() != null) {
+            throw new IllegalStateException("Services on a planned work order are managed through its booking.");
+        }
+
+        WorkOrderServiceItem itemToRemove = workOrder.getServiceItems().stream()
+                .filter(item -> item.getId().equals(workOrderServiceItemId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Service item not found on work order."));
+
+        workOrder.getServiceItems().remove(itemToRemove);
+        workOrderRepository.save(workOrder);
+    }
+
+    @Transactional
+    public void updateWorkOrder(Long workOrderId, WorkOrderCreateDto dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Update data is required.");
+        }
+
+        WorkOrder workOrder = workOrderRepository.findById(workOrderId)
+                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+
+        if (!workOrder.getStatus().canEdit()) {
+            throw new WorkOrderWrongStatusException("Cannot edit work order in state: " + workOrder.getStatus());
+        }
+
+        if (workOrder.getBooking() != null) {
+            throw new IllegalStateException("A planned work order is managed through its booking.");
+        }
+
+        if (dto.getMechanic() != null) {
+            workOrder.setMechanic(dto.getMechanic());
+        }
+        if (dto.getPlannedDate() != null) {
+            workOrder.setPlannedDate(dto.getPlannedDate());
+        }
+        if (dto.getDescription() != null) {
+            workOrder.setDescription(dto.getDescription());
+        }
+        if (dto.getCustomerInstructions() != null) {
+            workOrder.setCustomerInstructions(dto.getCustomerInstructions());
+        }
+        if (dto.getComments() != null) {
+            workOrder.setComments(dto.getComments());
+        }
+
+        workOrderRepository.save(workOrder);
+    }
+
 
 }
 

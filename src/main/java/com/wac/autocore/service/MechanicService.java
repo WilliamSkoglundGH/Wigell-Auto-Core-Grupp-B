@@ -54,7 +54,7 @@ public class MechanicService {
 
     @Transactional(readOnly = true)
     public List<WorkOrderForMechanicDto> getWorkOrdersForMechanic(Long mechanicId) {
-        List<WorkOrder> workOrders = workOrderRepository.findByBooking_Mechanic_Id(mechanicId);
+        List<WorkOrder> workOrders = workOrderRepository.findByMechanic_Id(mechanicId);
 
         return workOrders.stream()
                 .map(WorkOrderMapper::toMechanicDto)

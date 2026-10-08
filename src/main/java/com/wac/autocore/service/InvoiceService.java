@@ -68,7 +68,7 @@ public class InvoiceService {
         BigDecimal discount = BigDecimal.ZERO;
         List<InvoiceLine> invoiceLines = new ArrayList<>();
 
-        Customer customer = selectedWorkOrder.getBooking().getVehicle().getCustomer();
+        Customer customer = selectedWorkOrder.getVehicle().getCustomer();
 
         // Hämta kampanjstrategi via fabriken (som nu kollar Enumet)
         DiscountStrategy promoStrategy = discountFactory.createStrategy(discountCode);

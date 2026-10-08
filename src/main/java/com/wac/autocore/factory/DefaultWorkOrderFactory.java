@@ -1,6 +1,6 @@
 package com.wac.autocore.factory;
 
-import com.wac.autocore.dto.workorder.CreateWorkOrderDto;
+import com.wac.autocore.dto.workorder.WorkOrderCreateDto;
 import com.wac.autocore.model.*;
 import com.wac.autocore.model.enums.WorkOrderState;
 import com.wac.autocore.model.enums.WorkOrderType;
@@ -33,13 +33,14 @@ public class DefaultWorkOrderFactory implements WorkOrderFactory{
     }
 
     @Override
-    public WorkOrder createDropIn(CreateWorkOrderDto dto) {
+    public WorkOrder createDropIn(WorkOrderCreateDto dto) {
         if (dto == null || dto.getVehicle() == null) {
             throw new IllegalArgumentException("Vehicle is required.");
         }
 
         WorkOrder workOrder = new WorkOrder(WorkOrderType.DROP_IN);
         workOrder.setStatus(WorkOrderState.DRAFT);
+        workOrder.setVehicle(dto.getVehicle());
         applyDto(workOrder, dto);
 
         for (ServiceItem item : dto.getServiceItems()) {
@@ -52,7 +53,7 @@ public class DefaultWorkOrderFactory implements WorkOrderFactory{
     }
 
     @Override
-    public WorkOrder createClaim(WorkOrder originalWorkOrder, CreateWorkOrderDto dto) {
+    public WorkOrder createClaim(WorkOrder originalWorkOrder, WorkOrderCreateDto dto) {
         if (originalWorkOrder == null) {
             throw new IllegalArgumentException("Original work order is required.");
         }
@@ -69,17 +70,14 @@ public class DefaultWorkOrderFactory implements WorkOrderFactory{
         for (WorkOrderServiceItem item : originalWorkOrder.getServiceItems()) {
             ServiceItem serviceItem = item.getServiceItem();
             workOrder.addServiceItem(
-                    item.getServiceItem(),
+                    serviceItem,
                     BigDecimal.ZERO,
                     serviceItem.getEstimatedMinutes());
         }
         return workOrder;
     }
 
-    private void applyDto(WorkOrder workOrder, CreateWorkOrderDto dto) {
-        if (dto.getVehicle() != null) {
-            workOrder.setVehicle(dto.getVehicle()); //man ska väll inte kunna ändra vehicle???
-        }
+    private void applyDto(WorkOrder workOrder, WorkOrderCreateDto dto) {
         if (dto.getMechanic() != null) {
             workOrder.setMechanic(dto.getMechanic());
         }

@@ -22,7 +22,7 @@ public class WorkOrder {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "work_order_type", length = 20, nullable = false)
-    private WorkOrderType type = WorkOrderType.PLANNED;
+    private WorkOrderType type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "original_work_order_id", nullable = true)
@@ -59,7 +59,7 @@ public class WorkOrder {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
-    private WorkOrderState status = WorkOrderState.CONFIRMED;
+    private WorkOrderState status;
     @Column(name = "start_time", nullable = true)
     private LocalDateTime startTime;
     @Column(name = "end_time", nullable = true)
@@ -80,13 +80,6 @@ public class WorkOrder {
     public WorkOrder(WorkOrder originalWorkOrder, WorkOrderType type) {
         this.originalWorkOrder = originalWorkOrder;
         this.type = type;
-    }
-    public WorkOrder(Booking booking, List<WorkOrderServiceItem> serviceItems, WorkOrderState status, LocalDateTime startTime, LocalDateTime endTime) {
-        this.booking = booking;
-        this.serviceItems = serviceItems;
-        this.status = status;
-        this.startTime = startTime;
-        this.endTime = endTime;
     }
 
     public Long getId() {
@@ -209,6 +202,12 @@ public class WorkOrder {
 
     public void setComments(String comments) {
         this.comments = comments;
+    }
+
+    public boolean isReadyToConfirm() {
+        return vehicle != null
+                && mechanic != null
+                && !serviceItems.isEmpty();
     }
 
     /*

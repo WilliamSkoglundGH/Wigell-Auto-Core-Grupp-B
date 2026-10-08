@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateWorkOrderDto {
+public class WorkOrderCreateDto {
     private Vehicle vehicle;
     private Mechanic mechanic;
     private LocalDate plannedDate;
@@ -17,7 +17,7 @@ public class CreateWorkOrderDto {
     private List<ServiceItem> serviceItems =
             new ArrayList<>();
 
-    public CreateWorkOrderDto() {
+    public WorkOrderCreateDto() {
     }
 
     public Vehicle getVehicle() {
