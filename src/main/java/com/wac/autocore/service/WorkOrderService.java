@@ -2,9 +2,11 @@ package com.wac.autocore.service;
 
 import com.wac.autocore.dto.workorder.*;
 import com.wac.autocore.exception.*;
+import com.wac.autocore.factory.WorkOrderFactory;
 import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.*;
 import com.wac.autocore.repository.WorkOrderRepository;
+import org.hibernate.jdbc.Work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,14 @@ public class WorkOrderService {
     private WorkOrderRepository workOrderRepository;
     private BookingService bookingService;
     private MechanicService mechanicService;
+    private WorkOrderFactory workOrderFactory;
 
-    public WorkOrderService(WorkOrderRepository workOrderRepository, BookingService bookingService, MechanicService mechanicService) {
+    public WorkOrderService(WorkOrderRepository workOrderRepository, BookingService bookingService, MechanicService mechanicService,
+                            WorkOrderFactory workOrderFactory) {
         this.workOrderRepository = workOrderRepository;
         this.bookingService = bookingService;
         this.mechanicService = mechanicService;
+        this.workOrderFactory = workOrderFactory;
     }
 
     @Transactional(readOnly = true)
@@ -58,15 +63,36 @@ public class WorkOrderService {
         return dto;
     }
 
+    //NYA (BEHÖVS LÄGGAS TILL KONTROLLER, TEX OM UTKAST ELLER CONFIRMED (PRIVAT HJÄLPMETOD I KLASSEN?)
     @Transactional
-    public void saveWorkOrder(Long bookingId) {
+    public WorkOrder createPlannedWorkOrder(Long bookingId) {
         Booking booking = bookingService.getBooking(bookingId);
         booking.setStatus(booking.getStatus().getNext());
-        WorkOrder newWorkOrder = new WorkOrder(booking);
+        WorkOrder newWorkOrder = workOrderFactory.createPlanned(booking);
 
-
-        workOrderRepository.save(newWorkOrder);
+        return workOrderRepository.save(newWorkOrder);
     }
+
+    @Transactional
+    public WorkOrder createDropInWorkOrder(CreateWorkOrderDto dto){
+        WorkOrder workOrder = workOrderFactory.createDropIn(dto);
+        return workOrderRepository.save(workOrder);
+    }
+
+    @Transactional
+    public WorkOrder createClaimWorkOrder(Long originalWorkOrderId, CreateWorkOrderDto dto){
+        WorkOrder workOrderOriginal = workOrderRepository.findById(originalWorkOrderId).orElseThrow(
+                () -> new WorkOrderNotFoundException("Work order not found with ID: " + originalWorkOrderId));
+
+        if(workOrderOriginal.getStatus() != WorkOrderState.COMPLETED){
+            throw new WorkOrderWrongStatusException("Only completed work orders can be claimed");
+        }
+
+        WorkOrder workOrderClaim = workOrderFactory.createClaim(workOrderOriginal, dto);
+        return workOrderRepository.save(workOrderClaim);
+    }
+
+    //
 
     @Transactional
     public void startWorkOrder(Long workOrderId) {

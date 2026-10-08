@@ -1,6 +1,7 @@
 package com.wac.autocore.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,29 @@ public class WorkOrder {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "original_work_order_id", nullable = true)
     private WorkOrder originalWorkOrder;
+
+    //NYA
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id", nullable = true)
+    private Vehicle vehicle;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mechanic_id", nullable = true)
+    private Mechanic mechanic;
+
+    @Column(name = "planned_date", nullable = true)
+    private LocalDate plannedDate;
+
+    @Column(name = "description", nullable = true)
+    private String description;
+
+    @Column(name = "customer_instructions", nullable = true)
+    private String customerInstructions;
+
+    @Column(name = "comments", nullable = true)
+    private String comments;
+
+    //NYA
 
     @OneToMany(mappedBy = "workOrder",
             cascade = CascadeType.ALL,
@@ -131,7 +155,60 @@ public class WorkOrder {
     public void setOriginalWorkOrder(WorkOrder originalWorkOrder) {
         this.originalWorkOrder = originalWorkOrder;
     }
-/*
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
+    }
+
+    public Mechanic getMechanic() {
+        return mechanic;
+    }
+
+    public void setMechanic(Mechanic mechanic) {
+        this.mechanic = mechanic;
+    }
+
+    public LocalDate getPlannedDate() {
+        return plannedDate;
+    }
+
+    public void setPlannedDate(LocalDate plannedDate) {
+        this.plannedDate = plannedDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getCustomerInstructions() {
+        return customerInstructions;
+    }
+
+    public void setCustomerInstructions(String customerInstructions) {
+        this.customerInstructions = customerInstructions;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    /*
     @Override
     public String toString() {
         return id +
