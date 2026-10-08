@@ -5,6 +5,7 @@ import com.wac.autocore.dto.booking.BookingCloneDto;
 import com.wac.autocore.exception.BookingNotFoundException;
 
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
 import com.wac.autocore.service.ServiceItemService;
