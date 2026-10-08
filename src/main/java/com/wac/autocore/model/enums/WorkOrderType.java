@@ -1,4 +1,4 @@
-package com.wac.autocore.model;
+package com.wac.autocore.model.enums;
 
 public enum WorkOrderType {
         PLANNED,
