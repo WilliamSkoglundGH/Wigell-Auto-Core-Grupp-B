@@ -43,12 +43,6 @@ public class WorkOrder {
     @Column(name = "description", nullable = true)
     private String description;
 
-    @Column(name = "customer_instructions", nullable = true)
-    private String customerInstructions;
-
-    @Column(name = "comments", nullable = true)
-    private String comments;
-
     //NYA
 
     @OneToMany(mappedBy = "workOrder",
@@ -186,22 +180,6 @@ public class WorkOrder {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getCustomerInstructions() {
-        return customerInstructions;
-    }
-
-    public void setCustomerInstructions(String customerInstructions) {
-        this.customerInstructions = customerInstructions;
-    }
-
-    public String getComments() {
-        return comments;
-    }
-
-    public void setComments(String comments) {
-        this.comments = comments;
     }
 
     public boolean isReadyToConfirm() {

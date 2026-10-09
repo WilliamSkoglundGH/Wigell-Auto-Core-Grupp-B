@@ -283,12 +283,6 @@ public class WorkOrderService {
         if (dto.getDescription() != null) {
             workOrder.setDescription(dto.getDescription());
         }
-        if (dto.getCustomerInstructions() != null) {
-            workOrder.setCustomerInstructions(dto.getCustomerInstructions());
-        }
-        if (dto.getComments() != null) {
-            workOrder.setComments(dto.getComments());
-        }
 
         workOrderRepository.save(workOrder);
     }

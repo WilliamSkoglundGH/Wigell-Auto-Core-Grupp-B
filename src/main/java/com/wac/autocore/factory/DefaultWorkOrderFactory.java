@@ -83,8 +83,6 @@ public class DefaultWorkOrderFactory implements WorkOrderFactory{
         }
         workOrder.setPlannedDate(dto.getPlannedDate());
         workOrder.setDescription(dto.getDescription());
-        workOrder.setCustomerInstructions(dto.getCustomerInstructions());
-        workOrder.setComments(dto.getComments());
     }
 }
 
