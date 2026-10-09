@@ -54,16 +54,6 @@ public class WorkOrderService {
             return WorkOrderMapper.toResponseDto(workOrder,
                     WorkOrderMapper.toServiceItemDtoList(workOrder.getServiceItems()));
 
-            /*
-        if (workOrder.getStatus() == WorkOrderState.CONFIRMED) {
-            List<BookingServiceItem> serviceItems = (workOrder.getBooking() != null) ? workOrder.getBooking().getServiceItems() : null;
-
-            dto = WorkOrderMapper.toResponseDto(workOrder, WorkOrderMapper.toServiceItemDtoListFromBooking(serviceItems));
-        } else {
-            List<WorkOrderServiceItem> serviceItems = workOrder.getServiceItems();
-            dto = WorkOrderMapper.toResponseDto(workOrder, WorkOrderMapper.toServiceItemDtoList(serviceItems));
-        }
-        */
     }
 
     @Transactional
