@@ -9,6 +9,7 @@
             prefHeight="400.0" prefWidth="600.0">
 
         <children>
+            <VBox styleClass="container-padding,">
             <Label text="%workorder.claims.heading" styleClass="heading-2" />
             <!-- Description -->
             <Label text="%workorder.claim.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
@@ -23,6 +24,7 @@
 
             <Button text="%btn.save"/>
             <Button text="%btn.cancel" onAction="#handleCancel" />
+            </VBox>
         </children>
     </VBox>
 

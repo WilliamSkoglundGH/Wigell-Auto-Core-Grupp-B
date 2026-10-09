@@ -156,7 +156,6 @@ public class WorkOrderController extends OverController {
         }
     }
 
-
     public void loadWorkOrderData() {
         if (workOrderTable != null) {
             try {
@@ -366,6 +365,7 @@ public class WorkOrderController extends OverController {
             throw new RuntimeException(e);
         }
     }
+
     private void populateServiceItemsTable(WorkOrderDetailsDto dto) {
         if (dto != null && dto.getServiceItems() != null) {
 
@@ -376,6 +376,7 @@ public class WorkOrderController extends OverController {
             serviceItemTable.getItems().setAll(observableList);
         }
     }
+
     private void updateButtonStates(WorkOrderState status) {
         if (startButton == null || completeButton == null) {
             return;
