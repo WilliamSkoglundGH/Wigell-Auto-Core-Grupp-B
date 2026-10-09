@@ -3,7 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
+<VBox styleClass="container-padding,container-spacing"
+      xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.wac.autocore.gui.controller.WorkOrderController"
       prefHeight="400.0" prefWidth="600.0">
@@ -62,7 +63,7 @@
         </GridPane>
 
         <!-- Buttons -->
-        <HBox spacing="10">
+        <HBox styleClass="button-spacing">
             <Button text="%btn.save" onAction="#handleSaveDropIn"/>
             <Button text="%btn.cancel" onAction="#handleCancel"/>
         </HBox>

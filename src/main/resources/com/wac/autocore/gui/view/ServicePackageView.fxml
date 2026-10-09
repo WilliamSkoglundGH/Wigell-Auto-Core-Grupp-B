@@ -12,8 +12,7 @@
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.wac.autocore.gui.controller.ServiceItemController">
 
-    <children>
-        <Label text="%serviceItem.packages.heading" styleClass="heading-2" />
+       <Label text="%serviceItem.packages.heading" styleClass="heading-2" />
 
         <TableView fx:id="servicePackageTable">
             <columns>
@@ -26,7 +25,7 @@
         </TableView>
         <HBox styleClass="button-spacing">
         <Button text="%btn.new" onAction="#handleNewPackage" />
-        <Button text="%btn.cancel" onAction="#handleCancel" />
+        <Button text="%btn.back" onAction="#handleCancel" />
         </HBox>
-    </children>
+
 </VBox>
