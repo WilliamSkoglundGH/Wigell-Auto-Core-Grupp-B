@@ -69,9 +69,11 @@ public final class WorkOrderMapper {
 
         return new WorkOrderServiceItemDto(
                 serviceName,
+                item.getServiceItem() != null ? item.getServiceItem().getId() : null,
                 description,
                 item.getPriceAtTime(),
-                item.getDurationAtTime()
+                item.getDurationAtTime(),
+                item.getId()
         );
     }
 
@@ -88,26 +90,6 @@ public final class WorkOrderMapper {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Mappar en lista med BookingServiceItems till en DTO-lista (används när WorkOrder har status CREATED).
-     */
-    public static List<WorkOrderServiceItemDto> toServiceItemDtoListFromBooking(List<BookingServiceItem> bookingItems) {
-        if (bookingItems == null) {
-            return null;
-        }
-
-        return bookingItems.stream().map(item -> {
-            String serviceName = (item.getServiceItem() != null) ? item.getServiceItem().getName() : "Okänd tjänst";
-            String description = (item.getServiceItem() != null) ? item.getServiceItem().getDescription() : "";
-
-            return new WorkOrderServiceItemDto(
-                    serviceName,
-                    description,
-                    item.getPriceAtTime(),
-                    item.getDurationAtTime()
-            );
-        }).collect(Collectors.toList());
-    }
     public static WorkOrderForMechanicDto toMechanicDto(WorkOrder workOrder) {
         if (workOrder == null) {
             return null;
@@ -135,6 +117,7 @@ public final class WorkOrderMapper {
                 workOrder.getStatus()
         );
     }
+
     public static List<WorkOrderServiceItem> toWorkOrderServicesFromBookingServices(Booking booking, WorkOrder workOrder) {
 
         List<BookingServiceItem> bookingServiceItems = booking.getServiceItems();
