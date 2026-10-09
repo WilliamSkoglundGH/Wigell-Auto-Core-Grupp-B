@@ -30,7 +30,6 @@
 
         <HBox styleClass="button-spacing">
             <Button text="%btn.new" onAction="#handleNewWorkOrder" />
-            <Button text="%workOrder.dropinButton" onAction="#handleNewDropIn" />
             <Button fx:id="detailsButton" text="%btn.moreInfo" onAction="#handleDetails"/>
         </HBox>
     </children>
