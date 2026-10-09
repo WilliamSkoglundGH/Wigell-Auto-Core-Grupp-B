@@ -622,7 +622,13 @@ public class BookingController extends OverController {
             return;
         }
         currentBookingId = selected.getId();
-
+        try{
+        BookingCloneDto dto = bookingService.cloneBooking(currentBookingId);}
+        catch (Exception e) {
+            messages.showError(getString("booking.error.booking_state_completed"));
+            navigateToBookingView();
+            return;
+        }
         navigateToNewCopiedBooking();
     }
 
@@ -632,7 +638,7 @@ public class BookingController extends OverController {
             messages.clearMessage();
         }
         if (currentBookingId == null) {
-            messages.showError(getString("booking.error.select_booking"));
+            messages.showError(getString("booking.error.booking_state_completed"));
             return;
         }
         try {
@@ -653,6 +659,8 @@ public class BookingController extends OverController {
 
         } catch (IllegalStateException e) {
             messages.showError(getString("booking.error.booking_state_completed"));
+            navigateToBookingView();
+            return;
         }
     }
 
