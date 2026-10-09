@@ -66,8 +66,8 @@
 
         <!-- Buttons -->
         <HBox spacing="10">
-            <Button fx:id="" text="%btn.confirm"/>
-            <Button fx:id="" text="%workorder.btn.update"/>
+            <Button fx:id="confirmDraftButton" text="%btn.confirm" onAction="#handleConfirmDraft"/>
+            <Button fx:id="updateDraftButton" text="%workorder.btn.update" onAction="#handleUpdateDraft"/>
             <Button text="%btn.cancel" onAction="#handleCancel"/>
         </HBox>
 

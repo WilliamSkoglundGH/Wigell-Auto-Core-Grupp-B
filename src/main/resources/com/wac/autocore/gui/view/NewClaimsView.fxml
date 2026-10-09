@@ -21,7 +21,7 @@
                       GridPane.columnIndex="1" GridPane.rowIndex="4"/>
            </VBox>
 
-            <Button text="%btn.save"/>
+            <Button text="%btn.save" onAction="#handleSaveClaim"/>
             <Button text="%btn.cancel" onAction="#handleCancel" />
         </children>
     </VBox>

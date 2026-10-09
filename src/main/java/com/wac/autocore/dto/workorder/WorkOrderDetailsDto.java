@@ -3,6 +3,7 @@ package com.wac.autocore.dto.workorder;
 import com.wac.autocore.model.enums.WorkOrderState;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,6 +19,9 @@ public class WorkOrderDetailsDto {
     private BigDecimal estimatedPrice;
     private List<WorkOrderServiceItemDto> serviceItems;
     private Long bookingId;
+    private Long mechanicId;
+    private LocalDate plannedDate;
+    private String description;
 
     public WorkOrderDetailsDto() {
     }
@@ -87,6 +91,30 @@ public class WorkOrderDetailsDto {
 
     public Integer getEstimatedDuration() {
         return estimatedDuration;
+    }
+
+    public Long getMechanicId() {
+        return mechanicId;
+    }
+
+    public void setMechanicId(Long mechanicId) {
+        this.mechanicId = mechanicId;
+    }
+
+    public LocalDate getPlannedDate() {
+        return plannedDate;
+    }
+
+    public void setPlannedDate(LocalDate plannedDate) {
+        this.plannedDate = plannedDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setEstimatedDuration(Integer estimatedDuration) {
