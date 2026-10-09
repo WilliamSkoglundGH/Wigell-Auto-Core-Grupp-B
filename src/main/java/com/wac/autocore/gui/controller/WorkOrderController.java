@@ -100,7 +100,7 @@ public class WorkOrderController extends OverController {
     // CLAIMS DRAFT (NewClaimsViewv.fxml)
     @FXML    private TextArea descriptionFieldClaim;
 
-    // NEW DROP-IN (NewDropInView.fxml)
+    // NEW DROP-IN
     @FXML    private ComboBox<Vehicle> vehicleComboDropIn;
     @FXML    private DatePicker datePickerDropIn;
     @FXML    private ListView<ServiceItem> servicesListViewDropIn;
@@ -298,14 +298,6 @@ public class WorkOrderController extends OverController {
             messages.clearMessage();
         }
         loadCenterView("/com/wac/autocore/gui/view/NewWorkOrderView.fxml");
-    }
-
-    @FXML
-    private void handleNewDropIn() {
-        if (messages != null) {
-            messages.clearMessage();
-        }
-        loadCenterView("/com/wac/autocore/gui/view/NewDropInView.fxml");
     }
 
     @FXML
@@ -573,7 +565,7 @@ public class WorkOrderController extends OverController {
     }
 
     // ---------------------------------------------------------
-    // NEW DROP-IN (NewDropInView.fxml)
+    // NEW DROP-IN
     // ---------------------------------------------------------
     private void loadDropInForm() {
         vehicleComboDropIn.setItems(FXCollections.observableArrayList(vehicleService.getAllVehicles()));

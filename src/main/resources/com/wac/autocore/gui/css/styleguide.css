@@ -84,11 +84,11 @@
 }
 
 .label.heading-1 { -fx-font-size: 28px; -fx-font-weight: bold; }
-.label.heading-2 { -fx-font-size: 22px; -fx-font-weight: 600; }
+.label.heading-2 { -fx-font-size: 22px; -fx-font-weight: bold; }
 .label.heading-3 { -fx-font-size: 18px; -fx-font-weight: 600; }
 .label.caption   { -fx-font-size: 12px; -fx-opacity: 0.7;}
 .label.header-top {
-    -fx-text-fill: -willow-green;
+    -fx-text-fill: -pale-khaki;
     -fx-font-size: 37px;
 }
 .text-center {
@@ -316,7 +316,7 @@ Editable columns
    -fx-padding: 5px;
 }
 .container-padding {
-    -fx-padding: 0px 16px 16px 16px;
+    -fx-padding: 0px 18px 18px 18px;
 }
 .container-spacing {
     -fx-spacing: 10px;
