@@ -351,31 +351,6 @@ public class WorkOrderController extends OverController {
         }
     }
 
-/*    private void loadServiceList() {
-        if (servicesListView != null) {
-            ObservableList<ServiceItem> serviceItems = FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
-            servicesListView.setItems(serviceItems);
-
-            for (ServiceItem item : serviceItems) {
-                serviceSelections.putIfAbsent(item.getId(), new SimpleBooleanProperty(false));
-            }
-            servicesListView.setCellFactory(CheckBoxListCell.forListView(
-                    item -> serviceSelections.get(item.getId()),
-                    new StringConverter<ServiceItem>() {
-                        @Override
-                        public String toString(ServiceItem item) {
-                            return item.getId() + ": " + item.getName();
-                        }
-
-                        @Override
-                        public ServiceItem fromString(String string) {
-                            return null;
-                        }
-                    }
-            ));
-        }
-    }
-*/
     @FXML
     private void handleSaveWorkOrder() {
         try {
