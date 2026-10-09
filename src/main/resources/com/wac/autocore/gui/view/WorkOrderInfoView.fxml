@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.layout.HBox?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx"
+      styleClass="form-padding"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.wac.autocore.gui.controller.WorkOrderController">
+
+    <children>
+
+        <!-- Titel -->
+        <Label text="%workOrder.infoHeading" styleClass="heading-2" />
+
+        <!-- Detaljer / Metadata (GridPane) -->
+        <GridPane hgap="15" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints minWidth="140" />
+                <ColumnConstraints minWidth="200" />
+                <ColumnConstraints minWidth="140" />
+                <ColumnConstraints minWidth="200" />
+            </columnConstraints>
+
+            <!-- Rad 0: Status & Mekaniker -->
+            <Label text="%workOrder.status" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="bold-label"/>
+            <Label fx:id="statusLabel" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <Label text="%workOrder.mechanic" GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="bold-label"/>
+            <Label fx:id="mechanicLabel" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+            <!-- Rad 1: Fordon & Kund -->
+            <Label text="%workOrder.vehicle" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="bold-label"/>
+            <Label fx:id="vehicleLabel" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <Label text="%workOrder.customer" GridPane.columnIndex="2" GridPane.rowIndex="1" styleClass="bold-label"/>
+            <Label fx:id="customerLabel" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+            <!-- Rad 2: Tider (Start & Slut) -->
+            <Label text="%workOrder.startTime" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="bold-label"/>
+            <Label fx:id="startTimeLabel" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+            <Label text="%workOrder.endTime" GridPane.columnIndex="2" GridPane.rowIndex="2" styleClass="bold-label"/>
+            <Label fx:id="endTimeLabel" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+
+            <!-- Rad 3: Estimerad tid & Pris -->
+            <Label text="%workOrder.estTime" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="bold-label"/>
+            <Label fx:id="estTimeLabel" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+            <Label text="%workOrder.estPrice" GridPane.columnIndex="2" GridPane.rowIndex="3" styleClass="bold-label"/>
+            <Label fx:id="estPriceLabel" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
+
+            <Label text="%workOrder.bookingId" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="bold-label"/>
+            <Label fx:id="bookingIdLabel" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+        </GridPane>
+
+        <!-- Sektion för Service Items -->
+        <Label text="%workOrder.serviceItems" styleClass="heading-3" />
+        <TableView fx:id="serviceItemTable" prefHeight="150">
+            <columns>
+                <TableColumn fx:id="serviceNameColumn" text="%workOrder.service.name" prefWidth="200"/>
+                <TableColumn fx:id="servicePriceColumn" text="%workOrder.service.price" prefWidth="100"/>
+                <TableColumn fx:id="serviceDurationColumn" text="%workOrder.service.duration" prefWidth="100"/>
+            </columns>
+        </TableView>
+
+        <!-- Knappar -->
+        <HBox spacing="10">
+            <Button fx:id="startButton" text="%workOrder.startButton" onAction="#handleStartWorkOrder" />
+            <Button fx:id="completeButton" text="%workOrder.completeButton" onAction="#handleCompleteWorkOrder"/>
+            <Button fx:id="confirmButton" text="%workOrder.confirmButton" onAction="#handleConfirmWorkOrder"/>
+            <Button fx:id="cancelWorkOrderButton" text="%workOrder.cancelButton" onAction="#handleCancelWorkOrder"/>
+            <Button fx:id="claimsButton" text="%workorder.btn.claims" onAction="#handleClaims"/>
+            <Button fx:id="updateButton" text="%workorder.btn.update" onAction="#handleUpdate"/>
+            <Button text="%btn.back" onAction="#handleCancel"/>
+        </HBox>
+    </children>
+</VBox>

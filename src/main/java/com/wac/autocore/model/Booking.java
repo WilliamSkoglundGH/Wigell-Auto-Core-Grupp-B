@@ -1,0 +1,120 @@
+package com.wac.autocore.model;
+
+import com.wac.autocore.model.enums.BookingState;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.*;
+
+@Entity
+@Table(name = "booking")
+public class Booking {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    //Behöver denna va eager?
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "vehicle_id", nullable = false)
+    private Vehicle vehicle;
+    @Column(name = "booking_date", nullable = false)
+    private LocalDate date;
+    @Column(name = "description", length = 200, nullable = true)
+    private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20, nullable = false)
+    private BookingState status = BookingState.BOOKED;
+
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "mechanic_id", nullable = false)
+    private Mechanic mechanic;
+    @OneToMany(mappedBy = "booking",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<BookingServiceItem> serviceItems = new ArrayList<>();
+
+
+    protected Booking() {
+    }
+
+    public Booking(Vehicle vehicle, LocalDate date, String description,  Mechanic mechanic) {
+        this.vehicle = vehicle;
+        this.date = date;
+        this.description = description;
+        this.mechanic = mechanic;
+    }
+
+    public Booking(Vehicle vehicle, LocalDate date, String description,  Mechanic mechanic, List<BookingServiceItem> serviceItems) {
+        this.vehicle = vehicle;
+        this.date = date;
+        this.description = description;
+        this.mechanic = mechanic;
+        this.serviceItems = serviceItems;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public BookingState getStatus() {
+        return status;
+    }
+
+    public void setStatus(BookingState status) {
+        this.status = status;
+    }
+
+    public Mechanic getMechanic() {
+        return mechanic;
+    }
+
+    public void setMechanic(Mechanic mechanic) {
+        this.mechanic = mechanic;
+    }
+
+    public void addServiceItem(ServiceItem serviceItem, BigDecimal price, int duration) {
+        BookingServiceItem item = new BookingServiceItem(this, serviceItem, price, duration);
+        this.serviceItems.add(item);
+    }
+
+    public List<BookingServiceItem> getServiceItems() {
+        return serviceItems;
+    }
+
+    @Override
+    public String toString() {
+        return id + " - Vehicle ID: " + vehicle.getId() +
+                " | Date: " + date +
+                " | Description: " + description +
+                " | Status: " + status +
+                " | Mechanic: " + mechanic.getName();
+    }
+}
