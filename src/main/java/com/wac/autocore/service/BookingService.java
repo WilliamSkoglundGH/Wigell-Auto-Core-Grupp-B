@@ -125,7 +125,7 @@ public class BookingService {
     public BookingCloneDto cloneBooking(Long id) {
         Booking copiedBooking= getBookingByIdWithDetails(id);
         if(copiedBooking.getStatus() != BookingState.COMPLETED) {
-            throw new IllegalStateException("booking.error.booking_state_completed");
+            throw new IllegalStateException("här");
         }
        return BookingMapper.toCloneDto(copiedBooking);
     }
