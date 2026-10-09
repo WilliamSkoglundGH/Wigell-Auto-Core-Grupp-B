@@ -75,6 +75,8 @@
         <HBox spacing="10">
             <Button fx:id="startButton" text="%workOrder.startButton" onAction="#handleStartWorkOrder" />
             <Button fx:id="completeButton" text="%workOrder.completeButton" onAction="#handleCompleteWorkOrder"/>
+            <Button fx:id="confirmButton" text="%workOrder.confirmButton" onAction="#handleConfirmWorkOrder"/>
+            <Button fx:id="cancelWorkOrderButton" text="%workOrder.cancelButton" onAction="#handleCancelWorkOrder"/>
             <Button fx:id="claimsButton" text="%workorder.btn.claims" onAction="#handleClaims"/>
             <Button fx:id="updateButton" text="%workorder.btn.update" onAction="#handleUpdate"/>
             <Button text="%btn.back" onAction="#handleCancel"/>

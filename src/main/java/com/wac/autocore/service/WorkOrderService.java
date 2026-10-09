@@ -164,6 +164,9 @@ public class WorkOrderService {
         WorkOrderDetailsDto dto = new WorkOrderDetailsDto(workOrderId, workOrder.getStatus(), workOrder.getStartTime(), workOrder.getEndTime());
 
         dto.setMechanicName(workOrder.getMechanic() != null ? workOrder.getMechanic().getName() : "-");
+        dto.setMechanicId(workOrder.getMechanic() != null ? workOrder.getMechanic().getId() : null);
+        dto.setPlannedDate(workOrder.getPlannedDate());
+        dto.setDescription(workOrder.getDescription());
         dto.setVehicleRegistrationNumber(workOrder.getVehicle() != null ? workOrder.getVehicle().getRegistrationNumber() : "-");
         dto.setCustomerName(workOrder.getVehicle() != null ? workOrder.getVehicle().getCustomer().getName() : "-");
         dto.setBookingId(workOrder.getBooking() != null ? workOrder.getBooking().getId() : null);
