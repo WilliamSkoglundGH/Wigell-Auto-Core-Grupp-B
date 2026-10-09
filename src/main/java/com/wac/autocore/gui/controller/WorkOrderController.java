@@ -13,6 +13,7 @@ import com.wac.autocore.model.Vehicle;
 import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.model.enums.WorkOrderState;
+import com.wac.autocore.model.enums.WorkOrderType;
 import com.wac.autocore.service.BookingService;
 import com.wac.autocore.service.MechanicService;
 import com.wac.autocore.service.ServiceItemService;
@@ -59,8 +60,10 @@ public class WorkOrderController extends OverController {
     private TableColumn<WorkOrderSummaryDto, String> startTimeColumn;
     @FXML
     private TableColumn<WorkOrderSummaryDto, String> endTimeColumn;
+    @FXML private TableColumn<WorkOrderDetailsDto, WorkOrderType> claimsColumn;
     @FXML
     private Button detailsButton;
+
 
     // WORK ORDER-DETAILS (WorkOrderInfoView.fxml)
     @FXML    private Label statusLabel;
@@ -82,7 +85,8 @@ public class WorkOrderController extends OverController {
     @FXML   private Button updateButton;
     @FXML    private Button confirmButton;
     @FXML    private Button cancelWorkOrderButton;
-    @FXML    private TextArea descriptionFieldClaim;
+    @FXML   private Label workOrderClaimLabel;
+
 
     // UPDATE DRAFT (UpdateWorkOrderDraftView.fxml)
     @FXML    private ComboBox<String> vehicleComboUpdate;
@@ -92,6 +96,9 @@ public class WorkOrderController extends OverController {
     @FXML    private ComboBox<Mechanic> mechanicFieldUpdate;
     @FXML    private Button confirmDraftButton;
     @FXML    private Button updateDraftButton;
+
+    // CLAIMS DRAFT (NewClaimsViewv.fxml)
+    @FXML    private TextArea descriptionFieldClaim;
 
     // NEW DROP-IN (NewDropInView.fxml)
     @FXML    private ComboBox<Vehicle> vehicleComboDropIn;
@@ -673,7 +680,6 @@ public class WorkOrderController extends OverController {
         }
     }
 
-
     private void populateServiceItemsTable(WorkOrderDetailsDto dto) {
         if (dto != null && dto.getServiceItems() != null) {
 
@@ -701,14 +707,17 @@ public class WorkOrderController extends OverController {
     }
 
     public void handleUpdate() {
-
-        //currentWorkOrderId
+        if (messages != null) {
+            messages.clearMessage();
+        }
         navigateToUpdateDraftView();
     }
 
     public void handleClaims() {
+        if (messages != null) {
+            messages.clearMessage();
+        }
 
-        //currentWorkOrderId
         navigateToClaimsView();
     }
 

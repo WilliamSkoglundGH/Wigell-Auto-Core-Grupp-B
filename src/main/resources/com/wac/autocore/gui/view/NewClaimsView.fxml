@@ -3,28 +3,33 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
+<VBox styleClass="container-padding,container-spacing"
+        xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.wac.autocore.gui.controller.WorkOrderController"
             prefHeight="400.0" prefWidth="600.0">
 
-        <children>
-            <VBox styleClass="container-padding,">
-            <Label text="%workorder.claims.heading" styleClass="heading-2" />
+    <Label text="%workorder.claims.heading" styleClass="heading-2"/>
+    <GridPane hgap="10" vgap="12">
+    <columnConstraints>
+        <ColumnConstraints minWidth="120" />
+        <ColumnConstraints />
+    </columnConstraints>
+
             <!-- Description -->
-            <Label text="%workorder.claim.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-           <VBox styleClass="container-padding">
+            <Label text="%workorder.claim.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
             <TextArea fx:id="descriptionFieldClaim"
                       promptText="%booking.prompt-desc"
                       prefRowCount="3"
                       wrapText="true"
                       prefWidth="250"
-                      GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-           </VBox>
-
+                      GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+    </GridPane>
+            <HBox  styleClass="button-spacing">
             <Button text="%btn.save" onAction="#handleSaveClaim"/>
             <Button text="%btn.cancel" onAction="#handleCancel" />
+            </HBox>
             </VBox>
-        </children>
-    </VBox>
+
+
 
