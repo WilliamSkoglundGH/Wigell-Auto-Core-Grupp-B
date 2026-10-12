@@ -1,5 +1,7 @@
 package com.wac.autocore.model;
 
+import com.wac.autocore.model.enums.BookingState;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    //Behöver denna va eager?
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;

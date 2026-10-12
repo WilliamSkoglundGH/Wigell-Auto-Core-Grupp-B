@@ -1,8 +1,12 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.booking.BookingCloneDto;
 import com.wac.autocore.exception.BookingNotFoundException;
+import com.wac.autocore.mapper.BookingMapper;
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.repository.BookingRepository;
+import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -12,17 +16,22 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.sun.imageio.plugins.common.I18N.getString;
+
 @Service
 public class BookingService {
     private static final Logger logger = LoggerFactory.getLogger(BookingService.class);
     private final BookingRepository bookingRepository;
     private final MechanicService mechanicService;
     private final VehicleService vehicleService;
+    private final WorkOrderRepository workOrderRepository;
 
-    public BookingService(BookingRepository bookingRepository, MechanicService mechanicService, VehicleService vehicleService) {
+    public BookingService(BookingRepository bookingRepository, MechanicService mechanicService, VehicleService vehicleService,
+                          WorkOrderRepository workOrderRepository) {
         this.bookingRepository = bookingRepository;
         this.mechanicService = mechanicService;
         this.vehicleService = vehicleService;
+        this.workOrderRepository = workOrderRepository;
     }
 
     @Transactional(readOnly = true)
@@ -35,6 +44,11 @@ public class BookingService {
     public Booking getBooking(Long id) {
         return bookingRepository.findById(id)
                 .orElseThrow(() -> new BookingNotFoundException("booking.error.not_found"));
+    }
+    @Transactional
+    public Booking getBookingByIdWithDetails(Long id) {
+        return bookingRepository.findByIdWithDetails(id)
+                  .orElseThrow(() -> new BookingNotFoundException("booking.error.not_found"));
     }
 
     @Transactional
@@ -75,6 +89,7 @@ public class BookingService {
         }
         bookingForUpdate.addServiceItem(selectedServiceItem, selectedServiceItem.getPrice(), selectedServiceItem.getEstimatedMinutes());
 
+        syncPlannedWorkOrder(bookingForUpdate);
         return bookingRepository.save(bookingForUpdate);
 
     }
@@ -102,6 +117,31 @@ public class BookingService {
 
         bookingForUpdate.getServiceItems().remove(itemToRemove);
 
+        syncPlannedWorkOrder(bookingForUpdate);
         return bookingRepository.save(bookingForUpdate);
     }
+
+@Transactional
+    public BookingCloneDto cloneBooking(Long id) {
+        Booking copiedBooking= getBookingByIdWithDetails(id);
+        if(copiedBooking.getStatus() != BookingState.COMPLETED) {
+            throw new IllegalStateException("här");
+        }
+       return BookingMapper.toCloneDto(copiedBooking);
+    }
+
+    private void syncPlannedWorkOrder(Booking booking) {
+        workOrderRepository.findByBooking_Id(booking.getId()).ifPresent(workOrder -> {
+            workOrder.getServiceItems().clear();
+            for (BookingServiceItem item : booking.getServiceItems()) {
+                workOrder.addServiceItem(
+                        item.getServiceItem(),
+                        item.getPriceAtTime(),
+                        item.getDurationAtTime());
+            }
+        });
+    }
+
+
+
 }

@@ -4,6 +4,7 @@ package com.wac.autocore.service;
 import com.wac.autocore.dto.invoiceLine.InvoiceDto;
 import com.wac.autocore.mapper.InvoiceMapper;
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.WorkOrderState;
 import com.wac.autocore.service.discount.DiscountFactory;
 import com.wac.autocore.service.discount.DiscountStrategy;
 import com.wac.autocore.service.discount.PercentageDiscount;
@@ -67,7 +68,7 @@ public class InvoiceService {
         BigDecimal discount = BigDecimal.ZERO;
         List<InvoiceLine> invoiceLines = new ArrayList<>();
 
-        Customer customer = selectedWorkOrder.getBooking().getVehicle().getCustomer();
+        Customer customer = selectedWorkOrder.getVehicle().getCustomer();
 
         // Hämta kampanjstrategi via fabriken (som nu kollar Enumet)
         DiscountStrategy promoStrategy = discountFactory.createStrategy(discountCode);

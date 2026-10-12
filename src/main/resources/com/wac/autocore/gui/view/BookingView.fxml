@@ -35,6 +35,7 @@
 
             <Button text="%booking.services.show"
                     onAction="#handleShowBookingServices"/>
+            <Button text="%booking.btn.copy" onAction="#handleCopyBooking"/>
         </HBox>
 
     </children>

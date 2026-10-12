@@ -1,21 +1,31 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.workorder.WorkOrderCreateDto;
 import com.wac.autocore.dto.workorder.WorkOrderDetailsDto;
 import com.wac.autocore.dto.workorder.WorkOrderServiceItemDto;
 import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.exception.*;
 import com.wac.autocore.gui.util.FormatUIUtil;
 import com.wac.autocore.model.Booking;
-import com.wac.autocore.model.BookingState;
-import com.wac.autocore.model.WorkOrderState;
+import com.wac.autocore.model.Mechanic;
+import com.wac.autocore.model.ServiceItem;
+import com.wac.autocore.model.Vehicle;
+import com.wac.autocore.model.WorkOrder;
+import com.wac.autocore.model.enums.BookingState;
+import com.wac.autocore.model.enums.WorkOrderState;
+import com.wac.autocore.model.enums.WorkOrderType;
 import com.wac.autocore.service.BookingService;
+import com.wac.autocore.service.MechanicService;
 import com.wac.autocore.service.ServiceItemService;
+import com.wac.autocore.service.VehicleService;
 import com.wac.autocore.service.WorkOrderService;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.StringConverter;
 import org.slf4j.Logger;
@@ -35,6 +45,7 @@ import java.util.stream.Collectors;
 @Scope("prototype")
 public class WorkOrderController extends OverController {
 
+    // WORKORDER-MANAGEMENT TABLE (WorkOrderView.fxml)
     @FXML
     private TableView<WorkOrderSummaryDto> workOrderTable;
     @FXML
@@ -49,62 +60,81 @@ public class WorkOrderController extends OverController {
     private TableColumn<WorkOrderSummaryDto, String> startTimeColumn;
     @FXML
     private TableColumn<WorkOrderSummaryDto, String> endTimeColumn;
+    @FXML private TableColumn<WorkOrderDetailsDto, WorkOrderType> claimsColumn;
     @FXML
     private Button detailsButton;
-    @FXML
-    private Label statusLabel;
-    @FXML
-    private Label mechanicLabel;
-    @FXML
-    private Label vehicleLabel;
-    @FXML
-    private Label customerLabel;
-    @FXML
-    private Label startTimeLabel;
-    @FXML
-    private Label endTimeLabel;
-    @FXML
-    private Label estTimeLabel;
-    @FXML
-    private Label estPriceLabel;
-    @FXML
-    private Label bookingIdLabel;
-    @FXML
-    private TableView<WorkOrderServiceItemDto> serviceItemTable;
-    @FXML
-    private TableColumn<WorkOrderServiceItemDto, String> serviceNameColumn;
-    @FXML
-    private TableColumn<WorkOrderServiceItemDto, BigDecimal> servicePriceColumn;
-    @FXML
-    private TableColumn<WorkOrderServiceItemDto, Integer> serviceDurationColumn;
-    @FXML
-    private Button startButton;
-    @FXML
-    private Button completeButton;
 
 
+    // WORK ORDER-DETAILS (WorkOrderInfoView.fxml)
+    @FXML    private Label statusLabel;
+    @FXML    private Label mechanicLabel;
+    @FXML    private Label vehicleLabel;
+    @FXML    private Label customerLabel;
+    @FXML    private Label startTimeLabel;
+    @FXML    private Label endTimeLabel;
+    @FXML    private Label estTimeLabel;
+    @FXML    private Label estPriceLabel;
+    @FXML    private Label bookingIdLabel;
+    @FXML    private TableView<WorkOrderServiceItemDto> serviceItemTable;
+    @FXML    private TableColumn<WorkOrderServiceItemDto, String> serviceNameColumn;
+    @FXML    private TableColumn<WorkOrderServiceItemDto, BigDecimal> servicePriceColumn;
+    @FXML    private TableColumn<WorkOrderServiceItemDto, Integer> serviceDurationColumn;
+    @FXML    private Button startButton;
+    @FXML    private Button completeButton;
+    @FXML    private Button claimsButton;
+    @FXML   private Button updateButton;
+    @FXML    private Button confirmButton;
+    @FXML    private Button cancelWorkOrderButton;
+    @FXML   private Label workOrderClaimLabel;
+
+
+    // UPDATE DRAFT (UpdateWorkOrderDraftView.fxml)
+    @FXML    private ComboBox<String> vehicleComboUpdate;
+    @FXML    private DatePicker datePickerUpdate;
+    @FXML    private ListView<ServiceItem> servicesListViewUpdate;
+    @FXML    private TextArea descriptionFieldUpdate;
+    @FXML    private ComboBox<Mechanic> mechanicFieldUpdate;
+    @FXML    private Button confirmDraftButton;
+    @FXML    private Button updateDraftButton;
+
+    // CLAIMS DRAFT (NewClaimsViewv.fxml)
+    @FXML    private TextArea descriptionFieldClaim;
+
+    // NEW DROP-IN
+    @FXML    private ComboBox<Vehicle> vehicleComboDropIn;
+    @FXML    private DatePicker datePickerDropIn;
+    @FXML    private ListView<ServiceItem> servicesListViewDropIn;
+    @FXML    private TextArea descriptionFieldDropIn;
+    @FXML    private ComboBox<Mechanic> mechanicFieldDropIn;
+
+    // NEW WORK ORDER (NewWorkOrderView.fxml)
     @FXML
     private ComboBox<Booking> bookingComboBox;
  //   @FXML
  //   private ListView<ServiceItem> servicesListView;
 
     private final Map<Long, javafx.beans.property.BooleanProperty> serviceSelections = new HashMap<>();
+    private final Map<Long, Long> draftServiceRowIds = new HashMap<>();
 
     private static Long currentWorkOrderId;
 
     private final WorkOrderService workOrderService;
     private final ServiceItemService serviceItemService;
     private final BookingService bookingService;
+    private final MechanicService mechanicService;
+    private final VehicleService vehicleService;
 
     private static final Logger logger = LoggerFactory.getLogger(WorkOrderController.class);
 
-    // Spring injicerar tjänster samt ApplicationContext
     public WorkOrderController(BookingService bookingService, ServiceItemService serviceItemService,
-                               WorkOrderService workOrderService, ApplicationContext applicationContext) {
+                               WorkOrderService workOrderService, ApplicationContext applicationContext,
+                               MechanicService mechanicService, VehicleService vehicleService) {
         this.bookingService = bookingService;
         this.serviceItemService = serviceItemService;
         this.workOrderService = workOrderService;
         this.applicationContext = applicationContext;
+        this.mechanicService = mechanicService;
+        this.vehicleService = vehicleService;
     }
 
     // ---------------------------------------------------------
@@ -116,8 +146,10 @@ public class WorkOrderController extends OverController {
         if (workOrderTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
 
-            bookingIdColumn.setCellValueFactory(cellData ->
-                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getBookingId().toString()));
+            bookingIdColumn.setCellValueFactory(cellData -> {
+                Long bookingId = cellData.getValue().getBookingId();
+                return new SimpleStringProperty(bookingId != null ? bookingId.toString() : "-");
+            });
 
             mechanicIdColumn.setCellValueFactory(cellData ->
                     new javafx.beans.property.SimpleStringProperty(cellData.getValue().getMechanicName()));
@@ -162,6 +194,12 @@ public class WorkOrderController extends OverController {
         if (statusLabel != null && currentWorkOrderId != null) {
             loadWorkOrderDetails();
         }
+        if (mechanicFieldUpdate != null && currentWorkOrderId != null) {
+            loadDraftForm();
+        }
+        if (vehicleComboDropIn != null) {
+            loadDropInForm();
+        }
     }
 
 
@@ -201,8 +239,41 @@ public class WorkOrderController extends OverController {
     }
 
     @FXML
-    private void handleCompleteWorkOrder() {
+    private void handleConfirmWorkOrder() {
+        try {
+            workOrderService.confirmWorkOrder(currentWorkOrderId);
+            loadWorkOrderDetails();
+            messages.showSuccess(getString("workorder.success.workorder_confirmed"));
+        } catch (WorkOrderWrongStatusException e) {
+            messages.showError(getString("workorder.error.work_order_wrong_status"));
 
+        } catch (IllegalStateException e) {
+            messages.showError(getString("workorder.error.not_ready_to_confirm"));
+
+        } catch (Exception e) {
+            logger.error("Could not confirm work order. {}", e.getMessage(), e);
+            messages.showError(getString("workorder.error.unexpected"));
+        }
+    }
+
+    @FXML
+    private void handleCancelWorkOrder() {
+        try {
+            workOrderService.cancelWorkOrder(currentWorkOrderId);
+            loadWorkOrderDetails();
+            messages.showSuccess(getString("workorder.success.workorder_canceled"));
+
+        } catch (WorkOrderWrongStatusException e) {
+            messages.showError(getString("workorder.error.work_order_wrong_status"));
+
+        } catch (Exception e) {
+            logger.error("Could not cancel work order. {}", e.getMessage(), e);
+            messages.showError(getString("workorder.error.unexpected"));
+        }
+    }
+
+    @FXML
+    private void handleCompleteWorkOrder() {
 
         try {
             workOrderService.completeWorkOrder(currentWorkOrderId);
@@ -214,7 +285,6 @@ public class WorkOrderController extends OverController {
             logger.error("Could not save to database. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.work_order_wrong_status"));
         } catch (WorkOrderNotFoundException e) {
-            logger.error("Could not save to database. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.work_order_not_found"));
         }catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
@@ -280,31 +350,6 @@ public class WorkOrderController extends OverController {
         }
     }
 
-/*    private void loadServiceList() {
-        if (servicesListView != null) {
-            ObservableList<ServiceItem> serviceItems = FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
-            servicesListView.setItems(serviceItems);
-
-            for (ServiceItem item : serviceItems) {
-                serviceSelections.putIfAbsent(item.getId(), new SimpleBooleanProperty(false));
-            }
-            servicesListView.setCellFactory(CheckBoxListCell.forListView(
-                    item -> serviceSelections.get(item.getId()),
-                    new StringConverter<ServiceItem>() {
-                        @Override
-                        public String toString(ServiceItem item) {
-                            return item.getId() + ": " + item.getName();
-                        }
-
-                        @Override
-                        public ServiceItem fromString(String string) {
-                            return null;
-                        }
-                    }
-            ));
-        }
-    }
-*/
     @FXML
     private void handleSaveWorkOrder() {
         try {
@@ -314,9 +359,8 @@ public class WorkOrderController extends OverController {
                     messages.showError(getString("workorder.error.select_booking"));
                     return;
                 }
-                      selectedBooking.setStatus(selectedBooking.getStatus().getNext());
 
-                    workOrderService.saveWorkOrder(selectedBooking.getId());
+                    workOrderService.createPlannedWorkOrder(selectedBooking.getId());
                     messages.showSuccess(getString("workorder.success.workorder_created"));
 
             }
@@ -328,6 +372,66 @@ public class WorkOrderController extends OverController {
 
         serviceSelections.clear();
         navigateToWorkOrderView();
+    }
+
+    @FXML
+    private void handleSaveClaim() {
+        try {
+            WorkOrderCreateDto dto = new WorkOrderCreateDto();
+            dto.setDescription(descriptionFieldClaim.getText());
+
+            WorkOrder claim = workOrderService.createClaimWorkOrder(currentWorkOrderId, dto);
+            currentWorkOrderId = claim.getId();
+
+            messages.showSuccess(getString("workorder.success.claim_created"));
+            navigateToWorkOrderInfoView();
+        } catch (WorkOrderWrongStatusException e) {
+            messages.showError(getString("workorder.error.claim_requires_completed"));
+        } catch (Exception e) {
+            logger.error("Could not create claim. {}", e.getMessage(), e);
+            messages.showError(getString("workorder.error.unexpected"));
+        }
+    }
+
+    @FXML
+    private void handleUpdateDraft() {
+        try {
+            workOrderService.updateWorkOrder(currentWorkOrderId, buildDraftDto());
+            saveDraftServices();
+            messages.showSuccess(getString("workorder.success.workorder_updated"));
+            navigateToWorkOrderInfoView();
+        } catch (WorkOrderWrongStatusException | IllegalStateException e) {
+            messages.showError(getString("workorder.error.not_editable"));
+        } catch (Exception e) {
+            logger.error("Could not update draft. {}", e.getMessage(), e);
+            messages.showError(getString("workorder.error.unexpected"));
+        }
+    }
+
+    @FXML
+    private void handleConfirmDraft() {
+        try {
+            workOrderService.updateWorkOrder(currentWorkOrderId, buildDraftDto());
+            saveDraftServices();
+            workOrderService.confirmWorkOrder(currentWorkOrderId);
+            messages.showSuccess(getString("workorder.success.workorder_confirmed"));
+            navigateToWorkOrderInfoView();
+        } catch (WorkOrderWrongStatusException e) {
+            messages.showError(getString("workorder.error.work_order_wrong_status"));
+        } catch (IllegalStateException e) {
+            messages.showError(getString("workorder.error.not_ready_to_confirm"));
+        } catch (Exception e) {
+            logger.error("Could not confirm draft. {}", e.getMessage(), e);
+            messages.showError(getString("workorder.error.unexpected"));
+        }
+    }
+
+    private WorkOrderCreateDto buildDraftDto() {
+        WorkOrderCreateDto dto = new WorkOrderCreateDto();
+        dto.setMechanic(mechanicFieldUpdate.getValue());
+        dto.setPlannedDate(datePickerUpdate.getValue());
+        dto.setDescription(descriptionFieldUpdate.getText());
+        return dto;
     }
 
     @FXML
@@ -354,7 +458,7 @@ public class WorkOrderController extends OverController {
         try {
             //hämta workorders och ladda labels
             WorkOrderDetailsDto dto = workOrderService.getWorkOrderInfoById(currentWorkOrderId);
-            statusLabel.setText(getString(dto.getStatus().name()));
+            statusLabel.setText(getString("status." + dto.getStatus().name()));
             mechanicLabel.setText(dto.getMechanicName());
             vehicleLabel.setText(dto.getVehicleRegistrationNumber());
             customerLabel.setText(dto.getCustomerName());
@@ -362,9 +466,9 @@ public class WorkOrderController extends OverController {
             endTimeLabel.setText(dto.getEndTime() != null ? FormatUIUtil.formatTime(dto.getEndTime()) : "-");
             estTimeLabel.setText(dto.getEstimatedDuration() != null ? dto.getEstimatedDuration() + " min" : "-");
             estPriceLabel.setText(dto.getEstimatedPrice() != null ? dto.getEstimatedPrice() + " SEK" : "-");
-            bookingIdLabel.setText(String.valueOf(dto.getBookingId()));
+            bookingIdLabel.setText(dto.getBookingId() != null ? String.valueOf(dto.getBookingId()) : "-");
 
-            updateButtonStates(dto.getStatus());
+            updateButtonStates(dto);
 
             serviceNameColumn.setCellValueFactory(new PropertyValueFactory<>("serviceName"));
             servicePriceColumn.setCellValueFactory(new PropertyValueFactory<>("priceAtTime"));
@@ -375,6 +479,174 @@ public class WorkOrderController extends OverController {
             throw new RuntimeException(e);
         }
     }
+
+    private void loadDraftForm() {
+        try {
+            WorkOrderDetailsDto dto = workOrderService.getWorkOrderInfoById(currentWorkOrderId);
+
+            vehicleComboUpdate.setItems(FXCollections.observableArrayList(dto.getVehicleRegistrationNumber()));
+            vehicleComboUpdate.getSelectionModel().selectFirst();
+            vehicleComboUpdate.setDisable(true);
+
+            datePickerUpdate.setValue(dto.getPlannedDate());
+            descriptionFieldUpdate.setText(dto.getDescription());
+
+            mechanicFieldUpdate.setItems(FXCollections.observableArrayList(mechanicService.getAllMechanics()));
+            mechanicFieldUpdate.setConverter(new StringConverter<Mechanic>() {
+                @Override
+                public String toString(Mechanic mechanic) {
+                    return mechanic == null ? "" : mechanic.getId() + " - " + mechanic.getName();
+                }
+
+                @Override
+                public Mechanic fromString(String s) {
+                    return null;
+                }
+            });
+            if (dto.getMechanicId() != null) {
+                for (Mechanic mechanic : mechanicFieldUpdate.getItems()) {
+                    if (mechanic.getId().equals(dto.getMechanicId())) {
+                        mechanicFieldUpdate.getSelectionModel().select(mechanic);
+                        break;
+                    }
+                }
+            }
+            loadDraftServiceList(dto);
+        } catch (Exception e) {
+            logger.error("Could not load draft. {}", e.getMessage(), e);
+            messages.showError(getString("workorder.error.unexpected"));
+        }
+    }
+
+    private void loadDraftServiceList(WorkOrderDetailsDto dto) {
+        serviceSelections.clear();
+        draftServiceRowIds.clear();
+
+        for (WorkOrderServiceItemDto row : dto.getServiceItems()) {
+            draftServiceRowIds.put(row.getServiceItemId(), row.getId());
+        }
+
+        ObservableList<ServiceItem> allServices =
+                FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
+
+        for (ServiceItem item : allServices) {
+            boolean onWorkOrder = draftServiceRowIds.containsKey(item.getId());
+            serviceSelections.put(item.getId(), new SimpleBooleanProperty(onWorkOrder));
+        }
+
+        servicesListViewUpdate.setCellFactory(CheckBoxListCell.forListView(
+                item -> serviceSelections.get(item.getId()),
+                new StringConverter<ServiceItem>() {
+                    @Override
+                    public String toString(ServiceItem item) {
+                        return item.getName() + " — " + item.getPrice() + " SEK — " + item.getEstimatedMinutes() + " min";
+                    }
+
+                    @Override
+                    public ServiceItem fromString(String text) {
+                        return null;
+                    }
+                }
+        ));
+        servicesListViewUpdate.setItems(allServices);
+    }
+
+    private void saveDraftServices() {
+        for (ServiceItem item : servicesListViewUpdate.getItems()) {
+            boolean checked = serviceSelections.get(item.getId()).get();
+            Long rowId = draftServiceRowIds.get(item.getId());
+
+            if (checked && rowId == null) {
+                workOrderService.addServiceItemToWorkOrder(currentWorkOrderId, item);
+            } else if (!checked && rowId != null) {
+                workOrderService.removeServiceItemFromWorkOrder(currentWorkOrderId, rowId);
+            }
+        }
+    }
+
+    // ---------------------------------------------------------
+    // NEW DROP-IN
+    // ---------------------------------------------------------
+    private void loadDropInForm() {
+        vehicleComboDropIn.setItems(FXCollections.observableArrayList(vehicleService.getAllVehicles()));
+        vehicleComboDropIn.setConverter(new StringConverter<Vehicle>() {
+            @Override
+            public String toString(Vehicle vehicle) {
+                return vehicle == null ? "" : vehicle.getRegistrationNumber() + " - " + vehicle.getBrand()
+                        + " " + vehicle.getModel() + " (" + vehicle.getCustomer().getName() + ")";
+            }
+
+            @Override
+            public Vehicle fromString(String s) {
+                return null;
+            }
+        });
+
+        mechanicFieldDropIn.setItems(FXCollections.observableArrayList(mechanicService.getAllMechanics()));
+        mechanicFieldDropIn.setConverter(new StringConverter<Mechanic>() {
+            @Override
+            public String toString(Mechanic mechanic) {
+                return mechanic == null ? "" : mechanic.getId() + " - " + mechanic.getName();
+            }
+
+            @Override
+            public Mechanic fromString(String s) {
+                return null;
+            }
+        });
+
+        serviceSelections.clear();
+        ObservableList<ServiceItem> allServices =
+                FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
+        for (ServiceItem item : allServices) {
+            serviceSelections.put(item.getId(), new SimpleBooleanProperty(false));
+        }
+        servicesListViewDropIn.setCellFactory(CheckBoxListCell.forListView(
+                item -> serviceSelections.get(item.getId()),
+                new StringConverter<ServiceItem>() {
+                    @Override
+                    public String toString(ServiceItem item) {
+                        return item.getName() + " — " + item.getPrice() + " SEK — " + item.getEstimatedMinutes() + " min";
+                    }
+
+                    @Override
+                    public ServiceItem fromString(String text) {
+                        return null;
+                    }
+                }
+        ));
+        servicesListViewDropIn.setItems(allServices);
+    }
+
+    @FXML
+    private void handleSaveDropIn() {
+        try {
+            Vehicle vehicle = vehicleComboDropIn.getValue();
+            if (vehicle == null) {
+                messages.showError(getString("workorder.error.select_vehicle"));
+                return;
+            }
+
+            WorkOrderCreateDto dto = new WorkOrderCreateDto();
+            dto.setVehicle(vehicle);
+            dto.setMechanic(mechanicFieldDropIn.getValue());
+            dto.setPlannedDate(datePickerDropIn.getValue());
+            dto.setDescription(descriptionFieldDropIn.getText());
+
+            List<ServiceItem> selectedServices = servicesListViewDropIn.getItems().stream()
+                    .filter(item -> serviceSelections.get(item.getId()).get())
+                    .collect(Collectors.toList());
+            dto.setServiceItems(selectedServices);
+
+            workOrderService.createDropInWorkOrder(dto);
+            messages.showSuccess(getString("workorder.success.dropin_created"));
+            navigateToWorkOrderView();
+        } catch (Exception e) {
+            logger.error("Could not create drop-in. {}", e.getMessage(), e);
+            messages.showError(getString("workorder.error.unexpected"));
+        }
+    }
+
     private void populateServiceItemsTable(WorkOrderDetailsDto dto) {
         if (dto != null && dto.getServiceItems() != null) {
 
@@ -385,18 +657,43 @@ public class WorkOrderController extends OverController {
             serviceItemTable.getItems().setAll(observableList);
         }
     }
-    private void updateButtonStates(WorkOrderState status) {
-        if (startButton == null || completeButton == null) {
+    private void updateButtonStates(WorkOrderDetailsDto dto) {
+        if (startButton == null) {
             return;
         }
 
-        if (status == null) {
-            startButton.setDisable(true);
-            completeButton.setDisable(true);
-            return;
-        }
+        WorkOrderState status = dto.getStatus();
+        boolean hasBooking = dto.getBookingId() != null;
 
         startButton.setDisable(!status.canStart());
         completeButton.setDisable(!status.canComplete());
+        confirmButton.setDisable(!status.canConfirm());
+        cancelWorkOrderButton.setDisable(!status.canCancel());
+        updateButton.setDisable(!status.canEdit() || hasBooking);
+        claimsButton.setDisable(status != WorkOrderState.COMPLETED);
+    }
+
+    public void handleUpdate() {
+        if (messages != null) {
+            messages.clearMessage();
+        }
+        navigateToUpdateDraftView();
+    }
+
+    public void handleClaims() {
+        if (messages != null) {
+            messages.clearMessage();
+        }
+
+        navigateToClaimsView();
+    }
+
+    private void navigateToClaimsView() {
+        loadCenterView("/com/wac/autocore/gui/view/NewClaimsView.fxml");
+    }
+
+    private void navigateToUpdateDraftView() {
+        loadCenterView("/com/wac/autocore/gui/view/UpdateWorkOrderDraftView.fxml");
+
     }
 }

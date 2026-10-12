@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class InvoiceMapper {
+public final class InvoiceMapper {
 
 
     public static InvoiceDto toInvoiceDto(Invoice invoice) {

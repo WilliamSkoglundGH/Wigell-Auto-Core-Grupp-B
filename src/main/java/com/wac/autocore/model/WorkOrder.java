@@ -1,5 +1,8 @@
 package com.wac.autocore.model;
 
+import com.wac.autocore.model.enums.WorkOrderState;
+import com.wac.autocore.model.enums.WorkOrderType;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,9 +16,34 @@ public class WorkOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "booking_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "booking_id", nullable = true)
     private Booking booking;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "work_order_type", length = 20, nullable = false)
+    private WorkOrderType type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "original_work_order_id", nullable = true)
+    private WorkOrder originalWorkOrder;
+
+    //NYA
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id", nullable = true)
+    private Vehicle vehicle;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mechanic_id", nullable = true)
+    private Mechanic mechanic;
+
+    @Column(name = "planned_date", nullable = true)
+    private LocalDate plannedDate;
+
+    @Column(name = "description", nullable = true)
+    private String description;
+
+    //NYA
 
     @OneToMany(mappedBy = "workOrder",
             cascade = CascadeType.ALL,
@@ -25,7 +53,7 @@ public class WorkOrder {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
-    private WorkOrderState status = WorkOrderState.CREATED;
+    private WorkOrderState status;
     @Column(name = "start_time", nullable = true)
     private LocalDateTime startTime;
     @Column(name = "end_time", nullable = true)
@@ -36,20 +64,16 @@ public class WorkOrder {
 
     public WorkOrder(Booking booking) {
         this.booking = booking;
+        this.type = WorkOrderType.PLANNED;
     }
 
-    /*
-        public WorkOrder(Booking booking, WorkOrderState status) {
-            this.booking = booking;
-            this.status = status;
-        }
-    */
-    public WorkOrder(Booking booking, List<WorkOrderServiceItem> serviceItems, WorkOrderState status, LocalDateTime startTime, LocalDateTime endTime) {
-        this.booking = booking;
-        this.serviceItems = serviceItems;
-        this.status = status;
-        this.startTime = startTime;
-        this.endTime = endTime;
+    public WorkOrder(WorkOrderType type) {
+        this.type = type;
+    }
+
+    public WorkOrder(WorkOrder originalWorkOrder, WorkOrderType type) {
+        this.originalWorkOrder = originalWorkOrder;
+        this.type = type;
     }
 
     public Long getId() {
@@ -106,7 +130,65 @@ public class WorkOrder {
     public List<WorkOrderServiceItem> getServiceItems() {
         return serviceItems;
     }
+    public WorkOrderType getType() {
+        return type;
+    }
 
+    public void setType(WorkOrderType type) {
+        this.type = type;
+    }
+
+    public WorkOrder getOriginalWorkOrder() {
+        return originalWorkOrder;
+    }
+
+    public void setOriginalWorkOrder(WorkOrder originalWorkOrder) {
+        this.originalWorkOrder = originalWorkOrder;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
+    }
+
+    public Mechanic getMechanic() {
+        return mechanic;
+    }
+
+    public void setMechanic(Mechanic mechanic) {
+        this.mechanic = mechanic;
+    }
+
+    public LocalDate getPlannedDate() {
+        return plannedDate;
+    }
+
+    public void setPlannedDate(LocalDate plannedDate) {
+        this.plannedDate = plannedDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isReadyToConfirm() {
+        return vehicle != null
+                && mechanic != null
+                && !serviceItems.isEmpty();
+    }
+
+    /*
     @Override
     public String toString() {
         return id +
@@ -116,4 +198,6 @@ public class WorkOrder {
                 " - End time: " + endTime +
                 " | Status: " + status;
     }
+
+ */
 }

@@ -23,10 +23,9 @@ public final class WorkOrderMapper {
             return null;
         }
 
-        // Säker hämtning av mekanikerns namn via bokningen
         String mechanicName = "Ej tilldelad";
-        if (workOrder.getBooking() != null && workOrder.getBooking().getMechanic() != null) {
-            mechanicName = workOrder.getBooking().getMechanic().getName(); // Byt till .getUsername() om det är det fältet som används
+        if (workOrder.getMechanic() != null) {
+            mechanicName = workOrder.getMechanic().getName(); // Byt till .getUsername() om det är det fältet som används
         }
 
         return new WorkOrderSummaryDto(
@@ -70,9 +69,11 @@ public final class WorkOrderMapper {
 
         return new WorkOrderServiceItemDto(
                 serviceName,
+                item.getServiceItem() != null ? item.getServiceItem().getId() : null,
                 description,
                 item.getPriceAtTime(),
-                item.getDurationAtTime()
+                item.getDurationAtTime(),
+                item.getId()
         );
     }
 
@@ -89,26 +90,6 @@ public final class WorkOrderMapper {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Mappar en lista med BookingServiceItems till en DTO-lista (används när WorkOrder har status CREATED).
-     */
-    public static List<WorkOrderServiceItemDto> toServiceItemDtoListFromBooking(List<BookingServiceItem> bookingItems) {
-        if (bookingItems == null) {
-            return null;
-        }
-
-        return bookingItems.stream().map(item -> {
-            String serviceName = (item.getServiceItem() != null) ? item.getServiceItem().getName() : "Okänd tjänst";
-            String description = (item.getServiceItem() != null) ? item.getServiceItem().getDescription() : "";
-
-            return new WorkOrderServiceItemDto(
-                    serviceName,
-                    description,
-                    item.getPriceAtTime(),
-                    item.getDurationAtTime()
-            );
-        }).collect(Collectors.toList());
-    }
     public static WorkOrderForMechanicDto toMechanicDto(WorkOrder workOrder) {
         if (workOrder == null) {
             return null;
@@ -116,13 +97,15 @@ public final class WorkOrderMapper {
 
         Long bookingId = (workOrder.getBooking() != null) ? workOrder.getBooking().getId() : null;
 
-        String vehicleReg = (workOrder.getBooking() != null && workOrder.getBooking().getVehicle() != null)
-                ? workOrder.getBooking().getVehicle().getRegistrationNumber()
-                : "-";
+        String vehicleReg = "-";
+        if (workOrder.getVehicle() != null) {
+            vehicleReg = workOrder.getVehicle().getRegistrationNumber();
+        }
 
-        String description = (workOrder.getBooking() != null)
-                ? workOrder.getBooking().getDescription()
-                : "-";
+        String description = "-";
+        if (workOrder.getDescription() != null) {
+            description = workOrder.getDescription();
+        }
 
         return new WorkOrderForMechanicDto(
                 workOrder.getId(),
@@ -134,6 +117,7 @@ public final class WorkOrderMapper {
                 workOrder.getStatus()
         );
     }
+
     public static List<WorkOrderServiceItem> toWorkOrderServicesFromBookingServices(Booking booking, WorkOrder workOrder) {
 
         List<BookingServiceItem> bookingServiceItems = booking.getServiceItems();
