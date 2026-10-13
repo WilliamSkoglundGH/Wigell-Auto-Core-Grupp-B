@@ -1,16 +1,8 @@
 package com.wac.autocore.exception;
 
-public class VehicleNotFoundException extends RuntimeException {
-
-    public VehicleNotFoundException() {
-        super();
-    }
+public class VehicleNotFoundException extends BusinessException {
 
     public VehicleNotFoundException(String message) {
         super(message);
-    }
-
-    public VehicleNotFoundException(String message, Throwable cause) {
-        super(message, cause);
     }
 }

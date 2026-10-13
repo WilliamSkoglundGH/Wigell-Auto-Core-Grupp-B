@@ -1,6 +1,6 @@
 package com.wac.autocore.exception;
 
-public class WorkOrderWrongStatusException extends RuntimeException {
+public class WorkOrderWrongStatusException extends BusinessException {
     public WorkOrderWrongStatusException(String message) {
         super(message);
     }
