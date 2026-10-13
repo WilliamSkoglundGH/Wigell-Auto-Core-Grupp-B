@@ -22,11 +22,13 @@ public class ServiceItemService {
         this.serviceItemRepository = serviceItemRepository;
     }
 
+    // TODO Mappa om till DTO
     @Transactional(readOnly = true)
     public List<ServiceItem> getAllServiceItems() {
         return serviceItemRepository.findAll();
     }
 
+    // TODO Mappa om till DTO
     @Transactional(readOnly = true)
     public ServiceItem getServiceItem(Long serviceItemId) {
         return serviceItemRepository.findById(serviceItemId)

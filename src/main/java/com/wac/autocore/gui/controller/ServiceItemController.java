@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 @Scope("prototype")
 public class ServiceItemController extends OverController {
 
+
+    // TODO Uppdatera till DTO
     @FXML
     private TableView<ServiceItem> serviceItemTable;
     @FXML
@@ -47,6 +49,7 @@ public class ServiceItemController extends OverController {
     @FXML
     private TableColumn<ServiceItem, Integer> estimatedMinutesColumn;
 
+    //Service packageview
     @FXML
     private TableView<ServicePackageSummaryDto> servicePackageTable;
     @FXML
@@ -61,7 +64,7 @@ public class ServiceItemController extends OverController {
     private TableColumn<ServicePackageSummaryDto, String> packageActiveColumn;
 
 
-    @FXML
+    @FXML // TODO Uppdatera till DTO
     private ListView<ServiceItem> servicesListView;
     @FXML
     private TextArea packageDescriptionArea;
@@ -95,6 +98,7 @@ public class ServiceItemController extends OverController {
 
             priceColumn.setCellFactory(TextFieldTableCell.forTableColumn(new BigDecimalStringConverter()));
 
+            // TODO Mappa om till DTO
             priceColumn.setOnEditCommit(event -> {
                 ServiceItem item = event.getRowValue();
                 BigDecimal newPrice = event.getNewValue();
@@ -118,8 +122,6 @@ public class ServiceItemController extends OverController {
                             getString("serviceitem.price_change_failed") + " " + e.getMessage()
                     );
                 }
-
-
                 // allt jag vill är att stå kvar på samma raaaaaad!!
                 javafx.application.Platform.runLater(() -> {
                     javafx.application.Platform.runLater(() -> {
@@ -133,7 +135,6 @@ public class ServiceItemController extends OverController {
 
             loadServiceItemData();
             serviceItemTable.requestFocus();
-
 
         }
         if (packageNameField != null) {
@@ -149,18 +150,18 @@ public class ServiceItemController extends OverController {
             packageNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
             packageDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
             packageServicesColumn.setCellValueFactory(new PropertyValueFactory<>("services"));
-
-            // Använd getString för att få rätt språk i tabellen
             packageActiveColumn.setCellValueFactory(cellData -> {
                 boolean active = cellData.getValue().isActive();
                 String text = active ? getString("common.yes") : getString("common.no");
                 return new javafx.beans.property.SimpleStringProperty(text);
             });
 
-            // Ladda in datan i tabellen!
             loadServicePackageData();
         }
     }
+    //-----------------------------------------
+    // Service package
+    //-----------------------------------------
     private void loadServicePackageData() {
         if (servicePackageTable != null) {
             try {
@@ -197,6 +198,7 @@ public class ServiceItemController extends OverController {
 
     private void loadServiceList() {
         if (servicesListView != null) {
+            // TODO Uppdatera om till DTO
             ObservableList<ServiceItem> serviceItems =
                     FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
 
@@ -204,7 +206,7 @@ public class ServiceItemController extends OverController {
                 serviceSelections.putIfAbsent(item.getId(),
                         new SimpleBooleanProperty(false));
             }
-
+            // TODO Uppdatera om till DTO
             servicesListView.setCellFactory(CheckBoxListCell.forListView(
                     item -> serviceSelections.get(item.getId()),
                     new StringConverter<ServiceItem>() {
@@ -233,6 +235,7 @@ public class ServiceItemController extends OverController {
         }
     }
 
+
     public void handleSavePackage() {
 
         try {
@@ -243,7 +246,7 @@ public class ServiceItemController extends OverController {
             }
             String packageDescription = packageDescriptionArea.getText();
 
-
+            // TODO Uppdatera om till DTO
             List<ServiceItem> selectedServices = servicesListView.getItems().stream()
                     .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                     .collect(Collectors.toList());
@@ -262,13 +265,7 @@ public class ServiceItemController extends OverController {
     }
 
     @FXML
-    public void handleNewServiceItemOrder() {
-
-    }
-
-    @FXML
     public void handleShowPackages() {
-
 
         if (messages != null) {
             messages.clearMessage();
