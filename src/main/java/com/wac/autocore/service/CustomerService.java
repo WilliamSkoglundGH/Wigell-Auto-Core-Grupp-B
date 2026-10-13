@@ -1,5 +1,6 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.customer.CustomerCreateDto;
 import com.wac.autocore.exception.CustomerNotFoundException;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.repository.CustomerRepository;
@@ -30,19 +31,22 @@ public class CustomerService {
     }
 
     @Transactional
-    public Customer createCustomer(String name, String phone, String email, boolean vip) {
+    public Customer createCustomer(CustomerCreateDto dto) {
 
-        if (name == null || name.isEmpty()) {
+        // --- UI/DTO-validering (samma som tidigare, men med dto) ---
+        if (dto.getName() == null || dto.getName().isEmpty()) {
             throw new IllegalArgumentException("customer.error.enter_name");
         }
 
-        if (email == null || email.isEmpty()) {
+        if (dto.getEmail() == null || dto.getEmail().isEmpty()) {
             throw new IllegalArgumentException("customer.error.enter_email");
         }
 
-        if (!email.contains("@") || !email.contains(".")) {
+        if (!dto.getEmail().contains("@") || !dto.getEmail().contains(".")) {
             throw new IllegalArgumentException("customer.error.invalid_email");
         }
+
+        String phone = dto.getPhone();
 
         if (phone != null && !phone.isEmpty()) {
 
@@ -60,13 +64,14 @@ public class CustomerService {
             }
         }
 
-        Customer customer = new Customer(name, phone, email);
-        customer.setVip(vip);
+        Customer customer = new Customer(dto.getName(), phone, dto.getEmail());
+        customer.setVip(dto.isVip());
 
         repo.save(customer);
 
         return customer;
     }
+
 
 }
 

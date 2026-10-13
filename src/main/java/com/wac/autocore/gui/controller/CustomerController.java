@@ -1,5 +1,6 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.customer.CustomerCreateDto;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.service.CustomerService;
 import javafx.beans.property.SimpleStringProperty;
@@ -101,11 +102,13 @@ public class CustomerController extends OverController {
 
     @FXML
     private void handleSaveCustomer() {
+
         String name = nameField.getText();
         String phone = phoneField.getText();
         String email = emailField.getText();
         boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
 
+        // UI-validering (detta är OK att ha i controller)
         if (name == null || name.trim().isEmpty()) {
             messages.showError(getString("customer.error.enter_name"));
             return;
@@ -116,17 +119,32 @@ public class CustomerController extends OverController {
             return;
         }
 
+        // DTO till service efter UI valideringen
+        CustomerCreateDto dto = new CustomerCreateDto();
+        dto.setName(name);
+        dto.setPhone(phone);
+        dto.setEmail(email);
+        dto.setVip(isVip);
+
         try {
-            Customer newCustomer = customerService.createCustomer(name, phone, email, isVip);
-            messages.showSuccess(getString("customer_success.customer_created") + newCustomer.getName());
+            Customer newCustomer = customerService.createCustomer(dto);
+
+            messages.showSuccess(
+                    getString("customer_success.customer_created") + newCustomer.getName()
+            );
+
             navigateToCustomerView();
+
         } catch (IllegalArgumentException e) {
+            // Här skickar service upp ett felmeddelande som är en *key* i language bundle
             messages.showError(getString(e.getMessage()));
+
         } catch (Exception e) {
             logger.error("Could not save customer to database. {}", e.getMessage(), e);
             messages.showError(getString("customer.error.create_customer"));
         }
     }
+
 
     @FXML
     private void handleCancel() {
