@@ -1,16 +1,10 @@
 package com.wac.autocore.exception;
 
-public class CustomerNotFoundException extends RuntimeException {
+public class CustomerNotFoundException extends BusinessException {
 
-    public CustomerNotFoundException() {
-        super();
-    }
 
     public CustomerNotFoundException(String message) {
         super(message);
     }
 
-    public CustomerNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }
