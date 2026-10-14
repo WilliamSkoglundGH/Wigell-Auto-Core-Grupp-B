@@ -69,7 +69,7 @@ public class MechanicController extends OverController {
 
     // Fält för visning i MechanicView av kundens namn
     @FXML private TableColumn<BookingSummaryDto, String> customerColumn;
-    @FXML private TableColumn<WorkOrder, String> woCustomerColumn;
+
 
 
     @FXML
