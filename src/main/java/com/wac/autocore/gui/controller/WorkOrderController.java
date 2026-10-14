@@ -1,6 +1,8 @@
 package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
+import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
+import com.wac.autocore.dto.vechicle.VehicleDto;
 import com.wac.autocore.dto.workorder.WorkOrderCreateDto;
 import com.wac.autocore.dto.workorder.WorkOrderDetailsDto;
 import com.wac.autocore.dto.workorder.WorkOrderServiceItemDto;
@@ -62,58 +64,92 @@ public class WorkOrderController extends OverController {
     private TableColumn<WorkOrderSummaryDto, String> startTimeColumn;
     @FXML
     private TableColumn<WorkOrderSummaryDto, String> endTimeColumn;
-    @FXML private TableColumn<WorkOrderDetailsDto, WorkOrderType> claimsColumn;
+    @FXML
+    private TableColumn<WorkOrderDetailsDto, WorkOrderType> claimsColumn;
     @FXML
     private Button detailsButton;
 
 
     // WORK ORDER-DETAILS (WorkOrderInfoView.fxml)
-    @FXML    private Label statusLabel;
-    @FXML    private Label mechanicLabel;
-    @FXML    private Label vehicleLabel;
-    @FXML    private Label customerLabel;
-    @FXML    private Label startTimeLabel;
-    @FXML    private Label endTimeLabel;
-    @FXML    private Label estTimeLabel;
-    @FXML    private Label estPriceLabel;
-    @FXML    private Label bookingIdLabel;
-    @FXML    private TableView<WorkOrderServiceItemDto> serviceItemTable;
-    @FXML    private TableColumn<WorkOrderServiceItemDto, String> serviceNameColumn;
-    @FXML    private TableColumn<WorkOrderServiceItemDto, BigDecimal> servicePriceColumn;
-    @FXML    private TableColumn<WorkOrderServiceItemDto, Integer> serviceDurationColumn;
-    @FXML    private Button startButton;
-    @FXML    private Button completeButton;
-    @FXML    private Button claimsButton;
-    @FXML   private Button updateButton;
-    @FXML    private Button confirmButton;
-    @FXML    private Button cancelWorkOrderButton;
-    @FXML   private Label workOrderClaimLabel;
+    @FXML
+    private Label statusLabel;
+    @FXML
+    private Label mechanicLabel;
+    @FXML
+    private Label vehicleLabel;
+    @FXML
+    private Label customerLabel;
+    @FXML
+    private Label startTimeLabel;
+    @FXML
+    private Label endTimeLabel;
+    @FXML
+    private Label estTimeLabel;
+    @FXML
+    private Label estPriceLabel;
+    @FXML
+    private Label bookingIdLabel;
+    @FXML
+    private TableView<WorkOrderServiceItemDto> serviceItemTable;
+    @FXML
+    private TableColumn<WorkOrderServiceItemDto, String> serviceNameColumn;
+    @FXML
+    private TableColumn<WorkOrderServiceItemDto, BigDecimal> servicePriceColumn;
+    @FXML
+    private TableColumn<WorkOrderServiceItemDto, Integer> serviceDurationColumn;
+    @FXML
+    private Button startButton;
+    @FXML
+    private Button completeButton;
+    @FXML
+    private Button claimsButton;
+    @FXML
+    private Button updateButton;
+    @FXML
+    private Button confirmButton;
+    @FXML
+    private Button cancelWorkOrderButton;
+    @FXML
+    private Label workOrderClaimLabel;
 
 
     // UPDATE DRAFT (UpdateWorkOrderDraftView.fxml)
-    @FXML    private ComboBox<String> vehicleComboUpdate;
-    @FXML    private DatePicker datePickerUpdate;
-    @FXML    private ListView<ServiceItem> servicesListViewUpdate;
-    @FXML    private TextArea descriptionFieldUpdate;
-    @FXML    private ComboBox<MechanicSummaryDto> mechanicFieldUpdate;
-    @FXML    private Button confirmDraftButton;
-    @FXML    private Button updateDraftButton;
+    @FXML
+    private ComboBox<String> vehicleComboUpdate;
+    @FXML
+    private DatePicker datePickerUpdate;
+    @FXML
+    private ListView<ServiceItem> servicesListViewUpdate;
+    @FXML
+    private TextArea descriptionFieldUpdate;
+    @FXML
+    private ComboBox<MechanicSummaryDto> mechanicFieldUpdate;
+    @FXML
+    private Button confirmDraftButton;
+    @FXML
+    private Button updateDraftButton;
 
     // CLAIMS DRAFT (NewClaimsViewv.fxml)
-    @FXML    private TextArea descriptionFieldClaim;
+    @FXML
+    private TextArea descriptionFieldClaim;
 
     // NEW DROP-IN
-    @FXML    private ComboBox<Vehicle> vehicleComboDropIn;
-    @FXML    private DatePicker datePickerDropIn;
-    @FXML    private ListView<ServiceItem> servicesListViewDropIn;
-    @FXML    private TextArea descriptionFieldDropIn;
-    @FXML    private ComboBox<MechanicSummaryDto> mechanicFieldDropIn;
+    @FXML
+    private ComboBox<VehicleDto> vehicleComboDropIn;
+    @FXML
+    private DatePicker datePickerDropIn;
+    @FXML
+    private ListView<ServiceItemSummaryDto> servicesListViewDropIn;
+    @FXML
+    private TextArea descriptionFieldDropIn;
+    @FXML
+    private ComboBox<MechanicSummaryDto> mechanicFieldDropIn;
 
     // NEW WORK ORDER (NewWorkOrderView.fxml)
     @FXML
     private ComboBox<Booking> bookingComboBox;
- //   @FXML
- //   private ListView<ServiceItem> servicesListView;
+    //   @FXML
+    //   private ListView<ServiceItem> servicesListView;
 
     private final Map<Long, javafx.beans.property.BooleanProperty> serviceSelections = new HashMap<>();
     private final Map<Long, Long> draftServiceRowIds = new HashMap<>();
@@ -225,15 +261,8 @@ public class WorkOrderController extends OverController {
             workOrderService.startWorkOrder(currentWorkOrderId);
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_started"));
-        } catch (MechanicNotAvailableException e) {
-            messages.showError(getString("workorder.error.mechanic_not_available"));
-
-        } catch (BookingWithoutServicesException e) {
-            messages.showError(getString("workorder.error.booking_without_service_item"));
-
-        } catch (BookingWrongStatusException e) {
-            messages.showError(getString("workorder.error.booking_not_state_created"));
-
+        } catch (BusinessException e) {
+            messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.unexpected"));
@@ -283,12 +312,12 @@ public class WorkOrderController extends OverController {
             messages.showSuccess(getString("workorder.success.workorder_completed"));
             loadWorkOrderData();
 
-        }catch (WorkOrderWrongStatusException e) {
+        } catch (WorkOrderWrongStatusException e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.work_order_wrong_status"));
         } catch (WorkOrderNotFoundException e) {
             messages.showError(getString("workorder.error.work_order_not_found"));
-        }catch (Exception e) {
+        } catch (Exception e) {
             logger.error("Could not save to database. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.unexpected"));
         }
@@ -304,7 +333,7 @@ public class WorkOrderController extends OverController {
 
     @FXML
     private void handleDetails() {
-        Long id  = workOrderTable.getSelectionModel().getSelectedItem().getId();
+        Long id = workOrderTable.getSelectionModel().getSelectedItem().getId();
         if (id == null) {
             return;
         }
@@ -362,8 +391,8 @@ public class WorkOrderController extends OverController {
                     return;
                 }
 
-                    workOrderService.createPlannedWorkOrder(selectedBooking.getId());
-                    messages.showSuccess(getString("workorder.success.workorder_created"));
+                workOrderService.createPlannedWorkOrder(selectedBooking.getId());
+                messages.showSuccess(getString("workorder.success.workorder_created"));
 
             }
         } catch (Exception e) {
@@ -402,8 +431,8 @@ public class WorkOrderController extends OverController {
             saveDraftServices();
             messages.showSuccess(getString("workorder.success.workorder_updated"));
             navigateToWorkOrderInfoView();
-        } catch (WorkOrderWrongStatusException | IllegalStateException e) {
-            messages.showError(getString("workorder.error.not_editable"));
+        } catch (BusinessException e) {
+            messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
             logger.error("Could not update draft. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.unexpected"));
@@ -451,7 +480,7 @@ public class WorkOrderController extends OverController {
 
     }
 
-    private void loadWorkOrderDetails(){
+    private void loadWorkOrderDetails() {
         if (messages != null) {
             messages.clearMessage();
         }
@@ -473,7 +502,7 @@ public class WorkOrderController extends OverController {
             serviceNameColumn.setCellValueFactory(new PropertyValueFactory<>("serviceName"));
             servicePriceColumn.setCellValueFactory(new PropertyValueFactory<>("priceAtTime"));
             serviceDurationColumn.setCellValueFactory(new PropertyValueFactory<>("durationAtTime"));
-        populateServiceItemsTable(dto);
+            populateServiceItemsTable(dto);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -567,56 +596,67 @@ public class WorkOrderController extends OverController {
     // ---------------------------------------------------------
     // NEW DROP-IN
     // ---------------------------------------------------------
+// ---------------------------------------------------------
+// NEW DROP-IN
+// ---------------------------------------------------------
     private void loadDropInForm() {
+        // 1. Ladda fordon med VehicleDto
         vehicleComboDropIn.setItems(FXCollections.observableArrayList(vehicleService.getAllVehicles()));
-        vehicleComboDropIn.setConverter(new StringConverter<Vehicle>() {
+        vehicleComboDropIn.setConverter(new StringConverter<VehicleDto>() {
             @Override
-            public String toString(Vehicle vehicle) {
+            public String toString(VehicleDto vehicle) {
                 return vehicle == null ? "" : vehicle.getRegistrationNumber() + " - " + vehicle.getBrand()
-                        + " " + vehicle.getModel() + " (" + vehicle.getCustomer().getName() + ")";
+                                              + " " + vehicle.getModel();
+                // Obs: Om VehicleDto inte har kundnamn direkt kan man lägga till det,
+                // annars räcker märke/modell/reggnr utmärkt här!
             }
 
             @Override
-            public Vehicle fromString(String s) {
+            public VehicleDto fromString(String s) {
                 return null;
             }
         });
 
+        // 2. Ladda mekaniker med MechanicSummaryDto
         mechanicFieldDropIn.setItems(FXCollections.observableArrayList(mechanicService.getAllMechanics()));
-        mechanicFieldDropIn.setConverter(new StringConverter<Mechanic>() {
+        mechanicFieldDropIn.setConverter(new StringConverter<MechanicSummaryDto>() {
             @Override
-            public String toString(Mechanic mechanic) {
+            public String toString(MechanicSummaryDto mechanic) {
                 return mechanic == null ? "" : mechanic.getId() + " - " + mechanic.getName();
             }
 
             @Override
-            public Mechanic fromString(String s) {
+            public MechanicSummaryDto fromString(String s) {
                 return null;
             }
         });
 
+        // 3. Ladda tjänster med ServiceItemSummaryDto
         serviceSelections.clear();
-        ObservableList<ServiceItem> allServices =
-                FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
-        for (ServiceItem item : allServices) {
+        ObservableList<ServiceItemSummaryDto> allServices =
+                FXCollections.observableArrayList(serviceItemService.getAllServiceItems()); // Antar att denna returnerar DTO nu
+
+        for (ServiceItemSummaryDto item : allServices) {
             serviceSelections.put(item.getId(), new SimpleBooleanProperty(false));
         }
+
         servicesListViewDropIn.setCellFactory(CheckBoxListCell.forListView(
                 item -> serviceSelections.get(item.getId()),
-                new StringConverter<ServiceItem>() {
+                new StringConverter<ServiceItemSummaryDto>() {
                     @Override
-                    public String toString(ServiceItem item) {
+                    public String toString(ServiceItemSummaryDto item) {
                         return item.getName() + " — " + item.getPrice() + " SEK — " + item.getEstimatedMinutes() + " min";
                     }
 
                     @Override
-                    public ServiceItem fromString(String text) {
+                    public ServiceItemSummaryDto fromString(String text) {
                         return null;
                     }
                 }
         ));
         servicesListViewDropIn.setItems(allServices);
     }
+
 
     @FXML
     private void handleSaveDropIn() {
@@ -633,7 +673,7 @@ public class WorkOrderController extends OverController {
             dto.setPlannedDate(datePickerDropIn.getValue());
             dto.setDescription(descriptionFieldDropIn.getText());
 
-            List<ServiceItem> selectedServices = servicesListViewDropIn.getItems().stream()
+            List<ServiceItemSummaryDto> selectedServices = servicesListViewDropIn.getItems().stream()
                     .filter(item -> serviceSelections.get(item.getId()).get())
                     .collect(Collectors.toList());
             dto.setServiceItems(selectedServices);
@@ -657,6 +697,7 @@ public class WorkOrderController extends OverController {
             serviceItemTable.getItems().setAll(observableList);
         }
     }
+
     private void updateButtonStates(WorkOrderDetailsDto dto) {
         if (startButton == null) {
             return;
