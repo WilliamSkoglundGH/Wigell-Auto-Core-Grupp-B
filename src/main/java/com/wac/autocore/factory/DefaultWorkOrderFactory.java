@@ -7,6 +7,7 @@ import com.wac.autocore.model.enums.WorkOrderType;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Component
 public class DefaultWorkOrderFactory implements WorkOrderFactory{
@@ -33,23 +34,25 @@ public class DefaultWorkOrderFactory implements WorkOrderFactory{
     }
 
     @Override
-    public WorkOrder createDropIn(WorkOrderCreateDto dto) {
-        if (dto == null || dto.getVehicle() == null) {
-            throw new IllegalArgumentException("Vehicle is required.");
-        }
+    public WorkOrder createDropIn(WorkOrderCreateDto dto, Vehicle vehicle,
+                                  Mechanic mechanic, List<ServiceItem> serviceItems) {
 
         WorkOrder workOrder = new WorkOrder(WorkOrderType.DROP_IN);
         workOrder.setStatus(WorkOrderState.DRAFT);
-        workOrder.setVehicle(dto.getVehicle());
-        applyDto(workOrder, dto);
+        workOrder.setVehicle(vehicle);
+        workOrder.setMechanic(mechanic);
+        workOrder.setPlannedDate(dto.getPlannedDate());
+        workOrder.setDescription(dto.getDescription());
 
-        for (ServiceItem item : dto.getServiceItems()) {
+        for (ServiceItem item : serviceItems) {
             workOrder.addServiceItem(
                     item,
                     item.getPrice(),
                     item.getEstimatedMinutes());
         }
+
         return workOrder;
+
     }
 
     @Override
@@ -64,7 +67,8 @@ public class DefaultWorkOrderFactory implements WorkOrderFactory{
         workOrder.setMechanic(originalWorkOrder.getMechanic());
 
         if (dto != null) {
-            applyDto(workOrder, dto);
+            workOrder.setPlannedDate(dto.getPlannedDate());
+            workOrder.setDescription(dto.getDescription());
         }
 
         for (WorkOrderServiceItem item : originalWorkOrder.getServiceItems()) {
@@ -75,14 +79,6 @@ public class DefaultWorkOrderFactory implements WorkOrderFactory{
                     serviceItem.getEstimatedMinutes());
         }
         return workOrder;
-    }
-
-    private void applyDto(WorkOrder workOrder, WorkOrderCreateDto dto) {
-        if (dto.getMechanic() != null) {
-            workOrder.setMechanic(dto.getMechanic());
-        }
-        workOrder.setPlannedDate(dto.getPlannedDate());
-        workOrder.setDescription(dto.getDescription());
     }
 }
 

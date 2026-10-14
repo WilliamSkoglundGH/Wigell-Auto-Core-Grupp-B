@@ -26,13 +26,17 @@ public class WorkOrderService {
     private WorkOrderRepository workOrderRepository;
     private BookingService bookingService;
     private MechanicService mechanicService;
+    private VehicleService vehicleService;
+    private ServiceItemService serviceItemService;
     private WorkOrderFactory workOrderFactory;
 
     public WorkOrderService(WorkOrderRepository workOrderRepository, BookingService bookingService, MechanicService mechanicService,
-                            WorkOrderFactory workOrderFactory) {
+                            VehicleService vehicleService, ServiceItemService serviceItemService,WorkOrderFactory workOrderFactory) {
         this.workOrderRepository = workOrderRepository;
         this.bookingService = bookingService;
         this.mechanicService = mechanicService;
+        this.vehicleService = vehicleService;
+        this.serviceItemService = serviceItemService;
         this.workOrderFactory = workOrderFactory;
     }
     @Transactional(readOnly = true)
@@ -50,7 +54,7 @@ public class WorkOrderService {
     public WorkOrderResponseDto getWorkOrderById(long id) {
 
         WorkOrder workOrder = workOrderRepository.findById(id).orElseThrow(() -> new WorkOrderNotFoundException(
-                "Work order with ID: " + id + " not found"));
+                "workorder.error.work_order_not_found"));
 
             return WorkOrderMapper.toResponseDto(workOrder,
                     WorkOrderMapper.toServiceItemDtoList(workOrder.getServiceItems()));
@@ -58,22 +62,33 @@ public class WorkOrderService {
     }
 
     @Transactional
-    public WorkOrder createPlannedWorkOrder(Long bookingId) {
-        Booking booking = bookingService.getBooking(bookingId);
+    public WorkOrderSummaryDto createPlannedWorkOrder(Long bookingId) {
+        Booking booking = bookingService.getBookingEntity(bookingId);
         booking.setStatus(booking.getStatus().getNext());
+
         WorkOrder newWorkOrder = workOrderFactory.createPlanned(booking);
+        WorkOrder saved = workOrderRepository.save(newWorkOrder);
 
-        return workOrderRepository.save(newWorkOrder);
+        return WorkOrderMapper.toSummaryDto(saved);
+
     }
 
     @Transactional
-    public WorkOrder createDropInWorkOrder(WorkOrderCreateDto dto){
-        WorkOrder workOrder = workOrderFactory.createDropIn(dto);
-        return workOrderRepository.save(workOrder);
+    public WorkOrderSummaryDto createDropInWorkOrder(WorkOrderCreateDto dto){
+        Vehicle vehicle = vehicleService.getVehicleEntity(dto.getVehicleId());
+
+        Mechanic mechanic = dto.getMechanicId() != null ? mechanicService.getMechanicEntity(dto.getMechanicId()) : null;
+
+        List<ServiceItem> serviceItems = serviceItemService.getAllServiceItemsEntity(dto.getServiceItemsIds());
+
+        WorkOrder workOrderDropIn = workOrderFactory.createDropIn(dto, vehicle, mechanic, serviceItems);
+
+        WorkOrder savedWorkOrder = workOrderRepository.save(workOrderDropIn);
+        return WorkOrderMapper.toSummaryDto(savedWorkOrder);
     }
 
     @Transactional
-    public WorkOrder createClaimWorkOrder(Long originalWorkOrderId, WorkOrderCreateDto dto){
+    public WorkOrderSummaryDto createClaimWorkOrder(Long originalWorkOrderId, WorkOrderCreateDto dto){
         WorkOrder workOrderOriginal = workOrderRepository.findById(originalWorkOrderId).orElseThrow(
                 () -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
@@ -82,7 +97,9 @@ public class WorkOrderService {
         }
 
         WorkOrder workOrderClaim = workOrderFactory.createClaim(workOrderOriginal, dto);
-        return workOrderRepository.save(workOrderClaim);
+        WorkOrder saved = workOrderRepository.save(workOrderClaim);
+
+        return WorkOrderMapper.toSummaryDto(saved);
     }
 
 
@@ -99,7 +116,7 @@ public class WorkOrderService {
             throw new WorkOrderWrongStatusException("workorder.error.booking_not_state_created");
         }
 
-        Mechanic mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
+        Mechanic mechanic = mechanicService.getMechanicEntity(workOrder.getMechanic().getId());
         if (!mechanic.isAvailable()) {
             throw new MechanicNotAvailableException("workorder.error.mechanic_not_available");
         }
@@ -127,13 +144,13 @@ public class WorkOrderService {
             throw new IllegalArgumentException("Work order cannot be null.");
         }
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canComplete()) {
-            throw new WorkOrderWrongStatusException("Wrong status for complete: " + workOrder.getStatus());
+            throw new WorkOrderWrongStatusException("workorder.error.work_order_wrong_status");
         }
 
-        MechanicSummaryDto mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
+        Mechanic mechanic = mechanicService.getMechanicEntity(workOrder.getMechanic().getId());
         workOrder.setEndTime(LocalDateTime.now());
         workOrder.setStatus(workOrder.getStatus().getNext());
         mechanic.setAvailable(true);
@@ -150,7 +167,7 @@ public class WorkOrderService {
     public WorkOrderDetailsDto getWorkOrderInfoById(Long workOrderId) {
 //kolla status, om den är created, hämta från booking
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
         WorkOrderDetailsDto dto = new WorkOrderDetailsDto(workOrderId, workOrder.getStatus(), workOrder.getStartTime(), workOrder.getEndTime());
 
@@ -205,8 +222,7 @@ public class WorkOrderService {
 
         if (!workOrder.getStatus().canCancel()) {
             throw new WorkOrderWrongStatusException(
-                    "Cannot cancel work order in state: " + workOrder.getStatus()
-            );
+                    "workorder.error.work_order_wrong_status");
         }
 
         workOrder.setStatus(WorkOrderState.CANCELED);
@@ -214,43 +230,44 @@ public class WorkOrderService {
     }
 
     @Transactional
-    public void addServiceItemToWorkOrder(Long workOrderId, ServiceItemSummaryDto serviceItem) {
-        if (serviceItem == null) {
+    public void addServiceItemToWorkOrder(Long workOrderId, ServiceItemSummaryDto serviceItemDto) {
+        if (serviceItemDto == null) {
             throw new IllegalArgumentException("Service item is required.");
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+                .orElseThrow(() -> new WorkOrderNotFoundException( "workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canEdit()) {
-            throw new WorkOrderWrongStatusException("Cannot edit services in state: " + workOrder.getStatus());
+            throw new WorkOrderWrongStatusException("workorder.error.not_editable");
         }
 
         if (workOrder.getBooking() != null) {
-            throw new IllegalStateException("Services on a planned work order are managed through its booking.");
+            throw new WorkOrderWrongStatusException("workorder.error.planned_workorder");
         }
 
-        workOrder.addServiceItem( serviceItem, serviceItem.getPrice(), serviceItem.getEstimatedMinutes());
+        ServiceItem serviceItem = serviceItemService.getServiceItemEntity(serviceItemDto.getId());
+        workOrder.addServiceItem(serviceItem, serviceItem.getPrice(), serviceItem.getEstimatedMinutes());
         workOrderRepository.save(workOrder);
     }
 
     @Transactional
     public void removeServiceItemFromWorkOrder(Long workOrderId, Long workOrderServiceItemId) {
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canEdit()) {
-            throw new WorkOrderWrongStatusException("Cannot edit services in state: " + workOrder.getStatus());
+            throw new WorkOrderWrongStatusException("workorder.error.not_editable");
         }
 
         if (workOrder.getBooking() != null) {
-            throw new IllegalStateException("Services on a planned work order are managed through its booking.");
+            throw new WorkOrderWrongStatusException("workorder.error.planned_workorder");
         }
 
         WorkOrderServiceItem itemToRemove = workOrder.getServiceItems().stream()
                 .filter(item -> item.getId().equals(workOrderServiceItemId))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Service item not found on work order."));
+                .orElseThrow(() -> new ServiceItemNotFoundException("serviceItem.error.could_not_load"));
 
         workOrder.getServiceItems().remove(itemToRemove);
         workOrderRepository.save(workOrder);
@@ -273,8 +290,9 @@ public class WorkOrderService {
             throw new WorkOrderWrongStatusException("workorder.error.planned_workorder");
         }
 
-        if (dto.getMechanic() != null) {
-            workOrder.setMechanic(dto.getMechanic());
+        if (dto.getMechanicId() != null) {
+            Mechanic mechanic = mechanicService.getMechanicEntity(dto.getMechanicId());
+            workOrder.setMechanic(mechanic);
         }
         if (dto.getPlannedDate() != null) {
             workOrder.setPlannedDate(dto.getPlannedDate());
@@ -285,7 +303,5 @@ public class WorkOrderService {
 
         workOrderRepository.save(workOrder);
     }
-
-
 }
 

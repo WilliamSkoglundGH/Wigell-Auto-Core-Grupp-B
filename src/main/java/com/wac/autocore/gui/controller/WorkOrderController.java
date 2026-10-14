@@ -1,5 +1,6 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.booking.BookingFullDto;
 import com.wac.autocore.dto.booking.BookingSummaryDto;
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
@@ -143,7 +144,7 @@ public class WorkOrderController extends OverController {
 
     // NEW WORK ORDER (NewWorkOrderView.fxml)
     @FXML
-    private ComboBox<BookingSummaryDto> bookingComboBox;
+    private ComboBox<BookingFullDto> bookingComboBox;
     //   @FXML
     //   private ListView<ServiceItem> servicesListView;
 
@@ -271,14 +272,12 @@ public class WorkOrderController extends OverController {
             workOrderService.confirmWorkOrder(currentWorkOrderId);
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_confirmed"));
-        } catch (WorkOrderWrongStatusException e) {
-            messages.showError(getString("workorder.error.work_order_wrong_status"));
 
-        } catch (IllegalStateException e) {
-            messages.showError(getString("workorder.error.not_ready_to_confirm"));
+        } catch (BusinessException e) {
+            messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
-            logger.error("Could not confirm work order. {}", e.getMessage(), e);
+            logger.error("Could not confirm work order.", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
@@ -290,11 +289,11 @@ public class WorkOrderController extends OverController {
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_canceled"));
 
-        } catch (WorkOrderWrongStatusException e) {
-            messages.showError(getString("workorder.error.work_order_wrong_status"));
+        } catch (BusinessException e) {
+            messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
-            logger.error("Could not cancel work order. {}", e.getMessage(), e);
+            logger.error("Could not cancel work order.", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
@@ -308,13 +307,11 @@ public class WorkOrderController extends OverController {
             messages.showSuccess(getString("workorder.success.workorder_completed"));
             loadWorkOrderData();
 
-        } catch (WorkOrderWrongStatusException e) {
-            logger.error("Could not save to database. {}", e.getMessage(), e);
-            messages.showError(getString("workorder.error.work_order_wrong_status"));
-        } catch (WorkOrderNotFoundException e) {
-            messages.showError(getString("workorder.error.work_order_not_found"));
+        } catch (BusinessException e) {
+            messages.showError(getString(e.getMessage()));
+
         } catch (Exception e) {
-            logger.error("Could not save to database. {}", e.getMessage(), e);
+            logger.error("Could not complete work order.", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
@@ -340,18 +337,21 @@ public class WorkOrderController extends OverController {
     private void loadBookingComboBox() {
         if (bookingComboBox != null) {
             try {
-                List<BookingSummaryDto> bookedList = bookingService.getAllBookings().stream()
-                        //.filter(b -> "BOOKED".equalsIgnoreCase(b.getStatus()))
-                        .filter(b -> BookingState.BOOKED.equals(b.getStatus()))
-                        .collect(Collectors.toList());
+                List<BookingFullDto> bookedList =
+                        bookingService.getAllBookingsWithServiceItems().stream()
+                                .filter(b -> BookingState.BOOKED.equals(b.getStatus()))
+                                .collect(Collectors.toList());
 //
                 bookingComboBox.setItems(FXCollections.observableArrayList(bookedList));
 
-                bookingComboBox.setConverter(new StringConverter<Booking>() {
+                bookingComboBox.setConverter(new StringConverter<BookingFullDto>() {
                     @Override
-                    public String toString(Booking booking) {
-                        String description = booking.getDescription();
+                    public String toString(BookingFullDto booking) {
+                        if (booking == null) {
+                            return "";
+                        }
 
+                        String description = booking.getDescription();
                         return getString("booking.option.id") + ": " + booking.getId()
                                 + " | " + getString("booking.option.vehicle") + ": "
                                 + booking.getVehicle().getRegistrationNumber()
@@ -362,13 +362,14 @@ public class WorkOrderController extends OverController {
                                 + (description == null || description.trim().isEmpty()
                                 ? ""
                                 : " | " + getString("booking.option.description")
-                                  + ": " + description);
+                                + ": " + description);
                     }
 
                     @Override
-                    public Booking fromString(String s) {
+                    public BookingFullDto fromString(String s) {
                         return null;
                     }
+
                 });
             } catch (NullPointerException e) {
                 messages.showError(getString("workorder.error.no_bookings"));
@@ -381,7 +382,7 @@ public class WorkOrderController extends OverController {
     private void handleSaveWorkOrder() {
         try {
             if (bookingComboBox != null) {
-                Booking selectedBooking = bookingComboBox.getValue();
+                BookingFullDto selectedBooking = bookingComboBox.getValue();
                 if (selectedBooking == null) {
                     messages.showError(getString("workorder.error.select_booking"));
                     return;
@@ -391,6 +392,10 @@ public class WorkOrderController extends OverController {
                 messages.showSuccess(getString("workorder.success.workorder_created"));
 
             }
+
+        } catch (BusinessException e) {
+            messages.showError(getString(e.getMessage()));
+            return;
         } catch (Exception e) {
             logger.error("Something Unexpected. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.unexpected"));
@@ -407,7 +412,7 @@ public class WorkOrderController extends OverController {
             WorkOrderCreateDto dto = new WorkOrderCreateDto();
             dto.setDescription(descriptionFieldClaim.getText());
 
-            WorkOrder claim = workOrderService.createClaimWorkOrder(currentWorkOrderId, dto);
+            WorkOrderSummaryDto claim = workOrderService.createClaimWorkOrder(currentWorkOrderId, dto);
             currentWorkOrderId = claim.getId();
 
             messages.showSuccess(getString("workorder.success.claim_created"));
@@ -453,9 +458,12 @@ public class WorkOrderController extends OverController {
 
     private WorkOrderCreateDto buildDraftDto() {
         WorkOrderCreateDto dto = new WorkOrderCreateDto();
-        dto.setMechanic(mechanicFieldUpdate.getValue());
+
+        MechanicSummaryDto selectedMechanic = mechanicFieldUpdate.getValue();
+        dto.setMechanicId(selectedMechanic != null ? selectedMechanic.getId() : null);
         dto.setPlannedDate(datePickerUpdate.getValue());
         dto.setDescription(descriptionFieldUpdate.getText());
+
         return dto;
     }
 
@@ -537,8 +545,11 @@ public class WorkOrderController extends OverController {
                 }
             }
             loadDraftServiceList(dto);
+        } catch (BusinessException e) {
+            messages.showError(getString(e.getMessage()));
+
         } catch (Exception e) {
-            logger.error("Could not load draft. {}", e.getMessage(), e);
+            logger.error("Could not load draft.", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
@@ -666,19 +677,26 @@ public class WorkOrderController extends OverController {
             }
 
             WorkOrderCreateDto dto = new WorkOrderCreateDto();
-            dto.setVehicle(vehicle);
-            dto.setMechanic(mechanicFieldDropIn.getValue());
+            dto.setVehicleId(vehicle.getId());
+
+            MechanicSummaryDto selectedMechanic = mechanicFieldDropIn.getValue();
+            dto.setMechanicId(selectedMechanic != null ? selectedMechanic.getId() : null);
+
             dto.setPlannedDate(datePickerDropIn.getValue());
             dto.setDescription(descriptionFieldDropIn.getText());
 
-            List<ServiceItemSummaryDto> selectedServices = servicesListViewDropIn.getItems().stream()
-                    .filter(item -> serviceSelections.get(item.getId()).get())
+            List<Long> selectedServicesIds = servicesListViewDropIn.getItems().stream()
+                    .map(ServiceItemSummaryDto::getId)
+                    .filter(id -> serviceSelections.get(id).get())
                     .collect(Collectors.toList());
-            dto.setServiceItems(selectedServices);
+            dto.setServiceItemsIds(selectedServicesIds);
 
             workOrderService.createDropInWorkOrder(dto);
             messages.showSuccess(getString("workorder.success.dropin_created"));
             navigateToWorkOrderView();
+
+        } catch (BusinessException e) {
+            messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
             logger.error("Could not create drop-in. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.unexpected"));
