@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.wac.autocore.gui.controller.WorkOrderController"
+            prefHeight="400.0" prefWidth="600.0">
+
+    <children>
+
+        <!-- Titel -->
+        <Label text="%workOrder.update.heading" styleClass="heading-2" />
+
+        <!-- Formulär -->
+        <GridPane hgap="10" vgap="12">
+
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" />
+                <ColumnConstraints />
+            </columnConstraints>
+
+            <!-- Vehicle -->
+            <Label text="%workOrder.update.vehicleLabel" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <ComboBox fx:id="vehicleComboUpdate"
+                      prefWidth="250"
+                      GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <!-- Date -->
+            <Label text="%workOrder.update.dateLabel" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <DatePicker fx:id="datePickerUpdate"
+                        promptText="YYYY-MM-DD"
+                        prefWidth="250"
+                        GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <!-- Val av tjänster -->
+            <Label text="%workOrder.update.servicesLabel"
+                   GridPane.columnIndex="0"
+                   GridPane.rowIndex="3"/>
+
+            <ListView fx:id="servicesListViewUpdate"
+                      prefHeight="200"
+                      prefWidth="450"
+                      GridPane.columnIndex="1"
+                      GridPane.rowIndex="3"/>
+
+            <!-- Description -->
+            <Label text="%workOrder.update.descriptionLabel" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+            <TextArea fx:id="descriptionFieldUpdate"
+                      promptText="%booking.prompt-desc"
+                      prefRowCount="3"
+                      wrapText="true"
+                      prefWidth="250"
+                      GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+            <!-- Mechanic -->
+            <Label text="%workOrder.update.mechanic" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+            <ComboBox fx:id="mechanicFieldUpdate"
+                      prefWidth="250"
+                      GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+        </GridPane>
+
+        <!-- Buttons -->
+        <HBox spacing="10">
+            <Button fx:id="confirmDraftButton" text="%btn.confirm" onAction="#handleConfirmDraft"/>
+            <Button fx:id="updateDraftButton" text="%workorder.btn.update" onAction="#handleUpdateDraft"/>
+            <Button text="%btn.cancel" onAction="#handleCancel"/>
+        </HBox>
+
+    </children>
+</VBox>
