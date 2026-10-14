@@ -1,5 +1,6 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.serviceItem.ServiceItemDto;
 import com.wac.autocore.dto.servicePackage.ServicePackageSummaryDto;
 import com.wac.autocore.gui.util.BigDecimalStringConverter;
 import com.wac.autocore.model.ServiceItem;
@@ -34,20 +35,18 @@ import java.util.stream.Collectors;
 @Scope("prototype")
 public class ServiceItemController extends OverController {
 
-
-    // TODO Uppdatera till DTO
     @FXML
-    private TableView<ServiceItem> serviceItemTable;
+    private TableView<ServiceItemDto> serviceItemTable;
     @FXML
-    private TableColumn<ServiceItem, Long> idColumn;
+    private TableColumn<ServiceItemDto, Long> idColumn;
     @FXML
-    private TableColumn<ServiceItem, String> nameColumn;
+    private TableColumn<ServiceItemDto, String> nameColumn;
     @FXML
-    private TableColumn<ServiceItem, String> descriptionColumn;
+    private TableColumn<ServiceItemDto, String> descriptionColumn;
     @FXML
-    private TableColumn<ServiceItem, BigDecimal> priceColumn;
+    private TableColumn<ServiceItemDto, BigDecimal> priceColumn;
     @FXML
-    private TableColumn<ServiceItem, Integer> estimatedMinutesColumn;
+    private TableColumn<ServiceItemDto, Integer> estimatedMinutesColumn;
 
     //Service packageview
     @FXML
@@ -63,9 +62,8 @@ public class ServiceItemController extends OverController {
     @FXML
     private TableColumn<ServicePackageSummaryDto, String> packageActiveColumn;
 
-
-    @FXML // TODO Uppdatera till DTO
-    private ListView<ServiceItem> servicesListView;
+    @FXML
+    private ListView<ServiceItemDto> servicesListView;
     @FXML
     private TextArea packageDescriptionArea;
     @FXML
@@ -100,7 +98,7 @@ public class ServiceItemController extends OverController {
 
             // TODO Mappa om till DTO
             priceColumn.setOnEditCommit(event -> {
-                ServiceItem item = event.getRowValue();
+                ServiceItemDto item = event.getRowValue();
                 BigDecimal newPrice = event.getNewValue();
 
                 int rowIndex = event.getTablePosition().getRow();
@@ -122,7 +120,6 @@ public class ServiceItemController extends OverController {
                             getString("serviceitem.price_change_failed") + " " + e.getMessage()
                     );
                 }
-                // allt jag vill är att stå kvar på samma raaaaaad!!
                 javafx.application.Platform.runLater(() -> {
                     javafx.application.Platform.runLater(() -> {
                         serviceItemTable.getSelectionModel().select(rowIndex);
@@ -131,8 +128,6 @@ public class ServiceItemController extends OverController {
                     });
                 });
             });
-
-
             loadServiceItemData();
             serviceItemTable.requestFocus();
 
@@ -195,14 +190,13 @@ public class ServiceItemController extends OverController {
             }
         }
     }
-
     private void loadServiceList() {
         if (servicesListView != null) {
             // TODO Uppdatera om till DTO
-            ObservableList<ServiceItem> serviceItems =
+            ObservableList<ServiceItemDto> serviceItems =
                     FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
 
-            for (ServiceItem item : serviceItems) {
+            for (ServiceItemDto item : serviceItems) {
                 serviceSelections.putIfAbsent(item.getId(),
                         new SimpleBooleanProperty(false));
             }
@@ -247,7 +241,7 @@ public class ServiceItemController extends OverController {
             String packageDescription = packageDescriptionArea.getText();
 
             // TODO Uppdatera om till DTO
-            List<ServiceItem> selectedServices = servicesListView.getItems().stream()
+            List<ServiceItemDto> selectedServices = servicesListView.getItems().stream()
                     .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                     .collect(Collectors.toList());
 
