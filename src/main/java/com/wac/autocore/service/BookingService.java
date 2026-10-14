@@ -139,9 +139,8 @@ public class BookingService {
     @Transactional
     public BookingCloneDto cloneBooking(Long id) {
         BookingFullDto copiedBooking= getBookingByIdWithDetails(id);
-          // Kan man få in en metod i state som kollar detta istället CanClone()?
-        if(copiedBooking.getStatus() != BookingState.COMPLETED) {
-            throw new BookingWrongStatusException("ooking.error.booking_state_completed");
+        if(!copiedBooking.getStatus().canClone()) {
+            throw new BookingWrongStatusException("booking.error.booking_state_completed");
         }
        return BookingMapper.toCloneDto(copiedBooking);
     }
