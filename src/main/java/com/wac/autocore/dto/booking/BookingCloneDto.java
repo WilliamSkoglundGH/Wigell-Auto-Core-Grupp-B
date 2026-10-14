@@ -1,21 +1,21 @@
 package com.wac.autocore.dto.booking;
 
-import com.wac.autocore.dto.vechicle.VehicleDto;
-import com.wac.autocore.model.BookingServiceItem;
+import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
+
 import java.util.List;
 
 public class BookingCloneDto {
-    private VehicleDto vehicleDto;
+    private VehicleSummaryDto vehicleSummaryDto;
     private List<BookingServiceItemDto> serviceItems; //Ska vara färska snapshots från db.
 
-    public BookingCloneDto(VehicleDto vehicleDto, List<BookingServiceItemDto> serviceItems) {
-        this.vehicleDto = vehicleDto;
+    public BookingCloneDto(VehicleSummaryDto vehicleSummaryDto, List<BookingServiceItemDto> serviceItems) {
+        this.vehicleSummaryDto = vehicleSummaryDto;
         this.serviceItems = serviceItems;
     }
 
 
-    public VehicleDto getVehicle() {
-        return vehicleDto;
+    public VehicleSummaryDto getVehicle() {
+        return vehicleSummaryDto;
     }
 
     public List<BookingServiceItemDto> getServiceItems() {
