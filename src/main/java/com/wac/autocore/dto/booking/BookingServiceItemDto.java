@@ -22,16 +22,8 @@ public class BookingServiceItemDto {
         return durationAtTime;
     }
 
-    public void setDurationAtTime(int durationAtTime) {
-        this.durationAtTime = durationAtTime;
-    }
-
     public BigDecimal getPriceAtTime() {
         return priceAtTime;
-    }
-
-    public void setPriceAtTime(BigDecimal priceAtTime) {
-        this.priceAtTime = priceAtTime;
     }
 
     public Long getId() {
