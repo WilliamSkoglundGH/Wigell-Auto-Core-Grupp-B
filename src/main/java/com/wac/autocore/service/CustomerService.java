@@ -1,6 +1,7 @@
 package com.wac.autocore.service;
 
 import com.wac.autocore.dto.customer.CustomerCreateDto;
+import com.wac.autocore.dto.customer.CustomerSummaryDto;
 import com.wac.autocore.exception.CustomerNotFoundException;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.repository.CustomerRepository;
@@ -31,14 +32,13 @@ public class CustomerService {
     }
 
     @Transactional
-    public Customer createCustomer(CustomerCreateDto dto) {
+    public CustomerSummaryDto createCustomer(CustomerCreateDto dto) {
 
-        // --- UI/DTO-validering (samma som tidigare, men med dto) ---
-        if (dto.getName() == null || dto.getName().isEmpty()) {
+        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("customer.error.enter_name");
         }
 
-        if (dto.getEmail() == null || dto.getEmail().isEmpty()) {
+        if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
             throw new IllegalArgumentException("customer.error.enter_email");
         }
 
@@ -48,29 +48,32 @@ public class CustomerService {
 
         String phone = dto.getPhone();
 
-        if (phone != null && !phone.isEmpty()) {
-
-            String regex = "^(07[023679]\\d{7}|0\\d{6,10}|\\+467[023679]\\d{7})$";
-
-            // Normalisera för validering: 070-1234567 → 0701234567
+        if (phone != null && !phone.trim().isEmpty()) {
             String normalized = phone.replace("-", "");
+            String regex = "^(07[023679]\\d{7}|0\\d{6,10}|\\+467[023679]\\d{7})$";
 
             if (!normalized.matches(regex)) {
                 throw new IllegalArgumentException("customer.error.invalid_phone");
             }
 
-            if (normalized.length() == 10) { // t.ex. 0701234567
+            if (normalized.length() == 10) {
                 phone = normalized.substring(0, 3) + "-" + normalized.substring(3);
             }
         }
 
         Customer customer = new Customer(dto.getName(), phone, dto.getEmail());
         customer.setVip(dto.isVip());
+        customer = repo.save(customer);
 
-        repo.save(customer);
-
-        return customer;
+        return new CustomerSummaryDto(
+                customer.getId(),
+                customer.getName(),
+                customer.getEmail(),
+                customer.getPhone(),
+                customer.isVip()
+        );
     }
+
 
 
 }

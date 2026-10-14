@@ -7,6 +7,7 @@ import com.wac.autocore.dto.vechicle.VehicleDto;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.BookingServiceItem;
 import com.wac.autocore.model.Vehicle;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
