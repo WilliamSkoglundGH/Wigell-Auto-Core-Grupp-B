@@ -3,7 +3,6 @@ package com.wac.autocore.service;
 import com.wac.autocore.dto.booking.BookingSummaryDto;
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.workorder.WorkOrderForMechanicDto;
-import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.exception.MechanicNotFoundException;
 import com.wac.autocore.mapper.BookingMapper;
 import com.wac.autocore.mapper.MechanicMapper;
@@ -13,11 +12,11 @@ import com.wac.autocore.model.Mechanic;
 import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.repository.MechanicRepository;
 import com.wac.autocore.repository.WorkOrderRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,23 +33,24 @@ public class MechanicService {
 
     @Transactional(readOnly = true)
     public List<MechanicSummaryDto> getAllMechanics() {
-        return MechanicMapper.toSummaryDtoList( mechanicRepository.findAll());
+        return MechanicMapper.toSummaryDtoList(mechanicRepository.findAll());
     }
 
     @Transactional(readOnly = true)
-    public Mechanic getMechanic(Long id) {
-        return mechanicRepository.findById(id)
-                .orElseThrow(() -> new MechanicNotFoundException("mechanic.error.could_not_load"));
+    public MechanicSummaryDto getMechanic(Long id) {
+        return MechanicMapper.toSummaryDto(getMechanicEntity(id));
     }
 
     @Transactional(readOnly = true)
     public List<BookingSummaryDto> getBookingsForMechanic(Long mechanicId) {
-
-        Mechanic mechanic = getMechanic(mechanicId);
+        Mechanic mechanic = getMechanicEntity(mechanicId);
 
         List<Booking> bookings = mechanic.getBookings();
+        if (bookings == null) {
+            return Collections.emptyList();
+        }
 
-        bookings.sort((a, b) -> a.getDate().compareTo(b.getDate()));
+        bookings.sort(Comparator.comparing(Booking::getDate));
 
         return BookingMapper.toBookingSummaryDtoList(bookings);
     }
@@ -62,5 +62,10 @@ public class MechanicService {
         return workOrders.stream()
                 .map(WorkOrderMapper::toMechanicDto)
                 .collect(Collectors.toList());
+    }
+    
+    private Mechanic getMechanicEntity(Long id) {
+        return mechanicRepository.findById(id)
+                .orElseThrow(() -> new MechanicNotFoundException("mechanic.error.could_not_load"));
     }
 }

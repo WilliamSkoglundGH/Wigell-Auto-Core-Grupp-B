@@ -74,7 +74,7 @@ public class WorkOrderService {
     @Transactional
     public WorkOrder createClaimWorkOrder(Long originalWorkOrderId, WorkOrderCreateDto dto){
         WorkOrder workOrderOriginal = workOrderRepository.findById(originalWorkOrderId).orElseThrow(
-                () -> new WorkOrderNotFoundException("Work order not found with ID: " + originalWorkOrderId));
+                () -> new WorkOrderNotFoundException("workorder.error.claim_requires_completed"));
 
         if(workOrderOriginal.getStatus() != WorkOrderState.COMPLETED){
             throw new WorkOrderWrongStatusException("Only completed work orders can be claimed");
