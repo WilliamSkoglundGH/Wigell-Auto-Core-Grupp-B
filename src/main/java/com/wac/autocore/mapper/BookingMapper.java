@@ -59,8 +59,7 @@ public final class BookingMapper {
                 customerName,
                 booking.getDate(),
                 booking.getDescription(),
-                statusStr,
-                vehi
+                statusStr
         );
     }
 
