@@ -1,7 +1,6 @@
 package com.wac.autocore.service;
 
 import com.wac.autocore.dto.booking.*;
-import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.exception.BookingNotFoundException;
 import com.wac.autocore.exception.BookingWrongStatusException;
@@ -14,13 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.sun.imageio.plugins.common.I18N.getString;
 
 @Service
 public class BookingService {
