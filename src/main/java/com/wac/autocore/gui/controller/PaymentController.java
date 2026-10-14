@@ -1,9 +1,9 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.invoice.InvoiceSummaryDto;
 import com.wac.autocore.dto.payment.PaymentSummaryDto;
 import com.wac.autocore.exception.BusinessException;
 import com.wac.autocore.gui.util.FormatUIUtil;
-import com.wac.autocore.model.Invoice;
 import com.wac.autocore.service.InvoiceService;
 import com.wac.autocore.service.PaymentService;
 import javafx.beans.property.SimpleObjectProperty;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Controller for the payment view. Fetches data directly from the database.
+ * Controller for the payment view. Fetches data via DTOs.
  */
 @Controller
 @Scope("prototype")
@@ -41,16 +41,13 @@ public class PaymentController extends OverController {
     @FXML private TableColumn<PaymentSummaryDto, String> paymentDateColumn;
     @FXML private TableColumn<PaymentSummaryDto, String> successfulColumn;
 
-    @FXML private ComboBox<Invoice> invoiceComboBox;
+    @FXML private ComboBox<InvoiceSummaryDto> invoiceComboBox;
     @FXML private ComboBox<String> paymentTypeComboBox;
-    @FXML private TextField amountField;
-
     private final PaymentService paymentService;
     private final InvoiceService invoiceService;
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
-    // Spring injicerar tjänster och ApplicationContext
     public PaymentController(PaymentService paymentService, InvoiceService invoiceService, ApplicationContext applicationContext) {
         this.paymentService = paymentService;
         this.invoiceService = invoiceService;
@@ -74,7 +71,8 @@ public class PaymentController extends OverController {
             );
             paymentDateColumn.setCellValueFactory(cellData -> {
                 PaymentSummaryDto pay = cellData.getValue();
-                        return new javafx.beans.property.SimpleStringProperty(FormatUIUtil.formatTime(pay.getPaymentDate()));});
+                return new SimpleStringProperty(FormatUIUtil.formatTime(pay.getPaymentDate()));
+            });
             successfulColumn.setCellValueFactory(cellData ->
                     new SimpleStringProperty(
                             getString(cellData.getValue().isSuccessful()
@@ -88,18 +86,21 @@ public class PaymentController extends OverController {
 
         // NewPaymentView.fxml
         if (invoiceComboBox != null) {
-            List<Invoice> unpaidInvoices = invoiceService.getAllInvoices().stream()
+            List<InvoiceSummaryDto> unpaidInvoices = invoiceService.getAllInvoices().stream()
                     .filter(invoice -> !invoice.isPaid())
                     .collect(Collectors.toList());
             invoiceComboBox.setItems(FXCollections.observableArrayList(unpaidInvoices));
 
-            invoiceComboBox.setConverter(new StringConverter<Invoice>() {
+            invoiceComboBox.setConverter(new StringConverter<InvoiceSummaryDto>() {
                 @Override
-                public String toString(Invoice invoice) {
+                public String toString(InvoiceSummaryDto invoice) {
+                    if (invoice == null) {
+                        return "";
+                    }
                     return getString("payment.option.invoice") + ": "
                             + invoice.getId()
                             + " | " + getString("payment.option.workorder") + ": "
-                            + invoice.getWorkOrder().getId()
+                            + invoice.getWorkOrderId()
                             + " | " + getString("payment.option.invoiceDate") + ": "
                             + invoice.getInvoiceDate()
                             + " | " + getString("payment.option.amountDue") + ": "
@@ -107,20 +108,23 @@ public class PaymentController extends OverController {
                 }
 
                 @Override
-                public Invoice fromString(String text) {
+                public InvoiceSummaryDto fromString(String text) {
                     return null;
                 }
             });
-
             invoiceComboBox.requestFocus();
         }
 
         if (paymentTypeComboBox != null) {
+            // Skicka med råa koder, StringConverter sköter översättningen
             paymentTypeComboBox.setItems(FXCollections.observableArrayList("CARD", "SWISH", "CASH"));
 
             paymentTypeComboBox.setConverter(new StringConverter<String>() {
                 @Override
                 public String toString(String paymentType) {
+                    if (paymentType == null) {
+                        return "";
+                    }
                     return getString("payment.type." + paymentType);
                 }
 
@@ -145,43 +149,38 @@ public class PaymentController extends OverController {
             }
         }
     }
+
     @FXML
     private void handleNewPayment() {
         if (messages != null) {
             messages.clearMessage();
         }
-        // Använder OverControllers gemensamma metod
         loadCenterView("/com/wac/autocore/gui/view/NewPaymentView.fxml");
     }
 
     @FXML
     private void handleSavePayment() {
         if (invoiceComboBox != null && paymentTypeComboBox != null) {
-            Invoice selectedInvoice = invoiceComboBox.getValue();
+            InvoiceSummaryDto selectedInvoice = invoiceComboBox.getValue();
             String paymentType = paymentTypeComboBox.getValue();
 
             if (selectedInvoice != null && paymentType != null && !paymentType.isEmpty()) {
                 try {
-                    // 1. Skicka över jobbet till servicen (Strategy-mönstret i bakgrunden)
                     String messageKey = paymentService.processPayment(selectedInvoice.getId(), paymentType);
-
 
                     String message = String.format(
                             getString(messageKey),
                             selectedInvoice.getId()
                     );
 
-                    // 2. Visa snyggt meddelande
                     messages.showSuccess(message);
-
-                    // 3. Navigera tillbaka till tabellen
                     navigateToPaymentView();
 
-                 } catch(BusinessException e) {
+                } catch (BusinessException e) {
                     messages.showError(getString(e.getMessage()));
-                }catch (Exception e) {
+                } catch (Exception e) {
                     logger.error("Could not process payment: {}", e.getMessage(), e);
-                    messages.showError(getString(""));
+                    messages.showError(getString("payment.error.could_not_process"));
                 }
             } else {
                 messages.showError(getString("payment.error.select_invoice_type"));
