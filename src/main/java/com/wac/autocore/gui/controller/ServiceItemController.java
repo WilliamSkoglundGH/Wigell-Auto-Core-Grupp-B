@@ -1,10 +1,8 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.dto.serviceItem.ServiceItemDto;
+import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.servicePackage.ServicePackageSummaryDto;
 import com.wac.autocore.gui.util.BigDecimalStringConverter;
-import com.wac.autocore.model.ServiceItem;
-import com.wac.autocore.model.ServicePackage;
 import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.ServicePackageService;
 import javafx.beans.property.BooleanProperty;
@@ -17,7 +15,6 @@ import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
-import javafx.util.converter.DoubleStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -36,17 +33,17 @@ import java.util.stream.Collectors;
 public class ServiceItemController extends OverController {
 
     @FXML
-    private TableView<ServiceItemDto> serviceItemTable;
+    private TableView<ServiceItemSummaryDto> serviceItemTable;
     @FXML
-    private TableColumn<ServiceItemDto, Long> idColumn;
+    private TableColumn<ServiceItemSummaryDto, Long> idColumn;
     @FXML
-    private TableColumn<ServiceItemDto, String> nameColumn;
+    private TableColumn<ServiceItemSummaryDto, String> nameColumn;
     @FXML
-    private TableColumn<ServiceItemDto, String> descriptionColumn;
+    private TableColumn<ServiceItemSummaryDto, String> descriptionColumn;
     @FXML
-    private TableColumn<ServiceItemDto, BigDecimal> priceColumn;
+    private TableColumn<ServiceItemSummaryDto, BigDecimal> priceColumn;
     @FXML
-    private TableColumn<ServiceItemDto, Integer> estimatedMinutesColumn;
+    private TableColumn<ServiceItemSummaryDto, Integer> estimatedMinutesColumn;
 
     //Service packageview
     @FXML
@@ -63,7 +60,7 @@ public class ServiceItemController extends OverController {
     private TableColumn<ServicePackageSummaryDto, String> packageActiveColumn;
 
     @FXML
-    private ListView<ServiceItemDto> servicesListView;
+    private ListView<ServiceItemSummaryDto> servicesListView;
     @FXML
     private TextArea packageDescriptionArea;
     @FXML
@@ -96,9 +93,8 @@ public class ServiceItemController extends OverController {
 
             priceColumn.setCellFactory(TextFieldTableCell.forTableColumn(new BigDecimalStringConverter()));
 
-            // TODO Mappa om till DTO
             priceColumn.setOnEditCommit(event -> {
-                ServiceItemDto item = event.getRowValue();
+                ServiceItemSummaryDto item = event.getRowValue();
                 BigDecimal newPrice = event.getNewValue();
 
                 int rowIndex = event.getTablePosition().getRow();
@@ -192,20 +188,18 @@ public class ServiceItemController extends OverController {
     }
     private void loadServiceList() {
         if (servicesListView != null) {
-            // TODO Uppdatera om till DTO
-            ObservableList<ServiceItemDto> serviceItems =
+            ObservableList<ServiceItemSummaryDto> serviceItems =
                     FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
 
-            for (ServiceItemDto item : serviceItems) {
+            for (ServiceItemSummaryDto item : serviceItems) {
                 serviceSelections.putIfAbsent(item.getId(),
                         new SimpleBooleanProperty(false));
             }
-            // TODO Uppdatera om till DTO
             servicesListView.setCellFactory(CheckBoxListCell.forListView(
                     item -> serviceSelections.get(item.getId()),
-                    new StringConverter<ServiceItem>() {
+                    new StringConverter<ServiceItemSummaryDto>() {
                         @Override
-                        public String toString(ServiceItem item) {
+                        public String toString(ServiceItemSummaryDto item) {
 
                             String text = item.getName() + " — " + item.getPrice() + " SEK"
                                     + " — " + item.getEstimatedMinutes() + " min";
@@ -219,7 +213,7 @@ public class ServiceItemController extends OverController {
                         }
 
                         @Override
-                        public ServiceItem fromString(String text) {
+                        public ServiceItemSummaryDto fromString(String text) {
                             return null;
                         }
                     }
@@ -240,8 +234,7 @@ public class ServiceItemController extends OverController {
             }
             String packageDescription = packageDescriptionArea.getText();
 
-            // TODO Uppdatera om till DTO
-            List<ServiceItemDto> selectedServices = servicesListView.getItems().stream()
+            List<ServiceItemSummaryDto> selectedServices = servicesListView.getItems().stream()
                     .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                     .collect(Collectors.toList());
 

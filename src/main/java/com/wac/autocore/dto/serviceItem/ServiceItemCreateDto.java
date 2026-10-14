@@ -7,9 +7,7 @@ import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
-public class ServiceItemDto {
-    @NotNull
-    private Long id;
+public class ServiceItemCreateDto {
     @NotBlank
     @Size(min = 1, max = 60)
     private String name;
@@ -21,17 +19,13 @@ public class ServiceItemDto {
     @NotNull
     private int estimatedMinutes;
 
+    protected ServiceItemCreateDto() {}
 
-    public ServiceItemDto(Long id, String name, String description, BigDecimal price, int estimatedMinutes) {
-        this.id = id;
+    public ServiceItemCreateDto(String name, String description, BigDecimal price, int estimatedMinutes) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.estimatedMinutes = estimatedMinutes;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public String getName() {
@@ -49,6 +43,7 @@ public class ServiceItemDto {
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
+
     public int getEstimatedMinutes() {
         return estimatedMinutes;
     }

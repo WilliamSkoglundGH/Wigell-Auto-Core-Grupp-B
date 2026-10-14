@@ -1,6 +1,7 @@
 package com.wac.autocore.service;
 
-import com.wac.autocore.dto.serviceItem.ServiceItemDto;
+import com.wac.autocore.dto.serviceItem.ServiceItemCreateDto;
+import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.exception.ServiceItemNotFoundException;
 import com.wac.autocore.mapper.ServiceItemMapper;
 import com.wac.autocore.model.ServiceItem;
@@ -26,20 +27,19 @@ public class ServiceItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<ServiceItemDto> getAllServiceItems(){
+    public List<ServiceItemSummaryDto> getAllServiceItems(){
         return serviceItemRepository.findAll().stream()
                 .map(ServiceItemMapper::toServiceItemDto)
                 .collect(Collectors.toList());
     }
 
 
-
-    // TODO Mappa om till DTO
     @Transactional(readOnly = true)
-    public ServiceItem getServiceItem(Long serviceItemId) {
-        return serviceItemRepository.findById(serviceItemId)
+    public ServiceItemSummaryDto getServiceItem(Long serviceItemId) {
+        ServiceItem item = serviceItemRepository.findById(serviceItemId)
                 .orElseThrow(() -> new ServiceItemNotFoundException(
                         "Service item with ID: " + serviceItemId + " not found"));
+        return ServiceItemMapper.toServiceItemDto(item);
     }
 
     @Transactional
