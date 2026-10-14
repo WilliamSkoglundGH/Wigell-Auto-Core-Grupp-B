@@ -1,5 +1,6 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.workorder.WorkOrderCreateDto;
 import com.wac.autocore.dto.workorder.WorkOrderDetailsDto;
 import com.wac.autocore.dto.workorder.WorkOrderServiceItemDto;
@@ -93,7 +94,7 @@ public class WorkOrderController extends OverController {
     @FXML    private DatePicker datePickerUpdate;
     @FXML    private ListView<ServiceItem> servicesListViewUpdate;
     @FXML    private TextArea descriptionFieldUpdate;
-    @FXML    private ComboBox<Mechanic> mechanicFieldUpdate;
+    @FXML    private ComboBox<MechanicSummaryDto> mechanicFieldUpdate;
     @FXML    private Button confirmDraftButton;
     @FXML    private Button updateDraftButton;
 
@@ -105,7 +106,7 @@ public class WorkOrderController extends OverController {
     @FXML    private DatePicker datePickerDropIn;
     @FXML    private ListView<ServiceItem> servicesListViewDropIn;
     @FXML    private TextArea descriptionFieldDropIn;
-    @FXML    private ComboBox<Mechanic> mechanicFieldDropIn;
+    @FXML    private ComboBox<MechanicSummaryDto> mechanicFieldDropIn;
 
     // NEW WORK ORDER (NewWorkOrderView.fxml)
     @FXML
@@ -385,8 +386,8 @@ public class WorkOrderController extends OverController {
 
             messages.showSuccess(getString("workorder.success.claim_created"));
             navigateToWorkOrderInfoView();
-        } catch (WorkOrderWrongStatusException e) {
-            messages.showError(getString("workorder.error.claim_requires_completed"));
+        } catch (BusinessException e) {
+            messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
             logger.error("Could not create claim. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.unexpected"));
@@ -504,7 +505,7 @@ public class WorkOrderController extends OverController {
                 }
             });
             if (dto.getMechanicId() != null) {
-                for (Mechanic mechanic : mechanicFieldUpdate.getItems()) {
+                for (MechanicSummaryDto mechanic : mechanicFieldUpdate.getItems()) {
                     if (mechanic.getId().equals(dto.getMechanicId())) {
                         mechanicFieldUpdate.getSelectionModel().select(mechanic);
                         break;
