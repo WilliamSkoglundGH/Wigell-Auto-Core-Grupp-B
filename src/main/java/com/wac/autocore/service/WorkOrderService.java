@@ -1,6 +1,7 @@
 package com.wac.autocore.service;
 
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
+import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.workorder.*;
 import com.wac.autocore.exception.*;
 import com.wac.autocore.factory.WorkOrderFactory;
@@ -213,7 +214,7 @@ public class WorkOrderService {
     }
 
     @Transactional
-    public void addServiceItemToWorkOrder(Long workOrderId, ServiceItem serviceItem) {
+    public void addServiceItemToWorkOrder(Long workOrderId, ServiceItemSummaryDto serviceItem) {
         if (serviceItem == null) {
             throw new IllegalArgumentException("Service item is required.");
         }
@@ -229,7 +230,7 @@ public class WorkOrderService {
             throw new IllegalStateException("Services on a planned work order are managed through its booking.");
         }
 
-        workOrder.addServiceItem(serviceItem, serviceItem.getPrice(), serviceItem.getEstimatedMinutes());
+        workOrder.addServiceItem( serviceItem, serviceItem.getPrice(), serviceItem.getEstimatedMinutes());
         workOrderRepository.save(workOrder);
     }
 

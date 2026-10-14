@@ -10,9 +10,6 @@ import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.exception.*;
 import com.wac.autocore.gui.util.FormatUIUtil;
 import com.wac.autocore.model.Booking;
-import com.wac.autocore.model.Mechanic;
-import com.wac.autocore.model.ServiceItem;
-import com.wac.autocore.model.Vehicle;
 import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.model.enums.WorkOrderState;
@@ -119,7 +116,7 @@ public class WorkOrderController extends OverController {
     @FXML
     private DatePicker datePickerUpdate;
     @FXML
-    private ListView<ServiceItem> servicesListViewUpdate;
+    private ListView<ServiceItemSummaryDto> servicesListViewUpdate;
     @FXML
     private TextArea descriptionFieldUpdate;
     @FXML
@@ -521,14 +518,14 @@ public class WorkOrderController extends OverController {
             descriptionFieldUpdate.setText(dto.getDescription());
 
             mechanicFieldUpdate.setItems(FXCollections.observableArrayList(mechanicService.getAllMechanics()));
-            mechanicFieldUpdate.setConverter(new StringConverter<Mechanic>() {
+            mechanicFieldUpdate.setConverter(new StringConverter<MechanicSummaryDto>() {
                 @Override
-                public String toString(Mechanic mechanic) {
+                public String toString(MechanicSummaryDto mechanic) {
                     return mechanic == null ? "" : mechanic.getId() + " - " + mechanic.getName();
                 }
 
                 @Override
-                public Mechanic fromString(String s) {
+                public MechanicSummaryDto fromString(String s) {
                     return null;
                 }
             });
@@ -555,33 +552,35 @@ public class WorkOrderController extends OverController {
             draftServiceRowIds.put(row.getServiceItemId(), row.getId());
         }
 
-        ObservableList<ServiceItem> allServices =
+        ObservableList<ServiceItemSummaryDto> allServices =
                 FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
 
-        for (ServiceItem item : allServices) {
+        for (ServiceItemSummaryDto item : allServices) {
             boolean onWorkOrder = draftServiceRowIds.containsKey(item.getId());
             serviceSelections.put(item.getId(), new SimpleBooleanProperty(onWorkOrder));
         }
 
         servicesListViewUpdate.setCellFactory(CheckBoxListCell.forListView(
                 item -> serviceSelections.get(item.getId()),
-                new StringConverter<ServiceItem>() {
+                new StringConverter<ServiceItemSummaryDto>() {
                     @Override
-                    public String toString(ServiceItem item) {
+                    public String toString(ServiceItemSummaryDto item) { // Ändrat från ServiceItem till ServiceItemSummaryDto
+                        if (item == null) {
+                            return "";
+                        }
                         return item.getName() + " — " + item.getPrice() + " SEK — " + item.getEstimatedMinutes() + " min";
                     }
 
                     @Override
-                    public ServiceItem fromString(String text) {
+                    public ServiceItemSummaryDto fromString(String text) {
                         return null;
                     }
                 }
         ));
         servicesListViewUpdate.setItems(allServices);
     }
-
     private void saveDraftServices() {
-        for (ServiceItem item : servicesListViewUpdate.getItems()) {
+        for (ServiceItemSummaryDto item : servicesListViewUpdate.getItems()) {
             boolean checked = serviceSelections.get(item.getId()).get();
             Long rowId = draftServiceRowIds.get(item.getId());
 
@@ -661,7 +660,7 @@ public class WorkOrderController extends OverController {
     @FXML
     private void handleSaveDropIn() {
         try {
-            Vehicle vehicle = vehicleComboDropIn.getValue();
+            VehicleDto vehicle = vehicleComboDropIn.getValue();
             if (vehicle == null) {
                 messages.showError(getString("workorder.error.select_vehicle"));
                 return;
