@@ -1,6 +1,7 @@
 package com.wac.autocore.mapper;
 
 import com.wac.autocore.dto.booking.BookingCloneDto;
+import com.wac.autocore.dto.booking.BookingFullDto;
 import com.wac.autocore.dto.booking.BookingServiceItemDto;
 import com.wac.autocore.dto.booking.BookingSummaryDto;
 import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
@@ -16,21 +17,27 @@ public final class BookingMapper {
 
     private BookingMapper() {}
 
+    /* Utkommenterat för att se om de finns ett behov att ha kvar.
     public static BookingCloneDto toCloneDto(Booking booking) {
         VehicleSummaryDto vehicleSummaryDto = toVehicleDto(booking.getVehicle());
         List<BookingServiceItemDto> itemDto = toBSIDTO(booking.getServiceItems());
         return new BookingCloneDto(vehicleSummaryDto,itemDto);
+    }*/
+
+    public static BookingCloneDto toCloneDto(BookingFullDto dto) {
+        return new BookingCloneDto(dto.getVehicle(),dto.getServiceItems());
     }
+
+    /*Utkommenterat för att se om de finns ett behov att ha kvar.
     public static List<BookingServiceItemDto> toBSIDTO(List<BookingServiceItem> list) {
         List<BookingServiceItemDto> dtoList = new ArrayList<>();
         list.forEach( i ->   dtoList.add(new BookingServiceItemDto(i.getId(), i.getServiceItem().getId()))
         );
     return dtoList;
     }
-
     public static VehicleSummaryDto toVehicleDto(Vehicle vehicle) {
         return new VehicleSummaryDto(vehicle.getId(), vehicle.getBrand(), vehicle.getModel(), vehicle.getRegistrationNumber(), vehicle.getCustomer().getName());
-    }
+    }*/
     public static BookingSummaryDto toBookingSummaryDto(Booking booking) {
         if (booking == null) {
             return null;

@@ -1,27 +1,28 @@
 package com.wac.autocore.dto.booking;
 
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
-import com.wac.autocore.dto.vechicle.VehicleDto;
+import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
+import com.wac.autocore.model.enums.BookingState;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public class BookingFullDto {
     private Long id;
-    private VehicleDto vehicle;
+    private VehicleSummaryDto vehicle;
     private LocalDate date;
     private String description;
     private MechanicSummaryDto mechanic;
-    private String status;
+    private BookingState STATUS;
     private List<BookingServiceItemDto> serviceItems;
 
-    public BookingFullDto(Long id, VehicleDto vehicle, LocalDate date, String description, MechanicSummaryDto mechanic, String status, List<BookingServiceItemDto> serviceItems) {
+    public BookingFullDto(Long id, VehicleSummaryDto vehicle, LocalDate date, String description, MechanicSummaryDto mechanic, BookingState STATUS, List<BookingServiceItemDto> serviceItems) {
         this.id = id;
         this.vehicle = vehicle;
         this.date = date;
         this.description = description;
         this.mechanic = mechanic;
-        this.status = status;
+        this.STATUS = STATUS;
         this.serviceItems = serviceItems;
     }
 
@@ -29,7 +30,7 @@ public class BookingFullDto {
         return id;
     }
 
-    public VehicleDto getVehicle() {
+    public VehicleSummaryDto getVehicle() {
         return vehicle;
     }
 
@@ -45,8 +46,8 @@ public class BookingFullDto {
         return mechanic;
     }
 
-    public String getStatus() {
-        return status;
+    public BookingState getStatus() {
+        return STATUS;
     }
 
     public List<BookingServiceItemDto> getServiceItems() {

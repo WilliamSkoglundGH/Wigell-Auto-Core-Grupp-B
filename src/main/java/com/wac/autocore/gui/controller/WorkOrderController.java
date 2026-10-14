@@ -1,5 +1,6 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.booking.BookingSummaryDto;
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
@@ -142,7 +143,7 @@ public class WorkOrderController extends OverController {
 
     // NEW WORK ORDER (NewWorkOrderView.fxml)
     @FXML
-    private ComboBox<Booking> bookingComboBox;
+    private ComboBox<BookingSummaryDto> bookingComboBox;
     //   @FXML
     //   private ListView<ServiceItem> servicesListView;
 
@@ -339,7 +340,7 @@ public class WorkOrderController extends OverController {
     private void loadBookingComboBox() {
         if (bookingComboBox != null) {
             try {
-                List<Booking> bookedList = bookingService.getAllBookings().stream()
+                List<BookingSummaryDto> bookedList = bookingService.getAllBookings().stream()
                         //.filter(b -> "BOOKED".equalsIgnoreCase(b.getStatus()))
                         .filter(b -> BookingState.BOOKED.equals(b.getStatus()))
                         .collect(Collectors.toList());

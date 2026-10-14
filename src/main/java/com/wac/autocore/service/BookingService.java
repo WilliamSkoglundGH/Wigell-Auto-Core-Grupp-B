@@ -6,6 +6,7 @@ import com.wac.autocore.dto.booking.BookingSummaryDto;
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.exception.BookingNotFoundException;
+import com.wac.autocore.exception.BookingWrongStatusException;
 import com.wac.autocore.mapper.BookingMapper;
 import com.wac.autocore.model.*;
 import com.wac.autocore.model.enums.BookingState;
@@ -43,10 +44,10 @@ public class BookingService {
 
     @Transactional(readOnly = true)
     public List<BookingSummaryDto> getAllBookings() {
-        return bookingRepository.findAll();
+        return BookingMapper.toBookingSummaryDtoList(bookingRepository.findAll());
     }
 
-
+//todo skapa en hjälpmetod så workorder kan plocka entity dirr till sinn planned servicemetod.
     @Transactional(readOnly = true)
     public BookingSummaryDto getBooking(Long id) {
         Booking found = bookingRepository.findById(id)
@@ -71,7 +72,7 @@ public class BookingService {
             );
         }
         Mechanic mechanic = mechanicService.getMechanicEntity(mechanicId);
-        Vehicle vehicle = vehicleService.getVehicle(vehicleId);
+        Vehicle vehicle = vehicleService.getVehicleEntity(vehicleId);
 
         List<Long> ids = serviceItems.stream()
                 .map(ServiceItemSummaryDto::getId)
@@ -91,12 +92,10 @@ public class BookingService {
 
         return BookingMapper.toBookingSummaryDto(newBooking);
 
-
     }
 
     @Transactional
-    public BookingSummaryDto addServiceItemToBooking(Long bookingId, ServiceItemSummaryDto selectedServiceItem) {
-    //Behöver nått returneras? Vad kommer in i denna TODO Hämta serviceitems..
+    public void addServiceItemToBooking(Long bookingId, ServiceItemSummaryDto selectedServiceItem) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new BookingNotFoundException("booking.error.not_found"));
 
@@ -107,22 +106,22 @@ public class BookingService {
         if (!bookingForUpdate.getStatus().canAddServiceItem()) {
             throw new IllegalStateException("booking.error.not_editable");
         }
-        bookingForUpdate.addServiceItem(selectedServiceItem, selectedServiceItem.getPrice(), selectedServiceItem.getEstimatedMinutes());
+        ServiceItem foundServiceItem = serviceItemService.getServiceItemEntity(selectedServiceItem.getId());
+
+        bookingForUpdate.addServiceItem(foundServiceItem, selectedServiceItem.getPrice(), selectedServiceItem.getEstimatedMinutes());
 
         syncPlannedWorkOrder(bookingForUpdate);
         bookingRepository.save(bookingForUpdate);
-        return BookingMapper.toBookingSummaryDto(bookingForUpdate);
-
     }
 
     @Transactional(readOnly = true)
     public List<BookingSummaryDto> getAllBookingsWithServiceItems() {
-        //TODO Mappa om till DTO
-        return bookingRepository.findAllWithServiceItems();
+      return bookingRepository.findAllWithServiceItems().stream().map(BookingMapper::toBookingSummaryDto).collect(Collectors.toList());
+
     }
 
     @Transactional
-    public Booking removeServiceItemFromBooking(Long bookingId, Long bookingServiceItemId) {
+    public void removeServiceItemFromBooking(Long bookingId, Long bookingServiceItemId) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new BookingNotFoundException("booking.error.not_found"));
 
@@ -140,19 +139,20 @@ public class BookingService {
         bookingForUpdate.getServiceItems().remove(itemToRemove);
 
         syncPlannedWorkOrder(bookingForUpdate);
-        return bookingRepository.save(bookingForUpdate);
+        bookingRepository.save(bookingForUpdate);
+
     }
 
     @Transactional
     public BookingCloneDto cloneBooking(Long id) {
-        Booking copiedBooking= getBookingByIdWithDetails(id);
+        BookingFullDto copiedBooking= getBookingByIdWithDetails(id);
+          // Kan man få in en metod i state som kollar detta istället CanClone()?
         if(copiedBooking.getStatus() != BookingState.COMPLETED) {
-            throw new IllegalStateException("här");
+            throw new BookingWrongStatusException("ooking.error.booking_state_completed");
         }
        return BookingMapper.toCloneDto(copiedBooking);
     }
 
-    //TODO Vad gör denna?
     private void syncPlannedWorkOrder(Booking booking) {
         workOrderRepository.findByBooking_Id(booking.getId()).ifPresent(workOrder -> {
             workOrder.getServiceItems().clear();
