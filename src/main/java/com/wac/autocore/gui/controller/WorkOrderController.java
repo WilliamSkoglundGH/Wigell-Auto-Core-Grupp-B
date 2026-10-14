@@ -406,7 +406,7 @@ public class WorkOrderController extends OverController {
             WorkOrderCreateDto dto = new WorkOrderCreateDto();
             dto.setDescription(descriptionFieldClaim.getText());
 
-            WorkOrder claim = workOrderService.createClaimWorkOrder(currentWorkOrderId, dto);
+            WorkOrderSummaryDto claim = workOrderService.createClaimWorkOrder(currentWorkOrderId, dto);
             currentWorkOrderId = claim.getId();
 
             messages.showSuccess(getString("workorder.success.claim_created"));
@@ -457,6 +457,7 @@ public class WorkOrderController extends OverController {
         dto.setMechanicId(selectedMechanic != null ? selectedMechanic.getId() : null);
         dto.setPlannedDate(datePickerUpdate.getValue());
         dto.setDescription(descriptionFieldUpdate.getText());
+
         return dto;
     }
 
@@ -684,6 +685,9 @@ public class WorkOrderController extends OverController {
             workOrderService.createDropInWorkOrder(dto);
             messages.showSuccess(getString("workorder.success.dropin_created"));
             navigateToWorkOrderView();
+
+        } catch (BusinessException e) {
+            messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
             logger.error("Could not create drop-in. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.unexpected"));

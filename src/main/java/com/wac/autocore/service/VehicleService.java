@@ -49,4 +49,10 @@ public class VehicleService {
             Vehicle savedVehicle = vehicleRepository.save(vehicle);
             return VehicleMapper.toDto(savedVehicle);
     }
+
+    @Transactional
+    protected Vehicle getVehicleEntity(Long id) {
+        return vehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException("vehicle.error.not_found"));
+    }
 }

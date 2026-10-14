@@ -58,6 +58,12 @@ public class ServiceItemService {
         return serviceItemRepository.findAllById(ids);
     }
 
+    //Hjälpmetod inom servicelagret
+    protected ServiceItem getServiceItemEntity(Long id) {
+        return serviceItemRepository.findById(id).orElseThrow(() ->
+                new ServiceItemNotFoundException("serviceItem.error.could_not_load"));
+    }
+
 
 
 }
