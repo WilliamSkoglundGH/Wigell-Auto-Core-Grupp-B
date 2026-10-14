@@ -24,7 +24,13 @@ public final class BookingMapper {
 
     public static List<BookingServiceItemDto> toBServiceItemDto(List<BookingServiceItem> list) {
         List<BookingServiceItemDto> dtoList = new ArrayList<>();
-        list.forEach( i ->   dtoList.add(new BookingServiceItemDto(i.getId(), i.getServiceItem().getId(), i.getDurationAtTime(),i.getPriceAtTime())
+        list.forEach( i ->
+                dtoList.add(new BookingServiceItemDto(
+                        i.getId(),
+                        i.getServiceItem().getId(),
+                        i.getServiceItem().getName(),
+                        i.getDurationAtTime(),
+                        i.getPriceAtTime())
         ));
     return dtoList;
     }

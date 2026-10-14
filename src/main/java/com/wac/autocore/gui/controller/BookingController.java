@@ -95,13 +95,13 @@ public class BookingController extends OverController {
 
     // SERVICES VIEW (BookingServicesView.fxml)
     @FXML
-    private TableView<BookingServiceItem> bookingServicesTable;
+    private TableView<BookingServiceItemDto> bookingServicesTable;
     @FXML
-    private TableColumn<BookingServiceItem, String> serviceNameColumn;
+    private TableColumn<BookingServiceItemDto, String> serviceNameColumn;
     @FXML
-    private TableColumn<BookingServiceItem, BigDecimal> servicePriceColumn;
+    private TableColumn<BookingServiceItemDto, BigDecimal> servicePriceColumn;
     @FXML
-    private TableColumn<BookingServiceItem, Integer> serviceDurationColumn;
+    private TableColumn<BookingServiceItemDto, Integer> serviceDurationColumn;
     @FXML
     private Button removeServiceButton;
     @FXML
@@ -197,8 +197,7 @@ public class BookingController extends OverController {
         if (bookingServicesTable != null) {
             serviceNameColumn.setCellValueFactory(cellData ->
                     new SimpleStringProperty(
-                            cellData.getValue().getServiceItem().getName()
-                    )
+                            cellData.getValue().getName())
             );
 
             servicePriceColumn.setCellValueFactory(
@@ -477,7 +476,7 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleRemoveBookingService() {
-        BookingServiceItem selectedItem =
+        BookingServiceItemDto selectedItem =
                 bookingServicesTable.getSelectionModel().getSelectedItem();
 
         if (selectedItem == null) {
@@ -506,7 +505,7 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleShowBookingServices() {
-        BookingSummaryDto selectedBooking =
+        BookingFullDto selectedBooking =
                 bookingTable.getSelectionModel().getSelectedItem();
 
         if (selectedBooking == null) {
@@ -535,9 +534,9 @@ public class BookingController extends OverController {
             List<ServiceItemSummaryDto> availableServices =
                     new ArrayList<>(serviceItemService.getAllServiceItems());
 
-            for (BookingServiceItem bookingItem : bookingServicesTable.getItems()) {
+            for (BookingServiceItemDto bookingItem : bookingServicesTable.getItems()) {
                 availableServices.removeIf(service ->
-                        service.getId().equals(bookingItem.getServiceItem().getId()));
+                        service.getId().equals(bookingItem.getServiceItemId()));
             }
 
             if (availableServices.isEmpty()) {
@@ -591,7 +590,7 @@ public class BookingController extends OverController {
                     selectedService.get()
             );
 
-            for (BookingSummaryDto booking : bookingService.getAllBookingsWithServiceItems()) {
+            for (BookingFullDto booking : bookingService.getAllBookingsWithServiceItems()) {
                 if (booking.getId().equals(currentBookingId)) {
                     setBooking(booking);
                     break;
@@ -616,7 +615,7 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleCopyBooking() {
-        Booking selected = bookingTable.getSelectionModel().getSelectedItem();
+        BookingFullDto selected = bookingTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
             messages.showError(getString("booking.error.select_booking"));
             return;
@@ -664,7 +663,6 @@ public class BookingController extends OverController {
     }
 
     private void applyPreselection(BookingCloneDto dto) {
-        // Funkar först till
         Set<Long> preSelect = dto.getServiceItems().stream()
                 .map(i -> i.getServiceItemId()).collect(Collectors.toSet());
         serviceSelections.values().forEach(p -> p.set(false));
