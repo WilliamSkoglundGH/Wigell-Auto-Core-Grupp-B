@@ -1,8 +1,10 @@
 package com.wac.autocore.mapper;
 
 import com.wac.autocore.dto.booking.BookingCloneDto;
+import com.wac.autocore.dto.booking.BookingFullDto;
 import com.wac.autocore.dto.booking.BookingServiceItemDto;
 import com.wac.autocore.dto.booking.BookingSummaryDto;
+import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.BookingServiceItem;
@@ -16,15 +18,14 @@ public final class BookingMapper {
 
     private BookingMapper() {}
 
-    public static BookingCloneDto toCloneDto(Booking booking) {
-        VehicleSummaryDto vehicleSummaryDto = toVehicleDto(booking.getVehicle());
-        List<BookingServiceItemDto> itemDto = toBSIDTO(booking.getServiceItems());
-        return new BookingCloneDto(vehicleSummaryDto,itemDto);
+    public static BookingCloneDto toCloneDto(BookingFullDto dto) {
+        return new BookingCloneDto(dto.getVehicle(),dto.getServiceItems());
     }
-    public static List<BookingServiceItemDto> toBSIDTO(List<BookingServiceItem> list) {
+
+    public static List<BookingServiceItemDto> toBServiceItemDto(List<BookingServiceItem> list) {
         List<BookingServiceItemDto> dtoList = new ArrayList<>();
-        list.forEach( i ->   dtoList.add(new BookingServiceItemDto(i.getId(), i.getServiceItem().getId()))
-        );
+        list.forEach( i ->   dtoList.add(new BookingServiceItemDto(i.getId(), i.getServiceItem().getId(), i.getDurationAtTime(),i.getPriceAtTime())
+        ));
     return dtoList;
     }
 
@@ -73,4 +74,19 @@ public final class BookingMapper {
         return dtoList;
     }
 
+    public static BookingFullDto toBookingFullDto(Booking booking) {
+        if (booking == null) {
+            return null;
+        }
+        MechanicSummaryDto mechanic = MechanicMapper.toSummaryDto(booking.getMechanic());
+        return new BookingFullDto(
+                booking.getId(),
+                toVehicleDto(booking.getVehicle()),
+                booking.getDate(),
+                booking.getDescription(),
+                mechanic,
+                booking.getStatus(),
+                toBServiceItemDto(booking.getServiceItems())
+        );
+    }
 }
