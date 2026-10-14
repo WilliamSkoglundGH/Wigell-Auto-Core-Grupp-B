@@ -35,7 +35,7 @@ public class ServicePackageService {
         List<Long> ids = selectedServices.stream()
                 .map(ServiceItemSummaryDto::getId)
                 .collect(Collectors.toList());
-        //TODO Lägga en check för att kolla så att det är rätt items.
+
         List<ServiceItem> serviceItems = serviceItemRepository.findAllById(ids);
 
         ServicePackage servicePackage = new ServicePackage(packageName, packageDescription);
@@ -59,6 +59,6 @@ public class ServicePackageService {
     @Transactional(readOnly = true)
     public ServicePackageDetailDto getPackage(Long id) {
         return ServicePackageMapper.toDetailDto( servicePackageRepository.findById(id)
-                .orElseThrow(() -> new ServicePackageNotFoundException("service_package.error.not_found")));
+                .orElseThrow(() -> new ServicePackageNotFoundException("serviceItem.package.error.not_found")));
     }
 }
