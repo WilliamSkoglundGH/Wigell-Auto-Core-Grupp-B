@@ -1,14 +1,12 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.dto.booking.BookingCloneDto;
+import com.wac.autocore.dto.booking.*;
 
-import com.wac.autocore.dto.booking.BookingFullDto;
-import com.wac.autocore.dto.booking.BookingServiceItemDto;
-import com.wac.autocore.dto.booking.BookingSummaryDto;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.servicePackage.ServicePackageDetailDto;
 import com.wac.autocore.exception.BookingNotFoundException;
 
+import com.wac.autocore.exception.BusinessException;
 import com.wac.autocore.model.*;
 import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.service.*;
@@ -279,7 +277,6 @@ public class BookingController extends OverController {
         }
     }
     //Sätter serviceItem-detailsvyn med selectedbooking från BookingView.
-//TODO använd DTO
     public void setBooking(BookingFullDto booking) {
         if (booking == null) {
             return;
@@ -413,54 +410,60 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleSaveBooking() {
+
+        String vehicleString = vehicleCombo.getValue();
+        if (vehicleString == null) {
+            messages.showError(getString("booking.error.select_vehicle"));
+            return;
+        }
+        Long vehicleId = Long.parseLong(vehicleString.split(" - ")[0]);
+
+        LocalDate selectedDate = datePicker.getValue();
+        LocalDate today = LocalDate.now();
+        if (selectedDate == null) {
+            messages.showError(getString("booking.error.select_date"));
+            return;
+        }
+        if (selectedDate.isBefore(today)) {
+            messages.showError(getString("booking.error.before_date"));
+            return;
+        }
+        if (descriptionField.getText().length() > 200) {
+            messages.showError(getString("booking.error.desc_too_long"));
+            return;
+        }
+        String description = descriptionField.getText();
+
+
+        if (mechanicField == null) {
+            return;
+        }
+
+        String mechanicString = mechanicField.getValue();
+        if (mechanicString == null) {
+            messages.showError(getString("booking.error.select_mechanic"));
+            return;
+        }
+        Long mechanicId = Long.parseLong(mechanicString.split(" - ")[0]);
+
+        List<ServiceItemSummaryDto> selectedServices = servicesListView.getItems().stream()
+                .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
+                .collect(Collectors.toList());
+
+        if (selectedServices.isEmpty()) {
+            messages.showError(getString("booking.error.select_services"));
+            return;
+        }
         try {
-            String vehicleString = vehicleCombo.getValue();
-            if (vehicleString == null) {
-                messages.showError(getString("booking.error.select_vehicle"));
-                return;
-            }
-            Long vehicleId = Long.parseLong(vehicleString.split(" - ")[0]);
+            BookingCreateDto dto = new BookingCreateDto(vehicleId, selectedDate, description, mechanicId);
 
-            LocalDate selectedDate = datePicker.getValue();
-            LocalDate today = LocalDate.now();
-            if (selectedDate == null) {
-                messages.showError(getString("booking.error.select_date"));
-                return;
-            }
-            if (selectedDate.isBefore(today)) {
-                messages.showError(getString("booking.error.before_date"));
-                return;
-            }
-            if (descriptionField.getText().length() > 200) {
-                messages.showError(getString("booking.error.desc_too_long"));
-                return;
-            }
-            String description = descriptionField.getText();
+            bookingService.saveBooking(dto, selectedServices);
 
-
-            if (mechanicField == null) {
-                return;
-            }
-
-            String mechanicString = mechanicField.getValue();
-            if (mechanicString == null) {
-                messages.showError(getString("booking.error.select_mechanic"));
-                return;
-            }
-            Long mechanicId = Long.parseLong(mechanicString.split(" - ")[0]);
-
-            List<ServiceItemSummaryDto> selectedServices = servicesListView.getItems().stream()
-                    .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
-                    .collect(Collectors.toList());
-
-            if (selectedServices.isEmpty()) {
-                messages.showError(getString("booking.error.select_services"));
-                return;
-            }
-
-            bookingService.saveBooking(vehicleId, selectedDate, description, mechanicId, selectedServices);
             messages.showSuccess(getString("booking.success.booking_created"));
             navigateToBookingView();
+
+        } catch (BusinessException e) {
+            messages.showError(e.getMessage());
 
         } catch (Exception e) {
             logger.error("Could not save booking to database. {}", e.getMessage(), e);
@@ -529,7 +532,6 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleAddBookingService() {
-        //TODO Vad ska vara i Service lagret och vad i Controller.
         try {
             List<ServiceItemSummaryDto> availableServices =
                     new ArrayList<>(serviceItemService.getAllServiceItems());
@@ -599,8 +601,7 @@ public class BookingController extends OverController {
 
             messages.showSuccess(getString("booking.success.service_added"));
 
-        } catch (BookingNotFoundException | IllegalArgumentException
-                 | IllegalStateException e) {
+        } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
@@ -723,9 +724,17 @@ public class BookingController extends OverController {
                 return;
             }
 
-            bookingService.saveBooking(vehicleId, selectedDate, description, mechanicId, selectedServices);
-            messages.showSuccess(getString("booking.success.booking_created"));
-            navigateToBookingView();
+            try {
+                BookingCreateDto dto = new BookingCreateDto(vehicleId, selectedDate, description, mechanicId);
+
+                bookingService.saveBooking(dto, selectedServices);
+
+                messages.showSuccess(getString("booking.success.booking_created"));
+                navigateToBookingView();
+
+            } catch (BusinessException e) {
+                messages.showError(e.getMessage());
+            }
 
         } catch (Exception e) {
             logger.error("Could not save booking to database. {}", e.getMessage(), e);

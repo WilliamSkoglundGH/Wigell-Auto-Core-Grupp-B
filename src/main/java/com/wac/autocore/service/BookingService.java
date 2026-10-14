@@ -1,8 +1,6 @@
 package com.wac.autocore.service;
 
-import com.wac.autocore.dto.booking.BookingCloneDto;
-import com.wac.autocore.dto.booking.BookingFullDto;
-import com.wac.autocore.dto.booking.BookingSummaryDto;
+import com.wac.autocore.dto.booking.*;
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.exception.BookingNotFoundException;
@@ -64,15 +62,15 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingSummaryDto saveBooking(Long vehicleId, LocalDate selectedDate, String description, Long mechanicId, List<ServiceItemSummaryDto> serviceItems) {
+    public BookingSummaryDto saveBooking(BookingCreateDto createDto, List<ServiceItemSummaryDto> serviceItems) {
 
         if (serviceItems == null || serviceItems.isEmpty()) {
             throw new IllegalArgumentException(
                     "booking.error.select_services"
             );
         }
-        Mechanic mechanic = mechanicService.getMechanicEntity(mechanicId);
-        Vehicle vehicle = vehicleService.getVehicleEntity(vehicleId);
+        Mechanic mechanic = mechanicService.getMechanicEntity(createDto.getMechanicId());
+        Vehicle vehicle = vehicleService.getVehicleEntity(createDto.getVehicleId());
 
         List<Long> ids = serviceItems.stream()
                 .map(ServiceItemSummaryDto::getId)
@@ -82,7 +80,7 @@ public class BookingService {
 
         List<BookingServiceItem> items = new ArrayList<>();
 
-        Booking newBooking = new Booking(vehicle, selectedDate, description, mechanic, items);
+        Booking newBooking = new Booking(vehicle, createDto.getDate(), createDto.getDescription(), mechanic, items);
 
         for (ServiceItem item : foundServiceItems) {
             newBooking.addServiceItem(item, item.getPrice(), item.getEstimatedMinutes());

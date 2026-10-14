@@ -22,4 +22,19 @@ public class BookingCreateDto {
         this.mechanicId = mechanicId;
     }
 
+    public Long getVehicleId() {
+        return vehicleId;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Long getMechanicId() {
+        return mechanicId;
+    }
 }
