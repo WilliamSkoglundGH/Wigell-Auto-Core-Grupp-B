@@ -1,9 +1,8 @@
 package com.wac.autocore.gui.controller;
 
+import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.servicePackage.ServicePackageSummaryDto;
 import com.wac.autocore.gui.util.BigDecimalStringConverter;
-import com.wac.autocore.model.ServiceItem;
-import com.wac.autocore.model.ServicePackage;
 import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.ServicePackageService;
 import javafx.beans.property.BooleanProperty;
@@ -16,7 +15,6 @@ import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
-import javafx.util.converter.DoubleStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -35,18 +33,19 @@ import java.util.stream.Collectors;
 public class ServiceItemController extends OverController {
 
     @FXML
-    private TableView<ServiceItem> serviceItemTable;
+    private TableView<ServiceItemSummaryDto> serviceItemTable;
     @FXML
-    private TableColumn<ServiceItem, Long> idColumn;
+    private TableColumn<ServiceItemSummaryDto, Long> idColumn;
     @FXML
-    private TableColumn<ServiceItem, String> nameColumn;
+    private TableColumn<ServiceItemSummaryDto, String> nameColumn;
     @FXML
-    private TableColumn<ServiceItem, String> descriptionColumn;
+    private TableColumn<ServiceItemSummaryDto, String> descriptionColumn;
     @FXML
-    private TableColumn<ServiceItem, BigDecimal> priceColumn;
+    private TableColumn<ServiceItemSummaryDto, BigDecimal> priceColumn;
     @FXML
-    private TableColumn<ServiceItem, Integer> estimatedMinutesColumn;
+    private TableColumn<ServiceItemSummaryDto, Integer> estimatedMinutesColumn;
 
+    //Service packageview
     @FXML
     private TableView<ServicePackageSummaryDto> servicePackageTable;
     @FXML
@@ -60,9 +59,8 @@ public class ServiceItemController extends OverController {
     @FXML
     private TableColumn<ServicePackageSummaryDto, String> packageActiveColumn;
 
-
     @FXML
-    private ListView<ServiceItem> servicesListView;
+    private ListView<ServiceItemSummaryDto> servicesListView;
     @FXML
     private TextArea packageDescriptionArea;
     @FXML
@@ -96,7 +94,7 @@ public class ServiceItemController extends OverController {
             priceColumn.setCellFactory(TextFieldTableCell.forTableColumn(new BigDecimalStringConverter()));
 
             priceColumn.setOnEditCommit(event -> {
-                ServiceItem item = event.getRowValue();
+                ServiceItemSummaryDto item = event.getRowValue();
                 BigDecimal newPrice = event.getNewValue();
 
                 int rowIndex = event.getTablePosition().getRow();
@@ -118,9 +116,6 @@ public class ServiceItemController extends OverController {
                             getString("serviceitem.price_change_failed") + " " + e.getMessage()
                     );
                 }
-
-
-                // allt jag vill är att stå kvar på samma raaaaaad!!
                 javafx.application.Platform.runLater(() -> {
                     javafx.application.Platform.runLater(() -> {
                         serviceItemTable.getSelectionModel().select(rowIndex);
@@ -129,11 +124,8 @@ public class ServiceItemController extends OverController {
                     });
                 });
             });
-
-
             loadServiceItemData();
             serviceItemTable.requestFocus();
-
 
         }
         if (packageNameField != null) {
@@ -149,18 +141,18 @@ public class ServiceItemController extends OverController {
             packageNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
             packageDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
             packageServicesColumn.setCellValueFactory(new PropertyValueFactory<>("services"));
-
-            // Använd getString för att få rätt språk i tabellen
             packageActiveColumn.setCellValueFactory(cellData -> {
                 boolean active = cellData.getValue().isActive();
                 String text = active ? getString("common.yes") : getString("common.no");
                 return new javafx.beans.property.SimpleStringProperty(text);
             });
 
-            // Ladda in datan i tabellen!
             loadServicePackageData();
         }
     }
+    //-----------------------------------------
+    // Service package
+    //-----------------------------------------
     private void loadServicePackageData() {
         if (servicePackageTable != null) {
             try {
@@ -194,22 +186,20 @@ public class ServiceItemController extends OverController {
             }
         }
     }
-
     private void loadServiceList() {
         if (servicesListView != null) {
-            ObservableList<ServiceItem> serviceItems =
+            ObservableList<ServiceItemSummaryDto> serviceItems =
                     FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
 
-            for (ServiceItem item : serviceItems) {
+            for (ServiceItemSummaryDto item : serviceItems) {
                 serviceSelections.putIfAbsent(item.getId(),
                         new SimpleBooleanProperty(false));
             }
-
             servicesListView.setCellFactory(CheckBoxListCell.forListView(
                     item -> serviceSelections.get(item.getId()),
-                    new StringConverter<ServiceItem>() {
+                    new StringConverter<ServiceItemSummaryDto>() {
                         @Override
-                        public String toString(ServiceItem item) {
+                        public String toString(ServiceItemSummaryDto item) {
 
                             String text = item.getName() + " — " + item.getPrice() + " SEK"
                                     + " — " + item.getEstimatedMinutes() + " min";
@@ -223,7 +213,7 @@ public class ServiceItemController extends OverController {
                         }
 
                         @Override
-                        public ServiceItem fromString(String text) {
+                        public ServiceItemSummaryDto fromString(String text) {
                             return null;
                         }
                     }
@@ -232,6 +222,7 @@ public class ServiceItemController extends OverController {
             servicesListView.setItems(serviceItems);
         }
     }
+
 
     public void handleSavePackage() {
 
@@ -243,8 +234,7 @@ public class ServiceItemController extends OverController {
             }
             String packageDescription = packageDescriptionArea.getText();
 
-
-            List<ServiceItem> selectedServices = servicesListView.getItems().stream()
+            List<ServiceItemSummaryDto> selectedServices = servicesListView.getItems().stream()
                     .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                     .collect(Collectors.toList());
 
@@ -262,13 +252,7 @@ public class ServiceItemController extends OverController {
     }
 
     @FXML
-    public void handleNewServiceItemOrder() {
-
-    }
-
-    @FXML
     public void handleShowPackages() {
-
 
         if (messages != null) {
             messages.clearMessage();

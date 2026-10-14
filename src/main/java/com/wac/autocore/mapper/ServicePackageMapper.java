@@ -48,7 +48,6 @@ public class ServicePackageMapper {
         if (servicePackage == null) {
             return null;
         }
-
         // Konvertera Set till en List direkt
         List<ServiceItem> serviceItems = new ArrayList<>(servicePackage.getServiceItems());
 
@@ -60,7 +59,6 @@ public class ServicePackageMapper {
                 serviceItems
         );
     }
-
 
     /**
      * Omvandlar en lista av paket till en lista av detaljerade DTOs (Java 8-kompatibel).
