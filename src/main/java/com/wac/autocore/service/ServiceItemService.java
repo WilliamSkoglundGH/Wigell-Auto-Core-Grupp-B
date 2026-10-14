@@ -53,5 +53,12 @@ public class ServiceItemService {
 
     }
 
+    //Hjälpmetod inom servicelagret
+    protected List<ServiceItem> getAllServiceItemsEntity(List<Long> ids) {
+        return serviceItemRepository.findAllById(ids);
+    }
+
+
+
 }
 
