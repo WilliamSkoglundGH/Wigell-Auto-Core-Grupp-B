@@ -7,7 +7,7 @@ import com.wac.autocore.dto.vechicle.VehicleDto;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.BookingServiceItem;
 import com.wac.autocore.model.Vehicle;
-import org.springframework.stereotype.Component;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +22,7 @@ public final class BookingMapper {
         List<BookingServiceItemDto> itemDto = toBSIDTO(booking.getServiceItems());
         return new BookingCloneDto(vehicleDto,itemDto);
     }
+
     public static List<BookingServiceItemDto> toBSIDTO(List<BookingServiceItem> list) {
         List<BookingServiceItemDto> dtoList = new ArrayList<>();
         list.forEach( i ->   dtoList.add(new BookingServiceItemDto(i.getId(), i.getServiceItem().getId()))
@@ -29,9 +30,13 @@ public final class BookingMapper {
     return dtoList;
     }
 
+    // TODO använd istället den som kommer ligga i Vechiile mapper
     public static VehicleDto toVehicleDto(Vehicle vehicle) {
         return new VehicleDto(vehicle.getId(), vehicle.getBrand(), vehicle.getModel(), vehicle.getRegistrationNumber());
     }
+
+
+
     public static BookingSummaryDto toBookingSummaryDto(Booking booking) {
         if (booking == null) {
             return null;
@@ -59,8 +64,7 @@ public final class BookingMapper {
                 customerName,
                 booking.getDate(),
                 booking.getDescription(),
-                statusStr,
-                vehi
+                statusStr
         );
     }
 
