@@ -99,7 +99,7 @@ public class WorkOrderService {
             throw new WorkOrderWrongStatusException("workorder.error.booking_not_state_created");
         }
 
-        MechanicSummaryDto mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
+        Mechanic mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
         if (!mechanic.isAvailable()) {
             throw new MechanicNotAvailableException("workorder.error.mechanic_not_available");
         }
