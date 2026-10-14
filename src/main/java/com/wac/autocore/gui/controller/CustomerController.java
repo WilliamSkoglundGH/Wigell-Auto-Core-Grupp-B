@@ -1,7 +1,8 @@
 package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.dto.customer.CustomerCreateDto;
-import com.wac.autocore.model.Customer;
+import com.wac.autocore.dto.customer.CustomerSummaryDto;
+import com.wac.autocore.exception.BusinessException;
 import com.wac.autocore.service.CustomerService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -16,26 +17,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 
 @Controller
 @Scope("prototype")
 public class CustomerController extends OverController {
+
     private static final Logger logger = LoggerFactory.getLogger(CustomerController.class);
+
     private final CustomerService customerService;
 
-    // Spring injicerar både CustomerService och ApplicationContext automatiskt
     public CustomerController(CustomerService customerService, ApplicationContext applicationContext) {
         this.customerService = customerService;
         this.applicationContext = applicationContext;
     }
 
-    @FXML private TableView<Customer> customerTable;
-    @FXML private TableColumn<Customer, Long> idColumn;
-    @FXML private TableColumn<Customer, String> nameColumn;
-    @FXML private TableColumn<Customer, String> emailColumn;
-    @FXML private TableColumn<Customer, String> phoneColumn;
-    @FXML private TableColumn<Customer, String> vipColumn;
+    @FXML private TableView<CustomerSummaryDto> customerTable;
+    @FXML private TableColumn<CustomerSummaryDto, Long> idColumn;
+    @FXML private TableColumn<CustomerSummaryDto, String> nameColumn;
+    @FXML private TableColumn<CustomerSummaryDto, String> emailColumn;
+    @FXML private TableColumn<CustomerSummaryDto, String> phoneColumn;
+    @FXML private TableColumn<CustomerSummaryDto, String> vipColumn;
 
     @FXML private TextField nameField;
     @FXML private TextField phoneField;
@@ -46,10 +49,11 @@ public class CustomerController extends OverController {
     public void initialize() {
 
         if (customerTable != null) {
-            idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-            nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-            emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
-            phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+            idColumn.setCellValueFactory(new PropertyValueFactory<CustomerSummaryDto, Long>("id"));
+            nameColumn.setCellValueFactory(new PropertyValueFactory<CustomerSummaryDto, String>("name"));
+            emailColumn.setCellValueFactory(new PropertyValueFactory<CustomerSummaryDto, String>("email"));
+            phoneColumn.setCellValueFactory(new PropertyValueFactory<CustomerSummaryDto, String>("phone"));
+
             vipColumn.setCellValueFactory(cellData ->
                     new SimpleStringProperty(
                             getString(cellData.getValue().isVip()
@@ -69,9 +73,7 @@ public class CustomerController extends OverController {
         if (phoneField != null) {
             phoneField.textProperty().addListener((obs, oldValue, newValue) -> {
                 if (newValue != null) {
-                    // Tar bort allt som inte är siffror
                     String digits = newValue.replaceAll("\\D", "");
-
                     if (digits.length() > 3) {
                         phoneField.setText(digits.substring(0, 3) + "-" + digits.substring(3));
                     } else {
@@ -82,12 +84,30 @@ public class CustomerController extends OverController {
         }
     }
 
-
     public void loadCustomerData() {
         if (customerTable != null) {
-            ObservableList<Customer> customerData =
-                    FXCollections.observableArrayList(customerService.getAllCustomers());
-            customerTable.setItems(customerData);
+            try {
+                ObservableList<CustomerSummaryDto> customerData =
+                        FXCollections.observableArrayList(customerService.getAllCustomers());
+                customerTable.setItems(customerData);
+
+            } catch (BusinessException e) {
+                if (messages != null) {
+                    messages.showError(getString(e.getMessage()));
+                }
+
+            } catch (DataAccessException e) {
+                logger.error("Could not load customers from database. {}", e.getMessage(), e);
+                if (messages != null) {
+                    messages.showError(getString("customer.error.could_not_load"));
+                }
+
+            } catch (Exception e) {
+                logger.error("Could not load customers from database. {}", e.getMessage(), e);
+                if (messages != null) {
+                    messages.showError(getString("customer.error.could_not_load"));
+                }
+            }
         }
     }
 
@@ -96,7 +116,6 @@ public class CustomerController extends OverController {
         if (messages != null) {
             messages.clearMessage();
         }
-        // Använder den gemensamma metoden – språket och Spring-kontexten följer med automatiskt!
         loadCenterView("/com/wac/autocore/gui/view/NewCustomerView.fxml");
     }
 
@@ -108,7 +127,6 @@ public class CustomerController extends OverController {
         String email = emailField.getText();
         boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
 
-        // UI-validering (detta är OK att ha i controller)
         if (name == null || name.trim().isEmpty()) {
             messages.showError(getString("customer.error.enter_name"));
             return;
@@ -119,7 +137,6 @@ public class CustomerController extends OverController {
             return;
         }
 
-        // DTO till service efter UI valideringen
         CustomerCreateDto dto = new CustomerCreateDto();
         dto.setName(name);
         dto.setPhone(phone);
@@ -127,7 +144,7 @@ public class CustomerController extends OverController {
         dto.setVip(isVip);
 
         try {
-            Customer newCustomer = customerService.createCustomer(dto);
+            CustomerSummaryDto newCustomer = customerService.createCustomer(dto);
 
             messages.showSuccess(
                     getString("customer_success.customer_created") + newCustomer.getName()
@@ -136,7 +153,6 @@ public class CustomerController extends OverController {
             navigateToCustomerView();
 
         } catch (IllegalArgumentException e) {
-            // Här skickar service upp ett felmeddelande som är en *key* i language bundle
             messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
@@ -144,7 +160,6 @@ public class CustomerController extends OverController {
             messages.showError(getString("customer.error.create_customer"));
         }
     }
-
 
     @FXML
     private void handleCancel() {
@@ -158,3 +173,4 @@ public class CustomerController extends OverController {
         loadCenterView("/com/wac/autocore/gui/view/CustomerView.fxml");
     }
 }
+
