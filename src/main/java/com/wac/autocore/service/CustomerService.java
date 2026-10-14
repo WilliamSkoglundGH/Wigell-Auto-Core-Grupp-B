@@ -3,6 +3,7 @@ package com.wac.autocore.service;
 import com.wac.autocore.dto.customer.CustomerCreateDto;
 import com.wac.autocore.dto.customer.CustomerSummaryDto;
 import com.wac.autocore.exception.CustomerNotFoundException;
+import com.wac.autocore.mapper.CustomerMapper;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
@@ -21,14 +22,14 @@ public class CustomerService {
     }
 
     @Transactional(readOnly = true)
-    public List<Customer> getAllCustomers() {
-        return repo.findAll();
+    public List<CustomerSummaryDto> getAllCustomers() {
+        return CustomerMapper.toSummaryDtoList(repo.findAll());
     }
 
     @Transactional(readOnly = true)
-    public Customer getCustomer(Long id) {
-        return repo.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException("customer.error.not_found"));
+    public CustomerSummaryDto getCustomer(Long id) {
+        return CustomerMapper.toSummaryDto(repo.findById(id)
+                .orElseThrow(() -> new CustomerNotFoundException("customer.error.not_found")));
     }
 
     @Transactional
