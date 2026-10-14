@@ -1,8 +1,12 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.booking.BookingSummaryDto;
+import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.workorder.WorkOrderForMechanicDto;
 import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.exception.MechanicNotFoundException;
+import com.wac.autocore.mapper.BookingMapper;
+import com.wac.autocore.mapper.MechanicMapper;
 import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.Booking;
 import com.wac.autocore.model.Mechanic;
@@ -19,7 +23,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class MechanicService {
-    private static final Logger logger = LoggerFactory.getLogger(MechanicService.class);
     private final MechanicRepository mechanicRepository;
     private final WorkOrderRepository workOrderRepository;
 
@@ -30,18 +33,18 @@ public class MechanicService {
     }
 
     @Transactional(readOnly = true)
-    public List<Mechanic> getAllMechanics() {
-        return mechanicRepository.findAll();
+    public List<MechanicSummaryDto> getAllMechanics() {
+        return MechanicMapper.toSummaryDtoList( mechanicRepository.findAll());
     }
 
     @Transactional(readOnly = true)
     public Mechanic getMechanic(Long id) {
         return mechanicRepository.findById(id)
-                .orElseThrow(() -> new MechanicNotFoundException("Mechanic with ID " + id + " not found."));
+                .orElseThrow(() -> new MechanicNotFoundException("mechanic.error.could_not_load"));
     }
 
     @Transactional(readOnly = true)
-    public List<Booking> getBookingsForMechanic(Long mechanicId) {
+    public List<BookingSummaryDto> getBookingsForMechanic(Long mechanicId) {
 
         Mechanic mechanic = getMechanic(mechanicId);
 
@@ -49,7 +52,7 @@ public class MechanicService {
 
         bookings.sort((a, b) -> a.getDate().compareTo(b.getDate()));
 
-        return bookings;
+        return BookingMapper.toBookingSummaryDtoList(bookings);
     }
 
     @Transactional(readOnly = true)
