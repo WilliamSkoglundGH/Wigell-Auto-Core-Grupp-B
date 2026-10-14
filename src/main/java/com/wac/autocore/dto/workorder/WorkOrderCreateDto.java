@@ -1,39 +1,34 @@
 package com.wac.autocore.dto.workorder;
 
-import com.wac.autocore.model.*;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class WorkOrderCreateDto {
-    private Vehicle vehicle;
-    private Mechanic mechanic;
+    private Long vehicleId;
+    private Long mechanicId;
     private LocalDate plannedDate;
     private String description;
     private String customerInstructions;
-    private String comments;
-
-    private List<ServiceItem> serviceItems =
-            new ArrayList<>();
+    private List<Long> serviceItemsIds = new ArrayList<>();
 
     public WorkOrderCreateDto() {
     }
 
-    public Vehicle getVehicle() {
-        return vehicle;
+    public Long getVehicleId() {
+        return vehicleId;
     }
 
-    public void setVehicle(Vehicle vehicle) {
-        this.vehicle = vehicle;
+    public void setVehicleId(Long vehicleId) {
+        this.vehicleId = vehicleId;
     }
 
-    public Mechanic getMechanic() {
-        return mechanic;
+    public Long getMechanicId() {
+        return mechanicId;
     }
 
-    public void setMechanic(Mechanic mechanic) {
-        this.mechanic = mechanic;
+    public void setMechanicId(Long mechanicId) {
+        this.mechanicId = mechanicId;
     }
 
     public LocalDate getPlannedDate() {
@@ -60,19 +55,11 @@ public class WorkOrderCreateDto {
         this.customerInstructions = customerInstructions;
     }
 
-    public String getComments() {
-        return comments;
+    public List<Long> getServiceItemsIds() {
+        return serviceItemsIds;
     }
 
-    public void setComments(String comments) {
-        this.comments = comments;
-    }
-
-    public List<ServiceItem> getServiceItems() {
-        return serviceItems;
-    }
-
-    public void setServiceItems(List<ServiceItem> serviceItems) {
-        this.serviceItems = serviceItems;
+    public void setServiceItemsIds(List<Long> serviceItemsIds) {
+        this.serviceItemsIds = serviceItemsIds;
     }
 }

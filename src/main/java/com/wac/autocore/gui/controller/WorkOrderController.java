@@ -454,7 +454,9 @@ public class WorkOrderController extends OverController {
 
     private WorkOrderCreateDto buildDraftDto() {
         WorkOrderCreateDto dto = new WorkOrderCreateDto();
-        dto.setMechanic(mechanicFieldUpdate.getValue());
+
+        MechanicSummaryDto selectedMechanic = mechanicFieldUpdate.getValue();
+        dto.setMechanicId(selectedMechanic != null ? selectedMechanic.getId() : null);
         dto.setPlannedDate(datePickerUpdate.getValue());
         dto.setDescription(descriptionFieldUpdate.getText());
         return dto;
@@ -667,15 +669,19 @@ public class WorkOrderController extends OverController {
             }
 
             WorkOrderCreateDto dto = new WorkOrderCreateDto();
-            dto.setVehicle(vehicle);
-            dto.setMechanic(mechanicFieldDropIn.getValue());
+            dto.setVehicleId(vehicle.getId());
+
+            MechanicSummaryDto selectedMechanic = mechanicFieldDropIn.getValue();
+            dto.setMechanicId(selectedMechanic != null ? selectedMechanic.getId() : null);
+
             dto.setPlannedDate(datePickerDropIn.getValue());
             dto.setDescription(descriptionFieldDropIn.getText());
 
-            List<ServiceItemSummaryDto> selectedServices = servicesListViewDropIn.getItems().stream()
-                    .filter(item -> serviceSelections.get(item.getId()).get())
+            List<Long> selectedServicesIds = servicesListViewDropIn.getItems().stream()
+                    .map(ServiceItemSummaryDto::getId)
+                    .filter(id -> serviceSelections.get(id).get())
                     .collect(Collectors.toList());
-            dto.setServiceItems(selectedServices);
+            dto.setServiceItemsIds(selectedServicesIds);
 
             workOrderService.createDropInWorkOrder(dto);
             messages.showSuccess(getString("workorder.success.dropin_created"));
