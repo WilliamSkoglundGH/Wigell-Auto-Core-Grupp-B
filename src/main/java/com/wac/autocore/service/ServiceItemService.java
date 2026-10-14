@@ -33,7 +33,6 @@ public class ServiceItemService {
                 .collect(Collectors.toList());
     }
 
-
     @Transactional(readOnly = true)
     public ServiceItemSummaryDto getServiceItem(Long serviceItemId) {
         ServiceItem item = serviceItemRepository.findById(serviceItemId)
@@ -50,10 +49,8 @@ public class ServiceItemService {
                         "Service item with ID: " + serviceItemId + " not found"));
 
         item.setPrice(newPrice);
-
         serviceItemRepository.save(item);
 
-        logger.info("Pris ändrat för serviceItem {} till {}", item.getId(), newPrice);
     }
 
 }

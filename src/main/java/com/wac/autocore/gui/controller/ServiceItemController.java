@@ -2,6 +2,7 @@ package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.servicePackage.ServicePackageSummaryDto;
+import com.wac.autocore.exception.BusinessException;
 import com.wac.autocore.gui.util.BigDecimalStringConverter;
 import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.ServicePackageService;
@@ -103,19 +104,28 @@ public class ServiceItemController extends OverController {
                     serviceItemService.changePrice(item.getId(), newPrice);
                     item.setPrice(newPrice);
 
-                    logger.info("Pris ändrat för serviceItem {} till {}", item.getId(), newPrice);
+                    logger.info("New price for serviceItem {} -> {}", item.getId(), newPrice);
 
                     messages.showSuccess(
                             getString("serviceitem.price_changed") + " " + newPrice
                     );
 
-                } catch (Exception e) {
-                    logger.error("Kunde inte ändra priset för serviceItem {}: {}", item.getId(), e.getMessage(), e);
-
+            }catch (BusinessException e) {
+                if (messages != null) {
+                    messages.showError(getString(e.getMessage()));
+                }
+            } catch (DataAccessException e) {
+                logger.error("Could not load serviceItem from database. {}", e.getMessage(), e);
+                if (messages != null) {
+                    messages.showError(getString("serviceItem.error.could_not_load"));
+                }
+            } catch (Exception e) {
+                    logger.error("Could not change price on serviceItem {} to {}", item.getId(), e.getMessage(), e);
                     messages.showError(
                             getString("serviceitem.price_change_failed") + " " + e.getMessage()
                     );
-                }
+              }
+
                 javafx.application.Platform.runLater(() -> {
                     javafx.application.Platform.runLater(() -> {
                         serviceItemTable.getSelectionModel().select(rowIndex);
@@ -161,12 +171,21 @@ public class ServiceItemController extends OverController {
                                 servicePackageService.getAllPackagesSummary()
                         )
                 );
-            } catch (Exception e) {
-                logger.error("Could not load service packages.", e);
-                if (messages != null) {
-                    messages.showError(getString("serviceitem.error.could_not_load"));
-                }
+            }catch (BusinessException e) {
+                    if (messages != null) {
+                        messages.showError(getString(e.getMessage()));
+                    }
+        } catch (DataAccessException e) {
+            logger.error("Could not load service packages from database. {}", e.getMessage(), e);
+            if (messages != null) {
+                messages.showError(getString("serviceItem.package.error.could_not_load"));
             }
+        } catch (Exception e) {
+            logger.error("Could not load service packages from database. {}", e.getMessage(), e);
+            if (messages != null) {
+                messages.showError(getString("serviceItem.error.could_not_load"));
+            }
+        }
         }
     }
     public void loadServiceItemData() {
@@ -177,13 +196,18 @@ public class ServiceItemController extends OverController {
                                 serviceItemService.getAllServiceItems()
                         )
                 );
-            } catch (DataAccessException e) {
-                logger.error("Could not load service items.", e);
 
-                if (messages != null) {
-                    messages.showError(getString("serviceitem.error.could_not_load"));
-                }
+        } catch (DataAccessException e) {
+            logger.error("Could not load service items from database. {}", e.getMessage(), e);
+            if (messages != null) {
+                messages.showError(getString("serviceItem.error.could_not_load"));
             }
+        } catch (Exception e) {
+            logger.error("Could not load serviceItem from database. {}", e.getMessage(), e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unexpected"));
+            }
+        }
         }
     }
     private void loadServiceList() {
@@ -229,7 +253,7 @@ public class ServiceItemController extends OverController {
         try {
             String packageName = packageNameField.getText();
             if (packageName == null || packageName.trim().length() == 0) {
-                messages.showError(getString("serviceitem.error.package.invalid_name"));
+                messages.showError(getString("serviceItem.error.package.invalid_name"));
                 return;
             }
             String packageDescription = packageDescriptionArea.getText();
@@ -246,8 +270,20 @@ public class ServiceItemController extends OverController {
             messages.showSuccess(getString("serviceItem.success.package_created"));
             navigateToServiceItemView();
 
+        }catch (BusinessException e) {
+            if (messages != null) {
+                messages.showError(getString(e.getMessage()));
+            }
+        } catch (DataAccessException e) {
+            logger.error("Could not save service packages to database. {}", e.getMessage(), e);
+            if (messages != null) {
+                messages.showError(getString("serviceItem.package.error.could_not_save"));
+            }
         } catch (Exception e) {
-
+            logger.error("Could not save service packages to database. {}", e.getMessage(), e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unexpected"));
+            }
         }
     }
 
