@@ -157,6 +157,11 @@ public class BookingService {
         });
     }
 
+    protected Booking getBookingEntity(Long id) {
+        return bookingRepository.findById(id).orElseThrow(
+                () -> new BookingNotFoundException("booking.error.not_found"));
+    }
+
 
 
 }
