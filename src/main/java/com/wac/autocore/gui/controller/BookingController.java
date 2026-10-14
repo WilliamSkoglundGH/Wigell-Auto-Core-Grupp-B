@@ -48,21 +48,21 @@ public class BookingController extends OverController {
     private final ServicePackageService servicePackageService;
     // TABLE VIEW (BookingView.fxml)
     @FXML
-    private TableView<BookingSummaryDto> bookingTable;
+    private TableView<BookingFullDto> bookingTable;
     @FXML
-    private TableColumn<BookingSummaryDto, Long> idColumn;
+    private TableColumn<BookingFullDto, Long> idColumn;
     @FXML
-    private TableColumn<BookingSummaryDto, String> vehicleIdColumn;
+    private TableColumn<BookingFullDto, String> vehicleIdColumn;
     @FXML
-    private TableColumn<BookingSummaryDto, LocalDate> dateColumn;
+    private TableColumn<BookingFullDto, LocalDate> dateColumn;
     @FXML
-    private TableColumn<BookingSummaryDto, String> descriptionColumn;
+    private TableColumn<BookingFullDto, String> descriptionColumn;
     @FXML
-    private TableColumn<BookingSummaryDto, String> statusColumn;
+    private TableColumn<BookingFullDto, String> statusColumn;
     @FXML
-    private TableColumn<BookingSummaryDto, String> mechanicColumn;
+    private TableColumn<BookingFullDto, String> mechanicColumn;
     @FXML
-    private TableColumn<BookingSummaryDto, String> estimateColumn;
+    private TableColumn<BookingFullDto, String> estimateColumn;
 
     // FORM FIELDS (NewBookingView.fxml)
     @FXML
@@ -145,7 +145,6 @@ public class BookingController extends OverController {
     // ---------------------------------------------------------
     @FXML
     public void initialize() {
-        //TODO Ändra så att den hämtar från dto???
         // BookingView.fxml
         if (bookingTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -184,7 +183,7 @@ public class BookingController extends OverController {
             bookingTable.requestFocus();
 
             bookingTable.setRowFactory(tv -> {
-                TableRow<Booking> row = new TableRow<>();
+                TableRow<BookingFullDto> row = new TableRow<>();
                 row.setOnMouseClicked(e -> {
                     if (e.getClickCount() == 2 && !row.isEmpty()) {
                         handleShowBookingServices();
@@ -268,7 +267,7 @@ public class BookingController extends OverController {
     private void loadBookingData() {
         if (bookingTable != null) {
             try {
-                ObservableList<BookingSummaryDto> bookingData = FXCollections.observableArrayList(
+                ObservableList<BookingFullDto> bookingData = FXCollections.observableArrayList(
                         bookingService.getAllBookingsWithServiceItems()
                 );
                 bookingTable.setItems(bookingData);
@@ -291,10 +290,10 @@ public class BookingController extends OverController {
                 FXCollections.observableArrayList(booking.getServiceItems())
         );
 
-        BookingState state = booking.getStatus(); // Hur sätts detta?
+        BookingState state = booking.getStatus();
         bookingIdLabel.setText(String.valueOf(booking.getId()));
         mechanicLabel.setText(booking.getMechanic().getName());
-        customerLabel.setText(booking.getVehicle().getCustomer().getName());
+        customerLabel.setText(booking.getVehicle().getCustomerName());
         vehicleLabel.setText(booking.getVehicle().getRegistrationNumber());
 
         boolean canAdd = state.canAddServiceItem();

@@ -115,8 +115,8 @@ public class BookingService {
     }
 
     @Transactional(readOnly = true)
-    public List<BookingSummaryDto> getAllBookingsWithServiceItems() {
-      return bookingRepository.findAllWithServiceItems().stream().map(BookingMapper::toBookingSummaryDto).collect(Collectors.toList());
+    public List<BookingFullDto> getAllBookingsWithServiceItems() {
+      return bookingRepository.findAllWithServiceItems().stream().map(BookingMapper::toBookingFullDto).collect(Collectors.toList());
 
     }
 
