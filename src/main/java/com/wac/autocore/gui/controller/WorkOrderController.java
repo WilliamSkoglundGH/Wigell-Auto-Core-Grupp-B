@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -417,10 +418,8 @@ public class WorkOrderController extends OverController {
             workOrderService.confirmWorkOrder(currentWorkOrderId);
             messages.showSuccess(getString("workorder.success.workorder_confirmed"));
             navigateToWorkOrderInfoView();
-        } catch (WorkOrderWrongStatusException e) {
-            messages.showError(getString("workorder.error.work_order_wrong_status"));
-        } catch (IllegalStateException e) {
-            messages.showError(getString("workorder.error.not_ready_to_confirm"));
+        } catch (BusinessException e) {
+            messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
             logger.error("Could not confirm draft. {}", e.getMessage(), e);
             messages.showError(getString("workorder.error.unexpected"));

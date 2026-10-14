@@ -21,7 +21,8 @@ public final class MechanicMapper {
                 mechanic.getId(),
                 mechanic.getName(),
                 mechanic.getPhone(),
-                mechanic.getSpecialization()
+                mechanic.getSpecialization(),
+                mechanic.isAvailable()
         );
     }
 

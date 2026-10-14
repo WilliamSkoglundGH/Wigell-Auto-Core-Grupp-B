@@ -1,5 +1,6 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.workorder.*;
 import com.wac.autocore.exception.*;
 import com.wac.autocore.factory.WorkOrderFactory;
@@ -74,10 +75,10 @@ public class WorkOrderService {
     @Transactional
     public WorkOrder createClaimWorkOrder(Long originalWorkOrderId, WorkOrderCreateDto dto){
         WorkOrder workOrderOriginal = workOrderRepository.findById(originalWorkOrderId).orElseThrow(
-                () -> new WorkOrderNotFoundException("workorder.error.claim_requires_completed"));
+                () -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
         if(workOrderOriginal.getStatus() != WorkOrderState.COMPLETED){
-            throw new WorkOrderWrongStatusException("Only completed work orders can be claimed");
+            throw new WorkOrderWrongStatusException("workorder.error.claim_requires_completed");
         }
 
         WorkOrder workOrderClaim = workOrderFactory.createClaim(workOrderOriginal, dto);
@@ -92,13 +93,13 @@ public class WorkOrderService {
             throw new IllegalArgumentException("Work order cannot be null.");
         }
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canStart()) {
             throw new WorkOrderWrongStatusException("Wrong status for start: " + workOrder.getStatus());
         }
 
-        Mechanic mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
+        MechanicSummaryDto mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
         if (!mechanic.isAvailable()) {
             throw new MechanicNotAvailableException("Mechanic not available, occupied on another workorder.");
         }
@@ -132,7 +133,7 @@ public class WorkOrderService {
             throw new WorkOrderWrongStatusException("Wrong status for complete: " + workOrder.getStatus());
         }
 
-        Mechanic mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
+        MechanicSummaryDto mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
         workOrder.setEndTime(LocalDateTime.now());
         workOrder.setStatus(workOrder.getStatus().getNext());
         mechanic.setAvailable(true);
@@ -183,14 +184,14 @@ public class WorkOrderService {
     @Transactional
     public void confirmWorkOrder(Long workOrderId) {
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canConfirm()) {
-            throw new WorkOrderWrongStatusException("Cannot confirm work order in state: " + workOrder.getStatus());
+            throw new WorkOrderWrongStatusException("workorder.error.work_order_wrong_status");
         }
 
         if (!workOrder.isReadyToConfirm()) {
-            throw new IllegalStateException("Work order is missing vehicle, mechanic or services.");
+            throw new WorkOrderWrongStatusException("workorder.error.not_ready_to_confirm");
         }
 
         workOrder.setStatus(workOrder.getStatus().getNext());
@@ -200,9 +201,7 @@ public class WorkOrderService {
     @Transactional
     public void cancelWorkOrder(Long workOrderId) {
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException(
-                        "Work order not found with ID: " + workOrderId
-                ));
+                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found" ));
 
         if (!workOrder.getStatus().canCancel()) {
             throw new WorkOrderWrongStatusException(
