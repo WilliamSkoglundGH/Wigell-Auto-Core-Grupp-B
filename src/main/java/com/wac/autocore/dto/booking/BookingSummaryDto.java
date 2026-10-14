@@ -12,9 +12,9 @@ public class BookingSummaryDto {
     private LocalDate date;
     private String description;
     private String status;
-    // Tom konstruktor för ramverk
-    public BookingSummaryDto() {
-    }
+
+
+    protected BookingSummaryDto() {}
 
     // Fullständig konstruktor
     public BookingSummaryDto(Long id, String vehicleBrandAndModel, String customerName, LocalDate date, String description, String status) {
@@ -40,8 +40,7 @@ public class BookingSummaryDto {
     }
 
     public void setVehicleBrandAndModel(String vehicleBrandAndModel) {
-        this.vehicleBrandAndModel = vehicleBrandAndModel;
-    }
+        this.vehicleBrandAndModel = vehicleBrandAndModel;}
 
     public String getCustomerName() {
         return customerName;

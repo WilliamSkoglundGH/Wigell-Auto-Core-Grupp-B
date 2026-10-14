@@ -21,12 +21,12 @@ import java.util.stream.Collectors;
 @Service
 public class ServicePackageService {
 
-    private final ServiceItemRepository serviceItemRepository;
+    private final ServiceItemService serviceItemService;
     private final ServicePackageRepository servicePackageRepository;
 
-    public ServicePackageService(ServicePackageRepository servicePackageRepository, ServiceItemRepository serviceItemRepository) {
+    public ServicePackageService(ServicePackageRepository servicePackageRepository, ServiceItemService serviceItemService) {
         this.servicePackageRepository = servicePackageRepository;
-        this.serviceItemRepository = serviceItemRepository;
+        this.serviceItemService = serviceItemService;
     }
 
     @Transactional
@@ -36,7 +36,7 @@ public class ServicePackageService {
                 .map(ServiceItemSummaryDto::getId)
                 .collect(Collectors.toList());
 
-        List<ServiceItem> serviceItems = serviceItemRepository.findAllById(ids);
+        List<ServiceItem> serviceItems = serviceItemService.getAllServiceItemsEntity(ids);
 
         ServicePackage servicePackage = new ServicePackage(packageName, packageDescription);
         servicePackage.setServiceItems(new java.util.HashSet<>(serviceItems));

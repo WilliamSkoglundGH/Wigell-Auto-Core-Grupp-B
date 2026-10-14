@@ -1,8 +1,8 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.exception.CustomerNotFoundException;
-import com.wac.autocore.model.Customer;
-import com.wac.autocore.model.Vehicle;
+import com.wac.autocore.dto.customer.CustomerSummaryDto;
+import com.wac.autocore.dto.vechicle.VehicleCreateDto;
+import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
 import com.wac.autocore.service.CustomerService;
 import com.wac.autocore.service.VehicleService;
 import javafx.collections.FXCollections;
@@ -24,19 +24,19 @@ import org.springframework.stereotype.Controller;
 @Scope("prototype")
 public class VehicleController extends OverController {
 
-    @FXML private TableView<Vehicle> vehicleTable;
-    @FXML private TableColumn<Vehicle, Integer> idColumn;
-    @FXML private TableColumn<Vehicle, String> registrationNumberColumn;
-    @FXML private TableColumn<Vehicle, String> brandColumn;
-    @FXML private TableColumn<Vehicle, String> modelColumn;
-    @FXML private TableColumn<Vehicle, Integer> yearColumn;
-    @FXML private TableColumn<Vehicle, String> customerColumn;
+    @FXML private TableView<VehicleSummaryDto> vehicleTable;
+    @FXML private TableColumn<VehicleSummaryDto, Integer> idColumn;
+    @FXML private TableColumn<VehicleSummaryDto, String> registrationNumberColumn;
+    @FXML private TableColumn<VehicleSummaryDto, String> brandColumn;
+    @FXML private TableColumn<VehicleSummaryDto, String> modelColumn;
+    @FXML private TableColumn<VehicleSummaryDto, Integer> yearColumn;
+    @FXML private TableColumn<VehicleSummaryDto, String> customerColumn;
 
     @FXML private TextField registrationNumberField;
     @FXML private TextField brandField;
     @FXML private TextField modelField;
     @FXML private TextField yearField;
-    @FXML private ComboBox<Customer> customerComboBox;
+    @FXML private ComboBox<CustomerSummaryDto> customerComboBox;
 
     private final VehicleService vehicleService;
     private final CustomerService customerService;
@@ -60,7 +60,7 @@ public class VehicleController extends OverController {
             modelColumn.setCellValueFactory(new PropertyValueFactory<>("model"));
             yearColumn.setCellValueFactory(new PropertyValueFactory<>("year"));
             customerColumn.setCellValueFactory(cellData ->
-                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getCustomer().getName())
+                    new javafx.beans.property.SimpleStringProperty(cellData.getValue().getCustomerName())
             );
             loadVehicleData();
             vehicleTable.requestFocus();
@@ -71,9 +71,9 @@ public class VehicleController extends OverController {
             try {
                 customerComboBox.setItems(FXCollections.observableArrayList(customerService.getAllCustomers()));
 
-                customerComboBox.setConverter(new StringConverter<Customer>() {
+                customerComboBox.setConverter(new StringConverter<CustomerSummaryDto>() {
                     @Override
-                    public String toString(Customer customer) {
+                    public String toString(CustomerSummaryDto customer) {
                         return customer.getId() + " - " + customer.getName()
                                 + " | " + getString("customer.phoneColumn") + ": "
                                 + customer.getPhone()
@@ -84,7 +84,7 @@ public class VehicleController extends OverController {
                     }
 
                     @Override
-                    public Customer fromString(String text) {
+                    public CustomerSummaryDto fromString(String text) {
                         return null;
                     }
                 });
@@ -104,7 +104,7 @@ public class VehicleController extends OverController {
     public void loadVehicleData() {
         if (vehicleTable != null) {
             try {
-                ObservableList<Vehicle> vehicleData = FXCollections.observableArrayList(
+                ObservableList<VehicleSummaryDto> vehicleData = FXCollections.observableArrayList(
                         vehicleService.getAllVehicles()
                 );
                 vehicleTable.setItems(vehicleData);
@@ -132,26 +132,26 @@ public class VehicleController extends OverController {
             String regNo = registrationNumberField.getText();
             String brand = brandField.getText();
             String model = modelField.getText();
-            Customer selectedCustomer = customerComboBox != null ? customerComboBox.getValue() : null;
+            CustomerSummaryDto selectedCustomer = customerComboBox != null ? customerComboBox.getValue() : null;
 
             try {
                 int year = Integer.parseInt(yearField.getText().trim());
 
                 if (regNo != null && !regNo.trim().isEmpty() && selectedCustomer != null) {
-                    Customer customer = customerService.getCustomer(selectedCustomer.getId());
-                    Vehicle newVehicle = new Vehicle(regNo, brand.trim(), model.trim(), year, customer);
-                    vehicleService.saveVehicle(newVehicle);
+
+                    // SKAPA ETT DTO FÖR SKAPANDE (eller skicka med ID direkt till service)
+                    VehicleCreateDto createDto = new VehicleCreateDto(regNo.trim(), brand.trim(), model.trim(), year, selectedCustomer.getId());
+
+                    // Låt servicen göra allt jobb! Ingen Vehicle-entitet här inte.
+                    vehicleService.saveVehicle(createDto);
+
                     messages.showSuccess(getString("vehicle.showsuccess.vehicle_created"));
                     navigateToVehicleView();
                 } else {
-                    logger.error("Could not save Vehicle, data missing.");
                     messages.showError(getString("vehicle.error.enter_data"));
                 }
             } catch (NumberFormatException e) {
-                logger.error("Could not save vehicle: {}", e.getMessage(), e);
                 messages.showError(getString("vehicle.error.incorrect_year"));
-            } catch (CustomerNotFoundException e) {
-                messages.showError(getString(e.getMessage()));
             } catch (Exception e) {
                 logger.error("Could not save vehicle: {}", e.getMessage(), e);
                 messages.showError(getString("vehicle.error.save_vehicle"));

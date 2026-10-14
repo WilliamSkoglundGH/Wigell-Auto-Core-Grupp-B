@@ -2,7 +2,7 @@ package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
-import com.wac.autocore.dto.vechicle.VehicleDto;
+import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
 import com.wac.autocore.dto.workorder.WorkOrderCreateDto;
 import com.wac.autocore.dto.workorder.WorkOrderDetailsDto;
 import com.wac.autocore.dto.workorder.WorkOrderServiceItemDto;
@@ -22,7 +22,6 @@ import com.wac.autocore.service.WorkOrderService;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxListCell;
@@ -32,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -132,7 +130,7 @@ public class WorkOrderController extends OverController {
 
     // NEW DROP-IN
     @FXML
-    private ComboBox<VehicleDto> vehicleComboDropIn;
+    private ComboBox<VehicleSummaryDto> vehicleComboDropIn;
     @FXML
     private DatePicker datePickerDropIn;
     @FXML
@@ -601,9 +599,9 @@ public class WorkOrderController extends OverController {
     private void loadDropInForm() {
         // 1. Ladda fordon med VehicleDto
         vehicleComboDropIn.setItems(FXCollections.observableArrayList(vehicleService.getAllVehicles()));
-        vehicleComboDropIn.setConverter(new StringConverter<VehicleDto>() {
+        vehicleComboDropIn.setConverter(new StringConverter<VehicleSummaryDto>() {
             @Override
-            public String toString(VehicleDto vehicle) {
+            public String toString(VehicleSummaryDto vehicle) {
                 return vehicle == null ? "" : vehicle.getRegistrationNumber() + " - " + vehicle.getBrand()
                                               + " " + vehicle.getModel();
                 // Obs: Om VehicleDto inte har kundnamn direkt kan man lägga till det,
@@ -611,7 +609,7 @@ public class WorkOrderController extends OverController {
             }
 
             @Override
-            public VehicleDto fromString(String s) {
+            public VehicleSummaryDto fromString(String s) {
                 return null;
             }
         });
@@ -660,7 +658,7 @@ public class WorkOrderController extends OverController {
     @FXML
     private void handleSaveDropIn() {
         try {
-            VehicleDto vehicle = vehicleComboDropIn.getValue();
+            VehicleSummaryDto vehicle = vehicleComboDropIn.getValue();
             if (vehicle == null) {
                 messages.showError(getString("workorder.error.select_vehicle"));
                 return;
