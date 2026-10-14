@@ -1,14 +1,12 @@
 package com.wac.autocore.gui.controller;
 
-import com.wac.autocore.dto.booking.BookingCloneDto;
+import com.wac.autocore.dto.booking.*;
 
-import com.wac.autocore.dto.booking.BookingFullDto;
-import com.wac.autocore.dto.booking.BookingServiceItemDto;
-import com.wac.autocore.dto.booking.BookingSummaryDto;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.servicePackage.ServicePackageDetailDto;
 import com.wac.autocore.exception.BookingNotFoundException;
 
+import com.wac.autocore.exception.BusinessException;
 import com.wac.autocore.model.*;
 import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.service.*;
@@ -18,7 +16,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.LoadException;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxListCell;
@@ -32,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -48,21 +44,21 @@ public class BookingController extends OverController {
     private final ServicePackageService servicePackageService;
     // TABLE VIEW (BookingView.fxml)
     @FXML
-    private TableView<BookingSummaryDto> bookingTable;
+    private TableView<BookingFullDto> bookingTable;
     @FXML
-    private TableColumn<BookingSummaryDto, Long> idColumn;
+    private TableColumn<BookingFullDto, Long> idColumn;
     @FXML
-    private TableColumn<BookingSummaryDto, String> vehicleIdColumn;
+    private TableColumn<BookingFullDto, String> vehicleIdColumn;
     @FXML
-    private TableColumn<BookingSummaryDto, LocalDate> dateColumn;
+    private TableColumn<BookingFullDto, LocalDate> dateColumn;
     @FXML
-    private TableColumn<BookingSummaryDto, String> descriptionColumn;
+    private TableColumn<BookingFullDto, String> descriptionColumn;
     @FXML
-    private TableColumn<BookingSummaryDto, String> statusColumn;
+    private TableColumn<BookingFullDto, String> statusColumn;
     @FXML
-    private TableColumn<BookingSummaryDto, String> mechanicColumn;
+    private TableColumn<BookingFullDto, String> mechanicColumn;
     @FXML
-    private TableColumn<BookingSummaryDto, String> estimateColumn;
+    private TableColumn<BookingFullDto, String> estimateColumn;
 
     // FORM FIELDS (NewBookingView.fxml)
     @FXML
@@ -95,13 +91,13 @@ public class BookingController extends OverController {
 
     // SERVICES VIEW (BookingServicesView.fxml)
     @FXML
-    private TableView<BookingServiceItem> bookingServicesTable;
+    private TableView<BookingServiceItemDto> bookingServicesTable;
     @FXML
-    private TableColumn<BookingServiceItem, String> serviceNameColumn;
+    private TableColumn<BookingServiceItemDto, String> serviceNameColumn;
     @FXML
-    private TableColumn<BookingServiceItem, BigDecimal> servicePriceColumn;
+    private TableColumn<BookingServiceItemDto, BigDecimal> servicePriceColumn;
     @FXML
-    private TableColumn<BookingServiceItem, Integer> serviceDurationColumn;
+    private TableColumn<BookingServiceItemDto, Integer> serviceDurationColumn;
     @FXML
     private Button removeServiceButton;
     @FXML
@@ -145,7 +141,6 @@ public class BookingController extends OverController {
     // ---------------------------------------------------------
     @FXML
     public void initialize() {
-        //TODO Ändra så att den hämtar från dto???
         // BookingView.fxml
         if (bookingTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -184,7 +179,7 @@ public class BookingController extends OverController {
             bookingTable.requestFocus();
 
             bookingTable.setRowFactory(tv -> {
-                TableRow<Booking> row = new TableRow<>();
+                TableRow<BookingFullDto> row = new TableRow<>();
                 row.setOnMouseClicked(e -> {
                     if (e.getClickCount() == 2 && !row.isEmpty()) {
                         handleShowBookingServices();
@@ -198,8 +193,7 @@ public class BookingController extends OverController {
         if (bookingServicesTable != null) {
             serviceNameColumn.setCellValueFactory(cellData ->
                     new SimpleStringProperty(
-                            cellData.getValue().getServiceItem().getName()
-                    )
+                            cellData.getValue().getName())
             );
 
             servicePriceColumn.setCellValueFactory(
@@ -268,7 +262,7 @@ public class BookingController extends OverController {
     private void loadBookingData() {
         if (bookingTable != null) {
             try {
-                ObservableList<BookingSummaryDto> bookingData = FXCollections.observableArrayList(
+                ObservableList<BookingFullDto> bookingData = FXCollections.observableArrayList(
                         bookingService.getAllBookingsWithServiceItems()
                 );
                 bookingTable.setItems(bookingData);
@@ -281,7 +275,6 @@ public class BookingController extends OverController {
         }
     }
     //Sätter serviceItem-detailsvyn med selectedbooking från BookingView.
-//TODO använd DTO
     public void setBooking(BookingFullDto booking) {
         if (booking == null) {
             return;
@@ -291,10 +284,10 @@ public class BookingController extends OverController {
                 FXCollections.observableArrayList(booking.getServiceItems())
         );
 
-        BookingState state = booking.getStatus(); // Hur sätts detta?
+        BookingState state = booking.getStatus();
         bookingIdLabel.setText(String.valueOf(booking.getId()));
         mechanicLabel.setText(booking.getMechanic().getName());
-        customerLabel.setText(booking.getVehicle().getCustomer().getName());
+        customerLabel.setText(booking.getVehicle().getCustomerName());
         vehicleLabel.setText(booking.getVehicle().getRegistrationNumber());
 
         boolean canAdd = state.canAddServiceItem();
@@ -415,54 +408,60 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleSaveBooking() {
+
+        String vehicleString = vehicleCombo.getValue();
+        if (vehicleString == null) {
+            messages.showError(getString("booking.error.select_vehicle"));
+            return;
+        }
+        Long vehicleId = Long.parseLong(vehicleString.split(" - ")[0]);
+
+        LocalDate selectedDate = datePicker.getValue();
+        LocalDate today = LocalDate.now();
+        if (selectedDate == null) {
+            messages.showError(getString("booking.error.select_date"));
+            return;
+        }
+        if (selectedDate.isBefore(today)) {
+            messages.showError(getString("booking.error.before_date"));
+            return;
+        }
+        if (descriptionField.getText().length() > 200) {
+            messages.showError(getString("booking.error.desc_too_long"));
+            return;
+        }
+        String description = descriptionField.getText();
+
+
+        if (mechanicField == null) {
+            return;
+        }
+
+        String mechanicString = mechanicField.getValue();
+        if (mechanicString == null) {
+            messages.showError(getString("booking.error.select_mechanic"));
+            return;
+        }
+        Long mechanicId = Long.parseLong(mechanicString.split(" - ")[0]);
+
+        List<ServiceItemSummaryDto> selectedServices = servicesListView.getItems().stream()
+                .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
+                .collect(Collectors.toList());
+
+        if (selectedServices.isEmpty()) {
+            messages.showError(getString("booking.error.select_services"));
+            return;
+        }
         try {
-            String vehicleString = vehicleCombo.getValue();
-            if (vehicleString == null) {
-                messages.showError(getString("booking.error.select_vehicle"));
-                return;
-            }
-            Long vehicleId = Long.parseLong(vehicleString.split(" - ")[0]);
+            BookingCreateDto dto = new BookingCreateDto(vehicleId, selectedDate, description, mechanicId);
 
-            LocalDate selectedDate = datePicker.getValue();
-            LocalDate today = LocalDate.now();
-            if (selectedDate == null) {
-                messages.showError(getString("booking.error.select_date"));
-                return;
-            }
-            if (selectedDate.isBefore(today)) {
-                messages.showError(getString("booking.error.before_date"));
-                return;
-            }
-            if (descriptionField.getText().length() > 200) {
-                messages.showError(getString("booking.error.desc_too_long"));
-                return;
-            }
-            String description = descriptionField.getText();
+            bookingService.saveBooking(dto, selectedServices);
 
-
-            if (mechanicField == null) {
-                return;
-            }
-
-            String mechanicString = mechanicField.getValue();
-            if (mechanicString == null) {
-                messages.showError(getString("booking.error.select_mechanic"));
-                return;
-            }
-            Long mechanicId = Long.parseLong(mechanicString.split(" - ")[0]);
-
-            List<ServiceItemSummaryDto> selectedServices = servicesListView.getItems().stream()
-                    .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
-                    .collect(Collectors.toList());
-
-            if (selectedServices.isEmpty()) {
-                messages.showError(getString("booking.error.select_services"));
-                return;
-            }
-
-            bookingService.saveBooking(vehicleId, selectedDate, description, mechanicId, selectedServices);
             messages.showSuccess(getString("booking.success.booking_created"));
             navigateToBookingView();
+
+        } catch (BusinessException e) {
+            messages.showError(e.getMessage());
 
         } catch (Exception e) {
             logger.error("Could not save booking to database. {}", e.getMessage(), e);
@@ -478,7 +477,7 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleRemoveBookingService() {
-        BookingServiceItem selectedItem =
+        BookingServiceItemDto selectedItem =
                 bookingServicesTable.getSelectionModel().getSelectedItem();
 
         if (selectedItem == null) {
@@ -507,7 +506,7 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleShowBookingServices() {
-        BookingSummaryDto selectedBooking =
+        BookingFullDto selectedBooking =
                 bookingTable.getSelectionModel().getSelectedItem();
 
         if (selectedBooking == null) {
@@ -531,14 +530,13 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleAddBookingService() {
-        //TODO Vad ska vara i Service lagret och vad i Controller.
         try {
             List<ServiceItemSummaryDto> availableServices =
                     new ArrayList<>(serviceItemService.getAllServiceItems());
 
-            for (BookingServiceItem bookingItem : bookingServicesTable.getItems()) {
+            for (BookingServiceItemDto bookingItem : bookingServicesTable.getItems()) {
                 availableServices.removeIf(service ->
-                        service.getId().equals(bookingItem.getServiceItem().getId()));
+                        service.getId().equals(bookingItem.getServiceItemId()));
             }
 
             if (availableServices.isEmpty()) {
@@ -592,7 +590,7 @@ public class BookingController extends OverController {
                     selectedService.get()
             );
 
-            for (BookingSummaryDto booking : bookingService.getAllBookingsWithServiceItems()) {
+            for (BookingFullDto booking : bookingService.getAllBookingsWithServiceItems()) {
                 if (booking.getId().equals(currentBookingId)) {
                     setBooking(booking);
                     break;
@@ -601,8 +599,7 @@ public class BookingController extends OverController {
 
             messages.showSuccess(getString("booking.success.service_added"));
 
-        } catch (BookingNotFoundException | IllegalArgumentException
-                 | IllegalStateException e) {
+        } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
@@ -617,7 +614,7 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleCopyBooking() {
-        Booking selected = bookingTable.getSelectionModel().getSelectedItem();
+        BookingFullDto selected = bookingTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
             messages.showError(getString("booking.error.select_booking"));
             return;
@@ -665,7 +662,6 @@ public class BookingController extends OverController {
     }
 
     private void applyPreselection(BookingCloneDto dto) {
-        // Funkar först till
         Set<Long> preSelect = dto.getServiceItems().stream()
                 .map(i -> i.getServiceItemId()).collect(Collectors.toSet());
         serviceSelections.values().forEach(p -> p.set(false));
@@ -726,9 +722,17 @@ public class BookingController extends OverController {
                 return;
             }
 
-            bookingService.saveBooking(vehicleId, selectedDate, description, mechanicId, selectedServices);
-            messages.showSuccess(getString("booking.success.booking_created"));
-            navigateToBookingView();
+            try {
+                BookingCreateDto dto = new BookingCreateDto(vehicleId, selectedDate, description, mechanicId);
+
+                bookingService.saveBooking(dto, selectedServices);
+
+                messages.showSuccess(getString("booking.success.booking_created"));
+                navigateToBookingView();
+
+            } catch (BusinessException e) {
+                messages.showError(e.getMessage());
+            }
 
         } catch (Exception e) {
             logger.error("Could not save booking to database. {}", e.getMessage(), e);

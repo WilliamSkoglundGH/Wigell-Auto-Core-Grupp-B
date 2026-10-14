@@ -2,6 +2,7 @@ package com.wac.autocore.service;
 
 import com.wac.autocore.dto.serviceItem.ServiceItemCreateDto;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
+import com.wac.autocore.exception.MechanicNotFoundException;
 import com.wac.autocore.exception.ServiceItemNotFoundException;
 import com.wac.autocore.mapper.ServiceItemMapper;
 import com.wac.autocore.model.ServiceItem;
@@ -53,17 +54,16 @@ public class ServiceItemService {
 
     }
 
-    //Hjälpmetod inom servicelagret
+    //Hjälpmetoder inom servicelagret
+
     protected List<ServiceItem> getAllServiceItemsEntity(List<Long> ids) {
         return serviceItemRepository.findAllById(ids);
     }
 
-    //Hjälpmetod inom servicelagret
-    protected ServiceItem getServiceItemEntity(Long id) {
-        return serviceItemRepository.findById(id).orElseThrow(() ->
-                new ServiceItemNotFoundException("serviceItem.error.could_not_load"));
+    protected ServiceItem getServiceItemEntity(Long serviceItemId) {
+        return serviceItemRepository.findById(serviceItemId)
+                .orElseThrow(() -> new ServiceItemNotFoundException("serviceItem.error.could_not_load"));
     }
-
 
 
 }

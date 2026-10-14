@@ -1,11 +1,9 @@
 package com.wac.autocore.service;
 
-import com.wac.autocore.dto.booking.BookingCloneDto;
-import com.wac.autocore.dto.booking.BookingFullDto;
-import com.wac.autocore.dto.booking.BookingSummaryDto;
-import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
+import com.wac.autocore.dto.booking.*;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.exception.BookingNotFoundException;
+import com.wac.autocore.exception.BookingWrongStatusException;
 import com.wac.autocore.mapper.BookingMapper;
 import com.wac.autocore.model.*;
 import com.wac.autocore.model.enums.BookingState;
@@ -15,13 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.sun.imageio.plugins.common.I18N.getString;
 
 @Service
 public class BookingService {
@@ -43,10 +37,10 @@ public class BookingService {
 
     @Transactional(readOnly = true)
     public List<BookingSummaryDto> getAllBookings() {
-        return bookingRepository.findAll();
+        return BookingMapper.toBookingSummaryDtoList(bookingRepository.findAll());
     }
 
-
+//todo skapa en hjälpmetod så workorder kan plocka entity dirr till sinn planned servicemetod.
     @Transactional(readOnly = true)
     public BookingSummaryDto getBooking(Long id) {
         Booking found = bookingRepository.findById(id)
@@ -63,15 +57,15 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingSummaryDto saveBooking(Long vehicleId, LocalDate selectedDate, String description, Long mechanicId, List<ServiceItemSummaryDto> serviceItems) {
+    public BookingSummaryDto saveBooking(BookingCreateDto createDto, List<ServiceItemSummaryDto> serviceItems) {
 
         if (serviceItems == null || serviceItems.isEmpty()) {
             throw new IllegalArgumentException(
                     "booking.error.select_services"
             );
         }
-        Mechanic mechanic = mechanicService.getMechanicEntity(mechanicId);
-        Vehicle vehicle = vehicleService.getVehicle(vehicleId);
+        Mechanic mechanic = mechanicService.getMechanicEntity(createDto.getMechanicId());
+        Vehicle vehicle = vehicleService.getVehicleEntity(createDto.getVehicleId());
 
         List<Long> ids = serviceItems.stream()
                 .map(ServiceItemSummaryDto::getId)
@@ -81,7 +75,7 @@ public class BookingService {
 
         List<BookingServiceItem> items = new ArrayList<>();
 
-        Booking newBooking = new Booking(vehicle, selectedDate, description, mechanic, items);
+        Booking newBooking = new Booking(vehicle, createDto.getDate(), createDto.getDescription(), mechanic, items);
 
         for (ServiceItem item : foundServiceItems) {
             newBooking.addServiceItem(item, item.getPrice(), item.getEstimatedMinutes());
@@ -91,12 +85,10 @@ public class BookingService {
 
         return BookingMapper.toBookingSummaryDto(newBooking);
 
-
     }
 
     @Transactional
-    public BookingSummaryDto addServiceItemToBooking(Long bookingId, ServiceItemSummaryDto selectedServiceItem) {
-    //Behöver nått returneras? Vad kommer in i denna TODO Hämta serviceitems..
+    public void addServiceItemToBooking(Long bookingId, ServiceItemSummaryDto selectedServiceItem) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new BookingNotFoundException("booking.error.not_found"));
 
@@ -107,22 +99,22 @@ public class BookingService {
         if (!bookingForUpdate.getStatus().canAddServiceItem()) {
             throw new IllegalStateException("booking.error.not_editable");
         }
-        bookingForUpdate.addServiceItem(selectedServiceItem, selectedServiceItem.getPrice(), selectedServiceItem.getEstimatedMinutes());
+        ServiceItem foundServiceItem = serviceItemService.getServiceItemEntity(selectedServiceItem.getId());
+
+        bookingForUpdate.addServiceItem(foundServiceItem, selectedServiceItem.getPrice(), selectedServiceItem.getEstimatedMinutes());
 
         syncPlannedWorkOrder(bookingForUpdate);
         bookingRepository.save(bookingForUpdate);
-        return BookingMapper.toBookingSummaryDto(bookingForUpdate);
-
     }
 
     @Transactional(readOnly = true)
-    public List<BookingSummaryDto> getAllBookingsWithServiceItems() {
-        //TODO Mappa om till DTO
-        return bookingRepository.findAllWithServiceItems();
+    public List<BookingFullDto> getAllBookingsWithServiceItems() {
+      return bookingRepository.findAllWithServiceItems().stream().map(BookingMapper::toBookingFullDto).collect(Collectors.toList());
+
     }
 
     @Transactional
-    public Booking removeServiceItemFromBooking(Long bookingId, Long bookingServiceItemId) {
+    public void removeServiceItemFromBooking(Long bookingId, Long bookingServiceItemId) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new BookingNotFoundException("booking.error.not_found"));
 
@@ -140,19 +132,19 @@ public class BookingService {
         bookingForUpdate.getServiceItems().remove(itemToRemove);
 
         syncPlannedWorkOrder(bookingForUpdate);
-        return bookingRepository.save(bookingForUpdate);
+        bookingRepository.save(bookingForUpdate);
+
     }
 
     @Transactional
     public BookingCloneDto cloneBooking(Long id) {
-        Booking copiedBooking= getBookingByIdWithDetails(id);
-        if(copiedBooking.getStatus() != BookingState.COMPLETED) {
-            throw new IllegalStateException("här");
+        BookingFullDto copiedBooking= getBookingByIdWithDetails(id);
+        if(!copiedBooking.getStatus().canClone()) {
+            throw new BookingWrongStatusException("booking.error.booking_state_completed");
         }
        return BookingMapper.toCloneDto(copiedBooking);
     }
 
-    //TODO Vad gör denna?
     private void syncPlannedWorkOrder(Booking booking) {
         workOrderRepository.findByBooking_Id(booking.getId()).ifPresent(workOrder -> {
             workOrder.getServiceItems().clear();

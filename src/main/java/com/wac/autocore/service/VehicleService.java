@@ -3,6 +3,7 @@ package com.wac.autocore.service;
 import com.wac.autocore.dto.vechicle.VehicleCreateDto;
 import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
 import com.wac.autocore.exception.CustomerNotFoundException;
+import com.wac.autocore.exception.ServiceItemNotFoundException;
 import com.wac.autocore.exception.VehicleNotFoundException;
 import com.wac.autocore.mapper.VehicleMapper;
 import com.wac.autocore.model.Customer;
@@ -49,10 +50,8 @@ public class VehicleService {
             Vehicle savedVehicle = vehicleRepository.save(vehicle);
             return VehicleMapper.toDto(savedVehicle);
     }
-
-    @Transactional
-    protected Vehicle getVehicleEntity(Long id) {
-        return vehicleRepository.findById(id)
+    protected Vehicle getVehicleEntity(Long vehicleId) {
+        return vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new VehicleNotFoundException("vehicle.error.not_found"));
     }
 }

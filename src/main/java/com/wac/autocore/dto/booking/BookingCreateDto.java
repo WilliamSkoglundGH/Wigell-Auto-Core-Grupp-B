@@ -1,7 +1,5 @@
 package com.wac.autocore.dto.booking;
 
-import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
-import com.wac.autocore.dto.vechicle.VehicleDto;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -9,19 +7,34 @@ import java.time.LocalDate;
 
 public class BookingCreateDto {
     @NotNull
-    private VehicleDto vehicle;
+    private Long vehicleId;
     @FutureOrPresent
     private LocalDate date;
     @Size(max = 200)
     private String description;
     @NotNull
-    private MechanicSummaryDto mechanic;
+    private Long mechanicId;
 
-    public BookingCreateDto(VehicleDto vehicle, LocalDate date, String description, MechanicSummaryDto mechanic) {
-        this.vehicle = vehicle;
+    public BookingCreateDto(Long vehicleId, LocalDate date, String description, Long mechanicId) {
+        this.vehicleId = vehicleId;
         this.date = date;
         this.description = description;
-        this.mechanic = mechanic;
+        this.mechanicId = mechanicId;
     }
 
+    public Long getVehicleId() {
+        return vehicleId;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Long getMechanicId() {
+        return mechanicId;
+    }
 }
