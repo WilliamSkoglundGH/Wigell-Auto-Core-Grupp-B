@@ -2,6 +2,10 @@ package com.wac.autocore.gui.controller;
 
 import com.wac.autocore.dto.booking.BookingCloneDto;
 
+import com.wac.autocore.dto.booking.BookingFullDto;
+import com.wac.autocore.dto.booking.BookingServiceItemDto;
+import com.wac.autocore.dto.booking.BookingSummaryDto;
+import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.servicePackage.ServicePackageDetailDto;
 import com.wac.autocore.exception.BookingNotFoundException;
 
@@ -44,21 +48,21 @@ public class BookingController extends OverController {
     private final ServicePackageService servicePackageService;
     // TABLE VIEW (BookingView.fxml)
     @FXML
-    private TableView<Booking> bookingTable;
+    private TableView<BookingSummaryDto> bookingTable;
     @FXML
-    private TableColumn<Booking, Long> idColumn;
+    private TableColumn<BookingSummaryDto, Long> idColumn;
     @FXML
-    private TableColumn<Booking, String> vehicleIdColumn;
+    private TableColumn<BookingSummaryDto, String> vehicleIdColumn;
     @FXML
-    private TableColumn<Booking, LocalDate> dateColumn;
+    private TableColumn<BookingSummaryDto, LocalDate> dateColumn;
     @FXML
-    private TableColumn<Booking, String> descriptionColumn;
+    private TableColumn<BookingSummaryDto, String> descriptionColumn;
     @FXML
-    private TableColumn<Booking, String> statusColumn;
+    private TableColumn<BookingSummaryDto, String> statusColumn;
     @FXML
-    private TableColumn<Booking, String> mechanicColumn;
+    private TableColumn<BookingSummaryDto, String> mechanicColumn;
     @FXML
-    private TableColumn<Booking, String> estimateColumn;
+    private TableColumn<BookingSummaryDto, String> estimateColumn;
 
     // FORM FIELDS (NewBookingView.fxml)
     @FXML
@@ -74,7 +78,7 @@ public class BookingController extends OverController {
     @FXML
     private ComboBox<String> mechanicField;
     @FXML
-    private ListView<ServiceItem> servicesListView;
+    private ListView<ServiceItemSummaryDto> servicesListView;
 
     // COPIED NEW BOOKING FORM (NewCopiedBooking.fxml)
     @FXML
@@ -82,7 +86,7 @@ public class BookingController extends OverController {
     @FXML
     private DatePicker datePickerCopied;
     @FXML
-    private ListView<ServiceItem> servicesListViewCopied;
+    private ListView<ServiceItemSummaryDto> servicesListViewCopied;
     @FXML
     private TextArea descriptionFieldCopied;
     @FXML
@@ -141,6 +145,7 @@ public class BookingController extends OverController {
     // ---------------------------------------------------------
     @FXML
     public void initialize() {
+        //TODO Ändra så att den hämtar från dto???
         // BookingView.fxml
         if (bookingTable != null) {
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -165,7 +170,7 @@ public class BookingController extends OverController {
                 int totalMinutes = 0;
                 BigDecimal totalPrice = BigDecimal.ZERO;
 
-                for (BookingServiceItem item : cellData.getValue().getServiceItems()) {
+                for (BookingServiceItemDto item : cellData.getValue().getServiceItems()) {
                     totalMinutes += item.getDurationAtTime();
                     totalPrice = totalPrice.add(item.getPriceAtTime());
                 }
@@ -263,7 +268,7 @@ public class BookingController extends OverController {
     private void loadBookingData() {
         if (bookingTable != null) {
             try {
-                ObservableList<Booking> bookingData = FXCollections.observableArrayList(
+                ObservableList<BookingSummaryDto> bookingData = FXCollections.observableArrayList(
                         bookingService.getAllBookingsWithServiceItems()
                 );
                 bookingTable.setItems(bookingData);
@@ -276,8 +281,8 @@ public class BookingController extends OverController {
         }
     }
     //Sätter serviceItem-detailsvyn med selectedbooking från BookingView.
-
-    public void setBooking(Booking booking) {
+//TODO använd DTO
+    public void setBooking(BookingFullDto booking) {
         if (booking == null) {
             return;
         }
@@ -286,7 +291,7 @@ public class BookingController extends OverController {
                 FXCollections.observableArrayList(booking.getServiceItems())
         );
 
-        BookingState state = booking.getStatus();
+        BookingState state = booking.getStatus(); // Hur sätts detta?
         bookingIdLabel.setText(String.valueOf(booking.getId()));
         mechanicLabel.setText(booking.getMechanic().getName());
         customerLabel.setText(booking.getVehicle().getCustomer().getName());
@@ -348,21 +353,21 @@ public class BookingController extends OverController {
         }
     }
 
-    private void loadServiceList(ListView<ServiceItem> listView) {
+    private void loadServiceList(ListView<ServiceItemSummaryDto> listView) {
         if (listView != null) {
-            ObservableList<ServiceItem> serviceItems =
+            ObservableList<ServiceItemSummaryDto> serviceItems =
                     FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
 
-            for (ServiceItem item : serviceItems) {
+            for (ServiceItemSummaryDto item : serviceItems) {
                 serviceSelections.putIfAbsent(item.getId(),
                         new SimpleBooleanProperty(false));
             }
 
             listView.setCellFactory(CheckBoxListCell.forListView(
                     item -> serviceSelections.get(item.getId()),
-                    new StringConverter<ServiceItem>() {
+                    new StringConverter<ServiceItemSummaryDto>() {
                         @Override
-                        public String toString(ServiceItem item) {
+                        public String toString(ServiceItemSummaryDto item) {
 
                             String text = item.getName() + " — " + item.getPrice() + " SEK"
                                     + " — " + item.getEstimatedMinutes() + " min";
@@ -376,7 +381,7 @@ public class BookingController extends OverController {
                         }
 
                         @Override
-                        public ServiceItem fromString(String text) {
+                        public ServiceItemSummaryDto fromString(String text) {
                             return null;
                         }
                     }
@@ -446,7 +451,7 @@ public class BookingController extends OverController {
             }
             Long mechanicId = Long.parseLong(mechanicString.split(" - ")[0]);
 
-            List<ServiceItem> selectedServices = servicesListView.getItems().stream()
+            List<ServiceItemSummaryDto> selectedServices = servicesListView.getItems().stream()
                     .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                     .collect(Collectors.toList());
 
@@ -463,12 +468,6 @@ public class BookingController extends OverController {
             logger.error("Could not save booking to database. {}", e.getMessage(), e);
             messages.showError(getString("booking.error.unexpected"));
         }
-    }
-
-    @FXML
-    private void handleCancel() {
-        messages.clearMessage();
-        navigateToBookingView();
     }
 
     @FXML
@@ -508,7 +507,7 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleShowBookingServices() {
-        Booking selectedBooking =
+        BookingSummaryDto selectedBooking =
                 bookingTable.getSelectionModel().getSelectedItem();
 
         if (selectedBooking == null) {
@@ -532,8 +531,9 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleAddBookingService() {
+        //TODO Vad ska vara i Service lagret och vad i Controller.
         try {
-            List<ServiceItem> availableServices =
+            List<ServiceItemSummaryDto> availableServices =
                     new ArrayList<>(serviceItemService.getAllServiceItems());
 
             for (BookingServiceItem bookingItem : bookingServicesTable.getItems()) {
@@ -546,7 +546,7 @@ public class BookingController extends OverController {
                 return;
             }
 
-            ChoiceDialog<ServiceItem> dialog =
+            ChoiceDialog<ServiceItemSummaryDto> dialog =
                     new ChoiceDialog<>(null, availableServices);
 
             dialog.initStyle(StageStyle.UNDECORATED);
@@ -573,7 +573,8 @@ public class BookingController extends OverController {
             ColorAdjust dimming = new ColorAdjust();
             dimming.setBrightness(-0.35);
 
-            Optional<ServiceItem> selectedService;
+            Optional<ServiceItemSummaryDto
+                    > selectedService;
 
             mainView.setEffect(dimming);
             try {
@@ -591,7 +592,7 @@ public class BookingController extends OverController {
                     selectedService.get()
             );
 
-            for (Booking booking : bookingService.getAllBookingsWithServiceItems()) {
+            for (BookingSummaryDto booking : bookingService.getAllBookingsWithServiceItems()) {
                 if (booking.getId().equals(currentBookingId)) {
                     setBooking(booking);
                     break;
@@ -660,7 +661,6 @@ public class BookingController extends OverController {
         } catch (IllegalStateException e) {
             messages.showError(getString("booking.error.booking_state_completed"));
             navigateToBookingView();
-            return;
         }
     }
 
@@ -682,7 +682,7 @@ public class BookingController extends OverController {
     @FXML
     private void handleSaveCopiedBooking() {
         try {
-            String vehicleString = vehicleCopiedLabel.getText(); // vad tar jag ut här??
+            String vehicleString = vehicleCopiedLabel.getText();
             if (vehicleString == null) {
                 messages.showError(getString("booking.error.select_vehicle"));
                 return;
@@ -717,7 +717,7 @@ public class BookingController extends OverController {
             }
             Long mechanicId = Long.parseLong(mechanicString.split(" - ")[0]);
 
-            List<ServiceItem> selectedServices = servicesListViewCopied.getItems().stream()
+            List<ServiceItemSummaryDto> selectedServices = servicesListViewCopied.getItems().stream()
                     .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
                     .collect(Collectors.toList());
 

@@ -104,7 +104,6 @@ public class Booking {
         BookingServiceItem item = new BookingServiceItem(this, serviceItem, price, duration);
         this.serviceItems.add(item);
     }
-
     public List<BookingServiceItem> getServiceItems() {
         return serviceItems;
     }
