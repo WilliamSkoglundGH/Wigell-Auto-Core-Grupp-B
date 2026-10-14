@@ -63,7 +63,7 @@ public class MechanicService {
                 .map(WorkOrderMapper::toMechanicDto)
                 .collect(Collectors.toList());
     }
-    
+
     private Mechanic getMechanicEntity(Long id) {
         return mechanicRepository.findById(id)
                 .orElseThrow(() -> new MechanicNotFoundException("mechanic.error.could_not_load"));

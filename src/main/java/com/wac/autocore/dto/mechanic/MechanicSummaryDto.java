@@ -7,15 +7,17 @@ public class MechanicSummaryDto {
     private String name;
     private String phone;
     private String specialization;
+    private boolean available;
 
     public MechanicSummaryDto() {
     }
 
-    public MechanicSummaryDto(Long id, String name, String phone, String specialization) {
+    public MechanicSummaryDto(Long id, String name, String phone, String specialization, boolean available) {
         this.id = id;
         this.name = name;
         this.phone = phone;
         this.specialization = specialization;
+        this.available = available;
     }
 
     public Long getId() {
@@ -48,5 +50,13 @@ public class MechanicSummaryDto {
 
     public void setSpecialization(String specialization) {
         this.specialization = specialization;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 }

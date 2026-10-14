@@ -1,5 +1,7 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
+import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.workorder.*;
 import com.wac.autocore.exception.*;
 import com.wac.autocore.factory.WorkOrderFactory;
@@ -73,10 +75,10 @@ public class WorkOrderService {
     @Transactional
     public WorkOrder createClaimWorkOrder(Long originalWorkOrderId, WorkOrderCreateDto dto){
         WorkOrder workOrderOriginal = workOrderRepository.findById(originalWorkOrderId).orElseThrow(
-                () -> new WorkOrderNotFoundException("workorder.error.claim_requires_completed"));
+                () -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
         if(workOrderOriginal.getStatus() != WorkOrderState.COMPLETED){
-            throw new WorkOrderWrongStatusException("Only completed work orders can be claimed");
+            throw new WorkOrderWrongStatusException("workorder.error.claim_requires_completed");
         }
 
         WorkOrder workOrderClaim = workOrderFactory.createClaim(workOrderOriginal, dto);
@@ -88,22 +90,22 @@ public class WorkOrderService {
     public void startWorkOrder(Long workOrderId) {
 
         if (workOrderId == null) {
-            throw new IllegalArgumentException("Work order cannot be null.");
+            throw new IllegalArgumentException("workorder.error.work_order_not_found");
         }
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canStart()) {
-            throw new WorkOrderWrongStatusException("Wrong status for start: " + workOrder.getStatus());
+            throw new WorkOrderWrongStatusException("workorder.error.booking_not_state_created");
         }
 
-        Mechanic mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
+        MechanicSummaryDto mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
         if (!mechanic.isAvailable()) {
-            throw new MechanicNotAvailableException("Mechanic not available, occupied on another workorder.");
+            throw new MechanicNotAvailableException("workorder.error.mechanic_not_available");
         }
 
         if (workOrder.getServiceItems().isEmpty()) {
-            throw new BookingWithoutServicesException("Work order has no services.");
+            throw new BookingWithoutServicesException("workorder.error.booking_without_service_item");
         }
 
         workOrder.setStartTime(LocalDateTime.now());
@@ -131,7 +133,7 @@ public class WorkOrderService {
             throw new WorkOrderWrongStatusException("Wrong status for complete: " + workOrder.getStatus());
         }
 
-        Mechanic mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
+        MechanicSummaryDto mechanic = mechanicService.getMechanic(workOrder.getMechanic().getId());
         workOrder.setEndTime(LocalDateTime.now());
         workOrder.setStatus(workOrder.getStatus().getNext());
         mechanic.setAvailable(true);
@@ -182,14 +184,14 @@ public class WorkOrderService {
     @Transactional
     public void confirmWorkOrder(Long workOrderId) {
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canConfirm()) {
-            throw new WorkOrderWrongStatusException("Cannot confirm work order in state: " + workOrder.getStatus());
+            throw new WorkOrderWrongStatusException("workorder.error.work_order_wrong_status");
         }
 
         if (!workOrder.isReadyToConfirm()) {
-            throw new IllegalStateException("Work order is missing vehicle, mechanic or services.");
+            throw new WorkOrderWrongStatusException("workorder.error.not_ready_to_confirm");
         }
 
         workOrder.setStatus(workOrder.getStatus().getNext());
@@ -199,9 +201,7 @@ public class WorkOrderService {
     @Transactional
     public void cancelWorkOrder(Long workOrderId) {
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException(
-                        "Work order not found with ID: " + workOrderId
-                ));
+                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found" ));
 
         if (!workOrder.getStatus().canCancel()) {
             throw new WorkOrderWrongStatusException(
@@ -214,7 +214,7 @@ public class WorkOrderService {
     }
 
     @Transactional
-    public void addServiceItemToWorkOrder(Long workOrderId, ServiceItem serviceItem) {
+    public void addServiceItemToWorkOrder(Long workOrderId, ServiceItemSummaryDto serviceItem) {
         if (serviceItem == null) {
             throw new IllegalArgumentException("Service item is required.");
         }
@@ -230,7 +230,7 @@ public class WorkOrderService {
             throw new IllegalStateException("Services on a planned work order are managed through its booking.");
         }
 
-        workOrder.addServiceItem(serviceItem, serviceItem.getPrice(), serviceItem.getEstimatedMinutes());
+        workOrder.addServiceItem( serviceItem, serviceItem.getPrice(), serviceItem.getEstimatedMinutes());
         workOrderRepository.save(workOrder);
     }
 
@@ -263,14 +263,14 @@ public class WorkOrderService {
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("Work order not found with ID: " + workOrderId));
+                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canEdit()) {
-            throw new WorkOrderWrongStatusException("Cannot edit work order in state: " + workOrder.getStatus());
+            throw new WorkOrderWrongStatusException("workorder.error.not_editable");
         }
 
         if (workOrder.getBooking() != null) {
-            throw new IllegalStateException("A planned work order is managed through its booking.");
+            throw new WorkOrderWrongStatusException("workorder.error.planned_workorder");
         }
 
         if (dto.getMechanic() != null) {
