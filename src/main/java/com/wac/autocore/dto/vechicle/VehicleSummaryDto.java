@@ -1,19 +1,19 @@
 package com.wac.autocore.dto.vechicle;
 
-import javax.persistence.Column;
-
-public class VehicleDto {
+public class VehicleSummaryDto {
     // För vyn i newBooking
     private Long id;
     private String registrationNumber;
     private String brand;
     private String model;
+    private String customerName;
 
-    public VehicleDto(Long id, String registrationNumber, String brand, String model) {
+    public VehicleSummaryDto(Long id, String registrationNumber, String brand, String model, String customerName) {
         this.id = id;
         this.registrationNumber = registrationNumber;
         this.brand = brand;
         this.model = model;
+        this.customerName = customerName;
     }
 
     public Long getId() {
@@ -30,6 +30,14 @@ public class VehicleDto {
 
     public String getModel() {
         return model;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
     @Override

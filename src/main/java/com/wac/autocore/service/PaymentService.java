@@ -1,5 +1,8 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.payment.PaymentSummaryDto;
+import com.wac.autocore.exception.InvoiceNotFoundException;
+import com.wac.autocore.mapper.PaymentMapper;
 import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.Payment;
 import com.wac.autocore.repository.InvoiceRepository;
@@ -29,14 +32,15 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
-    public List<Payment> getAllPayments() {
-        return paymentRepository.findAll();
+    public List<PaymentSummaryDto> getAllPayments() {
+        return PaymentMapper.toSummaryDtoList(paymentRepository.findAll());
     }
+
     @Transactional
     public String processPayment(Long invoiceId, String paymentType) {
         // 1. Hämta fakturan från databasen
         Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new RuntimeException("Invoice with ID " + invoiceId + " was not found."));
+                .orElseThrow(() -> new InvoiceNotFoundException("invoice.error.invoice_not_found"));
 
 
         PaymentStrategy strategy = strategies.values().stream()
