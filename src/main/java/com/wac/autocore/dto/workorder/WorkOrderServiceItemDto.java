@@ -22,7 +22,6 @@ public class WorkOrderServiceItemDto {
 
     // Getters för JavaFX
 
-
     public Long getId() {
         return id;
     }

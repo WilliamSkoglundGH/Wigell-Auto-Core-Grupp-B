@@ -46,6 +46,15 @@ public class WorkOrderService {
                 .map(WorkOrderMapper::toSummaryDto)
                 .collect(Collectors.toList());
     }
+    @Transactional(readOnly = true)
+    public List<WorkOrderForInvoiceDto> getAllWorkOrdersForInvoice() {
+        List<WorkOrder> workOrders = workOrderRepository.findAll();
+
+        return workOrders.stream()
+                .map(WorkOrderMapper::toInvoiceViewDto)
+                .collect(Collectors.toList());
+    }
+
     /*
      * WorkOrder gets serviceItems from Booking if workorder has status=CREATED else it gets it from it's own data
      */

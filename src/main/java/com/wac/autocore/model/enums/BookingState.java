@@ -33,6 +33,7 @@ public enum BookingState {
         public boolean canAddServiceItem() {
             return true;
         }
+
         @Override
         public boolean canClone(){ return false; }
 
@@ -72,7 +73,7 @@ public enum BookingState {
         @Override
         public boolean canClone(){ return true; }
 
-        @Override
+         @Override
         public BookingState getNext() {
             throw new BookingWrongStatusException("No more states after completed.");
         }
