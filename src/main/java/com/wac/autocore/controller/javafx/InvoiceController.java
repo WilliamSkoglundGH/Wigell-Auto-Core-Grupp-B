@@ -192,7 +192,7 @@ public class InvoiceController extends OverController {
     private void populateComboBox() {
         try {
             List<InvoiceSummaryDto> invoices = invoiceService.getAllInvoices();
-//Workorders som är Completed
+
             List<WorkOrderForInvoiceDto> workOrdersList = workOrderService.getAllWorkOrdersForInvoice().stream()
                     .filter(wo -> wo.getSTATUS().canCreateInvoice())
                     .filter(wo -> invoices.stream()

@@ -1,7 +1,11 @@
 package com.wac.autocore.dto.vechicle;
 
-public class VehicleCreateDto {
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
+public class VehicleCreateDto {
+    @NotEmpty
+    @Size(min = 1, max = 60)
     private String registrationNumber;
     private String brand;
     private String model;
