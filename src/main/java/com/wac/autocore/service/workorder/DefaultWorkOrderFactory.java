@@ -1,4 +1,4 @@
-package com.wac.autocore.factory;
+package com.wac.autocore.service.workorder;
 
 import com.wac.autocore.dto.workorder.WorkOrderCreateDto;
 import com.wac.autocore.model.*;
@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Component
-public class DefaultWorkOrderFactory implements WorkOrderFactory{
+public class DefaultWorkOrderFactory implements WorkOrderFactory {
     @Override
     public WorkOrder createPlanned(Booking booking) {
         if (booking == null) {

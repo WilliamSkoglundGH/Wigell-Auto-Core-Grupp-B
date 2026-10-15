@@ -1,4 +1,4 @@
-package com.wac.autocore.factory;
+package com.wac.autocore.service.workorder;
 
 import com.wac.autocore.dto.workorder.WorkOrderCreateDto;
 import com.wac.autocore.model.*;
