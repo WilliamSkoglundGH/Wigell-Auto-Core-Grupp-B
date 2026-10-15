@@ -79,14 +79,4 @@ public class InvoiceLine {
         this.discount = discount;
     }
 
-    @Override
-    public String toString() {
-        return "InvoiceLine{" +
-                "id=" + id +
-                ", invoice=" + invoice +
-                ", nameOfService='" + nameOfService + '\'' +
-                ", amount=" + amount +
-                ", discount=" + discount +
-                '}';
-    }
 }

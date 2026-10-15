@@ -188,16 +188,4 @@ public class WorkOrder {
                 && !serviceItems.isEmpty();
     }
 
-    /*
-    @Override
-    public String toString() {
-        return id +
-                " - Booking ID: " + booking.getId() +
-                //" - ServiceItems: " + serviceItems.toString() +
-                " - Start time: " + startTime +
-                " - End time: " + endTime +
-                " | Status: " + status;
-    }
-
- */
 }
