@@ -76,13 +76,4 @@ public class Payment {
         this.successful = successful;
     }
 
-    @Override
-    public String toString() {
-        return id +
-                " - Invoice ID: " + invoice.getId() +
-                " | Amount: " + amount + " SEK" +
-                " | Payment type: " + paymentType +
-                " | Date: " + paymentDate +
-                " | Successful: " + (successful ? "Yes" : "No");
-    }
 }

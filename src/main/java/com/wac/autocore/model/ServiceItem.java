@@ -63,11 +63,4 @@ public class ServiceItem {
         this.estimatedMinutes = estimatedMinutes;
     }
 
-    @Override
-    public String toString() {
-        return id + " - " + name +
-                " | Price: " + price + " SEK" +
-                " | Description: " + description +
-                " | Estimated time: " + estimatedMinutes + " min";
-    }
 }

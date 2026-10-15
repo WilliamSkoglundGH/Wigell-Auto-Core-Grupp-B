@@ -71,11 +71,4 @@ public class Mechanic {
         this.available = available;
     }
 
-    @Override
-    public String toString() {
-        return id + " - " + name +
-                " | Phone: " + phone +
-                " | Specialization: " + specialization +
-                " | Available: " + (available ? "Yes" : "No");
-    }
 }
