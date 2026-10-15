@@ -21,7 +21,7 @@ public class ServicePackage {
     @Column(nullable = false)
     private boolean active = true;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "service_package_items",
             joinColumns = @JoinColumn(name = "service_package_id"),

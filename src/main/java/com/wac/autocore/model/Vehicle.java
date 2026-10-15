@@ -14,7 +14,7 @@ public class Vehicle {
     private String model;
     @Column(name = "year", nullable = false)
     private int year;
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
@@ -71,16 +71,5 @@ public class Vehicle {
 
     public void setYear(int year) {
         this.year = year;
-    }
-
-
-
-    @Override
-    public String toString() {
-        return id + " - " +
-                registrationNumber + " | " +
-                brand + " " + model +
-                " | Year: " + year +
-                " | Customer name: " + customer.getName();
     }
 }

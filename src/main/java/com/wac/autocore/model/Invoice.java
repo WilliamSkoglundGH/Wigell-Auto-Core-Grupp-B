@@ -115,14 +115,4 @@ public class Invoice {
         this.paid = paid;
     }
 
-    @Override
-    public String toString() {
-        return id +
-                " - Work order ID: " + workOrder.getId() +
-                " | Date: " + invoiceDate +
-                " | Amount: " + amount + " SEK" +
-                " | Discount: " + discount + " SEK" +
-                " | Total: " + (amount.subtract(discount)) + " SEK" +
-                " | Paid: " + (paid ? "Yes" : "No");
-    }
 }
