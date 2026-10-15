@@ -43,6 +43,7 @@ public class InvoiceSummaryDto {
     public void setDiscount(BigDecimal discount) { this.discount = discount; }
     public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
     public void setPaid(boolean paid) { this.paid = paid; }
+
 }
 
 

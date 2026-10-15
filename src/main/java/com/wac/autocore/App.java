@@ -1,6 +1,6 @@
 package com.wac.autocore;
 
-import com.wac.autocore.gui.util.LanguageManager;
+import com.wac.autocore.controller.util.LanguageManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,7 +14,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.net.URL;
-import java.util.ResourceBundle;
 
 @SpringBootApplication
 public class App extends Application {
@@ -29,7 +28,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        URL fxmlLocation = App.class.getResource("/com/wac/autocore/gui/view/MainView.fxml");
+        URL fxmlLocation = App.class.getResource("/com/wac/autocore/controller/view/MainView.fxml");
 
         if (fxmlLocation == null) {
             throw new IllegalArgumentException("Could not find the FXML file in the application resources!");
@@ -52,7 +51,7 @@ public class App extends Application {
             }
         });
 
-        scene.getStylesheets().add(getClass().getResource("/com/wac/autocore/gui/css/styleguide.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/com/wac/autocore/controller/css/styleguide.css").toExternalForm());
         stage.setTitle("Wigell Auto Core - Workshop Management System");
         stage.setScene(scene);
         stage.setResizable(true);

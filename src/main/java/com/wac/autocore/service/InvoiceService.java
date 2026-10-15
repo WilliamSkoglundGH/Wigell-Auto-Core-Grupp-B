@@ -51,7 +51,7 @@ public class InvoiceService {
     @Transactional(readOnly = true)
     public InvoiceDetailsDto getInvoice(Long invoiceId) {
         Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new InvoiceNotFoundException("invoice.error.not_found"));
+                .orElseThrow(() -> new EntityNotFoundException("invoice.error.not_found"));
 
         return InvoiceMapper.toInvoiceDetailsDto(invoice);
     }
@@ -63,7 +63,7 @@ public class InvoiceService {
         String discountCode = dto.getDiscountCode();
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("invoice.error.workorder_not_found"));
+                .orElseThrow(() -> new EntityNotFoundException("invoice.error.workorder_not_found"));
 
         if (!WorkOrderState.COMPLETED.equals(workOrder.getStatus())) {
             throw new WorkOrderNotReadyForInvoiceException("invoice.error.workorder_not_completed");

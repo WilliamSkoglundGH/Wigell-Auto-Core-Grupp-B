@@ -1,10 +1,9 @@
 package com.wac.autocore.service;
 
-import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.workorder.*;
 import com.wac.autocore.exception.*;
-import com.wac.autocore.factory.WorkOrderFactory;
+import com.wac.autocore.service.workorder.WorkOrderFactory;
 import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.*;
 import com.wac.autocore.model.enums.BookingState;
@@ -48,12 +47,22 @@ public class WorkOrderService {
                 .map(WorkOrderMapper::toSummaryDto)
                 .collect(Collectors.toList());
     }
+    @Transactional(readOnly = true)
+    public List<WorkOrderForInvoiceDto> getAllWorkOrdersForInvoice() {
+        List<WorkOrder> workOrders = workOrderRepository.findAll();
 
+        return workOrders.stream()
+                .map(WorkOrderMapper::toInvoiceViewDto)
+                .collect(Collectors.toList());
+    }
 
+    /*
+     * WorkOrder gets serviceItems from Booking if workorder has status=CREATED else it gets it from it's own data
+     */
     @Transactional(readOnly = true)
     public WorkOrderResponseDto getWorkOrderById(long id) {
 
-        WorkOrder workOrder = workOrderRepository.findById(id).orElseThrow(() -> new WorkOrderNotFoundException(
+        WorkOrder workOrder = workOrderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
                 "workorder.error.work_order_not_found"));
 
             return WorkOrderMapper.toResponseDto(workOrder,
@@ -111,7 +120,7 @@ public class WorkOrderService {
         }
 
         WorkOrder workOrderOriginal = workOrderRepository.findById(originalWorkOrderId).orElseThrow(
-                () -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
+                () -> new EntityNotFoundException("workorder.error.work_order_not_found"));
 
         if(workOrderOriginal.getStatus() != WorkOrderState.COMPLETED){
             throw new WorkOrderWrongStatusException("workorder.error.claim_requires_completed");
@@ -130,7 +139,7 @@ public class WorkOrderService {
             throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
         }
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
+                .orElseThrow(() -> new EntityNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canStart()) {
             throw new WorkOrderWrongStatusException("workorder.error.work_order_wrong_status");
@@ -163,7 +172,7 @@ public class WorkOrderService {
             throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
         }
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
+                .orElseThrow(() -> new EntityNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canComplete()) {
             throw new WorkOrderWrongStatusException("workorder.error.work_order_wrong_status");
@@ -189,7 +198,7 @@ public class WorkOrderService {
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
+                .orElseThrow(() -> new EntityNotFoundException("workorder.error.work_order_not_found"));
 
         WorkOrderDetailsDto dto = new WorkOrderDetailsDto(workOrderId, workOrder.getStatus(), workOrder.getStartTime(), workOrder.getEndTime());
 
@@ -227,7 +236,7 @@ public class WorkOrderService {
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
+                .orElseThrow(() -> new EntityNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canConfirm()) {
             throw new WorkOrderWrongStatusException("workorder.error.work_order_wrong_status");
@@ -248,7 +257,7 @@ public class WorkOrderService {
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found" ));
+                .orElseThrow(() -> new EntityNotFoundException("workorder.error.work_order_not_found" ));
 
         if (!workOrder.getStatus().canCancel()) {
             throw new WorkOrderWrongStatusException(
@@ -270,7 +279,7 @@ public class WorkOrderService {
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException( "workorder.error.work_order_not_found"));
+                .orElseThrow(() -> new EntityNotFoundException( "workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canEdit()) {
             throw new WorkOrderWrongStatusException("workorder.error.not_editable");
@@ -296,7 +305,7 @@ public class WorkOrderService {
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
+                .orElseThrow(() -> new EntityNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canEdit()) {
             throw new WorkOrderWrongStatusException("workorder.error.not_editable");
@@ -309,7 +318,7 @@ public class WorkOrderService {
         WorkOrderServiceItem itemToRemove = workOrder.getServiceItems().stream()
                 .filter(item -> item.getId().equals(workOrderServiceItemId))
                 .findFirst()
-                .orElseThrow(() -> new ServiceItemNotFoundException("serviceItem.error.could_not_load"));
+                .orElseThrow(() -> new EntityNotFoundException("serviceItem.error.could_not_load"));
 
         workOrder.getServiceItems().remove(itemToRemove);
         workOrderRepository.save(workOrder);
@@ -326,7 +335,7 @@ public class WorkOrderService {
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
+                .orElseThrow(() -> new EntityNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canEdit()) {
             throw new WorkOrderWrongStatusException("workorder.error.not_editable");
