@@ -2,11 +2,10 @@ package com.wac.autocore.service;
 
 import com.wac.autocore.dto.booking.*;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
-import com.wac.autocore.exception.BookingNotFoundException;
+import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.exception.BookingWrongStatusException;
 import com.wac.autocore.mapper.BookingMapper;
 import com.wac.autocore.model.*;
-import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.repository.BookingRepository;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
@@ -44,14 +43,14 @@ public class BookingService {
     @Transactional(readOnly = true)
     public BookingSummaryDto getBooking(Long id) {
         Booking found = bookingRepository.findById(id)
-                .orElseThrow(() -> new BookingNotFoundException("booking.error.not_found"));
+                .orElseThrow(() -> new EntityNotFoundException("booking.error.not_found"));
 
         return BookingMapper.toBookingSummaryDto(found);
     }
     @Transactional
     public BookingFullDto getBookingByIdWithDetails(Long id) {
          Booking found = bookingRepository.findByIdWithDetails(id)
-                  .orElseThrow(() -> new BookingNotFoundException("booking.error.not_found"));
+                  .orElseThrow(() -> new EntityNotFoundException("booking.error.not_found"));
          //TODO Skapa metod bestäm vad som måste finnas med.
         return BookingMapper.toBookingFullDto(found);
     }
@@ -90,7 +89,7 @@ public class BookingService {
     @Transactional
     public void addServiceItemToBooking(Long bookingId, ServiceItemSummaryDto selectedServiceItem) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
-                new BookingNotFoundException("booking.error.not_found"));
+                new EntityNotFoundException("booking.error.not_found"));
 
         if (selectedServiceItem == null) {
             throw new IllegalArgumentException("booking.error.select_services");
@@ -116,7 +115,7 @@ public class BookingService {
     @Transactional
     public void removeServiceItemFromBooking(Long bookingId, Long bookingServiceItemId) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
-                new BookingNotFoundException("booking.error.not_found"));
+                new EntityNotFoundException("booking.error.not_found"));
 
         if (!bookingForUpdate.getStatus().canRemoveServiceItem()) {
             throw new IllegalStateException("booking.error.not_editable");
@@ -159,7 +158,7 @@ public class BookingService {
 
     protected Booking getBookingEntity(Long id) {
         return bookingRepository.findById(id).orElseThrow(
-                () -> new BookingNotFoundException("booking.error.not_found"));
+                () -> new EntityNotFoundException("booking.error.not_found"));
     }
 
 

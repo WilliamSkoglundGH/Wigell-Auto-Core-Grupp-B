@@ -2,9 +2,7 @@ package com.wac.autocore.service;
 
 import com.wac.autocore.dto.vechicle.VehicleCreateDto;
 import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
-import com.wac.autocore.exception.CustomerNotFoundException;
-import com.wac.autocore.exception.ServiceItemNotFoundException;
-import com.wac.autocore.exception.VehicleNotFoundException;
+import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.mapper.VehicleMapper;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.model.Vehicle;
@@ -35,13 +33,13 @@ public class VehicleService {
     @Transactional(readOnly = true)
     public VehicleSummaryDto getVehicle(Long id) {
         return VehicleMapper.toDto(vehicleRepository.findById(id)
-                .orElseThrow(() -> new VehicleNotFoundException("vehicle.error.not_found")));
+                .orElseThrow(() -> new EntityNotFoundException("vehicle.error.not_found")));
     }
     @Transactional
     public VehicleSummaryDto saveVehicle(VehicleCreateDto dto) {
             // 1. Hämta kund-entiteten säkert via ID
             Customer customer = customerRepository.findById(dto.getCustomerId())
-                    .orElseThrow(() -> new CustomerNotFoundException("customer.error.could_not_load"));
+                    .orElseThrow(() -> new EntityNotFoundException("customer.error.could_not_load"));
 
             // 2. Låt mappen skapa entiteten från DTO:n
             Vehicle vehicle = VehicleMapper.toEntity(dto, customer);
@@ -52,6 +50,6 @@ public class VehicleService {
     }
     protected Vehicle getVehicleEntity(Long vehicleId) {
         return vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new VehicleNotFoundException("vehicle.error.not_found"));
+                .orElseThrow(() -> new EntityNotFoundException("vehicle.error.not_found"));
     }
 }
