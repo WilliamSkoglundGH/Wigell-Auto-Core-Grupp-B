@@ -397,6 +397,14 @@ public class BookingController extends OverController {
     // ---------------------------------------------------------
     // BUTTON ACTIONS & NAVIGATION
     // ---------------------------------------------------------
+    @FXML
+    private void handleCancel(){
+        if (messages != null) {
+            messages.clearMessage();
+        }
+        handleBackToBookings();
+    }
+
 
     @FXML
     private void handleNewBooking() {
