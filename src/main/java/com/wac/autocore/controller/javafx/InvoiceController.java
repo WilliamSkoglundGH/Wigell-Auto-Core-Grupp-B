@@ -4,6 +4,8 @@ import com.wac.autocore.dto.invoice.InvoiceSummaryDto;
 import com.wac.autocore.dto.invoice.InvoiceDetailsDto;
 import com.wac.autocore.dto.invoice.InvoiceCreateDto;
 import com.wac.autocore.dto.invoice.InvoiceLineDto;
+import com.wac.autocore.dto.workorder.WorkOrderDetailsDto;
+import com.wac.autocore.dto.workorder.WorkOrderForInvoiceDto;
 import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.exception.BusinessException;
 import com.wac.autocore.controller.util.FormatUIUtil;
@@ -43,7 +45,7 @@ public class InvoiceController extends OverController {
     @FXML private TableColumn<InvoiceSummaryDto, String> paidColumn;
 
     @FXML private TextField discountCodeField;
-    @FXML private ComboBox<WorkOrderSummaryDto> workOrderComboBox;
+    @FXML private ComboBox<WorkOrderForInvoiceDto> workOrderComboBox;
     @FXML private Button detailsButton;
 
     @FXML private Label idLabel;
@@ -190,26 +192,29 @@ public class InvoiceController extends OverController {
     private void populateComboBox() {
         try {
             List<InvoiceSummaryDto> invoices = invoiceService.getAllInvoices();
-
-            List<WorkOrderSummaryDto> workOrdersList = workOrderService.getAllWorkOrders().stream()
-                    .filter(wo -> WorkOrderState.COMPLETED.equals(wo.getStatus()))
+//Workorders som är Completed
+            List<WorkOrderForInvoiceDto> workOrdersList = workOrderService.getAllWorkOrdersForInvoice().stream()
+                    .filter(wo -> wo.getSTATUS().canCreateInvoice())
                     .filter(wo -> invoices.stream()
                             .noneMatch(inv -> inv.getWorkOrderId().equals(wo.getId())))
                     .collect(Collectors.toList());
 
             workOrderComboBox.setItems(FXCollections.observableArrayList(workOrdersList));
 
-            workOrderComboBox.setConverter(new StringConverter<WorkOrderSummaryDto>() {
+            workOrderComboBox.setConverter(new StringConverter<WorkOrderForInvoiceDto>() {
                 @Override
-                public String toString(WorkOrderSummaryDto dto) {
-                    return getString("invoice.option.workorderId") + ": "
+                public String toString(WorkOrderForInvoiceDto dto) {
+                    return getString("invoice.option.customer") + ": "
+                            + dto.getCustomerName()
+                            + " ( " + dto.getVehicleRegistrationNumber() + " )"
+                            + " | " + getString("invoice.option.workorderId") + ": "
                             + dto.getId()
                             + " | " + getString("invoice.option.bookingId") + ": "
-                            + dto.getBookingId();
+                            + (dto.getBookingId() == null ? " - " : dto.getBookingId());
                 }
 
                 @Override
-                public WorkOrderSummaryDto fromString(String s) {
+                public WorkOrderForInvoiceDto fromString(String s) {
                     return null;
                 }
             });

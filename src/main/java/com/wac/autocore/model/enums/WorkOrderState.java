@@ -31,6 +31,9 @@ public enum WorkOrderState {
         }
 
         @Override
+        public boolean canCreateInvoice(){return false;};
+
+        @Override
         public WorkOrderState getNext() {
             return CONFIRMED;
         }
@@ -61,6 +64,9 @@ public enum WorkOrderState {
         public boolean canEdit(){
             return false;
         }
+
+        @Override
+        public boolean canCreateInvoice(){return false;};
 
         @Override
         public WorkOrderState getNext() {
@@ -95,6 +101,9 @@ public enum WorkOrderState {
         }
 
         @Override
+        public boolean canCreateInvoice(){return false;};
+
+        @Override
         public WorkOrderState getNext() { return COMPLETED; }
     },
 
@@ -123,6 +132,9 @@ public enum WorkOrderState {
         public boolean canEdit(){
             return false;
         }
+
+        @Override
+        public boolean canCreateInvoice(){return true;};
 
         @Override
         public WorkOrderState getNext() {
@@ -157,6 +169,9 @@ public enum WorkOrderState {
         }
 
         @Override
+        public boolean canCreateInvoice(){return false;};
+
+        @Override
         public WorkOrderState getNext() {
             throw new WorkOrderWrongStatusException("No more states after cancellation.");
         }
@@ -167,5 +182,6 @@ public enum WorkOrderState {
     public abstract boolean canCancel();
     public abstract boolean canConfirm();
     public abstract boolean canEdit();
+    public abstract boolean canCreateInvoice();
     public abstract WorkOrderState getNext();
 }

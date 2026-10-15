@@ -1,9 +1,6 @@
 package com.wac.autocore.mapper;
 
-import com.wac.autocore.dto.workorder.WorkOrderForMechanicDto;
-import com.wac.autocore.dto.workorder.WorkOrderResponseDto;
-import com.wac.autocore.dto.workorder.WorkOrderServiceItemDto;
-import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
+import com.wac.autocore.dto.workorder.*;
 import com.wac.autocore.model.*;
 
 import java.util.List;
@@ -132,6 +129,20 @@ public final class WorkOrderMapper {
                 .collect(Collectors.toList());
 
         return workOrderItems;
+    }
+    public static WorkOrderForInvoiceDto toInvoiceViewDto(WorkOrder workOrder) {
+        if (workOrder == null) {
+            return null;
+        }
+        Long bookingId = (workOrder.getBooking() != null) ? workOrder.getBooking().getId() : null;
+
+        return new WorkOrderForInvoiceDto(
+                workOrder.getId(),
+                bookingId,
+                workOrder.getVehicle().getRegistrationNumber(),
+                workOrder.getVehicle().getCustomer().getName(),
+                workOrder.getStatus()
+        );
     }
 
 }
