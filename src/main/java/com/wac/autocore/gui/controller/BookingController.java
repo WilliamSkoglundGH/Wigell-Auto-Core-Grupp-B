@@ -405,7 +405,6 @@ public class BookingController extends OverController {
         handleBackToBookings();
     }
 
-
     @FXML
     private void handleNewBooking() {
         if (messages != null) {
@@ -660,7 +659,7 @@ public class BookingController extends OverController {
             // 1. Se till att listan laddas först så mapen fylls
             loadServiceList(servicesListViewCopied);
 
-            // 2. Applicera förvalen efteråt
+            // 2. Applicera för valen efteråt
             applyPreselection(dto);
 
         } catch (IllegalStateException e) {
