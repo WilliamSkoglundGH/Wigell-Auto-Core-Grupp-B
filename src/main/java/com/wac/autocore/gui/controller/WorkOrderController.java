@@ -595,7 +595,7 @@ public class WorkOrderController extends OverController {
             Long rowId = draftServiceRowIds.get(item.getId());
 
             if (checked && rowId == null) {
-                workOrderService.addServiceItemToWorkOrder(currentWorkOrderId, item);
+                workOrderService.addServiceItemToWorkOrder(currentWorkOrderId, item.getId());
             } else if (!checked && rowId != null) {
                 workOrderService.removeServiceItemFromWorkOrder(currentWorkOrderId, rowId);
             }

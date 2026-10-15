@@ -7,6 +7,7 @@ import com.wac.autocore.exception.*;
 import com.wac.autocore.factory.WorkOrderFactory;
 import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.model.enums.WorkOrderState;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
@@ -47,9 +48,8 @@ public class WorkOrderService {
                 .map(WorkOrderMapper::toSummaryDto)
                 .collect(Collectors.toList());
     }
-    /*
-     * WorkOrder gets serviceItems from Booking if workorder has status=CREATED else it gets it from it's own data
-     */
+
+
     @Transactional(readOnly = true)
     public WorkOrderResponseDto getWorkOrderById(long id) {
 
@@ -63,18 +63,35 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrderSummaryDto createPlannedWorkOrder(Long bookingId) {
+        if (bookingId == null) {
+            throw new BookingNotFoundException("booking.error.not_found");
+        }
+
         Booking booking = bookingService.getBookingEntity(bookingId);
+
+        if (booking.getStatus() != BookingState.BOOKED) {
+            throw new BookingWrongStatusException(
+                    "workorder.error.booking_not_booked");
+        }
+
         booking.setStatus(booking.getStatus().getNext());
 
         WorkOrder newWorkOrder = workOrderFactory.createPlanned(booking);
         WorkOrder saved = workOrderRepository.save(newWorkOrder);
 
         return WorkOrderMapper.toSummaryDto(saved);
-
     }
 
     @Transactional
     public WorkOrderSummaryDto createDropInWorkOrder(WorkOrderCreateDto dto){
+        if(dto == null){
+            throw new IllegalArgumentException("Workorder data is required");
+        }
+
+        if (dto.getVehicleId() == null) {
+            throw new VehicleNotFoundException("workorder.error.select_vehicle");
+        }
+
         Vehicle vehicle = vehicleService.getVehicleEntity(dto.getVehicleId());
 
         Mechanic mechanic = dto.getMechanicId() != null ? mechanicService.getMechanicEntity(dto.getMechanicId()) : null;
@@ -89,6 +106,10 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrderSummaryDto createClaimWorkOrder(Long originalWorkOrderId, WorkOrderCreateDto dto){
+        if (originalWorkOrderId == null) {
+            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+        }
+
         WorkOrder workOrderOriginal = workOrderRepository.findById(originalWorkOrderId).orElseThrow(
                 () -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
@@ -105,15 +126,14 @@ public class WorkOrderService {
 
     @Transactional
     public void startWorkOrder(Long workOrderId) {
-
         if (workOrderId == null) {
-            throw new IllegalArgumentException("workorder.error.work_order_not_found");
+            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
         }
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canStart()) {
-            throw new WorkOrderWrongStatusException("workorder.error.booking_not_state_created");
+            throw new WorkOrderWrongStatusException("workorder.error.work_order_wrong_status");
         }
 
         Mechanic mechanic = mechanicService.getMechanicEntity(workOrder.getMechanic().getId());
@@ -122,7 +142,7 @@ public class WorkOrderService {
         }
 
         if (workOrder.getServiceItems().isEmpty()) {
-            throw new BookingWithoutServicesException("workorder.error.booking_without_service_item");
+            throw new BookingWithoutServicesException("serviceItem.error.no_service_items");
         }
 
         workOrder.setStartTime(LocalDateTime.now());
@@ -139,9 +159,8 @@ public class WorkOrderService {
 
     @Transactional
     public void completeWorkOrder(Long workOrderId) {
-
         if (workOrderId == null) {
-            throw new IllegalArgumentException("Work order cannot be null.");
+            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
         }
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
@@ -165,7 +184,10 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrderDetailsDto getWorkOrderInfoById(Long workOrderId) {
-//kolla status, om den är created, hämta från booking
+        if (workOrderId == null) {
+            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+        }
+
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
@@ -200,6 +222,10 @@ public class WorkOrderService {
 
     @Transactional
     public void confirmWorkOrder(Long workOrderId) {
+        if (workOrderId == null) {
+            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+        }
+
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
@@ -217,6 +243,10 @@ public class WorkOrderService {
 
     @Transactional
     public void cancelWorkOrder(Long workOrderId) {
+        if (workOrderId == null) {
+            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+        }
+
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found" ));
 
@@ -230,9 +260,13 @@ public class WorkOrderService {
     }
 
     @Transactional
-    public void addServiceItemToWorkOrder(Long workOrderId, ServiceItemSummaryDto serviceItemDto) {
-        if (serviceItemDto == null) {
-            throw new IllegalArgumentException("Service item is required.");
+    public void addServiceItemToWorkOrder(Long workOrderId, Long serviceItemId) {
+        if (workOrderId == null) {
+            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+        }
+
+        if (serviceItemId == null) {
+            throw new ServiceItemNotFoundException("serviceItem.error.no_service_items");
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
@@ -246,13 +280,21 @@ public class WorkOrderService {
             throw new WorkOrderWrongStatusException("workorder.error.planned_workorder");
         }
 
-        ServiceItem serviceItem = serviceItemService.getServiceItemEntity(serviceItemDto.getId());
+        ServiceItem serviceItem = serviceItemService.getServiceItemEntity(serviceItemId);
         workOrder.addServiceItem(serviceItem, serviceItem.getPrice(), serviceItem.getEstimatedMinutes());
         workOrderRepository.save(workOrder);
     }
 
     @Transactional
     public void removeServiceItemFromWorkOrder(Long workOrderId, Long workOrderServiceItemId) {
+        if (workOrderId == null) {
+            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+        }
+
+        if (workOrderServiceItemId == null) {
+            throw new ServiceItemNotFoundException("serviceItem.error.no_service_items");
+        }
+
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new WorkOrderNotFoundException("workorder.error.work_order_not_found"));
 
@@ -275,6 +317,10 @@ public class WorkOrderService {
 
     @Transactional
     public void updateWorkOrder(Long workOrderId, WorkOrderCreateDto dto) {
+        if (workOrderId == null) {
+            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+        }
+
         if (dto == null) {
             throw new IllegalArgumentException("Update data is required.");
         }
