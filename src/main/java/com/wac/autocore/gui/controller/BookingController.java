@@ -747,7 +747,13 @@ public class BookingController extends OverController {
             messages.showError(getString("booking.error.unexpected"));
         }
     }
-
+    @FXML
+    private void handleCancel() {
+        if (messages != null) {
+            messages.clearMessage();
+        }
+        navigateToBookingView();
+    }
     @FXML
     private void navigateToNewCopiedBooking() {
         loadCenterView("/com/wac/autocore/gui/view/NewCopiedBooking.fxml");

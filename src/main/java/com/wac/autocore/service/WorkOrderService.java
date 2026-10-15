@@ -1,10 +1,9 @@
 package com.wac.autocore.service;
 
-import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.workorder.*;
 import com.wac.autocore.exception.*;
-import com.wac.autocore.factory.WorkOrderFactory;
+import com.wac.autocore.service.workorder.WorkOrderFactory;
 import com.wac.autocore.mapper.WorkOrderMapper;
 import com.wac.autocore.model.*;
 import com.wac.autocore.model.enums.WorkOrderState;
