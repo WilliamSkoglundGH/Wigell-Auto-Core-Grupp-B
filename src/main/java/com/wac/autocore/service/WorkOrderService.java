@@ -55,10 +55,7 @@ public class WorkOrderService {
                 .map(WorkOrderMapper::toInvoiceViewDto)
                 .collect(Collectors.toList());
     }
-
-    /*
-     * WorkOrder gets serviceItems from Booking if workorder has status=CREATED else it gets it from it's own data
-     */
+    
     @Transactional(readOnly = true)
     public WorkOrderResponseDto getWorkOrderById(long id) {
 
