@@ -60,5 +60,10 @@ import java.math.BigDecimal;
         public void setEstimatedMinutes(int estimatedMinutes) {
             this.estimatedMinutes = estimatedMinutes;
         }
+
+        public String toString() { return
+            name + " — " + price + " SEK"
+                    + " — " + estimatedMinutes + " min";
+        }
     }
 
