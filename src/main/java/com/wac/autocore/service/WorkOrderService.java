@@ -73,7 +73,7 @@ public class WorkOrderService {
     @Transactional
     public WorkOrderSummaryDto createPlannedWorkOrder(Long bookingId) {
         if (bookingId == null) {
-            throw new BookingNotFoundException("booking.error.not_found");
+            throw new EntityNotFoundException("booking.error.not_found");
         }
 
         Booking booking = bookingService.getBookingEntity(bookingId);
@@ -98,7 +98,7 @@ public class WorkOrderService {
         }
 
         if (dto.getVehicleId() == null) {
-            throw new VehicleNotFoundException("workorder.error.select_vehicle");
+            throw new EntityNotFoundException("workorder.error.select_vehicle");
         }
 
         Vehicle vehicle = vehicleService.getVehicleEntity(dto.getVehicleId());
@@ -116,7 +116,7 @@ public class WorkOrderService {
     @Transactional
     public WorkOrderSummaryDto createClaimWorkOrder(Long originalWorkOrderId, WorkOrderCreateDto dto){
         if (originalWorkOrderId == null) {
-            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+            throw new EntityNotFoundException("workorder.error.work_order_not_found");
         }
 
         WorkOrder workOrderOriginal = workOrderRepository.findById(originalWorkOrderId).orElseThrow(
@@ -136,7 +136,7 @@ public class WorkOrderService {
     @Transactional
     public void startWorkOrder(Long workOrderId) {
         if (workOrderId == null) {
-            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+            throw new EntityNotFoundException("workorder.error.work_order_not_found");
         }
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new EntityNotFoundException("workorder.error.work_order_not_found"));
@@ -169,7 +169,7 @@ public class WorkOrderService {
     @Transactional
     public void completeWorkOrder(Long workOrderId) {
         if (workOrderId == null) {
-            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+            throw new EntityNotFoundException("workorder.error.work_order_not_found");
         }
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new EntityNotFoundException("workorder.error.work_order_not_found"));
@@ -194,7 +194,7 @@ public class WorkOrderService {
     @Transactional
     public WorkOrderDetailsDto getWorkOrderInfoById(Long workOrderId) {
         if (workOrderId == null) {
-            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+            throw new EntityNotFoundException("workorder.error.work_order_not_found");
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
@@ -232,7 +232,7 @@ public class WorkOrderService {
     @Transactional
     public void confirmWorkOrder(Long workOrderId) {
         if (workOrderId == null) {
-            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+            throw new EntityNotFoundException("workorder.error.work_order_not_found");
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
@@ -253,7 +253,7 @@ public class WorkOrderService {
     @Transactional
     public void cancelWorkOrder(Long workOrderId) {
         if (workOrderId == null) {
-            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+            throw new EntityNotFoundException("workorder.error.work_order_not_found");
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
@@ -271,11 +271,11 @@ public class WorkOrderService {
     @Transactional
     public void addServiceItemToWorkOrder(Long workOrderId, Long serviceItemId) {
         if (workOrderId == null) {
-            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+            throw new EntityNotFoundException("workorder.error.work_order_not_found");
         }
 
         if (serviceItemId == null) {
-            throw new ServiceItemNotFoundException("serviceItem.error.no_service_items");
+            throw new EntityNotFoundException("serviceItem.error.no_service_items");
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
@@ -297,11 +297,11 @@ public class WorkOrderService {
     @Transactional
     public void removeServiceItemFromWorkOrder(Long workOrderId, Long workOrderServiceItemId) {
         if (workOrderId == null) {
-            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+            throw new EntityNotFoundException("workorder.error.work_order_not_found");
         }
 
         if (workOrderServiceItemId == null) {
-            throw new ServiceItemNotFoundException("serviceItem.error.no_service_items");
+            throw new EntityNotFoundException("serviceItem.error.no_service_items");
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
@@ -327,7 +327,7 @@ public class WorkOrderService {
     @Transactional
     public void updateWorkOrder(Long workOrderId, WorkOrderCreateDto dto) {
         if (workOrderId == null) {
-            throw new WorkOrderNotFoundException("workorder.error.work_order_not_found");
+            throw new EntityNotFoundException("workorder.error.work_order_not_found");
         }
 
         if (dto == null) {
