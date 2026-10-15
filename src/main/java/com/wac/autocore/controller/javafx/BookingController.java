@@ -4,7 +4,7 @@ import com.wac.autocore.dto.booking.*;
 
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.servicePackage.ServicePackageDetailDto;
-import com.wac.autocore.exception.BookingNotFoundException;
+import com.wac.autocore.exception.EntityNotFoundException;
 
 import com.wac.autocore.exception.BusinessException;
 import com.wac.autocore.model.*;
@@ -502,7 +502,7 @@ public class BookingController extends OverController {
             bookingServicesTable.getItems().remove(selectedItem);
             messages.showSuccess(getString("booking.success.service_removed"));
 
-        } catch (BookingNotFoundException | IllegalArgumentException
+        } catch (EntityNotFoundException | IllegalArgumentException
                  | IllegalStateException e) {
             messages.showError(getString(e.getMessage()));
 
@@ -729,7 +729,6 @@ public class BookingController extends OverController {
                 messages.showError(getString("booking.error.select_services"));
                 return;
             }
-
             try {
                 BookingCreateDto dto = new BookingCreateDto(vehicleId, selectedDate, description, mechanicId);
 

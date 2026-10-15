@@ -2,7 +2,7 @@ package com.wac.autocore.service;
 
 import com.wac.autocore.dto.customer.CustomerCreateDto;
 import com.wac.autocore.dto.customer.CustomerSummaryDto;
-import com.wac.autocore.exception.CustomerNotFoundException;
+import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.mapper.CustomerMapper;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.repository.CustomerRepository;
@@ -29,7 +29,7 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public CustomerSummaryDto getCustomer(Long id) {
         return CustomerMapper.toSummaryDto(repo.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException("customer.error.not_found")));
+                .orElseThrow(() -> new EntityNotFoundException("customer.error.not_found")));
     }
 
     @Transactional

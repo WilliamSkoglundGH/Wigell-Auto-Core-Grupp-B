@@ -3,7 +3,7 @@ package com.wac.autocore.service;
 import com.wac.autocore.dto.booking.BookingSummaryDto;
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.workorder.WorkOrderForMechanicDto;
-import com.wac.autocore.exception.MechanicNotFoundException;
+import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.mapper.BookingMapper;
 import com.wac.autocore.mapper.MechanicMapper;
 import com.wac.autocore.mapper.WorkOrderMapper;
@@ -66,6 +66,6 @@ public class MechanicService {
 
     public Mechanic getMechanicEntity(Long id) {
         return mechanicRepository.findById(id)
-                .orElseThrow(() -> new MechanicNotFoundException("mechanic.error.could_not_load"));
+                .orElseThrow(() -> new EntityNotFoundException("mechanic.error.could_not_load"));
     }
 }

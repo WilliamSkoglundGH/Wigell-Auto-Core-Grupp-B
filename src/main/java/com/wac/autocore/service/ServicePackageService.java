@@ -1,21 +1,17 @@
 package com.wac.autocore.service;
 
-import com.wac.autocore.dto.serviceItem.ServiceItemCreateDto;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.servicePackage.ServicePackageDetailDto;
 import com.wac.autocore.dto.servicePackage.ServicePackageSummaryDto;
-import com.wac.autocore.exception.ServicePackageNotFoundException;
-import com.wac.autocore.mapper.ServiceItemMapper;
+import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.mapper.ServicePackageMapper;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.model.ServicePackage;
-import com.wac.autocore.repository.ServiceItemRepository;
 import com.wac.autocore.repository.ServicePackageRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,6 +55,6 @@ public class ServicePackageService {
     @Transactional(readOnly = true)
     public ServicePackageDetailDto getPackage(Long id) {
         return ServicePackageMapper.toDetailDto( servicePackageRepository.findById(id)
-                .orElseThrow(() -> new ServicePackageNotFoundException("serviceItem.package.error.not_found")));
+                .orElseThrow(() -> new EntityNotFoundException("serviceItem.package.error.not_found")));
     }
 }

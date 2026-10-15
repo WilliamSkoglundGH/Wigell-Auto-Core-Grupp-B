@@ -1,7 +1,7 @@
 package com.wac.autocore.service;
 
 import com.wac.autocore.dto.payment.PaymentSummaryDto;
-import com.wac.autocore.exception.InvoiceNotFoundException;
+import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.mapper.PaymentMapper;
 import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.Payment;
@@ -40,7 +40,7 @@ public class PaymentService {
     public String processPayment(Long invoiceId, String paymentType) {
         // 1. Hämta fakturan från databasen
         Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new InvoiceNotFoundException("invoice.error.not_found")); // Anpassa nyckeln efter era properties
+                .orElseThrow(() -> new EntityNotFoundException("invoice.error.not_found")); // Anpassa nyckeln efter era properties
 
         // 2. Hitta rätt betalningsstrategi
         PaymentStrategy strategy = strategies.values().stream()
