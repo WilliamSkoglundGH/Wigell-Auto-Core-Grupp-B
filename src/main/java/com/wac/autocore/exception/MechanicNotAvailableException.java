@@ -1,6 +1,6 @@
 package com.wac.autocore.exception;
 
-public class MechanicNotAvailableException extends RuntimeException {
+public class MechanicNotAvailableException extends BusinessException {
     public MechanicNotAvailableException(String message) {
         super(message);
     }

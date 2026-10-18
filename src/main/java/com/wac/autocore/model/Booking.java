@@ -15,7 +15,7 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     //Behöver denna va eager?
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
     @Column(name = "booking_date", nullable = false)
@@ -27,7 +27,7 @@ public class Booking {
     @Column(name = "status", length = 20, nullable = false)
     private BookingState status = BookingState.BOOKED;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "mechanic_id", nullable = false)
     private Mechanic mechanic;
     @OneToMany(mappedBy = "booking",
@@ -104,17 +104,9 @@ public class Booking {
         BookingServiceItem item = new BookingServiceItem(this, serviceItem, price, duration);
         this.serviceItems.add(item);
     }
-
     public List<BookingServiceItem> getServiceItems() {
         return serviceItems;
     }
 
-    @Override
-    public String toString() {
-        return id + " - Vehicle ID: " + vehicle.getId() +
-                " | Date: " + date +
-                " | Description: " + description +
-                " | Status: " + status +
-                " | Mechanic: " + mechanic.getName();
-    }
+
 }

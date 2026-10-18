@@ -1,6 +1,6 @@
 package com.wac.autocore.exception;
 
-public class BookingWithoutServicesException extends RuntimeException {
+public class BookingWithoutServicesException extends BusinessException {
     public BookingWithoutServicesException(String message) {
         super(message);
     }

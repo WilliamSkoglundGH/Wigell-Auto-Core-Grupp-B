@@ -1,5 +1,8 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.dto.payment.PaymentSummaryDto;
+import com.wac.autocore.exception.EntityNotFoundException;
+import com.wac.autocore.mapper.PaymentMapper;
 import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.Payment;
 import com.wac.autocore.repository.InvoiceRepository;
@@ -11,14 +14,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class PaymentService {
-    private final Map<String, PaymentStrategy> strategies;
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
+
+    private final Map<String, PaymentStrategy> strategies;
     private final PaymentRepository paymentRepository;
     private final InvoiceRepository invoiceRepository;
 
@@ -29,24 +32,27 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
-    public List<Payment> getAllPayments() {
-        return paymentRepository.findAll();
+    public List<PaymentSummaryDto> getAllPayments() {
+        return PaymentMapper.toSummaryDtoList(paymentRepository.findAll());
     }
+
     @Transactional
     public String processPayment(Long invoiceId, String paymentType) {
         // 1. Hämta fakturan från databasen
         Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new RuntimeException("Invoice with ID " + invoiceId + " was not found."));
+                .orElseThrow(() -> new EntityNotFoundException("invoice.error.not_found")); // Anpassa nyckeln efter era properties
 
-
+        // 2. Hitta rätt betalningsstrategi
         PaymentStrategy strategy = strategies.values().stream()
                 .filter(s -> s.getPaymentType().equalsIgnoreCase(paymentType))
                 .findFirst()
                 .orElse(null);
-        BigDecimal amount = invoice.getTotalAmount();
+
         if (strategy == null) {
             throw new IllegalArgumentException("Unsupported payment type: " + paymentType);
         }
+
+        BigDecimal amount = invoice.getTotalAmount();
 
         // 3. Utför betalningen via strategin (sätter t.ex. fakturan som betald)
         String messageKey = strategy.processPayment(invoice, amount);
@@ -55,7 +61,7 @@ public class PaymentService {
         Payment payment = new Payment(invoice, amount, paymentType.toUpperCase());
 
         invoiceRepository.save(invoice);
-        Payment savedPayment = paymentRepository.save(payment);
+        paymentRepository.save(payment);
 
         logger.info("Payment of amount {} processed successfully using strategy [{}] for invoice ID {}",
                 amount, paymentType, invoiceId);

@@ -1,6 +1,9 @@
 package com.wac.autocore.service;
 
-import com.wac.autocore.exception.CustomerNotFoundException;
+import com.wac.autocore.dto.customer.CustomerCreateDto;
+import com.wac.autocore.dto.customer.CustomerSummaryDto;
+import com.wac.autocore.exception.EntityNotFoundException;
+import com.wac.autocore.mapper.CustomerMapper;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
@@ -19,54 +22,60 @@ public class CustomerService {
     }
 
     @Transactional(readOnly = true)
-    public List<Customer> getAllCustomers() {
-        return repo.findAll();
+    public List<CustomerSummaryDto> getAllCustomers() {
+        return CustomerMapper.toSummaryDtoList(repo.findAll());
     }
 
     @Transactional(readOnly = true)
-    public Customer getCustomer(Long id) {
-        return repo.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException("customer.error.not_found"));
+    public CustomerSummaryDto getCustomer(Long id) {
+        return CustomerMapper.toSummaryDto(repo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("customer.error.not_found")));
     }
 
     @Transactional
-    public Customer createCustomer(String name, String phone, String email, boolean vip) {
+    public CustomerSummaryDto createCustomer(CustomerCreateDto dto) {
 
-        if (name == null || name.isEmpty()) {
+        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("customer.error.enter_name");
         }
 
-        if (email == null || email.isEmpty()) {
+        if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
             throw new IllegalArgumentException("customer.error.enter_email");
         }
 
-        if (!email.contains("@") || !email.contains(".")) {
+        if (!dto.getEmail().contains("@") || !dto.getEmail().contains(".")) {
             throw new IllegalArgumentException("customer.error.invalid_email");
         }
 
-        if (phone != null && !phone.isEmpty()) {
+        String phone = dto.getPhone();
 
-            String regex = "^(07[023679]\\d{7}|0\\d{6,10}|\\+467[023679]\\d{7})$";
-
-            // Normalisera för validering: 070-1234567 → 0701234567
+        if (phone != null && !phone.trim().isEmpty()) {
             String normalized = phone.replace("-", "");
+            String regex = "^(07[023679]\\d{7}|0\\d{6,10}|\\+467[023679]\\d{7})$";
 
             if (!normalized.matches(regex)) {
                 throw new IllegalArgumentException("customer.error.invalid_phone");
             }
 
-            if (normalized.length() == 10) { // t.ex. 0701234567
+            if (normalized.length() == 10) {
                 phone = normalized.substring(0, 3) + "-" + normalized.substring(3);
             }
         }
 
-        Customer customer = new Customer(name, phone, email);
-        customer.setVip(vip);
+        Customer customer = new Customer(dto.getName(), phone, dto.getEmail());
+        customer.setVip(dto.isVip());
+        customer = repo.save(customer);
 
-        repo.save(customer);
-
-        return customer;
+        return new CustomerSummaryDto(
+                customer.getId(),
+                customer.getName(),
+                customer.getEmail(),
+                customer.getPhone(),
+                customer.isVip()
+        );
     }
+
+
 
 }
 

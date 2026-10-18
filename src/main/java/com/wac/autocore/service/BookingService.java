@@ -1,22 +1,20 @@
 package com.wac.autocore.service;
 
-import com.wac.autocore.dto.booking.BookingCloneDto;
-import com.wac.autocore.exception.BookingNotFoundException;
+import com.wac.autocore.dto.booking.*;
+import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
+import com.wac.autocore.exception.EntityNotFoundException;
+import com.wac.autocore.exception.BookingWrongStatusException;
 import com.wac.autocore.mapper.BookingMapper;
 import com.wac.autocore.model.*;
-import com.wac.autocore.model.enums.BookingState;
 import com.wac.autocore.repository.BookingRepository;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.sun.imageio.plugins.common.I18N.getString;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -24,61 +22,74 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final MechanicService mechanicService;
     private final VehicleService vehicleService;
+    private final ServiceItemService serviceItemService;
     private final WorkOrderRepository workOrderRepository;
 
     public BookingService(BookingRepository bookingRepository, MechanicService mechanicService, VehicleService vehicleService,
-                          WorkOrderRepository workOrderRepository) {
+                          WorkOrderRepository workOrderRepository,ServiceItemService serviceItemService) {
         this.bookingRepository = bookingRepository;
         this.mechanicService = mechanicService;
         this.vehicleService = vehicleService;
         this.workOrderRepository = workOrderRepository;
+        this.serviceItemService = serviceItemService;
     }
 
     @Transactional(readOnly = true)
-    public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
+    public List<BookingSummaryDto> getAllBookings() {
+        return BookingMapper.toBookingSummaryDtoList(bookingRepository.findAll());
     }
 
-
+//todo skapa en hjälpmetod så workorder kan plocka entity dirr till sinn planned servicemetod.
     @Transactional(readOnly = true)
-    public Booking getBooking(Long id) {
-        return bookingRepository.findById(id)
-                .orElseThrow(() -> new BookingNotFoundException("booking.error.not_found"));
+    public BookingSummaryDto getBooking(Long id) {
+        Booking found = bookingRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("booking.error.not_found"));
+
+        return BookingMapper.toBookingSummaryDto(found);
     }
     @Transactional
-    public Booking getBookingByIdWithDetails(Long id) {
-        return bookingRepository.findByIdWithDetails(id)
-                  .orElseThrow(() -> new BookingNotFoundException("booking.error.not_found"));
+    public BookingFullDto getBookingByIdWithDetails(Long id) {
+         Booking found = bookingRepository.findByIdWithDetails(id)
+                  .orElseThrow(() -> new EntityNotFoundException("booking.error.not_found"));
+         //TODO Skapa metod bestäm vad som måste finnas med.
+        return BookingMapper.toBookingFullDto(found);
     }
 
     @Transactional
-    public Booking saveBooking(Long vehicleId, LocalDate selectedDate, String description, Long mechanicId, List<ServiceItem> serviceItems) {
+    public BookingSummaryDto saveBooking(BookingCreateDto createDto, List<ServiceItemSummaryDto> serviceItems) {
 
         if (serviceItems == null || serviceItems.isEmpty()) {
             throw new IllegalArgumentException(
                     "booking.error.select_services"
             );
         }
+        Mechanic mechanic = mechanicService.getMechanicEntity(createDto.getMechanicId());
+        Vehicle vehicle = vehicleService.getVehicleEntity(createDto.getVehicleId());
 
-        Mechanic mechanic = mechanicService.getMechanic(mechanicId);
-        Vehicle vehicle = vehicleService.getVehicle(vehicleId);
+        List<Long> ids = serviceItems.stream()
+                .map(ServiceItemSummaryDto::getId)
+                .collect(Collectors.toList());
+
+        List<ServiceItem> foundServiceItems = serviceItemService.getAllServiceItemsEntity(ids);
 
         List<BookingServiceItem> items = new ArrayList<>();
 
-        Booking newBooking = new Booking(vehicle, selectedDate, description, mechanic, items);
+        Booking newBooking = new Booking(vehicle, createDto.getDate(), createDto.getDescription(), mechanic, items);
 
-        for (ServiceItem item : serviceItems) {
+        for (ServiceItem item : foundServiceItems) {
             newBooking.addServiceItem(item, item.getPrice(), item.getEstimatedMinutes());
         }
 
-        return bookingRepository.save(newBooking);
+        bookingRepository.save(newBooking);
+
+        return BookingMapper.toBookingSummaryDto(newBooking);
+
     }
 
     @Transactional
-    public Booking addServiceItemToBooking(Long bookingId, ServiceItem selectedServiceItem) {
-
+    public void addServiceItemToBooking(Long bookingId, ServiceItemSummaryDto selectedServiceItem) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
-                new BookingNotFoundException("booking.error.not_found"));
+                new EntityNotFoundException("booking.error.not_found"));
 
         if (selectedServiceItem == null) {
             throw new IllegalArgumentException("booking.error.select_services");
@@ -87,22 +98,24 @@ public class BookingService {
         if (!bookingForUpdate.getStatus().canAddServiceItem()) {
             throw new IllegalStateException("booking.error.not_editable");
         }
-        bookingForUpdate.addServiceItem(selectedServiceItem, selectedServiceItem.getPrice(), selectedServiceItem.getEstimatedMinutes());
+        ServiceItem foundServiceItem = serviceItemService.getServiceItemEntity(selectedServiceItem.getId());
+
+        bookingForUpdate.addServiceItem(foundServiceItem, selectedServiceItem.getPrice(), selectedServiceItem.getEstimatedMinutes());
 
         syncPlannedWorkOrder(bookingForUpdate);
-        return bookingRepository.save(bookingForUpdate);
-
+        bookingRepository.save(bookingForUpdate);
     }
 
     @Transactional(readOnly = true)
-    public List<Booking> getAllBookingsWithServiceItems() {
-        return bookingRepository.findAllWithServiceItems();
+    public List<BookingFullDto> getAllBookingsWithServiceItems() {
+      return bookingRepository.findAllWithServiceItems().stream().map(BookingMapper::toBookingFullDto).collect(Collectors.toList());
+
     }
 
     @Transactional
-    public Booking removeServiceItemFromBooking(Long bookingId, Long bookingServiceItemId) {
+    public void removeServiceItemFromBooking(Long bookingId, Long bookingServiceItemId) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
-                new BookingNotFoundException("booking.error.not_found"));
+                new EntityNotFoundException("booking.error.not_found"));
 
         if (!bookingForUpdate.getStatus().canRemoveServiceItem()) {
             throw new IllegalStateException("booking.error.not_editable");
@@ -118,14 +131,15 @@ public class BookingService {
         bookingForUpdate.getServiceItems().remove(itemToRemove);
 
         syncPlannedWorkOrder(bookingForUpdate);
-        return bookingRepository.save(bookingForUpdate);
+        bookingRepository.save(bookingForUpdate);
+
     }
 
-@Transactional
+    @Transactional
     public BookingCloneDto cloneBooking(Long id) {
-        Booking copiedBooking= getBookingByIdWithDetails(id);
-        if(copiedBooking.getStatus() != BookingState.COMPLETED) {
-            throw new IllegalStateException("här");
+        BookingFullDto copiedBooking= getBookingByIdWithDetails(id);
+        if(!copiedBooking.getStatus().canClone()) {
+            throw new BookingWrongStatusException("booking.error.booking_state_completed");
         }
        return BookingMapper.toCloneDto(copiedBooking);
     }
@@ -140,6 +154,11 @@ public class BookingService {
                         item.getDurationAtTime());
             }
         });
+    }
+
+    protected Booking getBookingEntity(Long id) {
+        return bookingRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("booking.error.not_found"));
     }
 
 

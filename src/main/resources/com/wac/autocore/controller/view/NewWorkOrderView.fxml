@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox styleClass="container-padding" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wac.autocore.controller.javafx.WorkOrderController">
+
+    <children>
+
+
+        <GridPane hgap="10" vgap="12">
+            <Label styleClass="heading-2" text="%workOrder.newHeading" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <!-- Formulär FÖRBOKAD-->
+            <Label text="%workOrder.bookingLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <ComboBox fx:id="bookingComboBox" prefWidth="250" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+
+            <HBox styleClass="button-spacing" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                <Button onAction="#handleSaveWorkOrder" text="%btn.save.prebooked" />
+                <Button onAction="#handleCancel" text="%btn.cancel" />
+            </HBox>
+            <Label text="           " GridPane.columnIndex="2" GridPane.rowIndex="0" />
+            <Label text="           " GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Label text="           " GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <Label text="           " GridPane.columnIndex="2" GridPane.rowIndex="3" />
+            <Label text="           " GridPane.columnIndex="2" GridPane.rowIndex="4" />
+            <Label text="           " GridPane.columnIndex="2" GridPane.rowIndex="5" />
+
+
+        <!-- Formulär DROPIN-->
+            <Label styleClass="heading-2" text="%workOrder.dropin.heading" GridPane.columnIndex="4" GridPane.rowIndex="0" />
+            <ComboBox fx:id="vehicleComboDropIn" prefWidth="250" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+            <!-- Vehicle -->
+            <Label text="%workOrder.dropin.vehicleLabel" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+            <!-- Date -->
+            <Label text="%workOrder.dropin.dateLabel" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+            <DatePicker fx:id="datePickerDropIn" prefWidth="250" promptText="YYYY-MM-DD" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+
+            <!-- Val av tjänster -->
+            <Label text="%workOrder.dropin.servicesLabel" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+
+            <ListView fx:id="servicesListViewDropIn" prefHeight="200" prefWidth="450" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+
+            <!-- Description -->
+            <Label text="%workOrder.dropin.descriptionLabel" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+            <TextArea fx:id="descriptionFieldDropIn" prefRowCount="3" prefWidth="250" promptText="%booking.prompt-desc" wrapText="true" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+
+            <!-- Mechanic -->
+            <Label text="%workOrder.dropin.mechanic" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+            <ComboBox fx:id="mechanicFieldDropIn" prefWidth="250" GridPane.columnIndex="4" GridPane.rowIndex="5" />
+
+            <HBox styleClass="button-spacing" GridPane.columnIndex="4" GridPane.rowIndex="6">
+                <Button text="%btn.save.dropin" onAction="#handleSaveDropIn"/>
+                <Button text="%btn.cancel" onAction="#handleCancel"/>
+            </HBox>
+
+        </GridPane>
+
+
+
+    </children>
+</VBox>

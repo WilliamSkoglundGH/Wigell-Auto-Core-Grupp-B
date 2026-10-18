@@ -14,6 +14,10 @@ public enum BookingState {
             return true;
         }
 
+        @Override
+        public boolean canClone(){ return false; }
+
+        @Override
         public BookingState getNext() {
             return WORK_ORDER_CREATED;
         }
@@ -30,6 +34,10 @@ public enum BookingState {
             return true;
         }
 
+        @Override
+        public boolean canClone(){ return false; }
+
+        @Override
         public BookingState getNext() {
             return IN_PROGRESS;
         }
@@ -44,7 +52,10 @@ public enum BookingState {
         public boolean canAddServiceItem() {
             return false;
         }
+        @Override
+        public boolean canClone(){ return false; }
 
+        @Override
         public BookingState getNext() {
             return COMPLETED;
         }
@@ -59,8 +70,10 @@ public enum BookingState {
         public boolean canAddServiceItem() {
             return false;
         }
-
         @Override
+        public boolean canClone(){ return true; }
+
+         @Override
         public BookingState getNext() {
             throw new BookingWrongStatusException("No more states after completed.");
         }
@@ -69,6 +82,8 @@ public enum BookingState {
     public abstract boolean canRemoveServiceItem();
 
     public abstract boolean canAddServiceItem();
+
+    public abstract boolean canClone();
 
     public abstract BookingState getNext();
 

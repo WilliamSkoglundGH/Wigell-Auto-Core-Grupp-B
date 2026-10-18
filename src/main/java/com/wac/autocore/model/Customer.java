@@ -61,11 +61,4 @@ public class Customer {
         this.vip = vip;
     }
 
-    @Override
-    public String toString() {
-        return id + " - " + name +
-                " | Phone: " + phone +
-                " | Email: " + email +
-                " | VIP: " + (vip ? "Yes" : "No");
-    }
 }
