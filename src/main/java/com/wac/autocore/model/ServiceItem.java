@@ -1,5 +1,5 @@
 package com.wac.autocore.model;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
