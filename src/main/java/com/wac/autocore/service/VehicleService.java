@@ -10,9 +10,11 @@ import com.wac.autocore.repository.CustomerRepository;
 import com.wac.autocore.repository.VehicleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -26,28 +28,34 @@ public class VehicleService {
         this.customerRepository = customerRepository;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<VehicleSummaryDto> getAllVehicles() {
         return VehicleMapper.toDtoList(vehicleRepository.findAll());
     }
+
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public VehicleSummaryDto getVehicle(Long id) {
         return VehicleMapper.toDto(vehicleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("vehicle.error.not_found")));
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
     public VehicleSummaryDto saveVehicle(VehicleCreateDto dto) {
-            // 1. Hämta kund-entiteten säkert via ID
-            Customer customer = customerRepository.findById(dto.getCustomerId())
-                    .orElseThrow(() -> new EntityNotFoundException("customer.error.could_not_load"));
+        // 1. Hämta kund-entiteten säkert via ID
+        Customer customer = customerRepository.findById(dto.getCustomerId())
+                .orElseThrow(() -> new EntityNotFoundException("customer.error.could_not_load"));
 
-            // 2. Låt mappen skapa entiteten från DTO:n
-            Vehicle vehicle = VehicleMapper.toEntity(dto, customer);
+        // 2. Låt mappen skapa entiteten från DTO:n
+        Vehicle vehicle = VehicleMapper.toEntity(dto, customer);
 
-            // 3. Spara och returnera som DTO
-            Vehicle savedVehicle = vehicleRepository.save(vehicle);
-            return VehicleMapper.toDto(savedVehicle);
+        // 3. Spara och returnera som DTO
+        Vehicle savedVehicle = vehicleRepository.save(vehicle);
+        return VehicleMapper.toDto(savedVehicle);
     }
+
     protected Vehicle getVehicleEntity(Long vehicleId) {
         return vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new EntityNotFoundException("vehicle.error.not_found"));

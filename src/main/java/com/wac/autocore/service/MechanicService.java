@@ -12,6 +12,7 @@ import com.wac.autocore.model.Mechanic;
 import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.repository.MechanicRepository;
 import com.wac.autocore.repository.WorkOrderRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,16 +32,19 @@ public class MechanicService {
         this.workOrderRepository = workOrderRepository;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<MechanicSummaryDto> getAllMechanics() {
         return MechanicMapper.toSummaryDtoList(mechanicRepository.findAll());
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public MechanicSummaryDto getMechanic(Long id) {
         return MechanicMapper.toSummaryDto(getMechanicEntity(id));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<BookingSummaryDto> getBookingsForMechanic(Long mechanicId) {
         Mechanic mechanic = getMechanicEntity(mechanicId);
@@ -55,6 +59,7 @@ public class MechanicService {
         return BookingMapper.toBookingSummaryDtoList(bookings);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<WorkOrderForMechanicDto> getWorkOrdersForMechanic(Long mechanicId) {
         List<WorkOrder> workOrders = workOrderRepository.findByMechanic_Id(mechanicId);
