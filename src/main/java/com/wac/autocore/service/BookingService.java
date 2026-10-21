@@ -39,7 +39,6 @@ public class BookingService {
         return BookingMapper.toBookingSummaryDtoList(bookingRepository.findAll());
     }
 
-//todo skapa en hjälpmetod så workorder kan plocka entity dirr till sinn planned servicemetod.
     @Transactional(readOnly = true)
     public BookingSummaryDto getBooking(Long id) {
         Booking found = bookingRepository.findById(id)
@@ -51,7 +50,6 @@ public class BookingService {
     public BookingFullDto getBookingByIdWithDetails(Long id) {
          Booking found = bookingRepository.findByIdWithDetails(id)
                   .orElseThrow(() -> new EntityNotFoundException("booking.error.not_found"));
-         //TODO Skapa metod bestäm vad som måste finnas med.
         return BookingMapper.toBookingFullDto(found);
     }
 

@@ -91,19 +91,14 @@ public class CustomerController extends OverController {
                         FXCollections.observableArrayList(customerService.getAllCustomers());
                 customerTable.setItems(customerData);
 
-            } catch (BusinessException e) {
-                if (messages != null) {
-                    messages.showError(getString(e.getMessage()));
-                }
-
             } catch (DataAccessException e) {
-                logger.error("Could not load customers from database. {}", e.getMessage(), e);
                 if (messages != null) {
+                    logger.error("Method: loadCustomerData | Could not load customers ", e);
                     messages.showError(getString("customer.error.could_not_load"));
                 }
 
             } catch (Exception e) {
-                logger.error("Method: loadCustomerData | Could not load ", e);
+                logger.error("Method: loadCustomerData | Unexpected ", e);
                 if (messages != null) {
                     messages.showError(getString("customer.error.could_not_load"));
                 }
@@ -156,7 +151,7 @@ public class CustomerController extends OverController {
             messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
-            logger.error("Could not save customer to database. {}", e.getMessage(), e);
+            logger.error("Method: handleSaveCustomer | Unexpected ", e);
             messages.showError(getString("customer.error.create_customer"));
         }
     }
