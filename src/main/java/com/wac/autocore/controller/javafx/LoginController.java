@@ -4,11 +4,12 @@ import com.wac.autocore.controller.util.LanguageManager;
 import com.wac.autocore.service.LoginService;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import javafx.scene.control.TextField;
@@ -21,6 +22,8 @@ import java.util.Locale;
 @Controller
 @Scope("prototype")
 public class LoginController extends OverController {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     private final LoginService loginService;
 
@@ -43,8 +46,6 @@ public class LoginController extends OverController {
 
     @FXML
     private void handleLogin() {
-        messageLabel.setText("");
-
         String username = usernameField.getText().trim();
         String password = passwordField.getText();
 
@@ -69,6 +70,7 @@ public class LoginController extends OverController {
 
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
+            logger.error("Method: handleLogin | Unexpected error during login", e);
             messageLabel.setText(getString("login.error"));
         }
     }
@@ -89,6 +91,7 @@ public class LoginController extends OverController {
                     loginButton.getScene()
             );
         } catch (IOException e) {
+            logger.error("Method: handleToggleLanguage | Could not reload login view", e);
             messageLabel.setText(getString("login.error"));
         }
     }
