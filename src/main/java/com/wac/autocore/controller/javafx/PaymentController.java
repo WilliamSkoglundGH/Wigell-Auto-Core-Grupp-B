@@ -142,7 +142,7 @@ public class PaymentController extends OverController {
                 paymentTable.setItems(paymentData);
             }
         } catch (Exception e) {
-            logger.error("Could not load payments", e);
+            logger.error("Method: loadPaymentData | Could not load payments", e);
             if (messages != null) {
                 messages.showError(getString("payment.error.could_not_load"));
             }
@@ -178,7 +178,8 @@ public class PaymentController extends OverController {
                 } catch (BusinessException e) {
                     messages.showError(getString(e.getMessage()));
                 } catch (Exception e) {
-                    logger.error("Could not process payment: {}", e.getMessage(), e);
+                    logger.error("Method: handleSavePayment | Could not process payment | InvoiceId={} | Type={}",
+                            selectedInvoice.getId(), paymentType, e);
                     messages.showError(getString("payment.error.could_not_process"));
                 }
             } else {
