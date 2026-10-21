@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 @Controller
-@Scope("prototype")
+@Scope("prototype") // Lägg denna på controllers som styr flera fxml filer.
 public class VehicleController extends OverController {
 
     @FXML private TableView<VehicleSummaryDto> vehicleTable;

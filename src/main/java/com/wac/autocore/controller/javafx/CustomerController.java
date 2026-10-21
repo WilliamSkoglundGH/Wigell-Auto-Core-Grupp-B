@@ -49,10 +49,10 @@ public class CustomerController extends OverController {
     public void initialize() {
 
         if (customerTable != null) {
-            idColumn.setCellValueFactory(new PropertyValueFactory<CustomerSummaryDto, Long>("id"));
-            nameColumn.setCellValueFactory(new PropertyValueFactory<CustomerSummaryDto, String>("name"));
-            emailColumn.setCellValueFactory(new PropertyValueFactory<CustomerSummaryDto, String>("email"));
-            phoneColumn.setCellValueFactory(new PropertyValueFactory<CustomerSummaryDto, String>("phone"));
+            idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+            emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+            phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
 
             vipColumn.setCellValueFactory(cellData ->
                     new SimpleStringProperty(
@@ -103,7 +103,7 @@ public class CustomerController extends OverController {
                 }
 
             } catch (Exception e) {
-                logger.error("Could not load customers from database. {}", e.getMessage(), e);
+                logger.error("Method: loadCustomerData | Could not load ", e);
                 if (messages != null) {
                     messages.showError(getString("customer.error.could_not_load"));
                 }

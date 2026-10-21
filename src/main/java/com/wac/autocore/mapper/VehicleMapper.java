@@ -9,10 +9,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class VehicleMapper {
+public final class VehicleMapper {
 
     private VehicleMapper() {
-        // Privat konstruktor för att förhindra instansiering av utility-klass
     }
 
     public static VehicleSummaryDto toDto(Vehicle vehicle) {
