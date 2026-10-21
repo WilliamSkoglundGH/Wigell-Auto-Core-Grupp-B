@@ -56,7 +56,6 @@ public class BookingService {
     public BookingFullDto getBookingByIdWithDetails(Long id) {
          Booking found = bookingRepository.findByIdWithDetails(id)
                   .orElseThrow(() -> new EntityNotFoundException("booking.error.not_found"));
-         //TODO Skapa metod bestäm vad som måste finnas med.
         return BookingMapper.toBookingFullDto(found);
     }
 
