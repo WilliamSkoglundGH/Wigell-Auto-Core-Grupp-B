@@ -1,7 +1,9 @@
 package com.wac.autocore.config;
 
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.UserRole;
 import com.wac.autocore.repository.*;
+import com.wac.autocore.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Set;
 
 @Configuration
 public class DataInitializer {
@@ -61,6 +64,23 @@ public class DataInitializer {
                 bookingRepository.saveAll(Arrays.asList(booking1, booking2));
 
                 System.out.println(">>> Testdatan har laddats in i databasen utan problem!");
+            }
+        };
+    }
+    @Bean
+    public CommandLineRunner initializeDefaultUsers(UserService userService, UserRepository userRepository) {
+        return args -> {
+            //skapa users om de inte redan finns
+            if (userRepository.findByUsername("admin").isEmpty()) {
+                userService.registerUser("admin", "admin123", Set.of(UserRole.ADMIN));
+            }
+
+            if (userRepository.findByUsername("readonly").isEmpty()) {
+                userService.registerUser("readonly", "readonly123", Set.of(UserRole.READ_ONLY));
+            }
+
+            if (userRepository.findByUsername("mechanic").isEmpty()) {
+                userService.registerUser("mechanic", "mechanic123", Set.of(UserRole.MECHANIC));
             }
         };
     }
