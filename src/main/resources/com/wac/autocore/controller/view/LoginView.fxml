@@ -1,49 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane xmlns="http://javafx.com/javafx/17"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.wac.autocore.controller.javafx.LoginController">
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.wac.autocore.controller.javafx.LoginController">
 
-    <VBox alignment="CENTER"
-          spacing="16"
-          maxWidth="340"
-          maxHeight="-Infinity"
-          style="-fx-padding: 24;">
+    <top>
+        <VBox spacing="10" styleClass="header-box" style="-fx-alignment: center-left; -fx-padding: 10 20;">
 
-        <Label text="Wigell AutoCore"
-               styleClass="heading-1"/>
+            <ImageView fitHeight="175" preserveRatio="true">
+                <image>
+                    <Image url="@../img/wac-wac-logo/wac-wac-yellow-trp.png"/>
+                </image>
+            </ImageView>
 
-        <Label text="Logga in för att fortsätta"/>
-
-        <VBox spacing="6">
-            <Label text="Användarnamn"
-                   labelFor="$usernameField"/>
-
-            <TextField fx:id="usernameField"
-                       promptText="Ange användarnamn"/>
         </VBox>
+    </top>
 
-        <VBox spacing="6">
-            <Label text="Lösenord"
-                   labelFor="$passwordField"/>
+    <center>
+        <StackPane alignment="TOP_CENTER" style="-fx-padding: 40 0 0 0;">
 
-            <PasswordField fx:id="passwordField"
-                           promptText="Ange lösenord"/>
+            <VBox alignment="CENTER" spacing="16" maxWidth="340" maxHeight="-Infinity" style="-fx-padding: 24;">
+
+                <Label text="Wigell AutoCore" styleClass="heading-1"/>
+
+                <Label text="%login.subtitle"/>
+
+                <VBox spacing="6">
+                    <Label text="%login.username" labelFor="$usernameField"/>
+
+                    <TextField fx:id="usernameField" promptText="%login.username.prompt"/>
+                </VBox>
+
+                <VBox spacing="6">
+                    <Label text="%login.password" labelFor="$passwordField"/>
+                    <PasswordField fx:id="passwordField" promptText="%login.password.prompt"/>
+                </VBox>
+
+                <Button fx:id="loginButton" text="%login.button" defaultButton="true" maxWidth="Infinity" onAction="#handleLogin"/>
+
+
+            </VBox>
+
+        </StackPane>
+    </center>
+
+    <bottom>
+        <VBox>
+            <HBox alignment="CENTER_LEFT" style="-fx-padding: 10 20;">
+
+                <Button text="%nav.language" onAction="#handleToggleLanguage"/>
+            </HBox>
+
+            <StackPane minHeight="80" styleClass="msg-area">
+
+                <Label fx:id="messageLabel" wrapText="true" maxWidth="Infinity" alignment="CENTER" textAlignment="CENTER" styleClass="msg-error"/>
+            </StackPane>
         </VBox>
+    </bottom>
 
-        <Button fx:id="loginButton"
-                text="Logga in"
-                defaultButton="true"
-                maxWidth="Infinity"
-                onAction="#handleLogin"/>
-
-        <Label fx:id="messageLabel"
-               wrapText="true"
-               maxWidth="Infinity"
-               styleClass="msg-error"/>
-
-    </VBox>
-</StackPane>
+</BorderPane>

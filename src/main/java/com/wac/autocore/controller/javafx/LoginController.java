@@ -1,5 +1,6 @@
 package com.wac.autocore.controller.javafx;
 
+import com.wac.autocore.controller.util.LanguageManager;
 import com.wac.autocore.service.LoginService;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Controller;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+
+import java.io.IOException;
+import java.util.Locale;
 
 @Controller
 @Scope("prototype")
@@ -45,7 +49,7 @@ public class LoginController extends OverController {
         String password = passwordField.getText();
 
         if (username.isEmpty() || password.isEmpty()) {
-            messageLabel.setText("Ange användarnamn och lösenord.");
+            messageLabel.setText(getString("login.required"));
             return;
         }
 
@@ -58,17 +62,36 @@ public class LoginController extends OverController {
                     loginService.login(username, password);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            messageLabel.setText("Inloggningen lyckades.");
 
             loadRootView(
                     "/com/wac/autocore/controller/view/MainView.fxml", loginButton.getScene());
 
         } catch (BadCredentialsException e) {
-            messageLabel.setText("Felaktigt användarnamn eller lösenord.");
+            messageLabel.setText(getString("login.invalid"));
 
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
-            messageLabel.setText("Det gick inte att logga in. Försök igen senare.");
+            messageLabel.setText(getString("login.error"));
+        }
+    }
+
+    @FXML
+    private void handleToggleLanguage() {
+        Locale current = LanguageManager.getBundle().getLocale();
+
+        Locale next = current.getLanguage().equals("sv")
+                ? new Locale("en")
+                : new Locale("sv");
+
+        LanguageManager.setLocale(next);
+
+        try {
+            loadRootView(
+                    "/com/wac/autocore/controller/view/LoginView.fxml",
+                    loginButton.getScene()
+            );
+        } catch (IOException e) {
+            messageLabel.setText(getString("login.error"));
         }
     }
 }
