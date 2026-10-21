@@ -2,6 +2,7 @@ package com.wac.autocore.service;
 
 import com.wac.autocore.dto.payment.PaymentSummaryDto;
 import com.wac.autocore.exception.EntityNotFoundException;
+import com.wac.autocore.exception.UnsupportedPaymentTypeException;
 import com.wac.autocore.mapper.PaymentMapper;
 import com.wac.autocore.model.Invoice;
 import com.wac.autocore.model.Payment;
@@ -41,17 +42,19 @@ public class PaymentService {
     public String processPayment(Long invoiceId, String paymentType) {
         // 1. Hämta fakturan från databasen
         Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new EntityNotFoundException("invoice.error.not_found")); // Anpassa nyckeln efter era properties
+                .orElseThrow(() -> {
+                    logger.warn("Method: processPayment | Invoice not found | InvoiceId={}", invoiceId);
+                    return new EntityNotFoundException("invoice.error.invoice_not_found");
+                });
 
         // 2. Hitta rätt betalningsstrategi
         PaymentStrategy strategy = strategies.values().stream()
                 .filter(s -> s.getPaymentType().equalsIgnoreCase(paymentType))
                 .findFirst()
-                .orElse(null);
-
-        if (strategy == null) {
-            throw new IllegalArgumentException("Unsupported payment type: " + paymentType);
-        }
+                .orElseThrow(() -> {
+                    logger.warn("Method: processPayment | Unsupported payment type | Type={} | InvoiceId={}", paymentType, invoiceId);
+                    return new UnsupportedPaymentTypeException("payment.error.unsupported_type");
+                });
 
         BigDecimal amount = invoice.getTotalAmount();
 
@@ -64,8 +67,8 @@ public class PaymentService {
         invoiceRepository.save(invoice);
         paymentRepository.save(payment);
 
-        logger.info("Payment of amount {} processed successfully using strategy [{}] for invoice ID {}",
-                amount, paymentType, invoiceId);
+        logger.info("Method: processPayment | Payment successful | PaymentId={} | InvoiceId={} | Type={} | Amount={}",
+                payment.getId(), invoiceId, paymentType, amount);
 
         return messageKey;
     }
