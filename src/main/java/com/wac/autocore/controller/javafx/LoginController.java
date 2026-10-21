@@ -68,7 +68,6 @@ public class LoginController extends OverController {
 
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
-
             messageLabel.setText("Det gick inte att logga in. Försök igen senare.");
         }
     }
