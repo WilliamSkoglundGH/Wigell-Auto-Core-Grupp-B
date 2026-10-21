@@ -3,6 +3,7 @@ package com.wac.autocore.service;
 import com.wac.autocore.model.User;
 import com.wac.autocore.model.enums.UserRole;
 import com.wac.autocore.repository.UserRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public User registerUser(String username, String rawPassword, Set<UserRole> roles) {
         if (userRepository.findByUsername(username).isPresent()) {

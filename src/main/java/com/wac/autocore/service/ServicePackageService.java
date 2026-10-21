@@ -8,6 +8,7 @@ import com.wac.autocore.mapper.ServicePackageMapper;
 import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.model.ServicePackage;
 import com.wac.autocore.repository.ServicePackageRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +26,9 @@ public class ServicePackageService {
         this.serviceItemService = serviceItemService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    public void savePackage(String packageName, String packageDescription, List<ServiceItemSummaryDto> selectedServices){
+    public void savePackage(String packageName, String packageDescription, List<ServiceItemSummaryDto> selectedServices) {
 
         List<Long> ids = selectedServices.stream()
                 .map(ServiceItemSummaryDto::getId)
@@ -40,21 +42,24 @@ public class ServicePackageService {
         servicePackageRepository.save(servicePackage);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<ServicePackageSummaryDto> getAllPackagesSummary() {
         List<ServicePackage> packages = servicePackageRepository.findAll();
         return ServicePackageMapper.toDtoList(packages);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<ServicePackageDetailDto> getAllPackagesDetail() {
         List<ServicePackage> packages = servicePackageRepository.findAll();
         return ServicePackageMapper.toDetailDtoList(packages);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public ServicePackageDetailDto getPackage(Long id) {
-        return ServicePackageMapper.toDetailDto( servicePackageRepository.findById(id)
+        return ServicePackageMapper.toDetailDto(servicePackageRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("serviceItem.package.error.not_found")));
     }
 }

@@ -10,6 +10,7 @@ import com.wac.autocore.repository.BookingRepository;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
@@ -34,25 +35,32 @@ public class BookingService {
         this.serviceItemService = serviceItemService;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<BookingSummaryDto> getAllBookings() {
         return BookingMapper.toBookingSummaryDtoList(bookingRepository.findAll());
     }
 
-    @Transactional(readOnly = true)
+//todo skapa en hjälpmetod så workorder kan plocka entity dirr till sinn planned servicemetod.
+@PreAuthorize("isAuthenticated()")
+@Transactional(readOnly = true)
     public BookingSummaryDto getBooking(Long id) {
         Booking found = bookingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("booking.error.not_found"));
 
         return BookingMapper.toBookingSummaryDto(found);
     }
-    @Transactional
+
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     public BookingFullDto getBookingByIdWithDetails(Long id) {
          Booking found = bookingRepository.findByIdWithDetails(id)
                   .orElseThrow(() -> new EntityNotFoundException("booking.error.not_found"));
+         //TODO Skapa metod bestäm vad som måste finnas med.
         return BookingMapper.toBookingFullDto(found);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public BookingSummaryDto saveBooking(BookingCreateDto createDto, List<ServiceItemSummaryDto> serviceItems) {
 
@@ -84,6 +92,7 @@ public class BookingService {
 
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void addServiceItemToBooking(Long bookingId, ServiceItemSummaryDto selectedServiceItem) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
@@ -104,12 +113,14 @@ public class BookingService {
         bookingRepository.save(bookingForUpdate);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<BookingFullDto> getAllBookingsWithServiceItems() {
       return bookingRepository.findAllWithServiceItems().stream().map(BookingMapper::toBookingFullDto).collect(Collectors.toList());
 
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void removeServiceItemFromBooking(Long bookingId, Long bookingServiceItemId) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
@@ -132,7 +143,7 @@ public class BookingService {
         bookingRepository.save(bookingForUpdate);
 
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public BookingCloneDto cloneBooking(Long id) {
         BookingFullDto copiedBooking= getBookingByIdWithDetails(id);
@@ -158,7 +169,4 @@ public class BookingService {
         return bookingRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("booking.error.not_found"));
     }
-
-
-
 }
