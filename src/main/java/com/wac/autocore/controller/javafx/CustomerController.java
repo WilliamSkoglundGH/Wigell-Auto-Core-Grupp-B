@@ -83,7 +83,6 @@ public class CustomerController extends OverController {
             });
         }
     }
-
     public void loadCustomerData() {
         if (customerTable != null) {
             try {

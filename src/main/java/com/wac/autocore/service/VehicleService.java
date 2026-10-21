@@ -38,7 +38,10 @@ public class VehicleService {
     @Transactional(readOnly = true)
     public VehicleSummaryDto getVehicle(Long id) {
         return VehicleMapper.toDto(vehicleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("vehicle.error.not_found")));
+                .orElseThrow(() -> {
+                    logger.error("Method: getVehicle | Could not find vehicle | Id:{}", id);
+                    return new EntityNotFoundException("vehicle.error.not_found");
+                }));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
@@ -46,18 +49,24 @@ public class VehicleService {
     public VehicleSummaryDto saveVehicle(VehicleCreateDto dto) {
         // 1. Hämta kund-entiteten säkert via ID
         Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new EntityNotFoundException("customer.error.could_not_load"));
+                .orElseThrow(() -> {
+                    logger.error("Method: saveVehicle | Could not find customer | Id:{}", dto.getCustomerId());
+                    return new EntityNotFoundException("customer.error.could_not_load");});
 
         // 2. Låt mappen skapa entiteten från DTO:n
         Vehicle vehicle = VehicleMapper.toEntity(dto, customer);
 
         // 3. Spara och returnera som DTO
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
+        logger.info("Method: saveVehicle | Success | VehicleId:{}", savedVehicle.getId());
         return VehicleMapper.toDto(savedVehicle);
     }
 
     protected Vehicle getVehicleEntity(Long vehicleId) {
         return vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new EntityNotFoundException("vehicle.error.not_found"));
+                .orElseThrow(() -> {
+                    logger.error("Method: getVehicleEntity | Could not find vehicle | Id:{}", vehicleId);
+                    return new EntityNotFoundException("vehicle.error.not_found");
+                });
     }
 }
