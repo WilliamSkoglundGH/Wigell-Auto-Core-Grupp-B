@@ -55,8 +55,6 @@ public class LoginController extends OverController {
 
         SecurityContextHolder.clearContext();
         passwordField.clear();
-
-        //fixa loggning
         try {
             Authentication authentication =
                     loginService.login(username, password);
