@@ -45,7 +45,10 @@ public class BookingService {
 @Transactional(readOnly = true)
     public BookingSummaryDto getBooking(Long id) {
         Booking found = bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("booking.error.not_found"));
+                .orElseThrow(() ->
+                {   logger.error("Method: getBooking | No Booking found | Id: {} ", id);
+                    return new EntityNotFoundException("booking.error.not_found");
+                });
 
         return BookingMapper.toBookingSummaryDto(found);
     }
@@ -54,7 +57,10 @@ public class BookingService {
     @Transactional(readOnly = true)
     public BookingFullDto getBookingByIdWithDetails(Long id) {
          Booking found = bookingRepository.findByIdWithDetails(id)
-                  .orElseThrow(() -> new EntityNotFoundException("booking.error.not_found"));
+                  .orElseThrow(() ->
+                  {   logger.error("Method: getBookingByIdWithDetails | No Booking found | Id: {} ", id);
+                      return new EntityNotFoundException("booking.error.not_found");
+                  });
         return BookingMapper.toBookingFullDto(found);
     }
 
@@ -95,7 +101,9 @@ public class BookingService {
     @Transactional
     public void addServiceItemToBooking(Long bookingId, ServiceItemSummaryDto selectedServiceItem) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
-                new EntityNotFoundException("booking.error.not_found"));
+        {   logger.error("Method: addServiceItemToBooking | No Booking found | Id: {} ", bookingId);
+            return new EntityNotFoundException("booking.error.not_found");
+        });
 
         if (selectedServiceItem == null) {
             logger.error("Method: addServiceItemToBooking | No Service items selected ");
@@ -112,6 +120,7 @@ public class BookingService {
 
         syncPlannedWorkOrder(bookingForUpdate);
         bookingRepository.save(bookingForUpdate);
+        logger.info("Method: addServiceItemToBooking | Success updating | BookingId: {}", bookingId);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -147,6 +156,7 @@ public class BookingService {
 
         syncPlannedWorkOrder(bookingForUpdate);
         bookingRepository.save(bookingForUpdate);
+        logger.info("Method: removeServiceItemFromBooking | Success updating | BookingId: {}", bookingId);
 
     }
 
@@ -155,6 +165,7 @@ public class BookingService {
     public BookingCloneDto cloneBooking(Long id) {
         BookingFullDto copiedBooking= getBookingByIdWithDetails(id);
         if(!copiedBooking.getStatus().canClone()) {
+            logger.error("Method: cloneBooking | Booking wrong status. Status: {}", copiedBooking.getStatus());
             throw new BookingWrongStatusException("booking.error.booking_state_completed");
         }
        return BookingMapper.toCloneDto(copiedBooking);
@@ -173,7 +184,10 @@ public class BookingService {
     }
 
     protected Booking getBookingEntity(Long id) {
-        return bookingRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("booking.error.not_found"));
+        return bookingRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("Method: getBookingEntity | No Booking found | Id: {}", id);
+                    return new EntityNotFoundException("booking.error.not_found");
+                });
     }
 }
