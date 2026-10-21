@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -266,8 +267,15 @@ public class BookingController extends OverController {
                         bookingService.getAllBookingsWithServiceItems()
                 );
                 bookingTable.setItems(bookingData);
-            } catch (Exception e) {
-                logger.error("Could not load bookings from database. {}", e.getMessage(), e);
+
+            } catch (DataAccessException e) {
+            if (messages != null) {
+                logger.error("Method: loadBookingData | Could not load bookings ", e);
+                messages.showError(getString("booking.error.could_not_load"));
+            }
+        }
+            catch (Exception e) {
+                logger.error("Method: loadBookingData | Unexpected ", e);
                 if (messages != null) {
                     messages.showError(getString("booking.error.could_not_load"));
                 }
