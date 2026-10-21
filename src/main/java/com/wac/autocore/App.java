@@ -28,7 +28,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        URL fxmlLocation = App.class.getResource("/com/wac/autocore/controller/view/MainView.fxml");
+        URL fxmlLocation = App.class.getResource("/com/wac/autocore/controller/view/LoginView.fxml");
 
         if (fxmlLocation == null) {
             throw new IllegalArgumentException("Could not find the FXML file in the application resources!");
