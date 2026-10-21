@@ -111,7 +111,7 @@ public class BookingService {
         }
 
         if (!bookingForUpdate.getStatus().canAddServiceItem()) {
-            logger.error("Method: addServiceItemToBooking | Booking can't be added");
+            logger.error("Method: addServiceItemToBooking | Booking has wrong status. Can't be updated");
             throw new IllegalStateException("booking.error.not_editable");
         }
         ServiceItem foundServiceItem = serviceItemService.getServiceItemEntity(selectedServiceItem.getId());
@@ -139,18 +139,18 @@ public class BookingService {
                 return new EntityNotFoundException("booking.error.not_found");});
 
         if (!bookingForUpdate.getStatus().canRemoveServiceItem()) {
-            logger.error("Method: addServiceItemToBooking | Booking can't be removed");
+            logger.error("Method: removeServiceItemFromBooking | Booking has wrong status, cant be updated.");
             throw new IllegalStateException("booking.error.not_editable");
         }
         BookingServiceItem itemToRemove = bookingForUpdate.getServiceItems().stream()
                 .filter(item -> item.getId().equals(bookingServiceItemId)).findFirst()
                 .orElseThrow(() ->
-                {       logger.error("Method: addServiceItemToBooking | Service item found ");
+                {       logger.error("Method: removeServiceItemFromBooking | Service item not found ");
                         return new IllegalArgumentException("booking.error.service_not_found");});
 
         if (bookingForUpdate.getServiceItems().size() <= 1) {
-            logger.error("Method: addServiceItemToBooking | No Service item choosen ");
-            throw new IllegalStateException("booking.error.select_services");
+            logger.error("Method: removeServiceItemFromBooking | Booking cant remove last service item ");
+            throw new IllegalStateException("booking.error.cant_remove");
         }
         bookingForUpdate.getServiceItems().remove(itemToRemove);
 

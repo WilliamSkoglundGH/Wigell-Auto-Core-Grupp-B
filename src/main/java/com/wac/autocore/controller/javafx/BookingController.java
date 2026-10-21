@@ -652,7 +652,6 @@ public class BookingController extends OverController {
             messages.showError(getString("common.error.unexpected"));
             navigateToBookingView();
         }
-
     }
 
     @FXML
