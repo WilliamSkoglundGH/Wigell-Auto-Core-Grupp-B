@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.wac.autocore.controller.javafx.LoginController">
+
+    <VBox alignment="CENTER"
+          spacing="16"
+          maxWidth="340"
+          maxHeight="-Infinity"
+          style="-fx-padding: 24;">
+
+        <Label text="Wigell AutoCore"
+               styleClass="heading-1"/>
+
+        <Label text="Logga in för att fortsätta"/>
+
+        <VBox spacing="6">
+            <Label text="Användarnamn"
+                   labelFor="$usernameField"/>
+
+            <TextField fx:id="usernameField"
+                       promptText="Ange användarnamn"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="Lösenord"
+                   labelFor="$passwordField"/>
+
+            <PasswordField fx:id="passwordField"
+                           promptText="Ange lösenord"/>
+        </VBox>
+
+        <Button fx:id="loginButton"
+                text="Logga in"
+                defaultButton="true"
+                maxWidth="Infinity"
+                onAction="#handleLogin"/>
+
+        <Label fx:id="messageLabel"
+               wrapText="true"
+               maxWidth="Infinity"
+               styleClass="msg-error"/>
+
+    </VBox>
+</StackPane>
