@@ -10,6 +10,7 @@ import com.wac.autocore.repository.PaymentRepository;
 import com.wac.autocore.service.payment.PaymentStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +31,12 @@ public class PaymentService {
         this.paymentRepository = paymentRepository;
         this.invoiceRepository = invoiceRepository;
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
     public List<PaymentSummaryDto> getAllPayments() {
         return PaymentMapper.toSummaryDtoList(paymentRepository.findAll());
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public String processPayment(Long invoiceId, String paymentType) {
         // 1. Hämta fakturan från databasen

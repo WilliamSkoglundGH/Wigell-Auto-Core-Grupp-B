@@ -7,6 +7,7 @@ import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.repository.ServiceItemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,13 +26,15 @@ public class ServiceItemService {
         this.serviceItemRepository = serviceItemRepository;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public List<ServiceItemSummaryDto> getAllServiceItems(){
+    public List<ServiceItemSummaryDto> getAllServiceItems() {
         return serviceItemRepository.findAll().stream()
                 .map(ServiceItemMapper::toServiceItemDto)
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public ServiceItemSummaryDto getServiceItem(Long serviceItemId) {
         ServiceItem item = serviceItemRepository.findById(serviceItemId)
@@ -40,6 +43,7 @@ public class ServiceItemService {
         return ServiceItemMapper.toServiceItemDto(item);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void changePrice(Long serviceItemId, BigDecimal newPrice) {
 
