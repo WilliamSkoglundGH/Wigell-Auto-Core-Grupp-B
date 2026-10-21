@@ -14,26 +14,22 @@ public class LoginService {
     private static final Logger logger = LoggerFactory.getLogger(LoginService.class);
     private final AuthenticationManager authenticationManager;
 
-    public LoginService(AuthenticationManager authenticationManager){
+    public LoginService(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 
 
-    public Authentication login(String username, String password){
+    public Authentication login(String username, String password) {
         UsernamePasswordAuthenticationToken loginAttempt = new UsernamePasswordAuthenticationToken(username, password);
 
-        try{
+        try {
             Authentication authentication = authenticationManager.authenticate(loginAttempt);
 
             logger.info("Method: login | Authentication successful | Username={}", authentication.getName());
             return authentication;
 
-        }catch(BadCredentialsException e){
+        } catch (BadCredentialsException e) {
             logger.warn("Method: login | Authentication failed | Invalid credentials");
-            throw e;
-
-        } catch (Exception e) {
-            logger.error("Method: login | Authentication could not be completed", e);
             throw e;
         }
     }
