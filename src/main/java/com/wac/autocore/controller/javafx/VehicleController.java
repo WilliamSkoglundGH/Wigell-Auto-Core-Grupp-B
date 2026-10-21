@@ -43,7 +43,6 @@ public class VehicleController extends OverController {
 
     private static final Logger logger = LoggerFactory.getLogger(VehicleController.class);
 
-    // Spring injicerar tjänster samt ApplicationContext
     public VehicleController(VehicleService vehicleService, CustomerService customerService, ApplicationContext applicationContext) {
         this.vehicleService = vehicleService;
         this.customerService = customerService;
@@ -89,7 +88,7 @@ public class VehicleController extends OverController {
                     }
                 });
             } catch (Exception e) {
-                logger.error("Could not get all customers: {}", e.getMessage(), e);
+                logger.error("Method: initializer | Unexpected ", e);
                 if (messages != null) {
                     messages.showError(getString("vehicle.error.load_customers"));
                 }
@@ -108,8 +107,9 @@ public class VehicleController extends OverController {
                         vehicleService.getAllVehicles()
                 );
                 vehicleTable.setItems(vehicleData);
+
             } catch (Exception e) {
-                logger.error("Could not load vehicles from database. {}", e.getMessage(), e);
+                logger.error("Method: initializer | Unexpected ", e);
                 if (messages != null) {
                     messages.showError(getString("vehicle.error.load_vehicles"));
                 }
@@ -139,10 +139,8 @@ public class VehicleController extends OverController {
 
                 if (regNo != null && !regNo.trim().isEmpty() && selectedCustomer != null) {
 
-                    // SKAPA ETT DTO FÖR SKAPANDE (eller skicka med ID direkt till service)
                     VehicleCreateDto createDto = new VehicleCreateDto(regNo.trim(), brand.trim(), model.trim(), year, selectedCustomer.getId());
 
-                    // Låt servicen göra allt jobb! Ingen Vehicle-entitet här inte.
                     vehicleService.saveVehicle(createDto);
 
                     messages.showSuccess(getString("vehicle.showsuccess.vehicle_created"));
@@ -152,8 +150,9 @@ public class VehicleController extends OverController {
                 }
             } catch (NumberFormatException e) {
                 messages.showError(getString("vehicle.error.incorrect_year"));
+
             } catch (Exception e) {
-                logger.error("Could not save vehicle: {}", e.getMessage(), e);
+                logger.error("Method: handleSaveVehicle | Unexpected ", e);
                 messages.showError(getString("vehicle.error.save_vehicle"));
             }
         }

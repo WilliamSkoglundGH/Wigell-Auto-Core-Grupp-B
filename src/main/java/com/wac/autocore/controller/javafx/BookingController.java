@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -266,8 +267,15 @@ public class BookingController extends OverController {
                         bookingService.getAllBookingsWithServiceItems()
                 );
                 bookingTable.setItems(bookingData);
-            } catch (Exception e) {
-                logger.error("Could not load bookings from database. {}", e.getMessage(), e);
+
+            } catch (DataAccessException e) {
+            if (messages != null) {
+                logger.error("Method: loadBookingData | Could not load bookings ", e);
+                messages.showError(getString("booking.error.could_not_load"));
+            }
+        }
+            catch (Exception e) {
+                logger.error("Method: loadBookingData | Unexpected ", e);
                 if (messages != null) {
                     messages.showError(getString("booking.error.could_not_load"));
                 }
@@ -324,7 +332,6 @@ public class BookingController extends OverController {
 
     private void loadServicePackageDropDown() {
         if (packageCombo != null) {
-            // Hämta alla och filtrera ut endast aktiva (eller om du har en specifik metod i service-lagret)
             List<ServicePackageDetailDto> activePackages = servicePackageService.getAllPackagesDetail().stream()
                     .filter(ServicePackageDetailDto::isActive)
                     .collect(Collectors.toList());
@@ -468,10 +475,11 @@ public class BookingController extends OverController {
             navigateToBookingView();
 
         } catch (BusinessException e) {
-            messages.showError(e.getMessage());
-
+            if (messages != null) {
+                messages.showError(e.getMessage());
+            }
         } catch (Exception e) {
-            logger.error("Could not save booking to database. {}", e.getMessage(), e);
+            logger.error("Method: handleSaveBooking | Unexpected ", e);
             messages.showError(getString("booking.error.unexpected"));
         }
     }
@@ -501,12 +509,13 @@ public class BookingController extends OverController {
             bookingServicesTable.getItems().remove(selectedItem);
             messages.showSuccess(getString("booking.success.service_removed"));
 
-        } catch (EntityNotFoundException | IllegalArgumentException
+        } catch (BusinessException | IllegalArgumentException
                  | IllegalStateException e) {
-            messages.showError(getString(e.getMessage()));
-
+            if (messages != null) {
+                messages.showError(getString(e.getMessage()));
+            }
         } catch (Exception e) {
-            logger.error("Could not remove service from booking.", e);
+            logger.error("Method: handleRemoveBookingService | Unexpected ", e);
             messages.showError(getString("booking.error.remove_service"));
         }
     }
@@ -608,10 +617,14 @@ public class BookingController extends OverController {
 
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
-
+        }catch(DataAccessException e){
+        if (messages != null) {
+            logger.error("Method: handleAddBookingService | Could not load Service items ", e);
+            messages.showError(getString("serviceItem.error.could_not_load"));
+        }
         } catch (Exception e) {
-            logger.error("Could not add service to booking.", e);
-            messages.showError(getString("booking.error.add_service"));
+            logger.error("Method: handleAddBookingService | Unexpected ", e);
+            messages.showError(getString("common.error.unexpected"));
         }
     }
 
@@ -627,14 +640,18 @@ public class BookingController extends OverController {
             return;
         }
         currentBookingId = selected.getId();
-        try{
-        BookingCloneDto dto = bookingService.cloneBooking(currentBookingId);}
+        try {
+            bookingService.cloneBooking(currentBookingId);
+            navigateToNewCopiedBooking();
+        }catch (BusinessException e){
+            if (messages != null) {
+            messages.showError(getString(e.getMessage()));
+        }}
         catch (Exception e) {
-            messages.showError(getString("booking.error.booking_state_completed"));
+            logger.error("Method: handleCopyBooking | Unexpected ", e);
+            messages.showError(getString("common.error.unexpected"));
             navigateToBookingView();
-            return;
         }
-        navigateToNewCopiedBooking();
     }
 
     @FXML
@@ -662,10 +679,11 @@ public class BookingController extends OverController {
             // 2. Applicera för valen efteråt
             applyPreselection(dto);
 
-        } catch (IllegalStateException e) {
-            messages.showError(getString("booking.error.booking_state_completed"));
+        } catch (BusinessException | IllegalStateException e) {
+            if (messages != null) {
+            messages.showError(getString(e.getMessage()));
             navigateToBookingView();
-        }
+        }}
     }
 
     private void applyPreselection(BookingCloneDto dto) {
@@ -736,21 +754,27 @@ public class BookingController extends OverController {
                 navigateToBookingView();
 
             } catch (BusinessException e) {
+                if (messages != null) {
                 messages.showError(e.getMessage());
-            }
-
+            }}
         } catch (Exception e) {
-            logger.error("Could not save booking to database. {}", e.getMessage(), e);
+            logger.error("Method: handleCopyBooking | Unexpected ", e);
             messages.showError(getString("booking.error.unexpected"));
         }
     }
 
     @FXML
     private void navigateToNewCopiedBooking() {
+        if (messages != null) {
+            messages.clearMessage();
+        }
         loadCenterView("/com/wac/autocore/controller/view/NewCopiedBooking.fxml");
     }
 
     private void navigateToBookingView() {
+        if (messages != null) {
+            messages.clearMessage();
+        }
         loadCenterView("/com/wac/autocore/controller/view/BookingView.fxml");
     }
 
