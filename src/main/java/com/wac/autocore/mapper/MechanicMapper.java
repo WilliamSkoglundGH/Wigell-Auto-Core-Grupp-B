@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 @Component
 public final class MechanicMapper {
 
+    private MechanicMapper() {}
+
     // Gör om en entitet till en visnings-DTO för tabellen
     public static MechanicSummaryDto toSummaryDto(Mechanic mechanic) {
         if (mechanic == null) {

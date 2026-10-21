@@ -215,7 +215,7 @@ public class BookingController extends OverController {
         }
         if (packageCombo != null) {
             loadServicePackageDropDown();
-            // Lägg till detta i initialize()
+
             packageCombo.getSelectionModel().selectedItemProperty()
                     .addListener((observable, oldValue, newValue) -> {
                         if (newValue != null) {
@@ -228,7 +228,7 @@ public class BookingController extends OverController {
                             for (ServiceItem item : newValue.getServiceItems()) {
                                 BooleanProperty prop = serviceSelections.get(item.getId());
                                 if (prop != null) {
-                                    prop.set(true); // Detta klickar i checkboxen i ListView automatiskt!
+                                    prop.set(true);
                                 }
                             }
                         }
@@ -673,7 +673,6 @@ public class BookingController extends OverController {
                 .map(i -> i.getServiceItemId()).collect(Collectors.toSet());
         serviceSelections.values().forEach(p -> p.set(false));
 
-        //Ändrar utifrån id i HashSet vilka som är true/false så dem blir bockade.
         for (Long id : preSelect) {
             BooleanProperty prop = serviceSelections.get(id);
             if (prop != null) {

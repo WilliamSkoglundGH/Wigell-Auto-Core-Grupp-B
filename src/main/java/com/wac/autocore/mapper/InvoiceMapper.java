@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public final class InvoiceMapper {
+     private InvoiceMapper() {}
 
     public static InvoiceSummaryDto toInvoiceSummaryDto(Invoice invoice) {
         return new InvoiceSummaryDto(

@@ -6,6 +6,8 @@ import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.mapper.CustomerMapper;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.repository.CustomerRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +16,7 @@ import java.util.List;
 
 @Service
 public class CustomerService {
-
+    private static final Logger logger = LoggerFactory.getLogger(CustomerService.class);
     private final CustomerRepository repo;
 
     public CustomerService(CustomerRepository repo) {
@@ -65,6 +67,7 @@ public class CustomerService {
         Customer customer = new Customer(dto.getName(), phone, dto.getEmail());
         customer.setVip(dto.isVip());
         customer = repo.save(customer);
+        logger.info("Method: createCustomer | Success | CustomerId: {}", customer.getId());
 
         return new CustomerSummaryDto(
                 customer.getId(),
