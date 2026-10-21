@@ -4,6 +4,7 @@ import com.wac.autocore.controller.util.LanguageManager;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import org.springframework.context.ApplicationContext;
 
@@ -109,6 +110,21 @@ public abstract class OverController {
             // Logga eller ignorera om bundle saknas
         }
         return key; // Fallback så att inte appen kraschar om nyckeln saknas
+    }
+
+    protected void loadRootView(String fxmlPath, Scene scene)
+            throws IOException {
+
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource(fxmlPath),
+                LanguageManager.getBundle()
+        );
+
+        loader.setControllerFactory(applicationContext::getBean);
+
+        Parent view = loader.load();
+
+        scene.setRoot(view);
     }
 
 
