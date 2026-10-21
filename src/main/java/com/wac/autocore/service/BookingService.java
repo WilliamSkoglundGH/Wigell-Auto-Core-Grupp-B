@@ -41,7 +41,6 @@ public class BookingService {
         return BookingMapper.toBookingSummaryDtoList(bookingRepository.findAll());
     }
 
-//todo skapa en hjälpmetod så workorder kan plocka entity dirr till sinn planned servicemetod.
 @PreAuthorize("isAuthenticated()")
 @Transactional(readOnly = true)
     public BookingSummaryDto getBooking(Long id) {
@@ -56,7 +55,6 @@ public class BookingService {
     public BookingFullDto getBookingByIdWithDetails(Long id) {
          Booking found = bookingRepository.findByIdWithDetails(id)
                   .orElseThrow(() -> new EntityNotFoundException("booking.error.not_found"));
-         //TODO Skapa metod bestäm vad som måste finnas med.
         return BookingMapper.toBookingFullDto(found);
     }
 
@@ -65,6 +63,7 @@ public class BookingService {
     public BookingSummaryDto saveBooking(BookingCreateDto createDto, List<ServiceItemSummaryDto> serviceItems) {
 
         if (serviceItems == null || serviceItems.isEmpty()) {
+            logger.error("Method: saveBooking | ServiceItems is null or empty ");
             throw new IllegalArgumentException(
                     "booking.error.select_services"
             );
@@ -86,9 +85,9 @@ public class BookingService {
             newBooking.addServiceItem(item, item.getPrice(), item.getEstimatedMinutes());
         }
 
-        bookingRepository.save(newBooking);
-
-        return BookingMapper.toBookingSummaryDto(newBooking);
+        Booking savedBooking = bookingRepository.save(newBooking);
+        logger.info("Method: saveBooking | Success | BookingId: {}", savedBooking.getId());
+        return BookingMapper.toBookingSummaryDto(savedBooking);
 
     }
 
@@ -99,10 +98,12 @@ public class BookingService {
                 new EntityNotFoundException("booking.error.not_found"));
 
         if (selectedServiceItem == null) {
+            logger.error("Method: addServiceItemToBooking | No Service items selected ");
             throw new IllegalArgumentException("booking.error.select_services");
         }
 
         if (!bookingForUpdate.getStatus().canAddServiceItem()) {
+            logger.error("Method: addServiceItemToBooking | Booking can't be added");
             throw new IllegalStateException("booking.error.not_editable");
         }
         ServiceItem foundServiceItem = serviceItemService.getServiceItemEntity(selectedServiceItem.getId());
@@ -124,25 +125,31 @@ public class BookingService {
     @Transactional
     public void removeServiceItemFromBooking(Long bookingId, Long bookingServiceItemId) {
         Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
-                new EntityNotFoundException("booking.error.not_found"));
+                {
+            logger.error("Method: removeServiceItemFromBooking | No Booking found | Id: {}", bookingId);
+                return new EntityNotFoundException("booking.error.not_found");});
 
         if (!bookingForUpdate.getStatus().canRemoveServiceItem()) {
+            logger.error("Method: addServiceItemToBooking | Booking can't be removed");
             throw new IllegalStateException("booking.error.not_editable");
         }
         BookingServiceItem itemToRemove = bookingForUpdate.getServiceItems().stream()
                 .filter(item -> item.getId().equals(bookingServiceItemId)).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("booking.error.service_not_found"));
+                .orElseThrow(() ->
+                {       logger.error("Method: addServiceItemToBooking | Service item found ");
+                        return new IllegalArgumentException("booking.error.service_not_found");});
 
         if (bookingForUpdate.getServiceItems().size() <= 1) {
+            logger.error("Method: addServiceItemToBooking | No Service item choosen ");
             throw new IllegalStateException("booking.error.select_services");
         }
-
         bookingForUpdate.getServiceItems().remove(itemToRemove);
 
         syncPlannedWorkOrder(bookingForUpdate);
         bookingRepository.save(bookingForUpdate);
 
     }
+
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public BookingCloneDto cloneBooking(Long id) {
