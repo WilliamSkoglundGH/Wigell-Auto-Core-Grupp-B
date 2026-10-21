@@ -11,6 +11,7 @@ import com.wac.autocore.model.enums.WorkOrderState;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,7 @@ public class WorkOrderService {
     private WorkOrderFactory workOrderFactory;
 
     public WorkOrderService(WorkOrderRepository workOrderRepository, BookingService bookingService, MechanicService mechanicService,
-                            VehicleService vehicleService, ServiceItemService serviceItemService,WorkOrderFactory workOrderFactory) {
+                            VehicleService vehicleService, ServiceItemService serviceItemService, WorkOrderFactory workOrderFactory) {
         this.workOrderRepository = workOrderRepository;
         this.bookingService = bookingService;
         this.mechanicService = mechanicService;
@@ -39,6 +40,8 @@ public class WorkOrderService {
         this.serviceItemService = serviceItemService;
         this.workOrderFactory = workOrderFactory;
     }
+
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<WorkOrderSummaryDto> getAllWorkOrders() {
         List<WorkOrder> workOrders = workOrderRepository.findAll();
@@ -47,6 +50,8 @@ public class WorkOrderService {
                 .map(WorkOrderMapper::toSummaryDto)
                 .collect(Collectors.toList());
     }
+
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<WorkOrderForInvoiceDto> getAllWorkOrdersForInvoice() {
         List<WorkOrder> workOrders = workOrderRepository.findAll();
@@ -55,18 +60,20 @@ public class WorkOrderService {
                 .map(WorkOrderMapper::toInvoiceViewDto)
                 .collect(Collectors.toList());
     }
-    
+
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public WorkOrderResponseDto getWorkOrderById(long id) {
 
         WorkOrder workOrder = workOrderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
                 "workorder.error.work_order_not_found"));
 
-            return WorkOrderMapper.toResponseDto(workOrder,
-                    WorkOrderMapper.toServiceItemDtoList(workOrder.getServiceItems()));
+        return WorkOrderMapper.toResponseDto(workOrder,
+                WorkOrderMapper.toServiceItemDtoList(workOrder.getServiceItems()));
 
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
     public WorkOrderSummaryDto createPlannedWorkOrder(Long bookingId) {
         if (bookingId == null) {
@@ -88,9 +95,10 @@ public class WorkOrderService {
         return WorkOrderMapper.toSummaryDto(saved);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
-    public WorkOrderSummaryDto createDropInWorkOrder(WorkOrderCreateDto dto){
-        if(dto == null){
+    public WorkOrderSummaryDto createDropInWorkOrder(WorkOrderCreateDto dto) {
+        if (dto == null) {
             throw new IllegalArgumentException("Workorder data is required");
         }
 
@@ -110,8 +118,9 @@ public class WorkOrderService {
         return WorkOrderMapper.toSummaryDto(savedWorkOrder);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
-    public WorkOrderSummaryDto createClaimWorkOrder(Long originalWorkOrderId, WorkOrderCreateDto dto){
+    public WorkOrderSummaryDto createClaimWorkOrder(Long originalWorkOrderId, WorkOrderCreateDto dto) {
         if (originalWorkOrderId == null) {
             throw new EntityNotFoundException("workorder.error.work_order_not_found");
         }
@@ -119,7 +128,7 @@ public class WorkOrderService {
         WorkOrder workOrderOriginal = workOrderRepository.findById(originalWorkOrderId).orElseThrow(
                 () -> new EntityNotFoundException("workorder.error.work_order_not_found"));
 
-        if(workOrderOriginal.getStatus() != WorkOrderState.COMPLETED){
+        if (workOrderOriginal.getStatus() != WorkOrderState.COMPLETED) {
             throw new WorkOrderWrongStatusException("workorder.error.claim_requires_completed");
         }
 
@@ -129,7 +138,7 @@ public class WorkOrderService {
         return WorkOrderMapper.toSummaryDto(saved);
     }
 
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
     public void startWorkOrder(Long workOrderId) {
         if (workOrderId == null) {
@@ -163,6 +172,7 @@ public class WorkOrderService {
         workOrderRepository.save(workOrder);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
     public void completeWorkOrder(Long workOrderId) {
         if (workOrderId == null) {
@@ -188,7 +198,8 @@ public class WorkOrderService {
         workOrderRepository.save(workOrder);
     }
 
-    @Transactional
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     public WorkOrderDetailsDto getWorkOrderInfoById(Long workOrderId) {
         if (workOrderId == null) {
             throw new EntityNotFoundException("workorder.error.work_order_not_found");
@@ -226,6 +237,7 @@ public class WorkOrderService {
         return dto;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
     public void confirmWorkOrder(Long workOrderId) {
         if (workOrderId == null) {
@@ -247,6 +259,7 @@ public class WorkOrderService {
         workOrderRepository.save(workOrder);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
     public void cancelWorkOrder(Long workOrderId) {
         if (workOrderId == null) {
@@ -254,7 +267,7 @@ public class WorkOrderService {
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new EntityNotFoundException("workorder.error.work_order_not_found" ));
+                .orElseThrow(() -> new EntityNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canCancel()) {
             throw new WorkOrderWrongStatusException(
@@ -265,6 +278,7 @@ public class WorkOrderService {
         workOrderRepository.save(workOrder);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
     public void addServiceItemToWorkOrder(Long workOrderId, Long serviceItemId) {
         if (workOrderId == null) {
@@ -276,7 +290,7 @@ public class WorkOrderService {
         }
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new EntityNotFoundException( "workorder.error.work_order_not_found"));
+                .orElseThrow(() -> new EntityNotFoundException("workorder.error.work_order_not_found"));
 
         if (!workOrder.getStatus().canEdit()) {
             throw new WorkOrderWrongStatusException("workorder.error.not_editable");
@@ -291,6 +305,7 @@ public class WorkOrderService {
         workOrderRepository.save(workOrder);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
     public void removeServiceItemFromWorkOrder(Long workOrderId, Long workOrderServiceItemId) {
         if (workOrderId == null) {
@@ -321,6 +336,7 @@ public class WorkOrderService {
         workOrderRepository.save(workOrder);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
     public void updateWorkOrder(Long workOrderId, WorkOrderCreateDto dto) {
         if (workOrderId == null) {

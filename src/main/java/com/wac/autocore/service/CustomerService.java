@@ -6,6 +6,7 @@ import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.mapper.CustomerMapper;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.repository.CustomerRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,17 +24,19 @@ public class CustomerService {
         this.repo = repo;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<CustomerSummaryDto> getAllCustomers() {
         return CustomerMapper.toSummaryDtoList(repo.findAll());
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public CustomerSummaryDto getCustomer(Long id) {
         return CustomerMapper.toSummaryDto(repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("customer.error.not_found")));
     }
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
     public CustomerSummaryDto createCustomer(CustomerCreateDto dto) {
 

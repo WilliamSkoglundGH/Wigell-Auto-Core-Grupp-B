@@ -13,6 +13,7 @@ import com.wac.autocore.service.discount.DiscountFactory;
 import com.wac.autocore.service.discount.DiscountStrategy;
 import com.wac.autocore.service.discount.PercentageDiscount;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,7 @@ public class InvoiceService {
         this.discountFactory = discountFactory;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
     public List<InvoiceSummaryDto> getAllInvoices() {
         List<Invoice> invoices = invoiceRepository.findAll();
@@ -48,6 +50,7 @@ public class InvoiceService {
         return dtoList;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
     public InvoiceDetailsDto getInvoice(Long invoiceId) {
         Invoice invoice = invoiceRepository.findById(invoiceId)
@@ -56,6 +59,7 @@ public class InvoiceService {
         return InvoiceMapper.toInvoiceDetailsDto(invoice);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public InvoiceSummaryDto createInvoice(InvoiceCreateDto dto) {
 
