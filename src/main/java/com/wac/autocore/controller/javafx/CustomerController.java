@@ -103,7 +103,7 @@ public class CustomerController extends OverController {
                 }
 
             } catch (Exception e) {
-                logger.error("Could not load customers from database. {}", e.getMessage(), e);
+                logger.error("Method: loadCustomerData | Could not load ", e);
                 if (messages != null) {
                     messages.showError(getString("customer.error.could_not_load"));
                 }

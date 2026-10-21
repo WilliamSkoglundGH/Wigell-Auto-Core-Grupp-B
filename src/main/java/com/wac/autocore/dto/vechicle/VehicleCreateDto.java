@@ -1,11 +1,6 @@
 package com.wac.autocore.dto.vechicle;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
-
 public class VehicleCreateDto {
-    @NotEmpty
-    @Size(min = 1, max = 60)
     private String registrationNumber;
     private String brand;
     private String model;
@@ -13,8 +8,7 @@ public class VehicleCreateDto {
     private Long customerId;
 
     // Tom konstruktor för ramverk
-    public VehicleCreateDto() {
-    }
+    public VehicleCreateDto() {}
 
     // Fullständig konstruktor
     public VehicleCreateDto(String registrationNumber, String brand, String model, int year, Long customerId) {
