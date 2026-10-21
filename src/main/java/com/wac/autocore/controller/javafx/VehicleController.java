@@ -71,8 +71,12 @@ public class VehicleController extends OverController {
                 customerComboBox.setItems(FXCollections.observableArrayList(customerService.getAllCustomers()));
 
                 customerComboBox.setConverter(new StringConverter<CustomerSummaryDto>() {
+
                     @Override
                     public String toString(CustomerSummaryDto customer) {
+                        if (customer == null) {
+                            return "";
+                        }
                         return customer.getId() + " - " + customer.getName()
                                 + " | " + getString("customer.phoneColumn") + ": "
                                 + customer.getPhone()
