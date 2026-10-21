@@ -66,11 +66,9 @@ public abstract class OverController {
     // HITTA HUVUDFÖNSTRET (BORDERPANE) FÖR JAVA 8
     // ---------------------------------------------------------
     protected BorderPane findMainLayout() {
-        // Eftersom vi inte har Window.getWindows() i Java 8 på samma sätt,
-        // letar vi via com.sun.javafx.stage.StageHelper eller fönstrets öppna noder.
-        // Enklast och säkrast i Java 8 är att hämta alla Stage-objekt:
-        for (javafx.stage.Window window : com.sun.javafx.stage.StageHelper.getStages()) {
-            if (window.getScene() != null && window.getScene().getRoot() != null) {
+        // Använd den officiella, publika metoden för att hämta öppna fönster i JavaFX
+        for (javafx.stage.Window window : javafx.stage.Window.getWindows()) {
+            if (window.isShowing() && window.getScene() != null && window.getScene().getRoot() != null) {
                 Parent root = window.getScene().getRoot();
                 if (root instanceof BorderPane) {
                     return (BorderPane) root;
@@ -83,7 +81,6 @@ public abstract class OverController {
         }
         return null;
     }
-
     protected BorderPane searchBorderPaneRecursive(Parent parent) {
         if (parent instanceof BorderPane) {
             return (BorderPane) parent;
