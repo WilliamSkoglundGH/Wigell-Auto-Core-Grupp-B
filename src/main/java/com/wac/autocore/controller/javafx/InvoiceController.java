@@ -126,15 +126,14 @@ public class InvoiceController extends OverController {
                     FXCollections.observableArrayList(invoiceService.getAllInvoices());
             invoiceTable.setItems(invoiceData);
 
-        } catch (BusinessException e) {
-            messages.showError(getString(e.getMessage()));
-
-        } catch (DatabaseException e) {
-            messages.showError(getString(e.getMessage()));
-
+        } catch (BusinessException | DatabaseException e) {
+            if (messages != null) {
+                messages.showError(getString(e.getMessage()));
+            }
         } catch (Exception e) {
+            if (messages != null) {
             logger.error("Method: loadInvoiceData | Unexpected ", e);
-            messages.showError(getString("invoice.error.unexpected"));
+            messages.showError(getString("invoice.error.unexpected"));}
         }
     }
 
@@ -176,10 +175,7 @@ public class InvoiceController extends OverController {
 
             linesTable.getItems().setAll(dto.getLines());
 
-        } catch (BusinessException e) {
-            messages.showError(getString(e.getMessage()));
-
-        } catch (DatabaseException e) {
+        } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {

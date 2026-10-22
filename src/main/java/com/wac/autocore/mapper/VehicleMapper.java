@@ -24,6 +24,7 @@ public final class VehicleMapper {
                 vehicle.getRegistrationNumber(),
                 vehicle.getBrand(),
                 vehicle.getModel(),
+                vehicle.getYear(),
                 customerName
         );
     }
