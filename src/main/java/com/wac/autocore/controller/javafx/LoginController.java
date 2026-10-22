@@ -1,6 +1,7 @@
 package com.wac.autocore.controller.javafx;
 
 import com.wac.autocore.controller.util.LanguageManager;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.service.LoginService;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
@@ -66,6 +67,9 @@ public class LoginController extends OverController {
 
         } catch (BadCredentialsException e) {
             messageLabel.setText(getString("login.invalid"));
+
+        } catch (DatabaseException e) {
+            messageLabel.setText(getString(e.getMessage()));
 
         } catch (Exception e) {
             SecurityContextHolder.clearContext();

@@ -4,6 +4,7 @@ import com.wac.autocore.dto.booking.BookingSummaryDto;
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.workorder.WorkOrderForMechanicDto;
 import com.wac.autocore.exception.BusinessException;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.service.MechanicService;
 import javafx.beans.property.SimpleStringProperty;
@@ -157,7 +158,7 @@ public class MechanicController extends OverController {
                         mechanicService.getAllMechanics()
                 );
                 mechanicTable.setItems(mechanicData);
-            } catch (BusinessException e) {
+            } catch (BusinessException | DatabaseException e) {
                 if (messages != null) {
                     messages.showError(getString(e.getMessage()));
                 }
@@ -192,7 +193,7 @@ public class MechanicController extends OverController {
             }
             controller.headerLabel.setText(getString("mechanic.bookingsFor") + ": " + selected.getName());
             controller.bookingTable.setItems(FXCollections.observableArrayList(bookings));
-        } catch (BusinessException e) {
+        } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
             logger.error("Method: handleBookings | Could not load bookings | MechanicId={}", selected.getId(), e);
@@ -225,6 +226,8 @@ public class MechanicController extends OverController {
             controller.headerLabel.setText(getString("mechanic.workordersFor") + ": " + selected.getName());
             controller.workorderTable.setItems(FXCollections.observableArrayList(workorders));
 
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
             logger.error("Method: handleWorkorders | Could not load work orders | MechanicId={}", selected.getId(), e);
             messages.showError(getString("mechanic.error.could_not_load_workorders"));
