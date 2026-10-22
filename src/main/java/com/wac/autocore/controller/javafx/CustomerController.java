@@ -3,6 +3,7 @@ package com.wac.autocore.controller.javafx;
 import com.wac.autocore.dto.customer.CustomerCreateDto;
 import com.wac.autocore.dto.customer.CustomerSummaryDto;
 import com.wac.autocore.exception.BusinessException;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.service.CustomerService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -18,8 +19,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+
+import java.util.Objects;
 
 @Controller
 @Scope("prototype")
@@ -89,34 +93,28 @@ public class CustomerController extends OverController {
         if (customerTable != null) {
 
             try {
-
                 ObservableList<CustomerSummaryDto> customerData =
                         FXCollections.observableArrayList(
                                 customerService.getAllCustomers());
-
                 customerTable.setItems(customerData);
 
             } catch (AuthorizationDeniedException e) {
-
-                logger.error(
-                        "Method: loadCustomerData | Authorization error: {}",
-                        e.getMessage(),
-                        e);
-
+                    String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+                    logger.error(
+                            "Method: handleCustomerData | Authorization error : {} | User: {} ",
+                            e.getMessage(),
+                            username, e);
                 if (messages != null) {
                     messages.showError(
                             getString("common.error.unauthorized"));
                 }
 
-            } catch (DataAccessException e) {
-
+            } catch (DatabaseException e) {
                 if (messages != null) {
                     messages.showError(
-                            getString("customer.error.could_not_load"));
+                            getString(e.getMessage()));
                 }
-
             } catch (Exception e) {
-
                 logger.error(
                         "Method: loadCustomerData | Unexpected",
                         e);
@@ -170,13 +168,22 @@ public class CustomerController extends OverController {
             );
 
             navigateToCustomerView();
+        }catch (AuthorizationDeniedException e){
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error(
+                    "Method: handleSaveCustomer | Authorization error : {} | User: {} ",
+                    e.getMessage(),
+                    username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));}
 
-        } catch (IllegalArgumentException e) {
-            messages.showError(getString(e.getMessage()));
-
+        } catch (BusinessException e) {
+            if (messages != null) {
+                messages.showError(getString(e.getMessage()));
+            }
         } catch (Exception e) {
             logger.error("Method: handleSaveCustomer | Unexpected ", e);
-            messages.showError(getString("customer.error.create_customer"));
+            messages.showError(getString("common.error.unexpected"));
         }
     }
 

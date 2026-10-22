@@ -45,7 +45,6 @@ public class VehicleService {
                     vehicleRepository.findAll());
 
         } catch (DataAccessException e) {
-
             logger.error(
                     "Method: getAllVehicles | Database error",
                     e);
@@ -105,8 +104,7 @@ public class VehicleService {
 
         return vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> {
-
-                    logger.warn(
+                    logger.error(
                             "Method: getVehicleEntity | Could not find vehicle | Id:{}",
                             vehicleId);
 

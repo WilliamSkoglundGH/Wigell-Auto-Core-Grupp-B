@@ -217,16 +217,15 @@ public class InvoiceController extends OverController {
                 }
             });
 
-        } catch (BusinessException e) {
-            messages.showError(getString(e.getMessage()));
-
-        } catch (DatabaseException e) {
-            messages.showError(getString(e.getMessage()));
-
+        } catch (BusinessException | DatabaseException e) {
+            if (messages != null) {
+                messages.showError(getString(e.getMessage()));
+            }
         } catch (Exception e) {
+            if (messages != null) {
             logger.error("Method: populateComboBox | Unexpected ", e);
             messages.showError(getString("invoice.error.unexpected"));
-        }
+        }}
     }
 
     @FXML

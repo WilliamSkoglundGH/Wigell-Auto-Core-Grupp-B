@@ -23,12 +23,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Controller
@@ -112,7 +114,8 @@ public class ServiceItemController extends OverController {
                             getString("serviceitem.price_changed") + " " + newPrice
                     );
                 }catch (AuthorizationDeniedException e){
-                    logger.error("Method: initialize/changePrice | Authorization error : {} ", e.getMessage(), e);
+                    String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+                    logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(),username, e);
                     if (messages != null) {
                     messages.showError(getString("common.error.unauthorized"));
                 }
@@ -263,7 +266,11 @@ public class ServiceItemController extends OverController {
             navigateToServiceItemView();
 
         }catch (AuthorizationDeniedException e){
-            logger.error("Method: handleSavePackage | Authorization error : {} ", e.getMessage(), e);
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error(
+                    "Method: handleSavePackage | Authorization error : {} | User: {} ",
+                    e.getMessage(),
+                    username, e);
             if (messages != null) {
                 messages.showError(getString("common.error.unauthorized"));
             }
