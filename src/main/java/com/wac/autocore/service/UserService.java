@@ -26,11 +26,11 @@ public class UserService {
     public User registerUser(String username, String rawPassword, Set<UserRole> roles) {
         if (userRepository.findByUsername(username).isPresent()) {
             throw new IllegalArgumentException("Användarnamnet är redan upptaget: " + username);
-        }
+       }
 
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
         User newUser = new User(username, encodedPassword, roles);
         return userRepository.save(newUser);
-    }
+   }
 }
