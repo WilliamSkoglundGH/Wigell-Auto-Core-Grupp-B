@@ -1,6 +1,7 @@
 package com.wac.autocore.service;
 
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.mapper.ServiceItemMapper;
 import com.wac.autocore.model.ServiceItem;
@@ -36,7 +37,7 @@ public class ServiceItemService {
                     .collect(Collectors.toList());
         } catch (DataAccessException e) {
             logger.error("Method: getAllServiceItems | Database error ", e);
-            throw e;//TODO Ändra till vårt egna exception.
+            throw new DatabaseException("common.error.database");
         }
         }
 
@@ -50,7 +51,7 @@ public class ServiceItemService {
             return ServiceItemMapper.toServiceItemDto(item);
         }catch (DataAccessException e) {
             logger.error("Method: getServiceItems | Database error ", e);
-            throw e;//TODO Ändra till vårt egna exception.
+            throw new DatabaseException("common.error.database");
         }
     }
 
@@ -58,26 +59,38 @@ public class ServiceItemService {
     @Transactional
     public void changePrice(Long serviceItemId, BigDecimal newPrice) {
         try {
-            ServiceItem item = serviceItemRepository.findById(serviceItemId)
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            "Service item with ID: " + serviceItemId + " not found"));
+            ServiceItem item = getServiceItemEntity(serviceItemId);
             item.setPrice(newPrice);
             serviceItemRepository.save(item);
+
         }catch (DataAccessException e) {
             logger.error("Method: changePrice | Database error ", e);
-            throw e;//TODO Ändra till vårt egna exception.
+            throw new DatabaseException("common.error.database");
         }
     }
 
     //Hjälpmetoder inom servicelagret
 
     protected List<ServiceItem> getAllServiceItemsEntity(List<Long> ids) {
+        try{
         return serviceItemRepository.findAllById(ids);
+    }catch (DataAccessException e) {
+        logger.error("Method: getAllServiceItemsEntity | Database error ", e);
+        throw new DatabaseException("common.error.database");
+    }
     }
 
     protected ServiceItem getServiceItemEntity(Long serviceItemId) {
+        try{
         return serviceItemRepository.findById(serviceItemId)
-                .orElseThrow(() -> new EntityNotFoundException("serviceItem.error.could_not_load"));
+                .orElseThrow(() ->
+                { logger.error("Method: getServiceItemEntity | Service item not found | Id: {} ", serviceItemId);
+                 return new EntityNotFoundException("serviceItem.error.could_not_load");
+                });
+        }catch (DataAccessException e) {
+            logger.error("Method: getServiceItemEntity | Database error ", e);
+            throw new DatabaseException("common.error.database");
+        }
     }
 
 

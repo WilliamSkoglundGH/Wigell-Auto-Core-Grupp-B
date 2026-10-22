@@ -4,6 +4,7 @@ import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.servicePackage.ServicePackageSummaryDto;
 import com.wac.autocore.exception.BusinessException;
 import com.wac.autocore.controller.util.BigDecimalStringConverter;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.service.ServiceItemService;
 import com.wac.autocore.service.ServicePackageService;
 import javafx.beans.property.BooleanProperty;
@@ -110,16 +111,12 @@ public class ServiceItemController extends OverController {
                             getString("serviceitem.price_changed") + " " + newPrice
                     );
 
-            }catch (BusinessException e) {
+            }catch (BusinessException | DatabaseException e) {
                 if (messages != null) {
                     messages.showError(getString(e.getMessage()));
                 }
-            } catch (DatabaseException e) {
-                if (messages != null) {
-                    messages.showError(getString("serviceItem.error.could_not_load"));
-                }
             } catch (Exception e) {
-                    logger.error("Method: ini | Unexpected ", e);
+                    logger.error("Method: initialize | Unexpected ", e);
                     messages.showError(getString("common.error.unexpected"));
               }
 
@@ -168,21 +165,19 @@ public class ServiceItemController extends OverController {
                                 servicePackageService.getAllPackagesSummary()
                         )
                 );
-            }catch (BusinessException e) {
-                    if (messages != null) {
-                        messages.showError(getString(e.getMessage()));
-                    }
-        } catch (DatabaseException e) {
-            if (messages != null) {
-                messages.showError(getString("serviceItem.package.error.could_not_load"));
-            }
-        } catch (Exception e) {
-            logger.error("Could not load service packages from database. {}", e.getMessage(), e);
-            if (messages != null) {
-                messages.showError(getString("serviceItem.error.could_not_load"));
+            } catch (BusinessException e) {
+                messages.showError(getString(e.getMessage()));
+
+            } catch (DatabaseException e) {
+                if (messages != null) {
+                messages.showError(getString(e.getMessage()));
+                }
+            } catch (Exception e) {
+                logger.error("Method: loadServicePackageData | Unexpected ", e);
+                messages.showError(getString("common.error.unexpected"));
             }
         }
-        }
+
     }
     public void loadServiceItemData() {
         if (serviceItemTable != null) {
@@ -192,13 +187,11 @@ public class ServiceItemController extends OverController {
                                 serviceItemService.getAllServiceItems()
                         )
                 );
-
-        } catch (DatabaseException e) {
-            if (messages != null) {
-                messages.showError(getString("serviceItem.error.could_not_load"));
-            }
+            } catch (BusinessException | DatabaseException e) {
+                if (messages != null) {
+                messages.showError(getString(e.getMessage()));}
         } catch (Exception e) {
-            logger.error("Could not load serviceItem from database. {}", e.getMessage(), e);
+            logger.error("Method: loadServiceItemData | Unexpected ", e);
             if (messages != null) {
                 messages.showError(getString("common.error.unexpected"));
             }
@@ -265,21 +258,15 @@ public class ServiceItemController extends OverController {
             messages.showSuccess(getString("serviceItem.success.package_created"));
             navigateToServiceItemView();
 
-        }catch (BusinessException e) {
+            } catch (BusinessException | DatabaseException e) {
             if (messages != null) {
-                messages.showError(getString(e.getMessage()));
+                messages.showError(getString(e.getMessage()));}
+            } catch (Exception e) {
+                logger.error("Method: loadServicePackageData | Unexpected ", e);
+                if (messages != null) {
+                    messages.showError(getString("common.error.unexpected"));
+                }
             }
-        } catch (DataAccessException e) {
-            logger.error("Could not save service packages to database. {}", e.getMessage(), e);
-            if (messages != null) {
-                messages.showError(getString("serviceItem.package.error.could_not_save"));
-            }
-        } catch (Exception e) {
-            logger.error("Could not save service packages to database. {}", e.getMessage(), e);
-            if (messages != null) {
-                messages.showError(getString("common.error.unexpected"));
-            }
-        }
     }
 
     @FXML
