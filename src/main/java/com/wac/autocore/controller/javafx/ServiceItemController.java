@@ -266,7 +266,11 @@ public class ServiceItemController extends OverController {
             navigateToServiceItemView();
 
         }catch (AuthorizationDeniedException e){
-            logger.error("Method: handleSavePackage | Authorization error : {} ", e.getMessage(), e);
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error(
+                    "Method: handleSavePackage | Authorization error : {} | User: {} ",
+                    e.getMessage(),
+                    username, e);
             if (messages != null) {
                 messages.showError(getString("common.error.unauthorized"));
             }

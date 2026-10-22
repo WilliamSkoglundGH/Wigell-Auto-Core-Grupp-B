@@ -167,10 +167,9 @@ public class VehicleController extends OverController {
                 logger.error(
                         "Method: loadVehicleData | Unexpected",
                         e);
-
                 if (messages != null) {
                     messages.showError(
-                            getString("vehicle.error.load_vehicles"));
+                            getString("common.error.unexpected"));
                 }
             }
         }

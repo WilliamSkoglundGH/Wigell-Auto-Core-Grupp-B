@@ -3,6 +3,7 @@ package com.wac.autocore.service;
 import com.wac.autocore.dto.customer.CustomerCreateDto;
 import com.wac.autocore.dto.customer.CustomerSummaryDto;
 import com.wac.autocore.exception.EntityNotFoundException;
+import com.wac.autocore.exception.InputValidationException;
 import com.wac.autocore.mapper.CustomerMapper;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.repository.CustomerRepository;
@@ -70,7 +71,7 @@ public class CustomerService {
             logger.warn(
                     "Method: createCustomer | Customer name is null or empty");
 
-            throw new IllegalArgumentException(
+            throw new InputValidationException(
                     "customer.error.enter_name");
         }
 
@@ -79,7 +80,7 @@ public class CustomerService {
             logger.warn(
                     "Method: createCustomer | Missing email");
 
-            throw new IllegalArgumentException(
+            throw new InputValidationException(
                     "customer.error.enter_email");
         }
 
@@ -89,7 +90,7 @@ public class CustomerService {
             logger.warn(
                     "Method: createCustomer | Invalid email");
 
-            throw new IllegalArgumentException(
+            throw new InputValidationException(
                     "customer.error.invalid_email");
         }
 
@@ -108,7 +109,7 @@ public class CustomerService {
                         "Method: createCustomer | Invalid phone format | Numbers:{}",
                         normalized);
 
-                throw new IllegalArgumentException(
+                throw new InputValidationException(
                         "customer.error.invalid_phone");
             }
 
