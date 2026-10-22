@@ -114,16 +114,13 @@ public class ServiceItemController extends OverController {
                 if (messages != null) {
                     messages.showError(getString(e.getMessage()));
                 }
-            } catch (DataAccessException e) {
-                logger.error("Could not load serviceItem from database. {}", e.getMessage(), e);
+            } catch (DatabaseException e) {
                 if (messages != null) {
                     messages.showError(getString("serviceItem.error.could_not_load"));
                 }
             } catch (Exception e) {
-                    logger.error("Could not change price on serviceItem {} to {}", item.getId(), e.getMessage(), e);
-                    messages.showError(
-                            getString("serviceitem.price_change_failed") + " " + e.getMessage()
-                    );
+                    logger.error("Method: ini | Unexpected ", e);
+                    messages.showError(getString("common.error.unexpected"));
               }
 
                 javafx.application.Platform.runLater(() -> {
@@ -175,8 +172,7 @@ public class ServiceItemController extends OverController {
                     if (messages != null) {
                         messages.showError(getString(e.getMessage()));
                     }
-        } catch (DataAccessException e) {
-            logger.error("Could not load service packages from database. {}", e.getMessage(), e);
+        } catch (DatabaseException e) {
             if (messages != null) {
                 messages.showError(getString("serviceItem.package.error.could_not_load"));
             }
@@ -197,8 +193,7 @@ public class ServiceItemController extends OverController {
                         )
                 );
 
-        } catch (DataAccessException e) {
-            logger.error("Could not load service items from database. {}", e.getMessage(), e);
+        } catch (DatabaseException e) {
             if (messages != null) {
                 messages.showError(getString("serviceItem.error.could_not_load"));
             }

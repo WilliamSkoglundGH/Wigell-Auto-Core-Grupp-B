@@ -7,6 +7,7 @@ import com.wac.autocore.model.ServiceItem;
 import com.wac.autocore.repository.ServiceItemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,31 +30,43 @@ public class ServiceItemService {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<ServiceItemSummaryDto> getAllServiceItems() {
-        return serviceItemRepository.findAll().stream()
-                .map(ServiceItemMapper::toServiceItemDto)
-                .collect(Collectors.toList());
-    }
+        try {
+            return serviceItemRepository.findAll().stream()
+                    .map(ServiceItemMapper::toServiceItemDto)
+                    .collect(Collectors.toList());
+        } catch (DataAccessException e) {
+            logger.error("Method: getAllServiceItems | Database error ", e);
+            throw e;//TODO Ändra till vårt egna exception.
+        }
+        }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public ServiceItemSummaryDto getServiceItem(Long serviceItemId) {
-        ServiceItem item = serviceItemRepository.findById(serviceItemId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Service item with ID: " + serviceItemId + " not found"));
-        return ServiceItemMapper.toServiceItemDto(item);
+        try {
+            ServiceItem item = serviceItemRepository.findById(serviceItemId)
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Service item with ID: " + serviceItemId + " not found"));
+            return ServiceItemMapper.toServiceItemDto(item);
+        }catch (DataAccessException e) {
+            logger.error("Method: getServiceItems | Database error ", e);
+            throw e;//TODO Ändra till vårt egna exception.
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void changePrice(Long serviceItemId, BigDecimal newPrice) {
-
-        ServiceItem item = serviceItemRepository.findById(serviceItemId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Service item with ID: " + serviceItemId + " not found"));
-
-        item.setPrice(newPrice);
-        serviceItemRepository.save(item);
-
+        try {
+            ServiceItem item = serviceItemRepository.findById(serviceItemId)
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Service item with ID: " + serviceItemId + " not found"));
+            item.setPrice(newPrice);
+            serviceItemRepository.save(item);
+        }catch (DataAccessException e) {
+            logger.error("Method: changePrice | Database error ", e);
+            throw e;//TODO Ändra till vårt egna exception.
+        }
     }
 
     //Hjälpmetoder inom servicelagret
