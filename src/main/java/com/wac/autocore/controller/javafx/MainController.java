@@ -9,7 +9,10 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
@@ -44,6 +47,7 @@ public class MainController extends OverController implements UserMessages {
     @FXML private Button logoutButton;
 
     private Button activeMenuButton;
+    private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 
     // Håller koll på aktuell vy så att vi stannar kvar på rätt skärm vid språkbyte
     private String currentViewPath = "/com/wac/autocore/controller/view/CustomerView.fxml";
@@ -213,13 +217,18 @@ public class MainController extends OverController implements UserMessages {
 
     @FXML
     private void handleLogout() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth != null ? auth.getName() : "unknown";
+
         SecurityContextHolder.clearContext();
+        logger.info("Method: handleLogout | User logged out | Username={}", username);
         try {
             loadRootView(
                     "/com/wac/autocore/controller/view/LoginView.fxml",
                     mainRoot.getScene()
             );
         } catch (IOException e) {
+            logger.error("Method: handleLogout | Could not load login view, exiting", e);
             Platform.exit();
         }
     }
