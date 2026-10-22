@@ -32,7 +32,7 @@ public class LoginService {
             return authentication;
 
         } catch (BadCredentialsException e) {
-            logger.warn("Method: login | Authentication failed | Invalid credentials");
+            logger.warn("Method: login | Authentication failed | Invalid credentials | Username={}", username);
             throw e;
         } catch (InternalAuthenticationServiceException e) {
             if (e.getCause() instanceof DataAccessException) {
