@@ -4,12 +4,10 @@ import com.wac.autocore.dto.invoice.InvoiceSummaryDto;
 import com.wac.autocore.dto.invoice.InvoiceDetailsDto;
 import com.wac.autocore.dto.invoice.InvoiceCreateDto;
 import com.wac.autocore.dto.invoice.InvoiceLineDto;
-import com.wac.autocore.dto.workorder.WorkOrderDetailsDto;
 import com.wac.autocore.dto.workorder.WorkOrderForInvoiceDto;
-import com.wac.autocore.dto.workorder.WorkOrderSummaryDto;
 import com.wac.autocore.exception.BusinessException;
 import com.wac.autocore.controller.util.FormatUIUtil;
-import com.wac.autocore.model.enums.WorkOrderState;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.service.InvoiceService;
 import com.wac.autocore.service.WorkOrderService;
 import javafx.beans.property.SimpleObjectProperty;
@@ -23,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -132,13 +129,12 @@ public class InvoiceController extends OverController {
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
 
-        } catch (DataAccessException e) {
-            logger.error("Could not load invoices", e);
-            messages.showError(getString("invoice.error.load_invoices"));
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
-            logger.error("Unexpected error", e);
-            messages.showError(getString("invoice.error.load_invoices"));
+            logger.error("Method: loadInvoiceData | Unexpected ", e);
+            messages.showError(getString("invoice.error.unexpected"));
         }
     }
 
@@ -183,9 +179,12 @@ public class InvoiceController extends OverController {
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
 
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+
         } catch (Exception e) {
-            logger.error("Unexpected error", e);
-            messages.showError(getString("invoice.error.load_details"));
+            logger.error("Method: loadInvoiceDetails | Unexpected ", e);
+            messages.showError(getString("invoice.error.unexpected"));
         }
     }
 
@@ -225,9 +224,12 @@ public class InvoiceController extends OverController {
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
 
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+
         } catch (Exception e) {
-            logger.error("Unexpected error", e);
-            messages.showError(getString("invoice.error.load_workorders"));
+            logger.error("Method: populateComboBox | Unexpected ", e);
+            messages.showError(getString("invoice.error.unexpected"));
         }
     }
 
@@ -260,13 +262,12 @@ public class InvoiceController extends OverController {
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
 
-        } catch (DataAccessException e) {
-            logger.error("Could not create invoice", e);
-            messages.showError(getString("invoice.error.create_invoice"));
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
-            logger.error("Unexpected error", e);
-            messages.showError(getString("invoice.error.create_invoice"));
+            logger.error("Method: loadInvoiceData | Unexpected ", e);
+            messages.showError(getString("invoice.error.unexpected"));
         }
     }
 
