@@ -6,13 +6,15 @@ public class VehicleSummaryDto {
     private String registrationNumber;
     private String brand;
     private String model;
+    private int year;
     private String customerName;
 
-    public VehicleSummaryDto(Long id, String registrationNumber, String brand, String model, String customerName) {
+    public VehicleSummaryDto(Long id, String registrationNumber, String brand, String model, int year, String customerName) {
         this.id = id;
         this.registrationNumber = registrationNumber;
         this.brand = brand;
         this.model = model;
+        this.year = year;
         this.customerName = customerName;
     }
 
@@ -36,6 +38,9 @@ public class VehicleSummaryDto {
         return customerName;
     }
 
+    public int getYear() {
+        return year;
+    }
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
     }
