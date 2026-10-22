@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 
 @Controller
 @Scope("prototype") // Lägg denna på controllers som styr flera fxml filer.
@@ -91,10 +93,34 @@ public class VehicleController extends OverController {
                         return null;
                     }
                 });
-            } catch (Exception e) {
-                logger.error("Method: initializer | Unexpected ", e);
+            } catch (AuthorizationDeniedException e) {
+
+                logger.error(
+                        "Method: initialize | Authorization error: {}",
+                        e.getMessage(),
+                        e);
+
                 if (messages != null) {
-                    messages.showError(getString("vehicle.error.load_customers"));
+                    messages.showError(
+                            getString("common.error.unauthorized"));
+                }
+
+            } catch (DataAccessException e) {
+
+                if (messages != null) {
+                    messages.showError(
+                            getString("vehicle.error.load_customers"));
+                }
+
+            } catch (Exception e) {
+
+                logger.error(
+                        "Method: initialize | Unexpected",
+                        e);
+
+                if (messages != null) {
+                    messages.showError(
+                            getString("vehicle.error.load_customers"));
                 }
             }
         }
@@ -105,17 +131,45 @@ public class VehicleController extends OverController {
     }
 
     public void loadVehicleData() {
+
         if (vehicleTable != null) {
+
             try {
-                ObservableList<VehicleSummaryDto> vehicleData = FXCollections.observableArrayList(
-                        vehicleService.getAllVehicles()
-                );
+
+                ObservableList<VehicleSummaryDto> vehicleData =
+                        FXCollections.observableArrayList(
+                                vehicleService.getAllVehicles());
+
                 vehicleTable.setItems(vehicleData);
 
-            } catch (Exception e) {
-                logger.error("Method: initializer | Unexpected ", e);
+            } catch (AuthorizationDeniedException e) {
+
+                logger.error(
+                        "Method: loadVehicleData | Authorization error: {}",
+                        e.getMessage(),
+                        e);
+
                 if (messages != null) {
-                    messages.showError(getString("vehicle.error.load_vehicles"));
+                    messages.showError(
+                            getString("common.error.unauthorized"));
+                }
+
+            } catch (DataAccessException e) {
+
+                if (messages != null) {
+                    messages.showError(
+                            getString("vehicle.error.load_vehicles"));
+                }
+
+            } catch (Exception e) {
+
+                logger.error(
+                        "Method: loadVehicleData | Unexpected",
+                        e);
+
+                if (messages != null) {
+                    messages.showError(
+                            getString("vehicle.error.load_vehicles"));
                 }
             }
         }
@@ -152,12 +206,29 @@ public class VehicleController extends OverController {
                 } else {
                     messages.showError(getString("vehicle.error.enter_data"));
                 }
+            } catch (AuthorizationDeniedException e) {
+
+                logger.error(
+                        "Method: handleSaveVehicle | Authorization error: {}",
+                        e.getMessage(),
+                        e);
+
+                messages.showError(
+                        getString("common.error.unauthorized"));
+
             } catch (NumberFormatException e) {
-                messages.showError(getString("vehicle.error.incorrect_year"));
+
+                messages.showError(
+                        getString("vehicle.error.incorrect_year"));
 
             } catch (Exception e) {
-                logger.error("Method: handleSaveVehicle | Unexpected ", e);
-                messages.showError(getString("vehicle.error.save_vehicle"));
+
+                logger.error(
+                        "Method: handleSaveVehicle | Unexpected",
+                        e);
+
+                messages.showError(
+                        getString("vehicle.error.save_vehicle"));
             }
         }
     }
