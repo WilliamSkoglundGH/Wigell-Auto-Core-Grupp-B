@@ -3,6 +3,7 @@ package com.wac.autocore.controller.javafx;
 import com.wac.autocore.dto.customer.CustomerSummaryDto;
 import com.wac.autocore.dto.vechicle.VehicleCreateDto;
 import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
+import com.wac.autocore.exception.BusinessException;
 import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.service.CustomerService;
 import com.wac.autocore.service.VehicleService;
@@ -21,7 +22,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 
 import java.util.Objects;
@@ -146,27 +146,37 @@ public class VehicleController extends OverController {
                 vehicleTable.setItems(vehicleData);
 
             } catch (AuthorizationDeniedException e) {
-                String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+
+                String username =
+                        Objects.requireNonNull(
+                                        SecurityContextHolder.getContext()
+                                                .getAuthentication())
+                                .getName();
+
                 logger.error(
-                        "Method: loadVehicleData | Authorization error : {} | User: {} ",
+                        "Method: loadVehicleData | Authorization error : {} | User: {}",
                         e.getMessage(),
-                        username, e);
+                        username,
+                        e);
 
                 if (messages != null) {
                     messages.showError(
                             getString("common.error.unauthorized"));
                 }
 
-            } catch (DatabaseException e) {
+            } catch (BusinessException | DatabaseException e) {
+
                 if (messages != null) {
                     messages.showError(
                             getString(e.getMessage()));
                 }
 
             } catch (Exception e) {
+
                 logger.error(
                         "Method: loadVehicleData | Unexpected",
                         e);
+
                 if (messages != null) {
                     messages.showError(
                             getString("common.error.unexpected"));
@@ -186,40 +196,81 @@ public class VehicleController extends OverController {
 
     @FXML
     private void handleSaveVehicle() {
+
         if (registrationNumberField != null) {
+
             String regNo = registrationNumberField.getText();
             String brand = brandField.getText();
             String model = modelField.getText();
-            CustomerSummaryDto selectedCustomer = customerComboBox != null ? customerComboBox.getValue() : null;
+
+            CustomerSummaryDto selectedCustomer =
+                    customerComboBox != null
+                            ? customerComboBox.getValue()
+                            : null;
 
             try {
-                int year = Integer.parseInt(yearField.getText().trim());
 
-                if (regNo != null && !regNo.trim().isEmpty() && selectedCustomer != null) {
+                int year =
+                        Integer.parseInt(
+                                yearField.getText().trim());
 
-                    VehicleCreateDto createDto = new VehicleCreateDto(regNo.trim(), brand.trim(), model.trim(), year, selectedCustomer.getId());
+                if (regNo != null
+                        && !regNo.trim().isEmpty()
+                        && selectedCustomer != null) {
+
+                    VehicleCreateDto createDto =
+                            new VehicleCreateDto(
+                                    regNo.trim(),
+                                    brand.trim(),
+                                    model.trim(),
+                                    year,
+                                    selectedCustomer.getId());
 
                     vehicleService.saveVehicle(createDto);
 
-                    messages.showSuccess(getString("vehicle.showsuccess.vehicle_created"));
+                    messages.showSuccess(
+                            getString(
+                                    "vehicle.showsuccess.vehicle_created"));
+
                     navigateToVehicleView();
+
                 } else {
-                    messages.showError(getString("vehicle.error.enter_data"));
+
+                    messages.showError(
+                            getString(
+                                    "vehicle.error.enter_data"));
                 }
+
             } catch (AuthorizationDeniedException e) {
-                String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+
+                String username =
+                        Objects.requireNonNull(
+                                        SecurityContextHolder.getContext()
+                                                .getAuthentication())
+                                .getName();
+
                 logger.error(
-                        "Method: loadVehicleData | Authorization error : {} | User: {} ",
+                        "Method: handleSaveVehicle | Authorization error : {} | User: {}",
                         e.getMessage(),
-                        username, e);
+                        username,
+                        e);
 
                 messages.showError(
-                        getString("common.error.unauthorized"));
+                        getString(
+                                "common.error.unauthorized"));
 
             } catch (NumberFormatException e) {
 
                 messages.showError(
-                        getString("vehicle.error.incorrect_year"));
+                        getString(
+                                "vehicle.error.incorrect_year"));
+
+            } catch (BusinessException | DatabaseException e) {
+
+                if (messages != null) {
+                    messages.showError(
+                            getString(e.getMessage()));
+                }
 
             } catch (Exception e) {
 
@@ -228,7 +279,8 @@ public class VehicleController extends OverController {
                         e);
 
                 messages.showError(
-                        getString("vehicle.error.save_vehicle"));
+                        getString(
+                                "common.error.unexpected"));
             }
         }
     }

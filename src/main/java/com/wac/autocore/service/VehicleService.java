@@ -54,62 +54,102 @@ public class VehicleService {
         }
     }
 
-    @PreAuthorize("isAuthenticated()")
-    @Transactional(readOnly = true)
     public VehicleSummaryDto getVehicle(Long id) {
 
-        return VehicleMapper.toDto(
-                vehicleRepository.findById(id)
-                        .orElseThrow(() -> {
+        try {
 
-                            logger.warn(
-                                    "Method: getVehicle | Could not find vehicle | Id:{}",
-                                    id);
+            return VehicleMapper.toDto(
+                    vehicleRepository.findById(id)
+                            .orElseThrow(() -> {
 
-                            return new EntityNotFoundException(
-                                    "vehicle.error.not_found");
-                        }));
+                                logger.warn(
+                                        "Method: getVehicle | Could not find vehicle | Id:{}",
+                                        id);
+
+                                return new EntityNotFoundException(
+                                        "vehicle.error.not_found");
+                            }));
+
+        } catch (DataAccessException e) {
+
+            logger.error(
+                    "Method: getVehicle | Database error",
+                    e);
+
+            throw new DatabaseException(
+                    "common.error.database");
+        }
     }
+
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MECHANIC')")
     @Transactional
     public VehicleSummaryDto saveVehicle(VehicleCreateDto dto) {
 
-        Customer customer = customerRepository.findById(
-                        dto.getCustomerId())
-                .orElseThrow(() -> {
+        try {
 
-                    logger.warn(
-                            "Method: saveVehicle | Could not find customer | Id:{}",
-                            dto.getCustomerId());
+            Customer customer =
+                    customerRepository.findById(
+                                    dto.getCustomerId())
+                            .orElseThrow(() -> {
 
-                    return new EntityNotFoundException(
-                            "customer.error.could_not_load");
-                });
+                                logger.warn(
+                                        "Method: saveVehicle | Could not find customer | Id:{}",
+                                        dto.getCustomerId());
 
-        Vehicle vehicle =
-                VehicleMapper.toEntity(dto, customer);
+                                return new EntityNotFoundException(
+                                        "customer.error.could_not_load");
+                            });
 
-        Vehicle savedVehicle =
-                vehicleRepository.save(vehicle);
+            Vehicle vehicle =
+                    VehicleMapper.toEntity(
+                            dto,
+                            customer);
 
-        logger.info(
-                "Method: saveVehicle | Success | VehicleId:{}",
-                savedVehicle.getId());
+            Vehicle savedVehicle =
+                    vehicleRepository.save(vehicle);
 
-        return VehicleMapper.toDto(savedVehicle);
+            logger.info(
+                    "Method: saveVehicle | Success | VehicleId:{}",
+                    savedVehicle.getId());
+
+            return VehicleMapper.toDto(
+                    savedVehicle);
+
+        } catch (DataAccessException e) {
+
+            logger.error(
+                    "Method: saveVehicle | Database error",
+                    e);
+
+            throw new DatabaseException(
+                    "common.error.database");
+        }
     }
 
     protected Vehicle getVehicleEntity(Long vehicleId) {
 
-        return vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> {
-                    logger.error(
-                            "Method: getVehicleEntity | Could not find vehicle | Id:{}",
-                            vehicleId);
+        try {
 
-                    return new EntityNotFoundException(
-                            "vehicle.error.not_found");
-                });
+            return vehicleRepository.findById(vehicleId)
+                    .orElseThrow(() -> {
+
+                        logger.warn(
+                                "Method: getVehicleEntity | Could not find vehicle | Id:{}",
+                                vehicleId);
+
+                        return new EntityNotFoundException(
+                                "vehicle.error.not_found");
+                    });
+
+        } catch (DataAccessException e) {
+
+            logger.error(
+                    "Method: getVehicleEntity | Database error",
+                    e);
+
+            throw new DatabaseException(
+                    "common.error.database");
+        }
     }
 }
