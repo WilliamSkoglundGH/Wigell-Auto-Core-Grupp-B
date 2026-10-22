@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 
 @Controller
 @Scope("prototype")
@@ -95,6 +96,18 @@ public class CustomerController extends OverController {
 
                 customerTable.setItems(customerData);
 
+            } catch (AuthorizationDeniedException e) {
+
+                logger.error(
+                        "Method: loadCustomerData | Authorization error: {}",
+                        e.getMessage(),
+                        e);
+
+                if (messages != null) {
+                    messages.showError(
+                            getString("common.error.unauthorized"));
+                }
+
             } catch (DataAccessException e) {
 
                 if (messages != null) {
@@ -115,6 +128,7 @@ public class CustomerController extends OverController {
             }
         }
     }
+
 
     @FXML
     private void handleNewCustomer() {

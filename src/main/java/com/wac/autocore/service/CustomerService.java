@@ -51,7 +51,8 @@ public class CustomerService {
         return CustomerMapper.toSummaryDto(
                 repo.findById(id)
                         .orElseThrow(() -> {
-                            logger.error(
+
+                            logger.warn(
                                     "Method: getCustomer | Could not find customer | Id:{}",
                                     id);
 
@@ -66,7 +67,7 @@ public class CustomerService {
 
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
 
-            logger.error(
+            logger.warn(
                     "Method: createCustomer | Customer name is null or empty");
 
             throw new IllegalArgumentException(
@@ -75,7 +76,7 @@ public class CustomerService {
 
         if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
 
-            logger.error(
+            logger.warn(
                     "Method: createCustomer | Missing email");
 
             throw new IllegalArgumentException(
@@ -85,7 +86,7 @@ public class CustomerService {
         if (!dto.getEmail().contains("@")
                 || !dto.getEmail().contains(".")) {
 
-            logger.error(
+            logger.warn(
                     "Method: createCustomer | Invalid email");
 
             throw new IllegalArgumentException(
@@ -103,7 +104,7 @@ public class CustomerService {
 
             if (!normalized.matches(regex)) {
 
-                logger.error(
+                logger.warn(
                         "Method: createCustomer | Invalid phone format | Numbers:{}",
                         normalized);
 
