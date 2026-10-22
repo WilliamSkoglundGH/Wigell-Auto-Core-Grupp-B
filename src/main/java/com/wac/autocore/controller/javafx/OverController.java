@@ -6,11 +6,15 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
 
 public abstract class OverController {
+
+    private static final Logger logger = LoggerFactory.getLogger(OverController.class);
 
     protected UserMessages messages;
     protected ApplicationContext applicationContext;
@@ -51,11 +55,7 @@ public abstract class OverController {
             return (T) controller;
 
         } catch (IOException e) {
-            e.printStackTrace();
-            if (e.getCause() != null) {
-                System.out.println("Riktiga felet: " + e.getCause().getMessage());
-                e.getCause().printStackTrace();
-            }
+            logger.error("Method: loadCenterView | Could not load view | Path={}", fxmlPath, e);
             if (messages != null) {
                 messages.showError(getString("common.error.open_view"));
             }
@@ -107,7 +107,7 @@ public abstract class OverController {
                 return LanguageManager.getBundle().getString(key);
             }
         } catch (Exception e) {
-            // Logga eller ignorera om bundle saknas
+            logger.error("Method: getString | Could not read translation | Key={}", key, e);
         }
         return key; // Fallback så att inte appen kraschar om nyckeln saknas
     }

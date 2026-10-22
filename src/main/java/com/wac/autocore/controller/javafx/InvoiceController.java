@@ -204,6 +204,9 @@ public class InvoiceController extends OverController {
             workOrderComboBox.setConverter(new StringConverter<WorkOrderForInvoiceDto>() {
                 @Override
                 public String toString(WorkOrderForInvoiceDto dto) {
+                    if (dto == null) {
+                        return "";
+                    }
                     return getString("invoice.option.customer") + ": "
                             + dto.getCustomerName()
                             + " ( " + dto.getVehicleRegistrationNumber() + " )"

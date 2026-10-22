@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
@@ -17,8 +18,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 @Controller
-public class MainController implements UserMessages {
-    private final ApplicationContext applicationContext;
+public class MainController extends OverController implements UserMessages {
 
     public MainController(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -41,6 +41,7 @@ public class MainController implements UserMessages {
     @FXML private Button mechanicButton;
     @FXML private Button languageButton;
     @FXML private Button exitButton;
+    @FXML private Button logoutButton;
 
     private Button activeMenuButton;
 
@@ -202,9 +203,24 @@ public class MainController implements UserMessages {
         if (mechanicButton != null) mechanicButton.setText(bundle.getString("nav.mechanics"));
         if (languageButton != null) languageButton.setText(bundle.getString("nav.language"));
         if (exitButton != null) exitButton.setText(bundle.getString("nav.exit"));
+        if (logoutButton != null) {logoutButton.setText(bundle.getString("nav.logout"));
+        }
     }
     // Låt andra controllers tala om vilken vy som för närvarande är aktiv
     public void setCurrentViewPath(String viewPath) {
         this.currentViewPath = viewPath;
+    }
+
+    @FXML
+    private void handleLogout() {
+        SecurityContextHolder.clearContext();
+        try {
+            loadRootView(
+                    "/com/wac/autocore/controller/view/LoginView.fxml",
+                    mainRoot.getScene()
+            );
+        } catch (IOException e) {
+            Platform.exit();
+        }
     }
 }

@@ -12,6 +12,8 @@ import com.wac.autocore.model.Mechanic;
 import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.repository.MechanicRepository;
 import com.wac.autocore.repository.WorkOrderRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class MechanicService {
+
+    private static final Logger logger = LoggerFactory.getLogger(MechanicService.class);
+
     private final MechanicRepository mechanicRepository;
     private final WorkOrderRepository workOrderRepository;
 
@@ -36,12 +41,6 @@ public class MechanicService {
     @Transactional(readOnly = true)
     public List<MechanicSummaryDto> getAllMechanics() {
         return MechanicMapper.toSummaryDtoList(mechanicRepository.findAll());
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @Transactional(readOnly = true)
-    public MechanicSummaryDto getMechanic(Long id) {
-        return MechanicMapper.toSummaryDto(getMechanicEntity(id));
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -71,6 +70,9 @@ public class MechanicService {
 
     public Mechanic getMechanicEntity(Long id) {
         return mechanicRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("mechanic.error.could_not_load"));
+                .orElseThrow(() -> {
+                    logger.warn("Method: getMechanicEntity | Mechanic not found | MechanicId={}", id);
+                    return new EntityNotFoundException("mechanic.error.not_found");
+                });
     }
 }
