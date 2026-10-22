@@ -62,6 +62,7 @@ public class ServiceItemService {
             ServiceItem item = getServiceItemEntity(serviceItemId);
             item.setPrice(newPrice);
             serviceItemRepository.save(item);
+            logger.info ("Method: changePrice | Success updating | ItemId: {}", item.getId());
 
         }catch (DataAccessException e) {
             logger.error("Method: changePrice | Database error ", e);
