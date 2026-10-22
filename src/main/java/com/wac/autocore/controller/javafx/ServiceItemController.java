@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -110,7 +111,11 @@ public class ServiceItemController extends OverController {
                     messages.showSuccess(
                             getString("serviceitem.price_changed") + " " + newPrice
                     );
-
+                }catch (AuthorizationDeniedException e){
+                    logger.error("Method: initialize/changePrice | Authorization error : {} ", e.getMessage(), e);
+                    if (messages != null) {
+                    messages.showError(getString("common.error.unauthorized"));
+                }
             }catch (BusinessException | DatabaseException e) {
                 if (messages != null) {
                     messages.showError(getString(e.getMessage()));
@@ -258,6 +263,11 @@ public class ServiceItemController extends OverController {
             messages.showSuccess(getString("serviceItem.success.package_created"));
             navigateToServiceItemView();
 
+        }catch (AuthorizationDeniedException e){
+            logger.error("Method: handleSavePackage | Authorization error : {} ", e.getMessage(), e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
             } catch (BusinessException | DatabaseException e) {
             if (messages != null) {
                 messages.showError(getString(e.getMessage()));}
