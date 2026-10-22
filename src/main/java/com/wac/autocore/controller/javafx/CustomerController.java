@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 
 @Controller
 @Scope("prototype")
@@ -84,26 +85,50 @@ public class CustomerController extends OverController {
         }
     }
     public void loadCustomerData() {
+
         if (customerTable != null) {
+
             try {
+
                 ObservableList<CustomerSummaryDto> customerData =
-                        FXCollections.observableArrayList(customerService.getAllCustomers());
+                        FXCollections.observableArrayList(
+                                customerService.getAllCustomers());
+
                 customerTable.setItems(customerData);
 
-            } catch (DataAccessException e) {
+            } catch (AuthorizationDeniedException e) {
+
+                logger.error(
+                        "Method: loadCustomerData | Authorization error: {}",
+                        e.getMessage(),
+                        e);
+
                 if (messages != null) {
-                    logger.error("Method: loadCustomerData | Could not load customers ", e);
-                    messages.showError(getString("customer.error.could_not_load"));
+                    messages.showError(
+                            getString("common.error.unauthorized"));
+                }
+
+            } catch (DataAccessException e) {
+
+                if (messages != null) {
+                    messages.showError(
+                            getString("customer.error.could_not_load"));
                 }
 
             } catch (Exception e) {
-                logger.error("Method: loadCustomerData | Unexpected ", e);
+
+                logger.error(
+                        "Method: loadCustomerData | Unexpected",
+                        e);
+
                 if (messages != null) {
-                    messages.showError(getString("customer.error.could_not_load"));
+                    messages.showError(
+                            getString("customer.error.could_not_load"));
                 }
             }
         }
     }
+
 
     @FXML
     private void handleNewCustomer() {
