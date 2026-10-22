@@ -61,7 +61,6 @@ public class LoginController extends OverController {
                     loginService.login(username, password);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
             loadRootView(
                     "/com/wac/autocore/controller/view/MainView.fxml", loginButton.getScene());
 
