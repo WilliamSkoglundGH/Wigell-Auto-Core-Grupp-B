@@ -46,10 +46,11 @@ public class VehicleService {
 
         } catch (DataAccessException e) {
             logger.error(
-                    "Method: getAllVehicles | Could not load vehicles",
+                    "Method: getAllVehicles | Database error",
                     e);
 
-            throw new DatabaseException("common.error.database");
+            throw new DatabaseException(
+                    "common.error.database");
         }
     }
 
