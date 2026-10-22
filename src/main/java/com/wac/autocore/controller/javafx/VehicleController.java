@@ -3,6 +3,7 @@ package com.wac.autocore.controller.javafx;
 import com.wac.autocore.dto.customer.CustomerSummaryDto;
 import com.wac.autocore.dto.vechicle.VehicleCreateDto;
 import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.service.CustomerService;
 import com.wac.autocore.service.VehicleService;
 import javafx.collections.FXCollections;
@@ -18,9 +19,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+
+import java.util.Objects;
 
 @Controller
 @Scope("prototype") // Lägg denna på controllers som styr flera fxml filer.
@@ -94,22 +98,21 @@ public class VehicleController extends OverController {
                     }
                 });
             } catch (AuthorizationDeniedException e) {
-
+                String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
                 logger.error(
-                        "Method: initialize | Authorization error: {}",
+                        "Method: initialize/changePrice | Authorization error : {} | User: {} ",
                         e.getMessage(),
-                        e);
+                        username, e);
 
                 if (messages != null) {
                     messages.showError(
                             getString("common.error.unauthorized"));
                 }
 
-            } catch (DataAccessException e) {
-
+            } catch (DatabaseException e) {
                 if (messages != null) {
                     messages.showError(
-                            getString("vehicle.error.load_customers"));
+                            getString(e.getMessage()));
                 }
 
             } catch (Exception e) {
@@ -120,7 +123,7 @@ public class VehicleController extends OverController {
 
                 if (messages != null) {
                     messages.showError(
-                            getString("vehicle.error.load_customers"));
+                            getString("common.error.unexpected"));
                 }
             }
         }
@@ -143,26 +146,24 @@ public class VehicleController extends OverController {
                 vehicleTable.setItems(vehicleData);
 
             } catch (AuthorizationDeniedException e) {
-
+                String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
                 logger.error(
-                        "Method: loadVehicleData | Authorization error: {}",
+                        "Method: loadVehicleData | Authorization error : {} | User: {} ",
                         e.getMessage(),
-                        e);
+                        username, e);
 
                 if (messages != null) {
                     messages.showError(
                             getString("common.error.unauthorized"));
                 }
 
-            } catch (DataAccessException e) {
-
+            } catch (DatabaseException e) {
                 if (messages != null) {
                     messages.showError(
-                            getString("vehicle.error.load_vehicles"));
+                            getString(e.getMessage()));
                 }
 
             } catch (Exception e) {
-
                 logger.error(
                         "Method: loadVehicleData | Unexpected",
                         e);
@@ -207,11 +208,11 @@ public class VehicleController extends OverController {
                     messages.showError(getString("vehicle.error.enter_data"));
                 }
             } catch (AuthorizationDeniedException e) {
-
+                String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
                 logger.error(
-                        "Method: handleSaveVehicle | Authorization error: {}",
+                        "Method: loadVehicleData | Authorization error : {} | User: {} ",
                         e.getMessage(),
-                        e);
+                        username, e);
 
                 messages.showError(
                         getString("common.error.unauthorized"));
@@ -240,7 +241,6 @@ public class VehicleController extends OverController {
         }
         navigateToVehicleView();
     }
-
     private void navigateToVehicleView() {
         loadCenterView("/com/wac/autocore/controller/view/VehicleView.fxml");
     }
