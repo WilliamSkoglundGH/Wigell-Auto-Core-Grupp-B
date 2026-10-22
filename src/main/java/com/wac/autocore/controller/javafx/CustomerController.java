@@ -84,22 +84,33 @@ public class CustomerController extends OverController {
         }
     }
     public void loadCustomerData() {
+
         if (customerTable != null) {
+
             try {
+
                 ObservableList<CustomerSummaryDto> customerData =
-                        FXCollections.observableArrayList(customerService.getAllCustomers());
+                        FXCollections.observableArrayList(
+                                customerService.getAllCustomers());
+
                 customerTable.setItems(customerData);
 
             } catch (DataAccessException e) {
+
                 if (messages != null) {
-                    logger.error("Method: loadCustomerData | Could not load customers ", e);
-                    messages.showError(getString("customer.error.could_not_load"));
+                    messages.showError(
+                            getString("customer.error.could_not_load"));
                 }
 
             } catch (Exception e) {
-                logger.error("Method: loadCustomerData | Unexpected ", e);
+
+                logger.error(
+                        "Method: loadCustomerData | Unexpected",
+                        e);
+
                 if (messages != null) {
-                    messages.showError(getString("customer.error.could_not_load"));
+                    messages.showError(
+                            getString("customer.error.could_not_load"));
                 }
             }
         }
