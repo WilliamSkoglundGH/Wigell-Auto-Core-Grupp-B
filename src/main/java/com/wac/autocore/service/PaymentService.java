@@ -1,6 +1,7 @@
 package com.wac.autocore.service;
 
 import com.wac.autocore.dto.payment.PaymentSummaryDto;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.exception.UnsupportedPaymentTypeException;
 import com.wac.autocore.mapper.PaymentMapper;
@@ -11,6 +12,7 @@ import com.wac.autocore.repository.PaymentRepository;
 import com.wac.autocore.service.payment.PaymentStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,41 +37,52 @@ public class PaymentService {
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
     public List<PaymentSummaryDto> getAllPayments() {
-        return PaymentMapper.toSummaryDtoList(paymentRepository.findAll());
+        try {
+            return PaymentMapper.toSummaryDtoList(paymentRepository.findAll());
+        } catch (DataAccessException e) {
+            logger.error("Method: getAllPayments | Database error ", e);
+            throw new DatabaseException("common.error.database");
+        }
     }
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public String processPayment(Long invoiceId, String paymentType) {
         // 1. Hämta fakturan från databasen
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> {
-                    logger.warn("Method: processPayment | Invoice not found | InvoiceId={}", invoiceId);
-                    return new EntityNotFoundException("invoice.error.invoice_not_found");
-                });
+        try{
+            Invoice invoice = invoiceRepository.findById(invoiceId)
+                    .orElseThrow(() -> {
+                        logger.warn("Method: processPayment | Invoice not found | InvoiceId={}", invoiceId);
+                        return new EntityNotFoundException("invoice.error.invoice_not_found");
+                    });
 
-        // 2. Hitta rätt betalningsstrategi
-        PaymentStrategy strategy = strategies.values().stream()
-                .filter(s -> s.getPaymentType().equalsIgnoreCase(paymentType))
-                .findFirst()
-                .orElseThrow(() -> {
-                    logger.warn("Method: processPayment | Unsupported payment type | Type={} | InvoiceId={}", paymentType, invoiceId);
-                    return new UnsupportedPaymentTypeException("payment.error.unsupported_type");
-                });
+            // 2. Hitta rätt betalningsstrategi
+            PaymentStrategy strategy = strategies.values().stream()
+                    .filter(s -> s.getPaymentType().equalsIgnoreCase(paymentType))
+                    .findFirst()
+                    .orElseThrow(() -> {
+                        logger.warn("Method: processPayment | Unsupported payment type | Type={} | InvoiceId={}", paymentType, invoiceId);
+                        return new UnsupportedPaymentTypeException("payment.error.unsupported_type");
+                    });
 
-        BigDecimal amount = invoice.getTotalAmount();
+            BigDecimal amount = invoice.getTotalAmount();
 
-        // 3. Utför betalningen via strategin (sätter t.ex. fakturan som betald)
-        String messageKey = strategy.processPayment(invoice, amount);
+            // 3. Utför betalningen via strategin (sätter t.ex. fakturan som betald)
+            String messageKey = strategy.processPayment(invoice, amount);
 
-        // 4. Skapa och spara betalningshistoriken
-        Payment payment = new Payment(invoice, amount, paymentType.toUpperCase());
+            // 4. Skapa och spara betalningshistoriken
+            Payment payment = new Payment(invoice, amount, paymentType.toUpperCase());
 
-        invoiceRepository.save(invoice);
-        paymentRepository.save(payment);
+            invoiceRepository.save(invoice);
+            paymentRepository.save(payment);
 
-        logger.info("Method: processPayment | Payment successful | PaymentId={} | InvoiceId={} | Type={} | Amount={}",
-                payment.getId(), invoiceId, paymentType, amount);
+            logger.info("Method: processPayment | Payment successful | PaymentId={} | InvoiceId={} | Type={} | Amount={}",
+                    payment.getId(), invoiceId, paymentType, amount);
 
-        return messageKey;
+            return messageKey;
+        } catch (DataAccessException e) {
+            logger.error("Method: processPayment | Database error | InvoiceId={}", invoiceId, e);
+            throw new DatabaseException("common.error.database");
+        }
+
     }
 }
