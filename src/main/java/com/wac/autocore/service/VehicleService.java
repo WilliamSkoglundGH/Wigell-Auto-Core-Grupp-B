@@ -2,6 +2,7 @@ package com.wac.autocore.service;
 
 import com.wac.autocore.dto.vechicle.VehicleCreateDto;
 import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.mapper.VehicleMapper;
 import com.wac.autocore.model.Customer;
@@ -46,10 +47,11 @@ public class VehicleService {
         } catch (DataAccessException e) {
 
             logger.error(
-                    "Method: getAllVehicles | Could not load vehicles",
+                    "Method: getAllVehicles | Database error",
                     e);
 
-            throw e;
+            throw new DatabaseException(
+                    "common.error.database");
         }
     }
 
