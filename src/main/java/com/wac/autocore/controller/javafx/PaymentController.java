@@ -4,6 +4,7 @@ import com.wac.autocore.dto.invoice.InvoiceSummaryDto;
 import com.wac.autocore.dto.payment.PaymentSummaryDto;
 import com.wac.autocore.exception.BusinessException;
 import com.wac.autocore.controller.util.FormatUIUtil;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.service.InvoiceService;
 import com.wac.autocore.service.PaymentService;
 import javafx.beans.property.SimpleObjectProperty;
@@ -85,11 +86,21 @@ public class PaymentController extends OverController {
 
         // NewPaymentView.fxml
         if (invoiceComboBox != null) {
-            List<InvoiceSummaryDto> unpaidInvoices = invoiceService.getAllInvoices().stream()
-                    .filter(invoice -> !invoice.isPaid())
-                    .collect(Collectors.toList());
-            invoiceComboBox.setItems(FXCollections.observableArrayList(unpaidInvoices));
-
+            try {
+                List<InvoiceSummaryDto> unpaidInvoices = invoiceService.getAllInvoices().stream()
+                        .filter(invoice -> !invoice.isPaid())
+                        .collect(Collectors.toList());
+                invoiceComboBox.setItems(FXCollections.observableArrayList(unpaidInvoices));
+            } catch (DatabaseException e) {
+                if (messages != null) {
+                    messages.showError(getString(e.getMessage()));
+                }
+            } catch (Exception e) {
+                logger.error("Method: initialize | Could not load invoices", e);
+                if (messages != null) {
+                    messages.showError(getString("payment.error.could_not_load"));
+                }
+            }
             invoiceComboBox.setConverter(new StringConverter<InvoiceSummaryDto>() {
                 @Override
                 public String toString(InvoiceSummaryDto invoice) {
@@ -141,6 +152,10 @@ public class PaymentController extends OverController {
                 ObservableList<PaymentSummaryDto> paymentData = FXCollections.observableArrayList(paymentService.getAllPayments());
                 paymentTable.setItems(paymentData);
             }
+        } catch (DatabaseException e) {
+            if (messages != null) {
+                messages.showError(getString(e.getMessage()));
+            }
         } catch (Exception e) {
             logger.error("Method: loadPaymentData | Could not load payments", e);
             if (messages != null) {
@@ -175,7 +190,7 @@ public class PaymentController extends OverController {
                     messages.showSuccess(message);
                     navigateToPaymentView();
 
-                } catch (BusinessException e) {
+                } catch (BusinessException | DatabaseException e) {
                     messages.showError(getString(e.getMessage()));
                 } catch (Exception e) {
                     logger.error("Method: handleSavePayment | Could not process payment | InvoiceId={} | Type={}",

@@ -3,6 +3,7 @@ package com.wac.autocore.service;
 import com.wac.autocore.dto.booking.BookingSummaryDto;
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.workorder.WorkOrderForMechanicDto;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.mapper.BookingMapper;
 import com.wac.autocore.mapper.MechanicMapper;
@@ -14,6 +15,7 @@ import com.wac.autocore.repository.MechanicRepository;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,39 +42,60 @@ public class MechanicService {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<MechanicSummaryDto> getAllMechanics() {
-        return MechanicMapper.toSummaryDtoList(mechanicRepository.findAll());
+        try {
+            return MechanicMapper.toSummaryDtoList(mechanicRepository.findAll());
+        } catch (DataAccessException e) {
+            logger.error("Method: getAllMechanics | Database error ", e);
+            throw new DatabaseException("common.error.database");
+        }
     }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<BookingSummaryDto> getBookingsForMechanic(Long mechanicId) {
-        Mechanic mechanic = getMechanicEntity(mechanicId);
+        try{
+            Mechanic mechanic = getMechanicEntity(mechanicId);
 
-        List<Booking> bookings = mechanic.getBookings();
-        if (bookings == null) {
-            return Collections.emptyList();
+            List<Booking> bookings = mechanic.getBookings();
+            if (bookings == null) {
+                return Collections.emptyList();
+            }
+
+            bookings.sort(Comparator.comparing(Booking::getDate));
+
+            return BookingMapper.toBookingSummaryDtoList(bookings);
+        }catch (DataAccessException e) {
+            logger.error("Method: getBookingsForMechanic | Database error | MechanicId={}", mechanicId, e);
+            throw new DatabaseException("common.error.database");
         }
-
-        bookings.sort(Comparator.comparing(Booking::getDate));
-
-        return BookingMapper.toBookingSummaryDtoList(bookings);
     }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<WorkOrderForMechanicDto> getWorkOrdersForMechanic(Long mechanicId) {
-        List<WorkOrder> workOrders = workOrderRepository.findByMechanic_Id(mechanicId);
+        try{
+            List<WorkOrder> workOrders = workOrderRepository.findByMechanic_Id(mechanicId);
 
-        return workOrders.stream()
-                .map(WorkOrderMapper::toMechanicDto)
-                .collect(Collectors.toList());
+            return workOrders.stream()
+                    .map(WorkOrderMapper::toMechanicDto)
+                    .collect(Collectors.toList());
+        } catch (DataAccessException e) {
+            logger.error("Method: getWorkOrdersForMechanic | Database error | MechanicId={}", mechanicId, e);
+            throw new DatabaseException("common.error.database");
+        }
+
     }
 
     public Mechanic getMechanicEntity(Long id) {
-        return mechanicRepository.findById(id)
-                .orElseThrow(() -> {
-                    logger.warn("Method: getMechanicEntity | Mechanic not found | MechanicId={}", id);
-                    return new EntityNotFoundException("mechanic.error.not_found");
-                });
+        try{
+            return mechanicRepository.findById(id)
+                    .orElseThrow(() -> {
+                        logger.warn("Method: getMechanicEntity | Mechanic not found | MechanicId={}", id);
+                        return new EntityNotFoundException("mechanic.error.not_found");
+                    });
+        }catch (DataAccessException e) {
+        logger.error("Method: getMechanicEntity | Database error | MechanicId={}", id, e);
+        throw new DatabaseException("common.error.database");
+    }
     }
 }
