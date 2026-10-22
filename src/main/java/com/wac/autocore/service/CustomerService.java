@@ -2,6 +2,7 @@ package com.wac.autocore.service;
 
 import com.wac.autocore.dto.customer.CustomerCreateDto;
 import com.wac.autocore.dto.customer.CustomerSummaryDto;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.exception.InputValidationException;
 import com.wac.autocore.mapper.CustomerMapper;
@@ -41,7 +42,7 @@ public class CustomerService {
                     "Method: getAllCustomers | Could not load customers",
                     e);
 
-            throw e;
+            throw new DatabaseException("common.error.database");
         }
     }
 
