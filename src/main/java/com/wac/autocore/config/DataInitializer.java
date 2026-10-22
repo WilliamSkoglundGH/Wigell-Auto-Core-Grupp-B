@@ -17,7 +17,7 @@ import java.util.Set;
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner initData(CustomerRepository customerRepository,
+    CommandLineRunner initData(SpringCustomerRepository customerRepository,
                                VehicleRepository vehicleRepository,
                                ServiceItemRepository serviceItemRepository,
                                MechanicRepository mechanicRepository,

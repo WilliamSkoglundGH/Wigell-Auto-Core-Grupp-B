@@ -6,7 +6,7 @@ import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.mapper.VehicleMapper;
 import com.wac.autocore.model.Customer;
 import com.wac.autocore.model.Vehicle;
-import com.wac.autocore.repository.CustomerRepository;
+import com.wac.autocore.repository.SpringCustomerRepository;
 import com.wac.autocore.repository.VehicleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +21,9 @@ import java.util.List;
 public class VehicleService {
     private static final Logger logger = LoggerFactory.getLogger(VehicleService.class);
     private final VehicleRepository vehicleRepository;
-    private final CustomerRepository customerRepository;
+    private final SpringCustomerRepository customerRepository;
 
-    public VehicleService(VehicleRepository vehicleRepository, CustomerRepository customerRepository) {
+    public VehicleService(VehicleRepository vehicleRepository, SpringCustomerRepository customerRepository) {
         this.vehicleRepository = vehicleRepository;
         this.customerRepository = customerRepository;
     }
