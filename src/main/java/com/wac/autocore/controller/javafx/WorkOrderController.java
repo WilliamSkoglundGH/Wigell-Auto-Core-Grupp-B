@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -37,6 +39,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Controller
@@ -142,8 +145,6 @@ public class WorkOrderController extends OverController {
     // NEW WORK ORDER (NewWorkOrderView.fxml)
     @FXML
     private ComboBox<BookingFullDto> bookingComboBox;
-    //   @FXML
-    //   private ListView<ServiceItem> servicesListView;
 
     private final Map<Long, javafx.beans.property.BooleanProperty> serviceSelections = new HashMap<>();
     private final Map<Long, Long> draftServiceRowIds = new HashMap<>();
@@ -242,8 +243,15 @@ public class WorkOrderController extends OverController {
                         workOrderService.getAllWorkOrders()
                 );
                 workOrderTable.setItems(workOrderData);
+            } catch (BusinessException e) {
+                messages.showError(getString(e.getMessage()));
+
+            } catch (DatabaseException e) {
+                messages.showError(getString(e.getMessage()));
+
             } catch (Exception e) {
-                logger.error("Could not load work orders from database. {}", e.getMessage(), e);
+                logger.error("Method: loadWorkOrderData | Unexpected ", e);
+                messages.showError(getString("workorder.error.unexpected"));
             }
         }
     }
@@ -255,10 +263,15 @@ public class WorkOrderController extends OverController {
             workOrderService.startWorkOrder(currentWorkOrderId);
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_started"));
+
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
+
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+
         } catch (Exception e) {
-            logger.error("Could not save to database. {}", e.getMessage(), e);
+            logger.error("Method: handleStartWorkOrder | Unexpected ", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
@@ -273,8 +286,11 @@ public class WorkOrderController extends OverController {
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
 
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+
         } catch (Exception e) {
-            logger.error("Could not confirm work order.", e);
+            logger.error("Method: handleConfirmWorkOrder | Unexpected ", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
@@ -285,12 +301,14 @@ public class WorkOrderController extends OverController {
             workOrderService.cancelWorkOrder(currentWorkOrderId);
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_canceled"));
-
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
 
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+
         } catch (Exception e) {
-            logger.error("Could not cancel work order.", e);
+            logger.error("Method: handleCancelWorkOrder | Unexpected ", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
@@ -303,12 +321,14 @@ public class WorkOrderController extends OverController {
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_completed"));
             loadWorkOrderData();
-
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
 
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+
         } catch (Exception e) {
-            logger.error("Could not complete work order.", e);
+            logger.error("Method: handleCompleteWorkOrder | Unexpected ", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
@@ -338,7 +358,6 @@ public class WorkOrderController extends OverController {
                         bookingService.getAllBookingsWithServiceItems().stream()
                                 .filter(b -> BookingState.BOOKED.equals(b.getStatus()))
                                 .collect(Collectors.toList());
-//
                 bookingComboBox.setItems(FXCollections.observableArrayList(bookedList));
 
                 bookingComboBox.setConverter(new StringConverter<BookingFullDto>() {
@@ -359,7 +378,7 @@ public class WorkOrderController extends OverController {
                                 + (description == null || description.trim().isEmpty()
                                 ? ""
                                 : " | " + getString("booking.option.description")
-                                + ": " + description);
+                                  + ": " + description);
                     }
 
                     @Override
@@ -370,6 +389,16 @@ public class WorkOrderController extends OverController {
                 });
             } catch (NullPointerException e) {
                 messages.showError(getString("workorder.error.no_bookings"));
+
+            } catch (BusinessException e) {
+                messages.showError(getString(e.getMessage()));
+
+            } catch (DatabaseException e) {
+                messages.showError(getString(e.getMessage()));
+
+            } catch (Exception e) {
+                logger.error("Method: loadBookingComboBox | Unexpected ", e);
+                messages.showError(getString("workorder.error.unexpected"));
             }
             bookingComboBox.requestFocus();
         }
@@ -393,8 +422,12 @@ public class WorkOrderController extends OverController {
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
             return;
+
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+            return;
         } catch (Exception e) {
-            logger.error("Something Unexpected. {}", e.getMessage(), e);
+            logger.error("Method: handleSaveWorkOrder | Unexpected ", e);
             messages.showError(getString("workorder.error.unexpected"));
             return;
         }
@@ -416,8 +449,12 @@ public class WorkOrderController extends OverController {
             navigateToWorkOrderInfoView();
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
+
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+
         } catch (Exception e) {
-            logger.error("Could not create claim. {}", e.getMessage(), e);
+            logger.error("Method: handleSaveClaim | Unexpected ", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
@@ -431,8 +468,12 @@ public class WorkOrderController extends OverController {
             navigateToWorkOrderInfoView();
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
+
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+
         } catch (Exception e) {
-            logger.error("Could not update draft. {}", e.getMessage(), e);
+            logger.error("Method: handleUpdateDraft | Unexpected ", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
@@ -447,8 +488,12 @@ public class WorkOrderController extends OverController {
             navigateToWorkOrderInfoView();
         } catch (BusinessException e) {
             messages.showError(getString(e.getMessage()));
+
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+
         } catch (Exception e) {
-            logger.error("Could not confirm draft. {}", e.getMessage(), e);
+            logger.error("Method: handleConfirmDraft | Unexpected ", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
@@ -504,9 +549,17 @@ public class WorkOrderController extends OverController {
             servicePriceColumn.setCellValueFactory(new PropertyValueFactory<>("priceAtTime"));
             serviceDurationColumn.setCellValueFactory(new PropertyValueFactory<>("durationAtTime"));
             populateServiceItemsTable(dto);
-
+        } catch (AuthorizationDeniedException e) {
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
+        } catch (BusinessException | DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            logger.error("Method: loadWorkOrderDetails | Unexpected ", e);
+            messages.showError(getString("workorder.error.unexpected"));
         }
     }
 
@@ -542,60 +595,92 @@ public class WorkOrderController extends OverController {
                 }
             }
             loadDraftServiceList(dto);
-        } catch (BusinessException e) {
+        } catch (AuthorizationDeniedException e) {
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
+        } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
-
         } catch (Exception e) {
-            logger.error("Could not load draft.", e);
+            logger.error("Method: loadDraftForm | Unexpected ", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
 
     private void loadDraftServiceList(WorkOrderDetailsDto dto) {
-        serviceSelections.clear();
-        draftServiceRowIds.clear();
+        try {
+            serviceSelections.clear();
+            draftServiceRowIds.clear();
 
-        for (WorkOrderServiceItemDto row : dto.getServiceItems()) {
-            draftServiceRowIds.put(row.getServiceItemId(), row.getId());
-        }
-
-        ObservableList<ServiceItemSummaryDto> allServices =
-                FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
-
-        for (ServiceItemSummaryDto item : allServices) {
-            boolean onWorkOrder = draftServiceRowIds.containsKey(item.getId());
-            serviceSelections.put(item.getId(), new SimpleBooleanProperty(onWorkOrder));
-        }
-
-        servicesListViewUpdate.setCellFactory(CheckBoxListCell.forListView(
-                item -> serviceSelections.get(item.getId()),
-                new StringConverter<ServiceItemSummaryDto>() {
-                    @Override
-                    public String toString(ServiceItemSummaryDto item) { // Ändrat från ServiceItem till ServiceItemSummaryDto
-                        if (item == null) {
-                            return "";
-                        }
-                        return item.getName() + " — " + item.getPrice() + " SEK — " + item.getEstimatedMinutes() + " min";
-                    }
-
-                    @Override
-                    public ServiceItemSummaryDto fromString(String text) {
-                        return null;
-                    }
-                }
-        ));
-        servicesListViewUpdate.setItems(allServices);
-    }
-    private void saveDraftServices() {
-        for (ServiceItemSummaryDto item : servicesListViewUpdate.getItems()) {
-            boolean checked = serviceSelections.get(item.getId()).get();
-            Long rowId = draftServiceRowIds.get(item.getId());
-
-            if (checked && rowId == null) {
-                workOrderService.addServiceItemToWorkOrder(currentWorkOrderId, item.getId());
-            } else if (!checked && rowId != null) {
-                workOrderService.removeServiceItemFromWorkOrder(currentWorkOrderId, rowId);
+            for (WorkOrderServiceItemDto row : dto.getServiceItems()) {
+                draftServiceRowIds.put(row.getServiceItemId(), row.getId());
             }
+
+            ObservableList<ServiceItemSummaryDto> allServices =
+                    FXCollections.observableArrayList(serviceItemService.getAllServiceItems());
+
+            for (ServiceItemSummaryDto item : allServices) {
+                boolean onWorkOrder = draftServiceRowIds.containsKey(item.getId());
+                serviceSelections.put(item.getId(), new SimpleBooleanProperty(onWorkOrder));
+            }
+
+            servicesListViewUpdate.setCellFactory(CheckBoxListCell.forListView(
+                    item -> serviceSelections.get(item.getId()),
+                    new StringConverter<ServiceItemSummaryDto>() {
+                        @Override
+                        public String toString(ServiceItemSummaryDto item) { // Ändrat från ServiceItem till ServiceItemSummaryDto
+                            if (item == null) {
+                                return "";
+                            }
+                            return item.getName() + " — " + item.getPrice() + " SEK — " + item.getEstimatedMinutes() + " min";
+                        }
+
+                        @Override
+                        public ServiceItemSummaryDto fromString(String text) {
+                            return null;
+                        }
+                    }
+            ));
+            servicesListViewUpdate.setItems(allServices);
+        } catch (AuthorizationDeniedException e) {
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
+        } catch (BusinessException | DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Method: loadDraftServiceList | Unexpected ", e);
+            messages.showError(getString("workorder.error.unexpected"));
+        }
+    }
+
+    private void saveDraftServices() {
+        try {
+            for (ServiceItemSummaryDto item : servicesListViewUpdate.getItems()) {
+                boolean checked = serviceSelections.get(item.getId()).get();
+                Long rowId = draftServiceRowIds.get(item.getId());
+
+                if (checked && rowId == null) {
+                    workOrderService.addServiceItemToWorkOrder(currentWorkOrderId, item.getId());
+                } else if (!checked && rowId != null) {
+                    workOrderService.removeServiceItemFromWorkOrder(currentWorkOrderId, rowId);
+                }
+            }
+        } catch (AuthorizationDeniedException e) {
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
+        } catch (BusinessException | DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Method: loadDraftServiceList | Unexpected ", e);
+            messages.showError(getString("workorder.error.unexpected"));
         }
     }
 
@@ -606,61 +691,74 @@ public class WorkOrderController extends OverController {
 // NEW DROP-IN
 // ---------------------------------------------------------
     private void loadDropInForm() {
-        // 1. Ladda fordon med VehicleDto
-        vehicleComboDropIn.setItems(FXCollections.observableArrayList(vehicleService.getAllVehicles()));
-        vehicleComboDropIn.setConverter(new StringConverter<VehicleSummaryDto>() {
-            @Override
-            public String toString(VehicleSummaryDto vehicle) {
-                return vehicle == null ? "" : vehicle.getRegistrationNumber() + " - " + vehicle.getBrand()
-                                              + " " + vehicle.getModel();
-                // Obs: Om VehicleDto inte har kundnamn direkt kan man lägga till det,
-                // annars räcker märke/modell/reggnr utmärkt här!
-            }
-
-            @Override
-            public VehicleSummaryDto fromString(String s) {
-                return null;
-            }
-        });
-
-        // 2. Ladda mekaniker med MechanicSummaryDto
-        mechanicFieldDropIn.setItems(FXCollections.observableArrayList(mechanicService.getAllMechanics()));
-        mechanicFieldDropIn.setConverter(new StringConverter<MechanicSummaryDto>() {
-            @Override
-            public String toString(MechanicSummaryDto mechanic) {
-                return mechanic == null ? "" : mechanic.getId() + " - " + mechanic.getName();
-            }
-
-            @Override
-            public MechanicSummaryDto fromString(String s) {
-                return null;
-            }
-        });
-
-        // 3. Ladda tjänster med ServiceItemSummaryDto
-        serviceSelections.clear();
-        ObservableList<ServiceItemSummaryDto> allServices =
-                FXCollections.observableArrayList(serviceItemService.getAllServiceItems()); // Antar att denna returnerar DTO nu
-
-        for (ServiceItemSummaryDto item : allServices) {
-            serviceSelections.put(item.getId(), new SimpleBooleanProperty(false));
-        }
-
-        servicesListViewDropIn.setCellFactory(CheckBoxListCell.forListView(
-                item -> serviceSelections.get(item.getId()),
-                new StringConverter<ServiceItemSummaryDto>() {
-                    @Override
-                    public String toString(ServiceItemSummaryDto item) {
-                        return item.getName() + " — " + item.getPrice() + " SEK — " + item.getEstimatedMinutes() + " min";
-                    }
-
-                    @Override
-                    public ServiceItemSummaryDto fromString(String text) {
-                        return null;
-                    }
+        try {
+            // 1. Ladda fordon med VehicleDto
+            vehicleComboDropIn.setItems(FXCollections.observableArrayList(vehicleService.getAllVehicles()));
+            vehicleComboDropIn.setConverter(new StringConverter<VehicleSummaryDto>() {
+                @Override
+                public String toString(VehicleSummaryDto vehicle) {
+                    return vehicle == null ? "" : vehicle.getRegistrationNumber() + " - " + vehicle.getBrand()
+                                                  + " " + vehicle.getModel();
+                    // Obs: Om VehicleDto inte har kundnamn direkt kan man lägga till det,
+                    // annars räcker märke/modell/reggnr utmärkt här!
                 }
-        ));
-        servicesListViewDropIn.setItems(allServices);
+
+                @Override
+                public VehicleSummaryDto fromString(String s) {
+                    return null;
+                }
+            });
+
+            // 2. Ladda mekaniker med MechanicSummaryDto
+            mechanicFieldDropIn.setItems(FXCollections.observableArrayList(mechanicService.getAllMechanics()));
+            mechanicFieldDropIn.setConverter(new StringConverter<MechanicSummaryDto>() {
+                @Override
+                public String toString(MechanicSummaryDto mechanic) {
+                    return mechanic == null ? "" : mechanic.getId() + " - " + mechanic.getName();
+                }
+
+                @Override
+                public MechanicSummaryDto fromString(String s) {
+                    return null;
+                }
+            });
+
+            // 3. Ladda tjänster med ServiceItemSummaryDto
+            serviceSelections.clear();
+            ObservableList<ServiceItemSummaryDto> allServices =
+                    FXCollections.observableArrayList(serviceItemService.getAllServiceItems()); // Antar att denna returnerar DTO nu
+
+            for (ServiceItemSummaryDto item : allServices) {
+                serviceSelections.put(item.getId(), new SimpleBooleanProperty(false));
+            }
+
+            servicesListViewDropIn.setCellFactory(CheckBoxListCell.forListView(
+                    item -> serviceSelections.get(item.getId()),
+                    new StringConverter<ServiceItemSummaryDto>() {
+                        @Override
+                        public String toString(ServiceItemSummaryDto item) {
+                            return item.getName() + " — " + item.getPrice() + " SEK — " + item.getEstimatedMinutes() + " min";
+                        }
+
+                        @Override
+                        public ServiceItemSummaryDto fromString(String text) {
+                            return null;
+                        }
+                    }
+            ));
+            servicesListViewDropIn.setItems(allServices);
+        } catch (AuthorizationDeniedException e) {
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
+        } catch (BusinessException | DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Method: loadInvoiceData | Unexpected ", e);
+            messages.showError(getString("workorder.error.unexpected"));
+        }
     }
 
 
@@ -692,10 +790,16 @@ public class WorkOrderController extends OverController {
             messages.showSuccess(getString("workorder.success.dropin_created"));
             navigateToWorkOrderView();
 
-        } catch (BusinessException e) {
+        } catch (AuthorizationDeniedException e) {
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
+        } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
-            logger.error("Could not create drop-in. {}", e.getMessage(), e);
+            logger.error("Method: loadInvoiceData | Unexpected ", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
