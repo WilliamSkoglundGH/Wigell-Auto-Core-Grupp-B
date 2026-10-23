@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -496,10 +497,15 @@ public class BookingController extends OverController {
             navigateToBookingView();
 
         } catch (AuthorizationDeniedException e) {
-
+            String username =
+                    Objects.requireNonNull(
+                                    SecurityContextHolder.getContext()
+                                            .getAuthentication())
+                            .getName();
             logger.error(
-                    "Method: handleSaveBooking | Authorization error : {}",
+                    "Method: handleSaveBooking | Authorization error : {} | User : {}",
                     e.getMessage(),
+                    username,
                     e);
 
             if (messages != null) {
@@ -559,10 +565,15 @@ public class BookingController extends OverController {
                     getString("booking.success.service_removed"));
 
         } catch (AuthorizationDeniedException e) {
-
+            String username =
+                    Objects.requireNonNull(
+                                    SecurityContextHolder.getContext()
+                                            .getAuthentication())
+                            .getName();
             logger.error(
-                    "Method: handleRemoveBookingService | Authorization error : {}",
+                    "Method: handleRemoveBookingService | Authorization error : {} | User: {}",
                     e.getMessage(),
+                    username,
                     e);
 
             if (messages != null) {
@@ -713,10 +724,15 @@ public class BookingController extends OverController {
                     getString("booking.success.service_added"));
 
         } catch (AuthorizationDeniedException e) {
-
+            String username =
+                    Objects.requireNonNull(
+                                    SecurityContextHolder.getContext()
+                                            .getAuthentication())
+                            .getName();
             logger.error(
-                    "Method: handleAddBookingService | Authorization error : {}",
+                    "Method: handleAddBookingService | Authorization error : {} | User: {}",
                     e.getMessage(),
+                    username,
                     e);
 
             if (messages != null) {
@@ -769,10 +785,15 @@ public class BookingController extends OverController {
             navigateToNewCopiedBooking();
 
         } catch (AuthorizationDeniedException e) {
-
+            String username =
+                    Objects.requireNonNull(
+                                    SecurityContextHolder.getContext()
+                                            .getAuthentication())
+                            .getName();
             logger.error(
-                    "Method: handleCopyBooking | Authorization error : {}",
+                    "Method: handleCopyBooking | Authorization error : {} | User: {}",
                     e.getMessage(),
+                    username,
                     e);
 
             if (messages != null) {
@@ -980,10 +1001,15 @@ public class BookingController extends OverController {
             navigateToBookingView();
 
         } catch (AuthorizationDeniedException e) {
-
+            String username =
+                    Objects.requireNonNull(
+                                    SecurityContextHolder.getContext()
+                                            .getAuthentication())
+                            .getName();
             logger.error(
-                    "Method: handleSaveCopiedBooking | Authorization error : {}",
+                    "Method: handleSaveCopiedBooking | Authorization error : {} | User: {}",
                     e.getMessage(),
+                    username,
                     e);
 
             if (messages != null) {

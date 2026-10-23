@@ -242,7 +242,9 @@ public class VehicleController extends OverController {
                 }
 
             } catch (AuthorizationDeniedException e) {
-
+                if (messages != null) {
+                    messages.clearMessage();
+                }
                 String username =
                         Objects.requireNonNull(
                                         SecurityContextHolder.getContext()
