@@ -1,15 +1,13 @@
 package com.wac.autocore.repository;
 
 import com.wac.autocore.model.WorkOrder;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 
-@Repository
-public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long> {
+public interface WorkOrderRepository {
     List<WorkOrder> findByMechanic_Id(Long mechanicId);
     Optional<WorkOrder> findByBooking_Id(Long bookingId);
-
+    WorkOrder save(WorkOrder workOrder);
+    Optional<WorkOrder> findById(Long id);
+    List<WorkOrder> findAll();
 }
