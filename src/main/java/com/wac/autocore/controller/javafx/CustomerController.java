@@ -141,15 +141,19 @@ public class CustomerController extends OverController {
         String name = nameField.getText();
         String phone = phoneField.getText();
         String email = emailField.getText();
-        boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
+        boolean isVip =
+                vipCheckBox != null
+                        && vipCheckBox.isSelected();
 
         if (name == null || name.trim().isEmpty()) {
-            messages.showError(getString("customer.error.enter_name"));
+            messages.showError(
+                    getString("customer.error.enter_name"));
             return;
         }
 
         if (email == null || email.trim().isEmpty()) {
-            messages.showError(getString("customer.error.enter_email"));
+            messages.showError(
+                    getString("customer.error.enter_email"));
             return;
         }
 
@@ -160,29 +164,53 @@ public class CustomerController extends OverController {
         dto.setVip(isVip);
 
         try {
-            CustomerSummaryDto newCustomer = customerService.createCustomer(dto);
+
+            CustomerSummaryDto newCustomer =
+                    customerService.createCustomer(dto);
 
             messages.showSuccess(
-                    getString("customer_success.customer_created") + newCustomer.getName()
-            );
+                    getString("customer_success.customer_created")
+                            + newCustomer.getName());
 
             navigateToCustomerView();
-        }catch (AuthorizationDeniedException e){
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-            logger.error(
-                    "Method: handleSaveCustomer | Authorization error : {} | User: {} ",
-                    e.getMessage(),
-                    username, e);
-            if (messages != null) {
-                messages.showError(getString("common.error.unauthorized"));}
 
-        } catch (BusinessException e) {
+        } catch (AuthorizationDeniedException e) {
+
+            String username =
+                    Objects.requireNonNull(
+                                    SecurityContextHolder
+                                            .getContext()
+                                            .getAuthentication())
+                            .getName();
+
+            logger.error(
+                    "Method: handleSaveCustomer | Authorization error : {} | User: {}",
+                    e.getMessage(),
+                    username,
+                    e);
+
             if (messages != null) {
-                messages.showError(getString(e.getMessage()));
+                messages.showError(
+                        getString("common.error.unauthorized"));
             }
+
+        } catch (BusinessException | DatabaseException e) {
+
+            if (messages != null) {
+                messages.showError(
+                        getString(e.getMessage()));
+            }
+
         } catch (Exception e) {
-            logger.error("Method: handleSaveCustomer | Unexpected ", e);
-            messages.showError(getString("common.error.unexpected"));
+
+            logger.error(
+                    "Method: handleSaveCustomer | Unexpected",
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unexpected"));
+            }
         }
     }
 
