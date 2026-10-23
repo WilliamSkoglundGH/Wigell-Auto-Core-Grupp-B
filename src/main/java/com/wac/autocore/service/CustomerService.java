@@ -121,24 +121,38 @@ public class CustomerService {
             }
         }
 
-        Customer customer =
-                new Customer(dto.getName(), phone, dto.getEmail());
+        try {
 
-        customer.setVip(dto.isVip());
+            Customer customer =
+                    new Customer(
+                            dto.getName(),
+                            phone,
+                            dto.getEmail());
 
-        customer = repo.save(customer);
+            customer.setVip(dto.isVip());
 
-        logger.info(
-                "Method: createCustomer | Success | CustomerId:{}",
-                customer.getId());
+            customer = repo.save(customer);
 
-        return new CustomerSummaryDto(
-                customer.getId(),
-                customer.getName(),
-                customer.getEmail(),
-                customer.getPhone(),
-                customer.isVip()
-        );
+            logger.info(
+                    "Method: createCustomer | Success | CustomerId:{}",
+                    customer.getId());
+
+            return new CustomerSummaryDto(
+                    customer.getId(),
+                    customer.getName(),
+                    customer.getEmail(),
+                    customer.getPhone(),
+                    customer.isVip());
+
+        } catch (DataAccessException e) {
+
+            logger.error(
+                    "Method: createCustomer | Database error",
+                    e);
+
+            throw new DatabaseException(
+                    "common.error.database");
+        }
     }
 }
 
