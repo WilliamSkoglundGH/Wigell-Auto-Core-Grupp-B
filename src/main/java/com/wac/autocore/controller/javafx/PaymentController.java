@@ -98,6 +98,7 @@ public class PaymentController extends OverController {
                 String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
                 logger.error("Method: initialize | Authorization error : {} | User: {} ", e.getMessage(), username, e);
                 if (messages != null) {
+                    //Detta skrivs aldrig ut någonstans:
                     messages.showError(getString("common.error.unauthorized"));
                 }
             } catch (DatabaseException e) {
