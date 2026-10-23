@@ -66,7 +66,6 @@ public class WorkOrderController extends OverController {
     @FXML
     private Button detailsButton;
 
-
     // WORK ORDER-DETAILS (WorkOrderInfoView.fxml)
     @FXML
     private Label statusLabel;
@@ -108,7 +107,6 @@ public class WorkOrderController extends OverController {
     private Button cancelWorkOrderButton;
     @FXML
     private Label workOrderClaimLabel;
-
 
     // UPDATE DRAFT (UpdateWorkOrderDraftView.fxml)
     @FXML
@@ -234,8 +232,6 @@ public class WorkOrderController extends OverController {
             loadDropInForm();
         }
     }
-
-
     public void loadWorkOrderData() {
         if (workOrderTable != null) {
             try {
@@ -243,15 +239,12 @@ public class WorkOrderController extends OverController {
                         workOrderService.getAllWorkOrders()
                 );
                 workOrderTable.setItems(workOrderData);
-            } catch (BusinessException e) {
-                messages.showError(getString(e.getMessage()));
-
-            } catch (DatabaseException e) {
+            } catch (BusinessException | DatabaseException e) {
                 messages.showError(getString(e.getMessage()));
 
             } catch (Exception e) {
                 logger.error("Method: loadWorkOrderData | Unexpected ", e);
-                messages.showError(getString("workorder.error.unexpected"));
+                messages.showError(getString("common.error.unexpected"));
             }
         }
     }
@@ -264,15 +257,22 @@ public class WorkOrderController extends OverController {
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_started"));
 
-        } catch (BusinessException e) {
-            messages.showError(getString(e.getMessage()));
+        }catch (AuthorizationDeniedException e){
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error(
+                    "Method: handleStartWorkOrder | Authorization error : {} | User: {} ",
+                    e.getMessage(),
+                    username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
 
-        } catch (DatabaseException e) {
+        } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
             logger.error("Method: handleStartWorkOrder | Unexpected ", e);
-            messages.showError(getString("workorder.error.unexpected"));
+            messages.showError(getString("common.error.unexpected"));
         }
     }
 
@@ -283,15 +283,22 @@ public class WorkOrderController extends OverController {
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_confirmed"));
 
-        } catch (BusinessException e) {
-            messages.showError(getString(e.getMessage()));
+        }catch (AuthorizationDeniedException e){
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error(
+                    "Method: handleConfirmWorkOrder | Authorization error : {} | User: {} ",
+                    e.getMessage(),
+                    username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
 
-        } catch (DatabaseException e) {
+        } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
             logger.error("Method: handleConfirmWorkOrder | Unexpected ", e);
-            messages.showError(getString("workorder.error.unexpected"));
+            messages.showError(getString("common.error.unexpected"));
         }
     }
 
@@ -301,15 +308,23 @@ public class WorkOrderController extends OverController {
             workOrderService.cancelWorkOrder(currentWorkOrderId);
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_canceled"));
-        } catch (BusinessException e) {
-            messages.showError(getString(e.getMessage()));
 
-        } catch (DatabaseException e) {
+        }catch (AuthorizationDeniedException e){
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error(
+                    "Method: handleCancelWorkOrder | Authorization error : {} | User: {} ",
+                    e.getMessage(),
+                    username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
+
+        } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
             logger.error("Method: handleCancelWorkOrder | Unexpected ", e);
-            messages.showError(getString("workorder.error.unexpected"));
+            messages.showError(getString("common.error.unexpected"));
         }
     }
 
@@ -321,15 +336,23 @@ public class WorkOrderController extends OverController {
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_completed"));
             loadWorkOrderData();
-        } catch (BusinessException e) {
-            messages.showError(getString(e.getMessage()));
 
-        } catch (DatabaseException e) {
+        }catch (AuthorizationDeniedException e){
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error(
+                    "Method: handleCompleteWorkOrder | Authorization error : {} | User: {} ",
+                    e.getMessage(),
+                    username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
+
+        } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
             logger.error("Method: handleCompleteWorkOrder | Unexpected ", e);
-            messages.showError(getString("workorder.error.unexpected"));
+            messages.showError(getString("common.error.unexpected"));
         }
     }
 
@@ -390,15 +413,12 @@ public class WorkOrderController extends OverController {
             } catch (NullPointerException e) {
                 messages.showError(getString("workorder.error.no_bookings"));
 
-            } catch (BusinessException e) {
-                messages.showError(getString(e.getMessage()));
-
-            } catch (DatabaseException e) {
+            } catch (BusinessException | DatabaseException e) {
                 messages.showError(getString(e.getMessage()));
 
             } catch (Exception e) {
                 logger.error("Method: loadBookingComboBox | Unexpected ", e);
-                messages.showError(getString("workorder.error.unexpected"));
+                messages.showError(getString("common.error.unexpected"));
             }
             bookingComboBox.requestFocus();
         }
@@ -413,22 +433,26 @@ public class WorkOrderController extends OverController {
                     messages.showError(getString("workorder.error.select_booking"));
                     return;
                 }
-
                 workOrderService.createPlannedWorkOrder(selectedBooking.getId());
                 messages.showSuccess(getString("workorder.success.workorder_created"));
-
+            }
+        }catch (AuthorizationDeniedException e){
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error(
+                    "Method: handleSaveWorkOrder | Authorization error : {} | User: {} ",
+                    e.getMessage(),
+                    username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
             }
 
-        } catch (BusinessException e) {
+        } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
             return;
 
-        } catch (DatabaseException e) {
-            messages.showError(getString(e.getMessage()));
-            return;
         } catch (Exception e) {
             logger.error("Method: handleSaveWorkOrder | Unexpected ", e);
-            messages.showError(getString("workorder.error.unexpected"));
+            messages.showError(getString("common.error.unexpected"));
             return;
         }
 
@@ -447,15 +471,12 @@ public class WorkOrderController extends OverController {
 
             messages.showSuccess(getString("workorder.success.claim_created"));
             navigateToWorkOrderInfoView();
-        } catch (BusinessException e) {
-            messages.showError(getString(e.getMessage()));
-
-        } catch (DatabaseException e) {
+        } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
             logger.error("Method: handleSaveClaim | Unexpected ", e);
-            messages.showError(getString("workorder.error.unexpected"));
+            messages.showError(getString("common.error.unexpected"));
         }
     }
 
@@ -466,15 +487,22 @@ public class WorkOrderController extends OverController {
             saveDraftServices();
             messages.showSuccess(getString("workorder.success.workorder_updated"));
             navigateToWorkOrderInfoView();
-        } catch (BusinessException e) {
-            messages.showError(getString(e.getMessage()));
+        } catch (AuthorizationDeniedException e){
+                String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+                logger.error(
+                        "Method: handleUpdateDraft | Authorization error : {} | User: {} ",
+                        e.getMessage(),
+                        username, e);
+                if (messages != null) {
+                    messages.showError(getString("common.error.unauthorized"));
+                }
 
-        } catch (DatabaseException e) {
+        } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
             logger.error("Method: handleUpdateDraft | Unexpected ", e);
-            messages.showError(getString("workorder.error.unexpected"));
+            messages.showError(getString("common.error.unexpected"));
         }
     }
 
@@ -486,10 +514,17 @@ public class WorkOrderController extends OverController {
             workOrderService.confirmWorkOrder(currentWorkOrderId);
             messages.showSuccess(getString("workorder.success.workorder_confirmed"));
             navigateToWorkOrderInfoView();
-        } catch (BusinessException e) {
-            messages.showError(getString(e.getMessage()));
+        }catch (AuthorizationDeniedException e){
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error(
+                    "Method: handleConfirmDraft | Authorization error : {} | User: {} ",
+                    e.getMessage(),
+                    username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
 
-        } catch (DatabaseException e) {
+        } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
 
         } catch (Exception e) {
@@ -549,12 +584,6 @@ public class WorkOrderController extends OverController {
             servicePriceColumn.setCellValueFactory(new PropertyValueFactory<>("priceAtTime"));
             serviceDurationColumn.setCellValueFactory(new PropertyValueFactory<>("durationAtTime"));
             populateServiceItemsTable(dto);
-        } catch (AuthorizationDeniedException e) {
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-            logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(), username, e);
-            if (messages != null) {
-                messages.showError(getString("common.error.unauthorized"));
-            }
         } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
@@ -597,7 +626,7 @@ public class WorkOrderController extends OverController {
             loadDraftServiceList(dto);
         } catch (AuthorizationDeniedException e) {
             String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-            logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+            logger.error("Method: loadDraftForm | Authorization error : {} | User: {} ", e.getMessage(), username, e);
             if (messages != null) {
                 messages.showError(getString("common.error.unauthorized"));
             }
@@ -646,7 +675,7 @@ public class WorkOrderController extends OverController {
             servicesListViewUpdate.setItems(allServices);
         } catch (AuthorizationDeniedException e) {
             String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-            logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+            logger.error("Method: loadDraftServiceList  | Authorization error : {} | User: {} ", e.getMessage(), username, e);
             if (messages != null) {
                 messages.showError(getString("common.error.unauthorized"));
             }
@@ -672,21 +701,17 @@ public class WorkOrderController extends OverController {
             }
         } catch (AuthorizationDeniedException e) {
             String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-            logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+            logger.error("Method: saveDraftServices | Authorization error : {} | User: {} ", e.getMessage(), username, e);
             if (messages != null) {
                 messages.showError(getString("common.error.unauthorized"));
             }
         } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
-            logger.error("Method: loadDraftServiceList | Unexpected ", e);
-            messages.showError(getString("workorder.error.unexpected"));
+            logger.error("Method: saveDraftServices  | Unexpected ", e);
+            messages.showError(getString("common.error.unexpected"));
         }
     }
-
-    // ---------------------------------------------------------
-    // NEW DROP-IN
-    // ---------------------------------------------------------
 // ---------------------------------------------------------
 // NEW DROP-IN
 // ---------------------------------------------------------
@@ -708,7 +733,6 @@ public class WorkOrderController extends OverController {
                     return null;
                 }
             });
-
             // 2. Ladda mekaniker med MechanicSummaryDto
             mechanicFieldDropIn.setItems(FXCollections.observableArrayList(mechanicService.getAllMechanics()));
             mechanicFieldDropIn.setConverter(new StringConverter<MechanicSummaryDto>() {
@@ -716,13 +740,11 @@ public class WorkOrderController extends OverController {
                 public String toString(MechanicSummaryDto mechanic) {
                     return mechanic == null ? "" : mechanic.getId() + " - " + mechanic.getName();
                 }
-
                 @Override
                 public MechanicSummaryDto fromString(String s) {
                     return null;
                 }
             });
-
             // 3. Ladda tjänster med ServiceItemSummaryDto
             serviceSelections.clear();
             ObservableList<ServiceItemSummaryDto> allServices =
@@ -731,7 +753,6 @@ public class WorkOrderController extends OverController {
             for (ServiceItemSummaryDto item : allServices) {
                 serviceSelections.put(item.getId(), new SimpleBooleanProperty(false));
             }
-
             servicesListViewDropIn.setCellFactory(CheckBoxListCell.forListView(
                     item -> serviceSelections.get(item.getId()),
                     new StringConverter<ServiceItemSummaryDto>() {
@@ -749,18 +770,17 @@ public class WorkOrderController extends OverController {
             servicesListViewDropIn.setItems(allServices);
         } catch (AuthorizationDeniedException e) {
             String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-            logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+            logger.error("Method: loadDropInForm | Authorization error : {} | User: {} ", e.getMessage(), username, e);
             if (messages != null) {
                 messages.showError(getString("common.error.unauthorized"));
             }
         } catch (BusinessException | DatabaseException e) {
             messages.showError(getString(e.getMessage()));
         } catch (Exception e) {
-            logger.error("Method: loadInvoiceData | Unexpected ", e);
+            logger.error("Method: loadDropInForm | Unexpected ", e);
             messages.showError(getString("workorder.error.unexpected"));
         }
     }
-
 
     @FXML
     private void handleSaveDropIn() {
@@ -792,7 +812,7 @@ public class WorkOrderController extends OverController {
 
         } catch (AuthorizationDeniedException e) {
             String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-            logger.error("Method: initialize/changePrice | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+            logger.error("Method: initialize/changePrice | Authorization error: {} | User: {} ", e.getMessage(), username, e);
             if (messages != null) {
                 messages.showError(getString("common.error.unauthorized"));
             }

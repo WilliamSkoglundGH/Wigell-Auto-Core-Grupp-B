@@ -2,6 +2,7 @@ package com.wac.autocore.service;
 
 import com.wac.autocore.dto.booking.*;
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.exception.EntityNotFoundException;
 import com.wac.autocore.exception.BookingWrongStatusException;
 import com.wac.autocore.mapper.BookingMapper;
@@ -10,6 +11,7 @@ import com.wac.autocore.repository.BookingRepository;
 import com.wac.autocore.repository.WorkOrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,137 +40,329 @@ public class BookingService {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<BookingSummaryDto> getAllBookings() {
-        return BookingMapper.toBookingSummaryDtoList(bookingRepository.findAll());
-    }
 
-@PreAuthorize("isAuthenticated()")
-@Transactional(readOnly = true)
-    public BookingSummaryDto getBooking(Long id) {
-        Booking found = bookingRepository.findById(id)
-                .orElseThrow(() ->
-                {   logger.error("Method: getBooking | No Booking found | Id: {} ", id);
-                    return new EntityNotFoundException("booking.error.not_found");
-                });
+        try {
 
-        return BookingMapper.toBookingSummaryDto(found);
+            return BookingMapper.toBookingSummaryDtoList(
+                    bookingRepository.findAll());
+
+        } catch (DataAccessException e) {
+
+            logger.error(
+                    "Method: getAllBookings | Database error",
+                    e);
+
+            throw new DatabaseException(
+                    "common.error.database");
+        }
     }
 
     @PreAuthorize("isAuthenticated()")
-    @Transactional(readOnly = true)
+    public BookingSummaryDto getBooking(Long id) {
+
+        try {
+
+            Booking found = bookingRepository.findById(id)
+                    .orElseThrow(() -> {
+
+                        logger.warn(
+                                "Method: getBooking | No booking found | Id:{}",
+                                id);
+
+                        return new EntityNotFoundException(
+                                "booking.error.not_found");
+                    });
+
+            return BookingMapper.toBookingSummaryDto(found);
+
+        } catch (DataAccessException e) {
+
+            logger.error(
+                    "Method: getBooking | Database error",
+                    e);
+
+            throw new DatabaseException(
+                    "common.error.database");
+        }
+    }
+
     public BookingFullDto getBookingByIdWithDetails(Long id) {
-         Booking found = bookingRepository.findByIdWithDetails(id)
-                  .orElseThrow(() ->
-                  {   logger.error("Method: getBookingByIdWithDetails | No Booking found | Id: {} ", id);
-                      return new EntityNotFoundException("booking.error.not_found");
-                  });
-        return BookingMapper.toBookingFullDto(found);
+
+        try {
+
+            Booking found = bookingRepository.findByIdWithDetails(id)
+                    .orElseThrow(() -> {
+
+                        logger.warn(
+                                "Method: getBookingByIdWithDetails | No booking found | Id:{}",
+                                id);
+
+                        return new EntityNotFoundException(
+                                "booking.error.not_found");
+                    });
+
+            return BookingMapper.toBookingFullDto(found);
+
+        } catch (DataAccessException e) {
+
+            logger.error(
+                    "Method: getBookingByIdWithDetails | Database error",
+                    e);
+
+            throw new DatabaseException(
+                    "common.error.database");
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    public BookingSummaryDto saveBooking(BookingCreateDto createDto, List<ServiceItemSummaryDto> serviceItems) {
+    public BookingSummaryDto saveBooking(
+            BookingCreateDto createDto,
+            List<ServiceItemSummaryDto> serviceItems) {
 
         if (serviceItems == null || serviceItems.isEmpty()) {
-            logger.error("Method: saveBooking | ServiceItems is null or empty ");
+
+            logger.warn(
+                    "Method: saveBooking | ServiceItems is null or empty");
+
             throw new IllegalArgumentException(
-                    "booking.error.select_services"
-            );
+                    "booking.error.select_services");
         }
-        Mechanic mechanic = mechanicService.getMechanicEntity(createDto.getMechanicId());
-        Vehicle vehicle = vehicleService.getVehicleEntity(createDto.getVehicleId());
+
+        Mechanic mechanic =
+                mechanicService.getMechanicEntity(
+                        createDto.getMechanicId());
+
+        Vehicle vehicle =
+                vehicleService.getVehicleEntity(
+                        createDto.getVehicleId());
 
         List<Long> ids = serviceItems.stream()
                 .map(ServiceItemSummaryDto::getId)
                 .collect(Collectors.toList());
 
-        List<ServiceItem> foundServiceItems = serviceItemService.getAllServiceItemsEntity(ids);
+        List<ServiceItem> foundServiceItems =
+                serviceItemService.getAllServiceItemsEntity(ids);
 
         List<BookingServiceItem> items = new ArrayList<>();
 
-        Booking newBooking = new Booking(vehicle, createDto.getDate(), createDto.getDescription(), mechanic, items);
+        Booking newBooking =
+                new Booking(
+                        vehicle,
+                        createDto.getDate(),
+                        createDto.getDescription(),
+                        mechanic,
+                        items);
 
         for (ServiceItem item : foundServiceItems) {
-            newBooking.addServiceItem(item, item.getPrice(), item.getEstimatedMinutes());
+
+            newBooking.addServiceItem(
+                    item,
+                    item.getPrice(),
+                    item.getEstimatedMinutes());
         }
 
-        Booking savedBooking = bookingRepository.save(newBooking);
-        logger.info("Method: saveBooking | Success | BookingId: {}", savedBooking.getId());
-        return BookingMapper.toBookingSummaryDto(savedBooking);
+        try {
 
+            Booking savedBooking =
+                    bookingRepository.save(newBooking);
+
+            logger.info(
+                    "Method: saveBooking | Success | BookingId:{}",
+                    savedBooking.getId());
+
+            return BookingMapper.toBookingSummaryDto(
+                    savedBooking);
+
+        } catch (DataAccessException e) {
+
+            logger.error(
+                    "Method: saveBooking | Database error",
+                    e);
+
+            throw new DatabaseException(
+                    "common.error.database");
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    public void addServiceItemToBooking(Long bookingId, ServiceItemSummaryDto selectedServiceItem) {
-        Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
-        {   logger.error("Method: addServiceItemToBooking | No Booking found | Id: {} ", bookingId);
-            return new EntityNotFoundException("booking.error.not_found");
-        });
+    public void addServiceItemToBooking(
+            Long bookingId,
+            ServiceItemSummaryDto selectedServiceItem) {
+
+        Booking bookingForUpdate =
+                bookingRepository.findById(bookingId)
+                        .orElseThrow(() -> {
+
+                            logger.warn(
+                                    "Method: addServiceItemToBooking | No Booking found | Id:{}",
+                                    bookingId);
+
+                            return new EntityNotFoundException(
+                                    "booking.error.not_found");
+                        });
 
         if (selectedServiceItem == null) {
-            logger.error("Method: addServiceItemToBooking | No Service items selected ");
-            throw new IllegalArgumentException("booking.error.select_services");
+
+            logger.warn(
+                    "Method: addServiceItemToBooking | No Service items selected");
+
+            throw new IllegalArgumentException(
+                    "booking.error.select_services");
         }
 
         if (!bookingForUpdate.getStatus().canAddServiceItem()) {
-            logger.error("Method: addServiceItemToBooking | Booking has wrong status. Can't be updated");
-            throw new IllegalStateException("booking.error.not_editable");
-        }
-        ServiceItem foundServiceItem = serviceItemService.getServiceItemEntity(selectedServiceItem.getId());
 
-        bookingForUpdate.addServiceItem(foundServiceItem, selectedServiceItem.getPrice(), selectedServiceItem.getEstimatedMinutes());
+            logger.warn(
+                    "Method: addServiceItemToBooking | Booking has wrong status. Can't be updated");
+
+            throw new IllegalStateException(
+                    "booking.error.not_editable");
+        }
+
+        ServiceItem foundServiceItem =
+                serviceItemService.getServiceItemEntity(
+                        selectedServiceItem.getId());
+
+        bookingForUpdate.addServiceItem(
+                foundServiceItem,
+                selectedServiceItem.getPrice(),
+                selectedServiceItem.getEstimatedMinutes());
 
         syncPlannedWorkOrder(bookingForUpdate);
-        bookingRepository.save(bookingForUpdate);
-        logger.info("Method: addServiceItemToBooking | Success updating | BookingId: {}", bookingId);
+
+        try {
+
+            bookingRepository.save(bookingForUpdate);
+            logger.info(
+                    "Method: addServiceItemToBooking | Success updating | BookingId:{}",
+                    bookingId);
+
+        } catch (DataAccessException e) {
+            logger.error(
+                    "Method: addServiceItemToBooking | Database error | BookingId:{}",
+                    bookingId,
+                    e);
+            throw new DatabaseException(
+                    "common.error.database");
+        }
     }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<BookingFullDto> getAllBookingsWithServiceItems() {
-      return bookingRepository.findAllWithServiceItems().stream().map(BookingMapper::toBookingFullDto).collect(Collectors.toList());
 
+        try {
+            return bookingRepository.findAllWithServiceItems()
+                    .stream()
+                    .map(BookingMapper::toBookingFullDto)
+                    .collect(Collectors.toList());
+
+        } catch (DataAccessException e) {
+
+            logger.error(
+                    "Method: getAllBookingsWithServiceItems | Database error",
+                    e);
+
+            throw new DatabaseException(
+                    "common.error.database");
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    public void removeServiceItemFromBooking(Long bookingId, Long bookingServiceItemId) {
-        Booking bookingForUpdate = bookingRepository.findById(bookingId).orElseThrow(() ->
-                {
-            logger.error("Method: removeServiceItemFromBooking | No Booking found | Id: {}", bookingId);
-                return new EntityNotFoundException("booking.error.not_found");});
+    public void removeServiceItemFromBooking(
+            Long bookingId,
+            Long bookingServiceItemId) {
+
+        Booking bookingForUpdate =
+                bookingRepository.findById(bookingId)
+                        .orElseThrow(() -> {
+
+                            logger.warn(
+                                    "Method: removeServiceItemFromBooking | No Booking found | Id:{}",
+                                    bookingId);
+
+                            return new EntityNotFoundException(
+                                    "booking.error.not_found");
+                        });
 
         if (!bookingForUpdate.getStatus().canRemoveServiceItem()) {
-            logger.error("Method: removeServiceItemFromBooking | Booking has wrong status, cant be updated.");
-            throw new IllegalStateException("booking.error.not_editable");
+
+            logger.warn(
+                    "Method: removeServiceItemFromBooking | Booking has wrong status, cant be updated");
+
+            throw new IllegalStateException(
+                    "booking.error.not_editable");
         }
-        BookingServiceItem itemToRemove = bookingForUpdate.getServiceItems().stream()
-                .filter(item -> item.getId().equals(bookingServiceItemId)).findFirst()
-                .orElseThrow(() ->
-                {       logger.error("Method: removeServiceItemFromBooking | Service item not found ");
-                        return new IllegalArgumentException("booking.error.service_not_found");});
+
+        BookingServiceItem itemToRemove =
+                bookingForUpdate.getServiceItems()
+                        .stream()
+                        .filter(item ->
+                                item.getId().equals(bookingServiceItemId))
+                        .findFirst()
+                        .orElseThrow(() -> {
+
+                            logger.warn(
+                                    "Method: removeServiceItemFromBooking | Service item not found");
+
+                            return new IllegalArgumentException(
+                                    "booking.error.service_not_found");
+                        });
 
         if (bookingForUpdate.getServiceItems().size() <= 1) {
-            logger.error("Method: removeServiceItemFromBooking | Booking cant remove last service item ");
-            throw new IllegalStateException("booking.error.cant_remove");
+
+            logger.warn(
+                    "Method: removeServiceItemFromBooking | Booking cant remove last service item");
+
+            throw new IllegalStateException(
+                    "booking.error.cant_remove");
         }
+
         bookingForUpdate.getServiceItems().remove(itemToRemove);
 
         syncPlannedWorkOrder(bookingForUpdate);
-        bookingRepository.save(bookingForUpdate);
-        logger.info("Method: removeServiceItemFromBooking | Success updating | BookingId: {}", bookingId);
 
+        try {
+
+            bookingRepository.save(bookingForUpdate);
+
+            logger.info(
+                    "Method: removeServiceItemFromBooking | Success updating | BookingId:{}",
+                    bookingId);
+
+        } catch (DataAccessException e) {
+
+            logger.error(
+                    "Method: removeServiceItemFromBooking | Database error | BookingId:{}",
+                    bookingId,
+                    e);
+
+            throw new DatabaseException(
+                    "common.error.database");
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public BookingCloneDto cloneBooking(Long id) {
-        BookingFullDto copiedBooking= getBookingByIdWithDetails(id);
-        if(!copiedBooking.getStatus().canClone()) {
-            logger.error("Method: cloneBooking | Booking wrong status. Status: {}", copiedBooking.getStatus());
-            throw new BookingWrongStatusException("booking.error.booking_state_completed");
+
+        BookingFullDto copiedBooking =
+                getBookingByIdWithDetails(id);
+
+        if (!copiedBooking.getStatus().canClone()) {
+
+            logger.warn(
+                    "Method: cloneBooking | Booking wrong status | Status:{}",
+                    copiedBooking.getStatus());
+
+            throw new BookingWrongStatusException(
+                    "booking.error.booking_state_completed");
         }
-       return BookingMapper.toCloneDto(copiedBooking);
+
+        return BookingMapper.toCloneDto(copiedBooking);
     }
 
     private void syncPlannedWorkOrder(Booking booking) {
@@ -184,10 +378,28 @@ public class BookingService {
     }
 
     protected Booking getBookingEntity(Long id) {
-        return bookingRepository.findById(id)
-                .orElseThrow(() -> {
-                    logger.error("Method: getBookingEntity | No Booking found | Id: {}", id);
-                    return new EntityNotFoundException("booking.error.not_found");
-                });
+
+        try {
+
+            return bookingRepository.findById(id)
+                    .orElseThrow(() -> {
+
+                        logger.warn(
+                                "Method: getBookingEntity | No booking found | Id:{}",
+                                id);
+
+                        return new EntityNotFoundException(
+                                "booking.error.not_found");
+                    });
+
+        } catch (DataAccessException e) {
+
+            logger.error(
+                    "Method: getBookingEntity | Database error",
+                    e);
+
+            throw new DatabaseException(
+                    "common.error.database");
+        }
     }
 }
