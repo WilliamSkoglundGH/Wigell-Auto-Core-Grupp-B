@@ -33,7 +33,10 @@ public class DataInitializer {
 
                 customer2.setVip(true);
 
-                customerRepository.saveAll(Arrays.asList(customer1, customer2, customer3));
+                //customerRepository.saveAll(Arrays.asList(customer1, customer2, customer3));
+                customerRepository.save(customer1);
+                customerRepository.save(customer2);
+                customerRepository.save(customer3);
 
                 // 2. Skapa Fordon
                 Vehicle vehicle1 = new Vehicle("ABC123", "Volvo", "V70", 2012, customer1);
