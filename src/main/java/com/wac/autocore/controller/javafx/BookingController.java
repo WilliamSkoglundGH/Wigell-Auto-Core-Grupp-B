@@ -581,7 +581,8 @@ public class BookingController extends OverController {
                         getString("common.error.unauthorized"));
             }
 
-        } catch (BusinessException | DatabaseException e) {
+        } catch (BusinessException |IllegalStateException
+                 | DatabaseException e) {
 
             if (messages != null) {
                 messages.showError(

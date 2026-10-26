@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 public class SwishPaymentStrategy implements PaymentStrategy {
     @Override
     public String processPayment(Invoice invoice, BigDecimal amount) {
-        // Vad ska vara specifikt för denna?
         invoice.setPaid(true);
         return "payment.success.SWISH";
     }
