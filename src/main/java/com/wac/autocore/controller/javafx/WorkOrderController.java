@@ -31,7 +31,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.wac.autocore.security.AccessDeniedException;
+import com.wac.autocore.security.SecurityContext;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -39,7 +40,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Controller
@@ -257,8 +257,8 @@ public class WorkOrderController extends OverController {
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_started"));
 
-        }catch (AuthorizationDeniedException e){
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        }catch (AuthorizationDeniedException | AccessDeniedException e){
+            String username = SecurityContext.getUsername();
             logger.error(
                     "Method: handleStartWorkOrder | Authorization error : {} | User: {} ",
                     e.getMessage(),
@@ -283,8 +283,8 @@ public class WorkOrderController extends OverController {
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_confirmed"));
 
-        }catch (AuthorizationDeniedException e){
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        }catch (AuthorizationDeniedException | AccessDeniedException e){
+            String username = SecurityContext.getUsername();
             logger.error(
                     "Method: handleConfirmWorkOrder | Authorization error : {} | User: {} ",
                     e.getMessage(),
@@ -309,8 +309,8 @@ public class WorkOrderController extends OverController {
             loadWorkOrderDetails();
             messages.showSuccess(getString("workorder.success.workorder_canceled"));
 
-        }catch (AuthorizationDeniedException e){
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        }catch (AuthorizationDeniedException | AccessDeniedException e){
+            String username = SecurityContext.getUsername();
             logger.error(
                     "Method: handleCancelWorkOrder | Authorization error : {} | User: {} ",
                     e.getMessage(),
@@ -337,8 +337,8 @@ public class WorkOrderController extends OverController {
             messages.showSuccess(getString("workorder.success.workorder_completed"));
             loadWorkOrderData();
 
-        }catch (AuthorizationDeniedException e){
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        }catch (AuthorizationDeniedException | AccessDeniedException e){
+            String username = SecurityContext.getUsername();
             logger.error(
                     "Method: handleCompleteWorkOrder | Authorization error : {} | User: {} ",
                     e.getMessage(),
@@ -436,8 +436,8 @@ public class WorkOrderController extends OverController {
                 workOrderService.createPlannedWorkOrder(selectedBooking.getId());
                 messages.showSuccess(getString("workorder.success.workorder_created"));
             }
-        }catch (AuthorizationDeniedException e){
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        }catch (AuthorizationDeniedException | AccessDeniedException e){
+            String username = SecurityContext.getUsername();
             logger.error(
                     "Method: handleSaveWorkOrder | Authorization error : {} | User: {} ",
                     e.getMessage(),
@@ -487,8 +487,8 @@ public class WorkOrderController extends OverController {
             saveDraftServices();
             messages.showSuccess(getString("workorder.success.workorder_updated"));
             navigateToWorkOrderInfoView();
-        } catch (AuthorizationDeniedException e){
-                String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        } catch (AuthorizationDeniedException | AccessDeniedException e){
+                String username = SecurityContext.getUsername();
                 logger.error(
                         "Method: handleUpdateDraft | Authorization error : {} | User: {} ",
                         e.getMessage(),
@@ -514,8 +514,8 @@ public class WorkOrderController extends OverController {
             workOrderService.confirmWorkOrder(currentWorkOrderId);
             messages.showSuccess(getString("workorder.success.workorder_confirmed"));
             navigateToWorkOrderInfoView();
-        }catch (AuthorizationDeniedException e){
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        }catch (AuthorizationDeniedException | AccessDeniedException e){
+            String username = SecurityContext.getUsername();
             logger.error(
                     "Method: handleConfirmDraft | Authorization error : {} | User: {} ",
                     e.getMessage(),
@@ -624,8 +624,8 @@ public class WorkOrderController extends OverController {
                 }
             }
             loadDraftServiceList(dto);
-        } catch (AuthorizationDeniedException e) {
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        } catch (AuthorizationDeniedException | AccessDeniedException e) {
+            String username = SecurityContext.getUsername();
             logger.error("Method: loadDraftForm | Authorization error : {} | User: {} ", e.getMessage(), username, e);
             if (messages != null) {
                 messages.showError(getString("common.error.unauthorized"));
@@ -673,8 +673,8 @@ public class WorkOrderController extends OverController {
                     }
             ));
             servicesListViewUpdate.setItems(allServices);
-        } catch (AuthorizationDeniedException e) {
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        } catch (AuthorizationDeniedException | AccessDeniedException e) {
+            String username = SecurityContext.getUsername();
             logger.error("Method: loadDraftServiceList  | Authorization error : {} | User: {} ", e.getMessage(), username, e);
             if (messages != null) {
                 messages.showError(getString("common.error.unauthorized"));
@@ -699,8 +699,8 @@ public class WorkOrderController extends OverController {
                     workOrderService.removeServiceItemFromWorkOrder(currentWorkOrderId, rowId);
                 }
             }
-        } catch (AuthorizationDeniedException e) {
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        } catch (AuthorizationDeniedException | AccessDeniedException e) {
+            String username = SecurityContext.getUsername();
             logger.error("Method: saveDraftServices | Authorization error : {} | User: {} ", e.getMessage(), username, e);
             if (messages != null) {
                 messages.showError(getString("common.error.unauthorized"));
@@ -768,8 +768,8 @@ public class WorkOrderController extends OverController {
                     }
             ));
             servicesListViewDropIn.setItems(allServices);
-        } catch (AuthorizationDeniedException e) {
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        } catch (AuthorizationDeniedException | AccessDeniedException e) {
+            String username = SecurityContext.getUsername();
             logger.error("Method: loadDropInForm | Authorization error : {} | User: {} ", e.getMessage(), username, e);
             if (messages != null) {
                 messages.showError(getString("common.error.unauthorized"));
@@ -810,8 +810,8 @@ public class WorkOrderController extends OverController {
             messages.showSuccess(getString("workorder.success.dropin_created"));
             navigateToWorkOrderView();
 
-        } catch (AuthorizationDeniedException e) {
-            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        } catch (AuthorizationDeniedException | AccessDeniedException e) {
+            String username = SecurityContext.getUsername();
             logger.error("Method: initialize/changePrice | Authorization error: {} | User: {} ", e.getMessage(), username, e);
             if (messages != null) {
                 messages.showError(getString("common.error.unauthorized"));

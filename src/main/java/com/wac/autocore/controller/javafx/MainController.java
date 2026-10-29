@@ -1,6 +1,7 @@
 package com.wac.autocore.controller.javafx;
 
 import com.wac.autocore.controller.util.LanguageManager;
+import com.wac.autocore.security.SecurityContext;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -221,6 +222,7 @@ public class MainController extends OverController implements UserMessages {
         String username = auth != null ? auth.getName() : "unknown";
 
         SecurityContextHolder.clearContext();
+        SecurityContext.clear();
         logger.info("Method: handleLogout | User logged out | Username={}", username);
         try {
             loadRootView(

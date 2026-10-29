@@ -2,6 +2,9 @@ package com.wac.autocore.controller.javafx;
 
 import com.wac.autocore.controller.util.LanguageManager;
 import com.wac.autocore.exception.DatabaseException;
+import com.wac.autocore.model.enums.UserRole;
+import com.wac.autocore.security.AuthUser;
+import com.wac.autocore.security.SecurityContext;
 import com.wac.autocore.service.LoginService;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
@@ -19,6 +22,8 @@ import javafx.scene.control.Label;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @Scope("prototype")
@@ -56,12 +61,14 @@ public class LoginController extends OverController {
         }
 
         SecurityContextHolder.clearContext();
+        SecurityContext.clear();
         passwordField.clear();
         try {
             Authentication authentication =
                     loginService.login(username, password);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContext.setCurrentUser(toAuthUser(authentication));
             loadRootView(
                     "/com/wac/autocore/controller/view/MainView.fxml", loginButton.getScene());
 
@@ -73,6 +80,7 @@ public class LoginController extends OverController {
 
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
+            SecurityContext.clear();
             logger.error("Method: handleLogin | Unexpected error during login", e);
             messageLabel.setText(getString("login.error"));
         }
@@ -97,5 +105,15 @@ public class LoginController extends OverController {
             logger.error("Method: handleToggleLanguage | Could not reload login view", e);
             messageLabel.setText(getString("login.error"));
         }
+    }
+
+    // Pilot: Spring Security sköter fortfarande inloggningen, rollerna speglas till SecurityContext för SecurityProxy
+    private AuthUser toAuthUser(Authentication authentication) {
+        Set<UserRole> roles = authentication.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .filter(authority -> authority.startsWith("ROLE_"))
+                .map(authority -> UserRole.valueOf(authority.substring("ROLE_".length())))
+                .collect(Collectors.toSet());
+        return new AuthUser(authentication.getName(), roles);
     }
 }
