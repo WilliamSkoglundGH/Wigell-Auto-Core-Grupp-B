@@ -32,6 +32,7 @@ public class InvoiceService {
     private final WorkOrderRepository workOrderRepository;
     private final DiscountFactory discountFactory;
 
+
     private static final Logger logger = LoggerFactory.getLogger(InvoiceService.class);
 
     public InvoiceService(InvoiceRepository invoiceRepository,

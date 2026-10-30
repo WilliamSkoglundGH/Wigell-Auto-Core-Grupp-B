@@ -21,7 +21,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+   @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public User registerUser(String username, String rawPassword, Set<UserRole> roles) {
         if (userRepository.findByUsername(username).isPresent()) {

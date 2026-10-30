@@ -7,6 +7,7 @@ import com.wac.autocore.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -71,20 +72,21 @@ public class DataInitializer {
         };
     }
     @Bean
-    public CommandLineRunner initializeDefaultUsers(UserService userService, UserRepository userRepository) {
+    public CommandLineRunner initializeDefaultUsers(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             //skapa users om de inte redan finns
             if (userRepository.findByUsername("admin").isEmpty()) {
-                userService.registerUser("admin", "admin123", Set.of(UserRole.ADMIN));
-            }
+                User admin = new User("admin", passwordEncoder.encode("admin123"), Set.of(UserRole.ADMIN));
+                userRepository.save(admin); }
 
             if (userRepository.findByUsername("readonly").isEmpty()) {
-                userService.registerUser("readonly", "readonly123", Set.of(UserRole.READ_ONLY));
+                User readonly = new User("readonly", passwordEncoder.encode("readonly123"), Set.of(UserRole.READ_ONLY));
+                userRepository.save(readonly);
             }
 
             if (userRepository.findByUsername("mechanic").isEmpty()) {
-                userService.registerUser("mechanic", "mechanic123", Set.of(UserRole.MECHANIC));
-            }
+                User mechanic = new User("mechanic", passwordEncoder.encode("mechanic123"), Set.of(UserRole.MECHANIC));
+                userRepository.save(mechanic);}
         };
     }
 }
