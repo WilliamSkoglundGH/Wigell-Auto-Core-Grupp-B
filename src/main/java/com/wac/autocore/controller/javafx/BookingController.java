@@ -4,6 +4,7 @@ import com.wac.autocore.dto.booking.*;
 
 import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.dto.servicePackage.ServicePackageDetailDto;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.exception.EntityNotFoundException;
 
 import com.wac.autocore.exception.BusinessException;
@@ -29,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -215,7 +218,7 @@ public class BookingController extends OverController {
         }
         if (packageCombo != null) {
             loadServicePackageDropDown();
-            // Lägg till detta i initialize()
+
             packageCombo.getSelectionModel().selectedItemProperty()
                     .addListener((observable, oldValue, newValue) -> {
                         if (newValue != null) {
@@ -228,7 +231,7 @@ public class BookingController extends OverController {
                             for (ServiceItem item : newValue.getServiceItems()) {
                                 BooleanProperty prop = serviceSelections.get(item.getId());
                                 if (prop != null) {
-                                    prop.set(true); // Detta klickar i checkboxen i ListView automatiskt!
+                                    prop.set(true);
                                 }
                             }
                         }
@@ -260,16 +263,33 @@ public class BookingController extends OverController {
     }
 
     private void loadBookingData() {
+
         if (bookingTable != null) {
+
             try {
-                ObservableList<BookingFullDto> bookingData = FXCollections.observableArrayList(
-                        bookingService.getAllBookingsWithServiceItems()
+
+                bookingTable.setItems(
+                        FXCollections.observableArrayList(
+                                bookingService.getAllBookingsWithServiceItems()
+                        )
                 );
-                bookingTable.setItems(bookingData);
-            } catch (Exception e) {
-                logger.error("Could not load bookings from database. {}", e.getMessage(), e);
+
+            } catch (BusinessException | DatabaseException e) {
+
                 if (messages != null) {
-                    messages.showError(getString("booking.error.could_not_load"));
+                    messages.showError(
+                            getString(e.getMessage()));
+                }
+
+            } catch (Exception e) {
+
+                logger.error(
+                        "Method: loadBookingData | Unexpected",
+                        e);
+
+                if (messages != null) {
+                    messages.showError(
+                            getString("common.error.unexpected"));
                 }
             }
         }
@@ -324,7 +344,6 @@ public class BookingController extends OverController {
 
     private void loadServicePackageDropDown() {
         if (packageCombo != null) {
-            // Hämta alla och filtrera ut endast aktiva (eller om du har en specifik metod i service-lagret)
             List<ServicePackageDetailDto> activePackages = servicePackageService.getAllPackagesDetail().stream()
                     .filter(ServicePackageDetailDto::isActive)
                     .collect(Collectors.toList());
@@ -460,22 +479,59 @@ public class BookingController extends OverController {
             return;
         }
         try {
-            BookingCreateDto dto = new BookingCreateDto(vehicleId, selectedDate, description, mechanicId);
 
-            bookingService.saveBooking(dto, selectedServices);
+            BookingCreateDto dto =
+                    new BookingCreateDto(
+                            vehicleId,
+                            selectedDate,
+                            description,
+                            mechanicId);
 
-            messages.showSuccess(getString("booking.success.booking_created"));
+            bookingService.saveBooking(
+                    dto,
+                    selectedServices);
+
+            messages.showSuccess(
+                    getString("booking.success.booking_created"));
+
             navigateToBookingView();
 
-        } catch (BusinessException e) {
-            messages.showError(e.getMessage());
+        } catch (AuthorizationDeniedException e) {
+            String username =
+                    Objects.requireNonNull(
+                                    SecurityContextHolder.getContext()
+                                            .getAuthentication())
+                            .getName();
+            logger.error(
+                    "Method: handleSaveBooking | Authorization error : {} | User : {}",
+                    e.getMessage(),
+                    username,
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unauthorized"));
+            }
+
+        } catch (BusinessException | DatabaseException e) {
+
+            if (messages != null) {
+                messages.showError(
+                        getString(e.getMessage()));
+            }
 
         } catch (Exception e) {
-            logger.error("Could not save booking to database. {}", e.getMessage(), e);
-            messages.showError(getString("booking.error.unexpected"));
+
+            logger.error(
+                    "Method: handleSaveBooking | Unexpected",
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unexpected"));
+            }
         }
     }
-
     @FXML
     private void handleBackToBookings() {
         messages.clearMessage();
@@ -484,30 +540,65 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleRemoveBookingService() {
+
         BookingServiceItemDto selectedItem =
-                bookingServicesTable.getSelectionModel().getSelectedItem();
+                bookingServicesTable.getSelectionModel()
+                        .getSelectedItem();
 
         if (selectedItem == null) {
-            messages.showError(getString("booking.error.select_service_to_remove"));
+            messages.showError(
+                    getString("booking.error.select_service_to_remove"));
             return;
         }
 
         try {
+
             bookingService.removeServiceItemFromBooking(
                     currentBookingId,
                     selectedItem.getId()
             );
 
-            bookingServicesTable.getItems().remove(selectedItem);
-            messages.showSuccess(getString("booking.success.service_removed"));
+            bookingServicesTable.getItems()
+                    .remove(selectedItem);
 
-        } catch (EntityNotFoundException | IllegalArgumentException
-                 | IllegalStateException e) {
-            messages.showError(getString(e.getMessage()));
+            messages.showSuccess(
+                    getString("booking.success.service_removed"));
+
+        } catch (AuthorizationDeniedException e) {
+            String username =
+                    Objects.requireNonNull(
+                                    SecurityContextHolder.getContext()
+                                            .getAuthentication())
+                            .getName();
+            logger.error(
+                    "Method: handleRemoveBookingService | Authorization error : {} | User: {}",
+                    e.getMessage(),
+                    username,
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unauthorized"));
+            }
+
+        } catch (BusinessException |IllegalStateException
+                 | DatabaseException e) {
+
+            if (messages != null) {
+                messages.showError(
+                        getString(e.getMessage()));
+            }
 
         } catch (Exception e) {
-            logger.error("Could not remove service from booking.", e);
-            messages.showError(getString("booking.error.remove_service"));
+
+            logger.error(
+                    "Method: handleRemoveBookingService | Unexpected",
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unexpected"));
+            }
         }
     }
 
@@ -537,17 +628,25 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleAddBookingService() {
+
         try {
+
             List<ServiceItemSummaryDto> availableServices =
                     new ArrayList<>(serviceItemService.getAllServiceItems());
 
-            for (BookingServiceItemDto bookingItem : bookingServicesTable.getItems()) {
+            for (BookingServiceItemDto bookingItem :
+                    bookingServicesTable.getItems()) {
+
                 availableServices.removeIf(service ->
-                        service.getId().equals(bookingItem.getServiceItemId()));
+                        service.getId().equals(
+                                bookingItem.getServiceItemId()));
             }
 
             if (availableServices.isEmpty()) {
-                messages.showError(getString("booking.services.none_available"));
+
+                messages.showError(
+                        getString("booking.services.none_available"));
+
                 return;
             }
 
@@ -555,10 +654,18 @@ public class BookingController extends OverController {
                     new ChoiceDialog<>(null, availableServices);
 
             dialog.initStyle(StageStyle.UNDECORATED);
-            dialog.setHeaderText(getString("booking.services.select"));
-            dialog.initOwner(bookingServicesTable.getScene().getWindow());
+            dialog.setHeaderText(
+                    getString("booking.services.select"));
+
+            dialog.initOwner(
+                    bookingServicesTable.getScene().getWindow());
+
             dialog.setGraphic(null);
-            dialog.getDialogPane().getStyleClass().add("booking-service-dialog");
+
+            dialog.getDialogPane()
+                    .getStyleClass()
+                    .add("booking-service-dialog");
+
             dialog.getDialogPane().setPrefHeight(250);
 
             dialog.getDialogPane().getStylesheets().addAll(
@@ -566,29 +673,36 @@ public class BookingController extends OverController {
             );
 
             Button confirmButton =
-                    (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
-            confirmButton.setText(getString("booking.services.add"));
+                    (Button) dialog.getDialogPane()
+                            .lookupButton(ButtonType.OK);
+
+            confirmButton.setText(
+                    getString("booking.services.add"));
 
             Button cancelButton =
-                    (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
-            cancelButton.setText(getString("btn.cancel"));
+                    (Button) dialog.getDialogPane()
+                            .lookupButton(ButtonType.CANCEL);
 
-            Parent mainView = bookingServicesTable.getScene().getRoot();
+            cancelButton.setText(
+                    getString("btn.cancel"));
+
+            Parent mainView =
+                    bookingServicesTable.getScene().getRoot();
 
             ColorAdjust dimming = new ColorAdjust();
             dimming.setBrightness(-0.35);
 
-            Optional<ServiceItemSummaryDto
-                    > selectedService;
+            Optional<ServiceItemSummaryDto> selectedService;
 
             mainView.setEffect(dimming);
+
             try {
                 selectedService = dialog.showAndWait();
             } finally {
                 mainView.setEffect(null);
             }
 
-            if (!selectedService.isPresent()) {
+            if (selectedService.isEmpty()) {
                 return;
             }
 
@@ -597,21 +711,53 @@ public class BookingController extends OverController {
                     selectedService.get()
             );
 
-            for (BookingFullDto booking : bookingService.getAllBookingsWithServiceItems()) {
+            for (BookingFullDto booking :
+                    bookingService.getAllBookingsWithServiceItems()) {
+
                 if (booking.getId().equals(currentBookingId)) {
+
                     setBooking(booking);
                     break;
                 }
             }
 
-            messages.showSuccess(getString("booking.success.service_added"));
+            messages.showSuccess(
+                    getString("booking.success.service_added"));
 
-        } catch (BusinessException e) {
-            messages.showError(getString(e.getMessage()));
+        } catch (AuthorizationDeniedException e) {
+            String username =
+                    Objects.requireNonNull(
+                                    SecurityContextHolder.getContext()
+                                            .getAuthentication())
+                            .getName();
+            logger.error(
+                    "Method: handleAddBookingService | Authorization error : {} | User: {}",
+                    e.getMessage(),
+                    username,
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unauthorized"));
+            }
+
+        } catch (BusinessException | DatabaseException e) {
+
+            if (messages != null) {
+                messages.showError(
+                        getString(e.getMessage()));
+            }
 
         } catch (Exception e) {
-            logger.error("Could not add service to booking.", e);
-            messages.showError(getString("booking.error.add_service"));
+
+            logger.error(
+                    "Method: handleAddBookingService | Unexpected",
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unexpected"));
+            }
         }
     }
 
@@ -621,49 +767,132 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleCopyBooking() {
-        BookingFullDto selected = bookingTable.getSelectionModel().getSelectedItem();
+
+        BookingFullDto selected =
+                bookingTable.getSelectionModel().getSelectedItem();
+
         if (selected == null) {
-            messages.showError(getString("booking.error.select_booking"));
+            messages.showError(
+                    getString("booking.error.select_booking"));
             return;
         }
+
         currentBookingId = selected.getId();
-        try{
-        BookingCloneDto dto = bookingService.cloneBooking(currentBookingId);}
-        catch (Exception e) {
-            messages.showError(getString("booking.error.booking_state_completed"));
+
+        try {
+
+            bookingService.cloneBooking(currentBookingId);
+
+            navigateToNewCopiedBooking();
+
+        } catch (AuthorizationDeniedException e) {
+            String username =
+                    Objects.requireNonNull(
+                                    SecurityContextHolder.getContext()
+                                            .getAuthentication())
+                            .getName();
+            logger.error(
+                    "Method: handleCopyBooking | Authorization error : {} | User: {}",
+                    e.getMessage(),
+                    username,
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unauthorized"));
+            }
+
+        } catch (BusinessException | DatabaseException e) {
+
+            if (messages != null) {
+                messages.showError(
+                        getString(e.getMessage()));
+            }
+
+        } catch (Exception e) {
+
+            logger.error(
+                    "Method: handleCopyBooking | Unexpected",
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unexpected"));
+            }
+
             navigateToBookingView();
-            return;
         }
-        navigateToNewCopiedBooking();
     }
 
     @FXML
     private void loadCopiedBooking() {
+
         if (messages != null) {
             messages.clearMessage();
         }
+
         if (currentBookingId == null) {
-            messages.showError(getString("booking.error.booking_state_completed"));
+
+            messages.showError(
+                    getString("booking.error.booking_state_completed"));
+
             return;
         }
-        try {
-            BookingCloneDto dto = bookingService.cloneBooking(currentBookingId);
 
-            // Sätt fordonets text (eller regnummer)
+        try {
+
+            BookingCloneDto dto =
+                    bookingService.cloneBooking(currentBookingId);
+
             if (dto.getVehicle() != null) {
-                vehicleCopiedLabel.setText(dto.getVehicle().getId() + " - " +
-                        dto.getVehicle().getBrand() + " " + dto.getVehicle().getModel() +
-                        " (" + dto.getVehicle().getRegistrationNumber() + ")");
+
+                vehicleCopiedLabel.setText(
+                        dto.getVehicle().getId() + " - "
+                                + dto.getVehicle().getBrand() + " "
+                                + dto.getVehicle().getModel()
+                                + " ("
+                                + dto.getVehicle().getRegistrationNumber()
+                                + ")");
             }
 
-            // 1. Se till att listan laddas först så mapen fylls
             loadServiceList(servicesListViewCopied);
 
-            // 2. Applicera för valen efteråt
             applyPreselection(dto);
 
-        } catch (IllegalStateException e) {
-            messages.showError(getString("booking.error.booking_state_completed"));
+        } catch (AuthorizationDeniedException e) {
+
+            logger.error(
+                    "Method: loadCopiedBooking | Authorization error : {}",
+                    e.getMessage(),
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unauthorized"));
+            }
+
+            navigateToBookingView();
+
+        } catch (BusinessException | DatabaseException e) {
+
+            if (messages != null) {
+                messages.showError(
+                        getString(e.getMessage()));
+            }
+
+            navigateToBookingView();
+
+        } catch (Exception e) {
+
+            logger.error(
+                    "Method: loadCopiedBooking | Unexpected",
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unexpected"));
+            }
+
             navigateToBookingView();
         }
     }
@@ -673,7 +902,6 @@ public class BookingController extends OverController {
                 .map(i -> i.getServiceItemId()).collect(Collectors.toSet());
         serviceSelections.values().forEach(p -> p.set(false));
 
-        //Ändrar utifrån id i HashSet vilka som är true/false så dem blir bockade.
         for (Long id : preSelect) {
             BooleanProperty prop = serviceSelections.get(id);
             if (prop != null) {
@@ -684,76 +912,145 @@ public class BookingController extends OverController {
 
     @FXML
     private void handleSaveCopiedBooking() {
+
         try {
+
             String vehicleString = vehicleCopiedLabel.getText();
+
             if (vehicleString == null) {
-                messages.showError(getString("booking.error.select_vehicle"));
+                messages.showError(
+                        getString("booking.error.select_vehicle"));
                 return;
             }
-            Long vehicleId = Long.parseLong(vehicleString.split(" - ")[0]);
 
-            LocalDate selectedDate = datePickerCopied.getValue();
-            LocalDate today = LocalDate.now();
+            Long vehicleId =
+                    Long.parseLong(
+                            vehicleString.split(" - ")[0]);
+
+            LocalDate selectedDate =
+                    datePickerCopied.getValue();
+
+            LocalDate today =
+                    LocalDate.now();
+
             if (selectedDate == null) {
-                messages.showError(getString("booking.error.select_date"));
+                messages.showError(
+                        getString("booking.error.select_date"));
                 return;
             }
-            if (selectedDate.isBefore(today)) {
-                messages.showError(getString("booking.error.before_date"));
-                return;
-            }
-            if (descriptionFieldCopied.getText().length() > 200) {
-                messages.showError(getString("booking.error.desc_too_long"));
-                return;
-            }
-            String description = descriptionFieldCopied.getText();
 
+            if (selectedDate.isBefore(today)) {
+                messages.showError(
+                        getString("booking.error.before_date"));
+                return;
+            }
+
+            if (descriptionFieldCopied.getText().length() > 200) {
+                messages.showError(
+                        getString("booking.error.desc_too_long"));
+                return;
+            }
+
+            String description =
+                    descriptionFieldCopied.getText();
 
             if (mechanicFieldCopied == null) {
                 return;
             }
 
-            String mechanicString = mechanicFieldCopied.getValue();
+            String mechanicString =
+                    mechanicFieldCopied.getValue();
+
             if (mechanicString == null) {
-                messages.showError(getString("booking.error.select_mechanic"));
+                messages.showError(
+                        getString("booking.error.select_mechanic"));
                 return;
             }
-            Long mechanicId = Long.parseLong(mechanicString.split(" - ")[0]);
 
-            List<ServiceItemSummaryDto> selectedServices = servicesListViewCopied.getItems().stream()
-                    .filter(item -> serviceSelections.containsKey(item.getId()) && serviceSelections.get(item.getId()).get())
-                    .collect(Collectors.toList());
+            Long mechanicId =
+                    Long.parseLong(
+                            mechanicString.split(" - ")[0]);
+
+            List<ServiceItemSummaryDto> selectedServices =
+                    servicesListViewCopied.getItems()
+                            .stream()
+                            .filter(item ->
+                                    serviceSelections.containsKey(item.getId())
+                                            && serviceSelections.get(item.getId()).get())
+                            .collect(Collectors.toList());
 
             if (selectedServices.isEmpty()) {
-                messages.showError(getString("booking.error.select_services"));
+                messages.showError(
+                        getString("booking.error.select_services"));
                 return;
             }
-            try {
-                BookingCreateDto dto = new BookingCreateDto(vehicleId, selectedDate, description, mechanicId);
 
-                bookingService.saveBooking(dto, selectedServices);
+            BookingCreateDto dto =
+                    new BookingCreateDto(
+                            vehicleId,
+                            selectedDate,
+                            description,
+                            mechanicId);
 
-                messages.showSuccess(getString("booking.success.booking_created"));
-                navigateToBookingView();
+            bookingService.saveBooking(
+                    dto,
+                    selectedServices);
 
-            } catch (BusinessException e) {
-                messages.showError(e.getMessage());
+            messages.showSuccess(
+                    getString("booking.success.booking_created"));
+
+            navigateToBookingView();
+
+        } catch (AuthorizationDeniedException e) {
+            String username =
+                    Objects.requireNonNull(
+                                    SecurityContextHolder.getContext()
+                                            .getAuthentication())
+                            .getName();
+            logger.error(
+                    "Method: handleSaveCopiedBooking | Authorization error : {} | User: {}",
+                    e.getMessage(),
+                    username,
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unauthorized"));
+            }
+
+        } catch (BusinessException | DatabaseException e) {
+
+            if (messages != null) {
+                messages.showError(
+                        getString(e.getMessage()));
             }
 
         } catch (Exception e) {
-            logger.error("Could not save booking to database. {}", e.getMessage(), e);
-            messages.showError(getString("booking.error.unexpected"));
+
+            logger.error(
+                    "Method: handleSaveCopiedBooking | Unexpected",
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unexpected"));
+            }
         }
     }
+            @FXML
+            private void navigateToNewCopiedBooking () {
+                if (messages != null) {
+                    messages.clearMessage();
+                }
+                loadCenterView("/com/wac/autocore/controller/view/NewCopiedBooking.fxml");
+            }
 
-    @FXML
-    private void navigateToNewCopiedBooking() {
-        loadCenterView("/com/wac/autocore/controller/view/NewCopiedBooking.fxml");
-    }
-
-    private void navigateToBookingView() {
-        loadCenterView("/com/wac/autocore/controller/view/BookingView.fxml");
-    }
+            private void navigateToBookingView () {
+                if (messages != null) {
+                    messages.clearMessage();
+                }
+                loadCenterView("/com/wac/autocore/controller/view/BookingView.fxml");
+            }
 
 
 }

@@ -33,3 +33,4 @@ bin/
 /.idea/
 *.iml
 /src/main/resources/application-local.properties
+logs/

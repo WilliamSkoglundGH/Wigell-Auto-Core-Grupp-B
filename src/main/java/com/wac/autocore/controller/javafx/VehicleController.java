@@ -3,6 +3,8 @@ package com.wac.autocore.controller.javafx;
 import com.wac.autocore.dto.customer.CustomerSummaryDto;
 import com.wac.autocore.dto.vechicle.VehicleCreateDto;
 import com.wac.autocore.dto.vechicle.VehicleSummaryDto;
+import com.wac.autocore.exception.BusinessException;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.service.CustomerService;
 import com.wac.autocore.service.VehicleService;
 import javafx.collections.FXCollections;
@@ -18,10 +20,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+
+import java.util.Objects;
 
 @Controller
-@Scope("prototype")
+@Scope("prototype") // Lägg denna på controllers som styr flera fxml filer.
 public class VehicleController extends OverController {
 
     @FXML private TableView<VehicleSummaryDto> vehicleTable;
@@ -43,7 +49,6 @@ public class VehicleController extends OverController {
 
     private static final Logger logger = LoggerFactory.getLogger(VehicleController.class);
 
-    // Spring injicerar tjänster samt ApplicationContext
     public VehicleController(VehicleService vehicleService, CustomerService customerService, ApplicationContext applicationContext) {
         this.vehicleService = vehicleService;
         this.customerService = customerService;
@@ -72,8 +77,12 @@ public class VehicleController extends OverController {
                 customerComboBox.setItems(FXCollections.observableArrayList(customerService.getAllCustomers()));
 
                 customerComboBox.setConverter(new StringConverter<CustomerSummaryDto>() {
+
                     @Override
                     public String toString(CustomerSummaryDto customer) {
+                        if (customer == null) {
+                            return "";
+                        }
                         return customer.getId() + " - " + customer.getName()
                                 + " | " + getString("customer.phoneColumn") + ": "
                                 + customer.getPhone()
@@ -88,10 +97,33 @@ public class VehicleController extends OverController {
                         return null;
                     }
                 });
-            } catch (Exception e) {
-                logger.error("Could not get all customers: {}", e.getMessage(), e);
+            } catch (AuthorizationDeniedException e) {
+                String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+                logger.error(
+                        "Method: initialize/changePrice | Authorization error : {} | User: {} ",
+                        e.getMessage(),
+                        username, e);
+
                 if (messages != null) {
-                    messages.showError(getString("vehicle.error.load_customers"));
+                    messages.showError(
+                            getString("common.error.unauthorized"));
+                }
+
+            } catch (DatabaseException e) {
+                if (messages != null) {
+                    messages.showError(
+                            getString(e.getMessage()));
+                }
+
+            } catch (Exception e) {
+
+                logger.error(
+                        "Method: initialize | Unexpected",
+                        e);
+
+                if (messages != null) {
+                    messages.showError(
+                            getString("common.error.unexpected"));
                 }
             }
         }
@@ -102,16 +134,52 @@ public class VehicleController extends OverController {
     }
 
     public void loadVehicleData() {
+
         if (vehicleTable != null) {
+
             try {
-                ObservableList<VehicleSummaryDto> vehicleData = FXCollections.observableArrayList(
-                        vehicleService.getAllVehicles()
-                );
+
+                ObservableList<VehicleSummaryDto> vehicleData =
+                        FXCollections.observableArrayList(
+                                vehicleService.getAllVehicles());
+
                 vehicleTable.setItems(vehicleData);
-            } catch (Exception e) {
-                logger.error("Could not load vehicles from database. {}", e.getMessage(), e);
+
+            } catch (AuthorizationDeniedException e) {
+
+                String username =
+                        Objects.requireNonNull(
+                                        SecurityContextHolder.getContext()
+                                                .getAuthentication())
+                                .getName();
+
+                logger.error(
+                        "Method: loadVehicleData | Authorization error : {} | User: {}",
+                        e.getMessage(),
+                        username,
+                        e);
+
                 if (messages != null) {
-                    messages.showError(getString("vehicle.error.load_vehicles"));
+                    messages.showError(
+                            getString("common.error.unauthorized"));
+                }
+
+            } catch (BusinessException | DatabaseException e) {
+
+                if (messages != null) {
+                    messages.showError(
+                            getString(e.getMessage()));
+                }
+
+            } catch (Exception e) {
+
+                logger.error(
+                        "Method: loadVehicleData | Unexpected",
+                        e);
+
+                if (messages != null) {
+                    messages.showError(
+                            getString("common.error.unexpected"));
                 }
             }
         }
@@ -128,33 +196,93 @@ public class VehicleController extends OverController {
 
     @FXML
     private void handleSaveVehicle() {
+
         if (registrationNumberField != null) {
+
             String regNo = registrationNumberField.getText();
             String brand = brandField.getText();
             String model = modelField.getText();
-            CustomerSummaryDto selectedCustomer = customerComboBox != null ? customerComboBox.getValue() : null;
+
+            CustomerSummaryDto selectedCustomer =
+                    customerComboBox != null
+                            ? customerComboBox.getValue()
+                            : null;
 
             try {
-                int year = Integer.parseInt(yearField.getText().trim());
 
-                if (regNo != null && !regNo.trim().isEmpty() && selectedCustomer != null) {
+                int year =
+                        Integer.parseInt(
+                                yearField.getText().trim());
 
-                    // SKAPA ETT DTO FÖR SKAPANDE (eller skicka med ID direkt till service)
-                    VehicleCreateDto createDto = new VehicleCreateDto(regNo.trim(), brand.trim(), model.trim(), year, selectedCustomer.getId());
+                if (regNo != null
+                        && !regNo.trim().isEmpty()
+                        && selectedCustomer != null) {
 
-                    // Låt servicen göra allt jobb! Ingen Vehicle-entitet här inte.
+                    VehicleCreateDto createDto =
+                            new VehicleCreateDto(
+                                    regNo.trim(),
+                                    brand.trim(),
+                                    model.trim(),
+                                    year,
+                                    selectedCustomer.getId());
+
                     vehicleService.saveVehicle(createDto);
 
-                    messages.showSuccess(getString("vehicle.showsuccess.vehicle_created"));
+                    messages.showSuccess(
+                            getString(
+                                    "vehicle.showsuccess.vehicle_created"));
+
                     navigateToVehicleView();
+
                 } else {
-                    messages.showError(getString("vehicle.error.enter_data"));
+
+                    messages.showError(
+                            getString(
+                                    "vehicle.error.enter_data"));
                 }
+
+            } catch (AuthorizationDeniedException e) {
+                if (messages != null) {
+                    messages.clearMessage();
+                }
+                String username =
+                        Objects.requireNonNull(
+                                        SecurityContextHolder.getContext()
+                                                .getAuthentication())
+                                .getName();
+
+                logger.error(
+                        "Method: handleSaveVehicle | Authorization error : {} | User: {}",
+                        e.getMessage(),
+                        username,
+                        e);
+
+                messages.showError(
+                        getString(
+                                "common.error.unauthorized"));
+
             } catch (NumberFormatException e) {
-                messages.showError(getString("vehicle.error.incorrect_year"));
+
+                messages.showError(
+                        getString(
+                                "vehicle.error.incorrect_year"));
+
+            } catch (BusinessException | DatabaseException e) {
+
+                if (messages != null) {
+                    messages.showError(
+                            getString(e.getMessage()));
+                }
+
             } catch (Exception e) {
-                logger.error("Could not save vehicle: {}", e.getMessage(), e);
-                messages.showError(getString("vehicle.error.save_vehicle"));
+
+                logger.error(
+                        "Method: handleSaveVehicle | Unexpected",
+                        e);
+
+                messages.showError(
+                        getString(
+                                "common.error.unexpected"));
             }
         }
     }
@@ -166,7 +294,6 @@ public class VehicleController extends OverController {
         }
         navigateToVehicleView();
     }
-
     private void navigateToVehicleView() {
         loadCenterView("/com/wac/autocore/controller/view/VehicleView.fxml");
     }

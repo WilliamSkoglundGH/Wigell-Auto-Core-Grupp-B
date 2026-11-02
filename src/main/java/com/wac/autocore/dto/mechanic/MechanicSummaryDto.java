@@ -1,6 +1,6 @@
 package com.wac.autocore.dto.mechanic;
 
-import javax.persistence.Column;
+import jakarta.persistence.Column;
 
 public class MechanicSummaryDto {
     private Long id;

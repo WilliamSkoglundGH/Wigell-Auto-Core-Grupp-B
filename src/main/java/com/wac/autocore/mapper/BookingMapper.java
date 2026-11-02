@@ -35,9 +35,6 @@ public final class BookingMapper {
     return dtoList;
     }
 
-    public static VehicleSummaryDto toVehicleDto(Vehicle vehicle) {
-        return new VehicleSummaryDto(vehicle.getId(), vehicle.getBrand(), vehicle.getModel(), vehicle.getRegistrationNumber(), vehicle.getCustomer().getName());
-    }
     public static BookingSummaryDto toBookingSummaryDto(Booking booking) {
         if (booking == null) {
             return null;
@@ -87,7 +84,7 @@ public final class BookingMapper {
         MechanicSummaryDto mechanic = MechanicMapper.toSummaryDto(booking.getMechanic());
         return new BookingFullDto(
                 booking.getId(),
-                toVehicleDto(booking.getVehicle()),
+                VehicleMapper.toDto(booking.getVehicle()),
                 booking.getDate(),
                 booking.getDescription(),
                 mechanic,

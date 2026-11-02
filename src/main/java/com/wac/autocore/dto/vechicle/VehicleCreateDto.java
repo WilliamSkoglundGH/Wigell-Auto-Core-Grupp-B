@@ -1,7 +1,6 @@
 package com.wac.autocore.dto.vechicle;
 
 public class VehicleCreateDto {
-
     private String registrationNumber;
     private String brand;
     private String model;
@@ -9,8 +8,7 @@ public class VehicleCreateDto {
     private Long customerId;
 
     // Tom konstruktor för ramverk
-    public VehicleCreateDto() {
-    }
+    public VehicleCreateDto() {}
 
     // Fullständig konstruktor
     public VehicleCreateDto(String registrationNumber, String brand, String model, int year, Long customerId) {

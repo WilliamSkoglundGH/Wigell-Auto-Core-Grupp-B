@@ -1,14 +1,18 @@
 package com.wac.autocore.config;
 
 import com.wac.autocore.model.*;
+import com.wac.autocore.model.enums.UserRole;
 import com.wac.autocore.repository.*;
+import com.wac.autocore.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Set;
 
 @Configuration
 public class DataInitializer {
@@ -30,7 +34,10 @@ public class DataInitializer {
 
                 customer2.setVip(true);
 
-                customerRepository.saveAll(Arrays.asList(customer1, customer2, customer3));
+                //customerRepository.saveAll(Arrays.asList(customer1, customer2, customer3));
+                customerRepository.save(customer1);
+                customerRepository.save(customer2);
+                customerRepository.save(customer3);
 
                 // 2. Skapa Fordon
                 Vehicle vehicle1 = new Vehicle("ABC123", "Volvo", "V70", 2012, customer1);
@@ -62,6 +69,24 @@ public class DataInitializer {
 
                 System.out.println(">>> Testdatan har laddats in i databasen utan problem!");
             }
+        };
+    }
+    @Bean
+    public CommandLineRunner initializeDefaultUsers(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        return args -> {
+            //skapa users om de inte redan finns
+            if (userRepository.findByUsername("admin").isEmpty()) {
+                User admin = new User("admin", passwordEncoder.encode("admin123"), Set.of(UserRole.ADMIN));
+                userRepository.save(admin); }
+
+            if (userRepository.findByUsername("readonly").isEmpty()) {
+                User readonly = new User("readonly", passwordEncoder.encode("readonly123"), Set.of(UserRole.READ_ONLY));
+                userRepository.save(readonly);
+            }
+
+            if (userRepository.findByUsername("mechanic").isEmpty()) {
+                User mechanic = new User("mechanic", passwordEncoder.encode("mechanic123"), Set.of(UserRole.MECHANIC));
+                userRepository.save(mechanic);}
         };
     }
 }

@@ -4,6 +4,7 @@ import com.wac.autocore.dto.invoice.InvoiceSummaryDto;
 import com.wac.autocore.dto.payment.PaymentSummaryDto;
 import com.wac.autocore.exception.BusinessException;
 import com.wac.autocore.controller.util.FormatUIUtil;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.service.InvoiceService;
 import com.wac.autocore.service.PaymentService;
 import javafx.beans.property.SimpleObjectProperty;
@@ -20,9 +21,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -85,11 +89,28 @@ public class PaymentController extends OverController {
 
         // NewPaymentView.fxml
         if (invoiceComboBox != null) {
-            List<InvoiceSummaryDto> unpaidInvoices = invoiceService.getAllInvoices().stream()
-                    .filter(invoice -> !invoice.isPaid())
-                    .collect(Collectors.toList());
-            invoiceComboBox.setItems(FXCollections.observableArrayList(unpaidInvoices));
-
+            try {
+                List<InvoiceSummaryDto> unpaidInvoices = invoiceService.getAllInvoices().stream()
+                        .filter(invoice -> !invoice.isPaid())
+                        .collect(Collectors.toList());
+                invoiceComboBox.setItems(FXCollections.observableArrayList(unpaidInvoices));
+            } catch (AuthorizationDeniedException e) {
+                String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+                logger.error("Method: initialize | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+                if (messages != null) {
+                    //Detta skrivs aldrig ut någonstans:
+                    messages.showError(getString("common.error.unauthorized"));
+                }
+            } catch (DatabaseException e) {
+                if (messages != null) {
+                    messages.showError(getString(e.getMessage()));
+                }
+            } catch (Exception e) {
+                logger.error("Method: initialize | Could not load invoices", e);
+                if (messages != null) {
+                    messages.showError(getString("payment.error.could_not_load"));
+                }
+            }
             invoiceComboBox.setConverter(new StringConverter<InvoiceSummaryDto>() {
                 @Override
                 public String toString(InvoiceSummaryDto invoice) {
@@ -141,8 +162,18 @@ public class PaymentController extends OverController {
                 ObservableList<PaymentSummaryDto> paymentData = FXCollections.observableArrayList(paymentService.getAllPayments());
                 paymentTable.setItems(paymentData);
             }
+        } catch (AuthorizationDeniedException e) {
+            String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+            logger.error("Method: loadPaymentData | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+            if (messages != null) {
+                messages.showError(getString("common.error.unauthorized"));
+            }
+        } catch (DatabaseException e) {
+            if (messages != null) {
+                messages.showError(getString(e.getMessage()));
+            }
         } catch (Exception e) {
-            logger.error("Could not load payments", e);
+            logger.error("Method: loadPaymentData | Could not load payments", e);
             if (messages != null) {
                 messages.showError(getString("payment.error.could_not_load"));
             }
@@ -174,11 +205,17 @@ public class PaymentController extends OverController {
 
                     messages.showSuccess(message);
                     navigateToPaymentView();
-
-                } catch (BusinessException e) {
+                } catch (AuthorizationDeniedException e) {
+                    String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+                    logger.error("Method: handleSavePayment | Authorization error : {} | User: {} ", e.getMessage(), username, e);
+                    if (messages != null) {
+                        messages.showError(getString("common.error.unauthorized"));
+                    }
+                } catch (BusinessException | DatabaseException e) {
                     messages.showError(getString(e.getMessage()));
                 } catch (Exception e) {
-                    logger.error("Could not process payment: {}", e.getMessage(), e);
+                    logger.error("Method: handleSavePayment | Could not process payment | InvoiceId={} | Type={}",
+                            selectedInvoice.getId(), paymentType, e);
                     messages.showError(getString("payment.error.could_not_process"));
                 }
             } else {

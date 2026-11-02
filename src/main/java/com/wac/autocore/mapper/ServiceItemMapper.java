@@ -5,8 +5,10 @@ import com.wac.autocore.dto.serviceItem.ServiceItemSummaryDto;
 import com.wac.autocore.model.ServiceItem;
 import org.springframework.stereotype.Component;
 
-@Component
+
 public final class ServiceItemMapper {
+
+    private ServiceItemMapper() {}
 
     public static ServiceItemSummaryDto toServiceItemDto(ServiceItem sI) {
         return new ServiceItemSummaryDto(

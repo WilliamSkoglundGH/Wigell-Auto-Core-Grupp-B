@@ -4,6 +4,7 @@ import com.wac.autocore.dto.booking.BookingSummaryDto;
 import com.wac.autocore.dto.mechanic.MechanicSummaryDto;
 import com.wac.autocore.dto.workorder.WorkOrderForMechanicDto;
 import com.wac.autocore.exception.BusinessException;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.model.WorkOrder;
 import com.wac.autocore.service.MechanicService;
 import javafx.beans.property.SimpleStringProperty;
@@ -157,17 +158,12 @@ public class MechanicController extends OverController {
                         mechanicService.getAllMechanics()
                 );
                 mechanicTable.setItems(mechanicData);
-            }catch (BusinessException e) {
+            } catch (BusinessException | DatabaseException e) {
                 if (messages != null) {
                     messages.showError(getString(e.getMessage()));
                 }
-            } catch (DataAccessException e) {
-                logger.error("Could not load mechanics from database. {}", e.getMessage(), e);
-                if (messages != null) {
-                    messages.showError(getString("mechanic.error.could_not_load"));
-                }
             } catch (Exception e) {
-                logger.error("Could not load mechanics from database. {}", e.getMessage(), e);
+                logger.error("Method: loadMechanicData | Could not load mechanics", e);
                 if (messages != null) {
                     messages.showError(getString("mechanic.error.could_not_load"));
                 }
@@ -177,60 +173,66 @@ public class MechanicController extends OverController {
 
     @FXML
     private void handleBookings() {
-
         if (messages != null) {
             messages.clearMessage();
         }
 
         MechanicSummaryDto selected = mechanicTable.getSelectionModel().getSelectedItem();
-
         if (selected == null) {
             messages.showError(getString("mechanic.error.select_mechanic"));
             return;
         }
 
-        // Få rätt controller-instans
-        MechanicController controller =
-                loadCenterView("/com/wac/autocore/controller/view/MechanicBookingsView.fxml");
+        try{
+            List<BookingSummaryDto> bookings = mechanicService.getBookingsForMechanic(selected.getId());
+            MechanicController controller =
+                    loadCenterView("/com/wac/autocore/controller/view/MechanicBookingsView.fxml");
 
-        // Sätt in mekanikers namn
-        controller.headerLabel.setText(getString("mechanic.bookingsFor") + ": " + selected.getName());
-
-        // Hämta bokningar
-        List<BookingSummaryDto> bookings = mechanicService.getBookingsForMechanic(selected.getId());
-
-        // Fyll tabellen i rätt controller-instans
-        controller.bookingTable.setItems(FXCollections.observableArrayList(bookings));
+            if (controller == null) {
+                return;
+            }
+            controller.headerLabel.setText(getString("mechanic.bookingsFor") + ": " + selected.getName());
+            controller.bookingTable.setItems(FXCollections.observableArrayList(bookings));
+        } catch (BusinessException | DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Method: handleBookings | Could not load bookings | MechanicId={}", selected.getId(), e);
+            messages.showError(getString("mechanic.error.could_not_load_bookings"));
+        }
     }
 
 
     @FXML
     private void handleWorkorders() {
-
         if (messages != null) {
             messages.clearMessage();
         }
 
         MechanicSummaryDto selected = mechanicTable.getSelectionModel().getSelectedItem();
-
         if (selected == null) {
             messages.showError(getString("mechanic.error.select_mechanic"));
             return;
         }
 
-        // Ladda den nya vyn och få rätt controller-instans
-        MechanicController controller =
-                loadCenterView("/com/wac/autocore/controller/view/MechanicWorkordersView.fxml");
+        try{
+            List<WorkOrderForMechanicDto> workorders =
+                    mechanicService.getWorkOrdersForMechanic(selected.getId());
 
-        // vald mekaniker
-        controller.headerLabel.setText(getString("mechanic.workordersFor") + ": " + selected.getName());
+            MechanicController controller =
+                    loadCenterView("/com/wac/autocore/controller/view/MechanicWorkordersView.fxml");
+            if (controller == null) {
+                return;
+            }
+            controller.headerLabel.setText(getString("mechanic.workordersFor") + ": " + selected.getName());
+            controller.workorderTable.setItems(FXCollections.observableArrayList(workorders));
 
-        // Hämta workorders för vald mekaniker
-        List<WorkOrderForMechanicDto> workorders =
-                mechanicService.getWorkOrdersForMechanic(selected.getId());
+        } catch (DatabaseException e) {
+            messages.showError(getString(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Method: handleWorkorders | Could not load work orders | MechanicId={}", selected.getId(), e);
+            messages.showError(getString("mechanic.error.could_not_load_workorders"));
+        }
 
-        // Fyll tabellen i rätt controller-instans
-        controller.workorderTable.setItems(FXCollections.observableArrayList(workorders));
     }
     // Backa till alla mekanikerView
     @FXML

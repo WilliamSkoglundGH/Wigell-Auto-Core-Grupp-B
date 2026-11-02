@@ -1,5 +1,6 @@
 package com.wac.autocore.service;
 
+import com.wac.autocore.controller.javafx.InvoiceController;
 import com.wac.autocore.dto.invoice.InvoiceSummaryDto;
 import com.wac.autocore.dto.invoice.InvoiceDetailsDto;
 import com.wac.autocore.dto.invoice.InvoiceCreateDto;
@@ -12,7 +13,10 @@ import com.wac.autocore.repository.WorkOrderRepository;
 import com.wac.autocore.service.discount.DiscountFactory;
 import com.wac.autocore.service.discount.DiscountStrategy;
 import com.wac.autocore.service.discount.PercentageDiscount;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +32,9 @@ public class InvoiceService {
     private final WorkOrderRepository workOrderRepository;
     private final DiscountFactory discountFactory;
 
+
+    private static final Logger logger = LoggerFactory.getLogger(InvoiceService.class);
+
     public InvoiceService(InvoiceRepository invoiceRepository,
                           WorkOrderRepository workOrderRepository,
                           DiscountFactory discountFactory) {
@@ -36,26 +43,43 @@ public class InvoiceService {
         this.discountFactory = discountFactory;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
     public List<InvoiceSummaryDto> getAllInvoices() {
-        List<Invoice> invoices = invoiceRepository.findAll();
-        List<InvoiceSummaryDto> dtoList = new ArrayList<>();
+        try {
+            List<Invoice> invoices = invoiceRepository.findAll();
+            List<InvoiceSummaryDto> dtoList = new ArrayList<>();
 
-        for (Invoice inv : invoices) {
-            dtoList.add(InvoiceMapper.toInvoiceSummaryDto(inv));
+            for (Invoice inv : invoices) {
+                dtoList.add(InvoiceMapper.toInvoiceSummaryDto(inv));
+            }
+
+            return dtoList;
+        } catch (DataAccessException e) {
+            logger.error("Method: getAllInvoices | Database error ", e);
+            throw new DatabaseException("common.error.database");
         }
-
-        return dtoList;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
     public InvoiceDetailsDto getInvoice(Long invoiceId) {
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new EntityNotFoundException("invoice.error.not_found"));
+        try {
+            Invoice invoice = invoiceRepository.findById(invoiceId)
+                    .orElseThrow(() ->
+                    {
+                        logger.error("Method: getInvoice | No invoice found | Id: {} ", invoiceId);
+                        return new EntityNotFoundException("invoice.error.not_found");
+                    });
 
-        return InvoiceMapper.toInvoiceDetailsDto(invoice);
+            return InvoiceMapper.toInvoiceDetailsDto(invoice);
+        } catch (DataAccessException e) {
+            logger.error("Method: getInvoice | Database error ", e);
+            throw new DatabaseException("common.error.database");
+        }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public InvoiceSummaryDto createInvoice(InvoiceCreateDto dto) {
 
@@ -63,13 +87,18 @@ public class InvoiceService {
         String discountCode = dto.getDiscountCode();
 
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
-                .orElseThrow(() -> new EntityNotFoundException("invoice.error.workorder_not_found"));
+                .orElseThrow(() -> {
+                    logger.error("Method: createInvoice | No workorder found | Id: {} ", workOrderId);
+                    return new EntityNotFoundException("invoice.error.workorder_not_found");
+                });
 
         if (!WorkOrderState.COMPLETED.equals(workOrder.getStatus())) {
+            logger.error("Method: createInvoice | Workorder not completed | Id: {} ", workOrderId);
             throw new WorkOrderNotReadyForInvoiceException("invoice.error.workorder_not_completed");
         }
 
         if (invoiceRepository.existsByWorkOrderId(workOrderId)) {
+            logger.error("Method: createInvoice | Invoice already exists for workorder | Id: {} ", workOrderId);
             throw new InvoiceAlreadyExistsException("invoice.error.already_exists");
         }
 
@@ -114,9 +143,10 @@ public class InvoiceService {
         try {
             invoice = invoiceRepository.save(invoice);
         } catch (DataAccessException e) {
-            throw new InvoiceCreateException("invoice.error.create_invoice");
+            logger.error("Method: createInvoice | Database error ", e);
+            throw new DatabaseException("common.error.database");
         }
-
+        logger.info("Method: createInvoice | Success | InvoiceId: {}", invoice.getId());
         return InvoiceMapper.toInvoiceSummaryDto(invoice);
     }
 }

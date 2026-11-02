@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class ServicePackageMapper {
+public final class ServicePackageMapper {
+
+    private ServicePackageMapper() {}
 
     public static ServicePackageSummaryDto toDto(ServicePackage servicePackage) {
         if (servicePackage == null) {

@@ -3,6 +3,7 @@ package com.wac.autocore.controller.javafx;
 import com.wac.autocore.dto.customer.CustomerCreateDto;
 import com.wac.autocore.dto.customer.CustomerSummaryDto;
 import com.wac.autocore.exception.BusinessException;
+import com.wac.autocore.exception.DatabaseException;
 import com.wac.autocore.service.CustomerService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -17,8 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
-import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+
+import java.util.Objects;
 
 @Controller
 @Scope("prototype")
@@ -49,10 +53,10 @@ public class CustomerController extends OverController {
     public void initialize() {
 
         if (customerTable != null) {
-            idColumn.setCellValueFactory(new PropertyValueFactory<CustomerSummaryDto, Long>("id"));
-            nameColumn.setCellValueFactory(new PropertyValueFactory<CustomerSummaryDto, String>("name"));
-            emailColumn.setCellValueFactory(new PropertyValueFactory<CustomerSummaryDto, String>("email"));
-            phoneColumn.setCellValueFactory(new PropertyValueFactory<CustomerSummaryDto, String>("phone"));
+            idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+            emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+            phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
 
             vipColumn.setCellValueFactory(cellData ->
                     new SimpleStringProperty(
@@ -83,33 +87,45 @@ public class CustomerController extends OverController {
             });
         }
     }
-
     public void loadCustomerData() {
+
         if (customerTable != null) {
+
             try {
                 ObservableList<CustomerSummaryDto> customerData =
-                        FXCollections.observableArrayList(customerService.getAllCustomers());
+                        FXCollections.observableArrayList(
+                                customerService.getAllCustomers());
                 customerTable.setItems(customerData);
 
-            } catch (BusinessException e) {
+            } catch (AuthorizationDeniedException e) {
+                    String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+                    logger.error(
+                            "Method: handleCustomerData | Authorization error : {} | User: {} ",
+                            e.getMessage(),
+                            username, e);
                 if (messages != null) {
-                    messages.showError(getString(e.getMessage()));
+                    messages.showError(
+                            getString("common.error.unauthorized"));
                 }
 
-            } catch (DataAccessException e) {
-                logger.error("Could not load customers from database. {}", e.getMessage(), e);
+            } catch (DatabaseException e) {
                 if (messages != null) {
-                    messages.showError(getString("customer.error.could_not_load"));
+                    messages.showError(
+                            getString(e.getMessage()));
                 }
-
             } catch (Exception e) {
-                logger.error("Could not load customers from database. {}", e.getMessage(), e);
+                logger.error(
+                        "Method: loadCustomerData | Unexpected",
+                        e);
+
                 if (messages != null) {
-                    messages.showError(getString("customer.error.could_not_load"));
+                    messages.showError(
+                            getString("customer.error.could_not_load"));
                 }
             }
         }
     }
+
 
     @FXML
     private void handleNewCustomer() {
@@ -125,15 +141,19 @@ public class CustomerController extends OverController {
         String name = nameField.getText();
         String phone = phoneField.getText();
         String email = emailField.getText();
-        boolean isVip = vipCheckBox != null && vipCheckBox.isSelected();
+        boolean isVip =
+                vipCheckBox != null
+                        && vipCheckBox.isSelected();
 
         if (name == null || name.trim().isEmpty()) {
-            messages.showError(getString("customer.error.enter_name"));
+            messages.showError(
+                    getString("customer.error.enter_name"));
             return;
         }
 
         if (email == null || email.trim().isEmpty()) {
-            messages.showError(getString("customer.error.enter_email"));
+            messages.showError(
+                    getString("customer.error.enter_email"));
             return;
         }
 
@@ -144,20 +164,53 @@ public class CustomerController extends OverController {
         dto.setVip(isVip);
 
         try {
-            CustomerSummaryDto newCustomer = customerService.createCustomer(dto);
+
+            CustomerSummaryDto newCustomer =
+                    customerService.createCustomer(dto);
 
             messages.showSuccess(
-                    getString("customer_success.customer_created") + newCustomer.getName()
-            );
+                    getString("customer_success.customer_created")
+                            + newCustomer.getName());
 
             navigateToCustomerView();
 
-        } catch (IllegalArgumentException e) {
-            messages.showError(getString(e.getMessage()));
+        } catch (AuthorizationDeniedException e) {
+
+            String username =
+                    Objects.requireNonNull(
+                                    SecurityContextHolder
+                                            .getContext()
+                                            .getAuthentication())
+                            .getName();
+
+            logger.error(
+                    "Method: handleSaveCustomer | Authorization error : {} | User: {}",
+                    e.getMessage(),
+                    username,
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unauthorized"));
+            }
+
+        } catch (BusinessException | DatabaseException e) {
+
+            if (messages != null) {
+                messages.showError(
+                        getString(e.getMessage()));
+            }
 
         } catch (Exception e) {
-            logger.error("Could not save customer to database. {}", e.getMessage(), e);
-            messages.showError(getString("customer.error.create_customer"));
+
+            logger.error(
+                    "Method: handleSaveCustomer | Unexpected",
+                    e);
+
+            if (messages != null) {
+                messages.showError(
+                        getString("common.error.unexpected"));
+            }
         }
     }
 
